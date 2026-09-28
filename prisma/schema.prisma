@@ -41,6 +41,7 @@ model LoginAttempt {
   windowStart DateTime @default(now())
 }
 model Material {
+  products Product[]
   id String @id @default(cuid())
   name String
   technology Technology
@@ -51,6 +52,7 @@ model Material {
   updatedAt DateTime @updatedAt
 }
 model Printer {
+  products Product[]
   id String @id @default(cuid())
   name String
   technology Technology
@@ -76,4 +78,28 @@ model CalculationSettings {
   updatedAt DateTime @updatedAt
   updatedById String
   updatedBy User @relation(fields: [updatedById], references: [id])
+}
+model Product {
+  id String @id @default(cuid())
+  name String
+  description String
+  paymentTerms String
+  active Boolean @default(true)
+  calculation Json
+  price Decimal @db.Decimal(18, 2)
+  materialId String?
+  material Material? @relation(fields: [materialId], references: [id], onDelete: SetNull)
+  printerId String?
+  printer Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  image ProductImage?
+  @@index([active, name])
+}
+model ProductImage {
+  productId String @id
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bytes Bytes
+  mimeType String
 }
