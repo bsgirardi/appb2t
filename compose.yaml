@@ -1,0 +1,74 @@
+name: b2t-calculadora
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: b2t
+      POSTGRES_USER: b2t
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U b2t -d b2t"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [backend]
+  migrate:
+    build:
+      context: .
+      target: tools
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+      APP_URL: ${APP_URL:-http://localhost:3000}
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks: [backend, web]
+  admin:
+    profiles: [tools]
+    build:
+      context: .
+      target: tools
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+    command: ["npm", "run", "admin:create"]
+    stdin_open: true
+    tty: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [backend]
+volumes:
+  postgres_data:
+networks:
+  backend:
+    internal: true
+  web:

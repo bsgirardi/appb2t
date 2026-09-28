@@ -1,13 +1,144 @@
-'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, type ReactNode } from 'react';
-import { Box, Calculator, Settings2, LogOut, ShieldCheck, ArrowUpRight, UserRound } from 'lucide-react';
-import type { Actor } from '@/server/auth/session';
-import { api } from '@/lib/client-api';
-export function Brand(){return <div className="brand"><span className="brand-icon"><Box size={25} strokeWidth={1.7}/></span><span>B2T<span className="brand-sub">PRINT STUDIO</span></span></div>;}
-export function AppShell({actor,children}:{actor:Actor;children:ReactNode}){
-  const path=usePathname(),[error,setError]=useState('');
-  async function exit(){try{await api('/api/auth/logout',{});window.location.assign('/login');}catch(e){setError((e as Error).message);}}
-  return <div className="app-shell"><aside className="sidebar"><Link href="/calculadora" aria-label="B2T início"><Brand/></Link><div className="workspace-badge"><span className="dot"/> Ambiente da equipe <ShieldCheck size={14}/></div><div className="nav-title">ÁREA DE TRABALHO</div><nav aria-label="Menu principal"><Link className={path==='/calculadora'?'nav-item active':'nav-item'} href="/calculadora"><Calculator size={19}/>Calculadora<span className="nav-marker"/></Link>{actor.role==='ADMIN'&&<Link className={path.startsWith('/configuracoes')?'nav-item active':'nav-item'} href="/configuracoes"><Settings2 size={19}/>Configurações</Link>}<Link className={path==='/conta'?'nav-item active':'nav-item'} href="/conta"><UserRound size={19}/>Minha conta</Link></nav><div className="sidebar-bottom"><div className="internal-note"><ShieldCheck size={19}/><div><strong>Seu espaço de produção</strong><p>Dados compartilhados.<br/>Acesso seguro para sua equipe.</p></div></div><div className="profile"><span className="avatar">{actor.name.slice(0,2).toUpperCase()}</span><div><strong>{actor.name}</strong><small>{actor.role==='ADMIN'?'Administrador':'Operador'}</small></div><button className="icon-button" aria-label="Sair da conta" onClick={exit}><LogOut size={17}/></button></div>{error&&<p role="alert">{error}</p>}</div></aside><div className="workspace"><header className="topbar"><span>Workspace <span className="slash">/</span> <strong>{path.startsWith('/configuracoes')?'Configurações':path==='/conta'?'Minha conta':'Calculadora de custos'}</strong></span><span className="internal-chip"><span className="dot"/> Uso interno <ArrowUpRight size={13}/></span></header><main>{children}</main><footer className="workspace-footer"><span>B2T · Precisão em cada camada.</span><span>Valores em BRL · Português (Brasil)</span></footer></div></div>;
+"use client";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, type ReactNode } from "react";
+import {
+  Box,
+  Calculator,
+  Settings2,
+  LogOut,
+  ShieldCheck,
+  ArrowUpRight,
+  UserRound,
+} from "lucide-react";
+import type { Actor } from "@/server/auth/session";
+import { api } from "@/lib/client-api";
+export function Brand() {
+  return (
+    <div className="brand">
+      <span className="brand-icon">
+        <Box size={25} strokeWidth={1.7} />
+      </span>
+      <span>
+        B2T<span className="brand-sub">PRINT STUDIO</span>
+      </span>
+    </div>
+  );
+}
+export function AppShell({
+  actor,
+  children,
+}: {
+  actor: Actor;
+  children: ReactNode;
+}) {
+  const router = useRouter(),
+    path = usePathname(),
+    [error, setError] = useState("");
+  async function exit() {
+    try {
+      await api("/api/auth/logout", {});
+      router.replace("/login");
+      router.refresh();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <Link href="/calculadora" aria-label="B2T início">
+          <Brand />
+        </Link>
+        <div className="workspace-badge">
+          <span className="dot" /> Ambiente da equipe <ShieldCheck size={14} />
+        </div>
+        <div className="nav-title">ÁREA DE TRABALHO</div>
+        <nav aria-label="Menu principal">
+          <Link
+            className={path === "/calculadora" ? "nav-item active" : "nav-item"}
+            href="/calculadora"
+          >
+            <Calculator size={19} />
+            Calculadora
+            <span className="nav-marker" />
+          </Link>
+          {actor.role === "ADMIN" && (
+            <Link
+              className={
+                path.startsWith("/configuracoes")
+                  ? "nav-item active"
+                  : "nav-item"
+              }
+              href="/configuracoes"
+            >
+              <Settings2 size={19} />
+              Configurações
+            </Link>
+          )}
+          <Link
+            className={path === "/conta" ? "nav-item active" : "nav-item"}
+            href="/conta"
+          >
+            <UserRound size={19} />
+            Minha conta
+          </Link>
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="internal-note">
+            <ShieldCheck size={19} />
+            <div>
+              <strong>Seu espaço de produção</strong>
+              <p>
+                Dados compartilhados.
+                <br />
+                Acesso seguro para sua equipe.
+              </p>
+            </div>
+          </div>
+          <div className="profile">
+            <span className="avatar">
+              {actor.name.slice(0, 2).toUpperCase()}
+            </span>
+            <div>
+              <strong>{actor.name}</strong>
+              <small>
+                {actor.role === "ADMIN" ? "Administrador" : "Operador"}
+              </small>
+            </div>
+            <button
+              className="icon-button"
+              aria-label="Sair da conta"
+              onClick={exit}
+            >
+              <LogOut size={17} />
+            </button>
+          </div>
+          {error && <p role="alert">{error}</p>}
+        </div>
+      </aside>
+      <div className="workspace">
+        <header className="topbar">
+          <span>
+            Workspace <span className="slash">/</span>{" "}
+            <strong>
+              {path.startsWith("/configuracoes")
+                ? "Configurações"
+                : path === "/conta"
+                  ? "Minha conta"
+                  : "Calculadora de custos"}
+            </strong>
+          </span>
+          <span className="internal-chip">
+            <span className="dot" /> Uso interno <ArrowUpRight size={13} />
+          </span>
+        </header>
+        <main>{children}</main>
+        <footer className="workspace-footer">
+          <span>B2T · Precisão em cada camada.</span>
+          <span>Valores em BRL · Português (Brasil)</span>
+        </footer>
+      </div>
+    </div>
+  );
 }

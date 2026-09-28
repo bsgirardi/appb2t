@@ -1,10 +1,110 @@
-'use client';
-import { useState, type FormEvent } from 'react';
-import { ArrowRight, LockKeyhole } from 'lucide-react';
-import { api } from '@/lib/client-api';
-import { Field,Notice } from './ui/field';
-export function AuthForm({mode='login'}:{mode?:'login'|'password'}){
-  const [error,setError]=useState(''),[pending,setPending]=useState(false);
-  async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);setPending(true);setError('');try{if(mode==='login'){await api('/api/auth/login',{email:form.get('email'),password:form.get('password')});window.location.assign('/calculadora');}else{if(form.get('next')!==form.get('confirm'))throw new Error('As senhas não coincidem.');await api('/api/account/password',{current:form.get('current'),next:form.get('next')});window.location.assign('/login?changed=1');}}catch(e){setError((e as Error).message);setPending(false);}}
-  return <form onSubmit={submit} className="auth-form">{mode==='login'?<><Field label="E-mail" name="email" type="email" autoComplete="username" placeholder="voce@empresa.com.br" required maxLength={254}/><Field label="Senha" name="password" type="password" autoComplete="current-password" placeholder="Sua senha" required maxLength={128}/></>:<><Field label="Senha atual" name="current" type="password" autoComplete="current-password" required maxLength={128}/><Field label="Nova senha" name="next" type="password" autoComplete="new-password" required minLength={12} maxLength={128} hint="Use entre 12 e 128 caracteres."/><Field label="Repita a nova senha" name="confirm" type="password" autoComplete="new-password" required minLength={12} maxLength={128}/></>}{error&&<Notice>{error}</Notice>}<button className="button primary full-width" disabled={pending}>{pending?'Aguarde…':mode==='login'?'Entrar no workspace':'Atualizar senha'}<ArrowRight size={17}/></button><p className="secure-note"><LockKeyhole size={13}/>{mode==='login'?'Acesso exclusivo para pessoas autorizadas.':'Você precisará entrar novamente em todos os dispositivos.'}</p></form>;
+"use client";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, LockKeyhole } from "lucide-react";
+import { api } from "@/lib/client-api";
+import { Field, Notice } from "./ui/field";
+export function AuthForm({ mode = "login" }: { mode?: "login" | "password" }) {
+  const router = useRouter(),
+    [error, setError] = useState(""),
+    [pending, setPending] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setPending(true);
+    setError("");
+    try {
+      if (mode === "login") {
+        await api("/api/auth/login", {
+          email: form.get("email"),
+          password: form.get("password"),
+        });
+        router.replace("/calculadora");
+        router.refresh();
+      } else {
+        if (form.get("next") !== form.get("confirm"))
+          throw new Error("As senhas não coincidem.");
+        await api("/api/account/password", {
+          current: form.get("current"),
+          next: form.get("next"),
+        });
+        router.replace("/login?changed=1");
+        router.refresh();
+      }
+    } catch (e) {
+      setError((e as Error).message);
+      setPending(false);
+    }
+  }
+  return (
+    <form onSubmit={submit} className="auth-form">
+      {mode === "login" ? (
+        <>
+          <Field
+            label="E-mail"
+            name="email"
+            type="email"
+            autoComplete="username"
+            placeholder="voce@empresa.com.br"
+            required
+            maxLength={254}
+          />
+          <Field
+            label="Senha"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Sua senha"
+            required
+            maxLength={128}
+          />
+        </>
+      ) : (
+        <>
+          <Field
+            label="Senha atual"
+            name="current"
+            type="password"
+            autoComplete="current-password"
+            required
+            maxLength={128}
+          />
+          <Field
+            label="Nova senha"
+            name="next"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={12}
+            maxLength={128}
+            hint="Use entre 12 e 128 caracteres."
+          />
+          <Field
+            label="Repita a nova senha"
+            name="confirm"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={12}
+            maxLength={128}
+          />
+        </>
+      )}
+      {error && <Notice>{error}</Notice>}
+      <button className="button primary full-width" disabled={pending}>
+        {pending
+          ? "Aguarde…"
+          : mode === "login"
+            ? "Entrar no workspace"
+            : "Atualizar senha"}
+        <ArrowRight size={17} />
+      </button>
+      <p className="secure-note">
+        <LockKeyhole size={13} />
+        {mode === "login"
+          ? "Acesso exclusivo para pessoas autorizadas."
+          : "Você precisará entrar novamente em todos os dispositivos."}
+      </p>
+    </form>
+  );
 }
