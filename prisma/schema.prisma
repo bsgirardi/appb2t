@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+  ADMIN
+  OPERATOR
+}
+enum Technology {
+  FDM
+  RESIN
+}
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  passwordHash String
+  role Role @default(OPERATOR)
+  active Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions Session[]
+  settings CalculationSettings[]
+}
+model Session {
+  tokenHash String @id
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  @@index([userId])
+  @@index([expiresAt])
+}
+model LoginAttempt {
+  key String @id
+  attempts Int @default(0)
+  windowStart DateTime @default(now())
+}
+model Material {
+  id String @id @default(cuid())
+  name String
+  technology Technology
+  price Decimal @db.Decimal(18, 6)
+  active Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Printer {
+  id String @id @default(cuid())
+  name String
+  technology Technology
+  acquisitionCost Decimal @db.Decimal(18, 6)
+  amortizationMonths Int
+  daysPerMonth Int
+  hoursPerDay Decimal @db.Decimal(18, 6)
+  watts Decimal @db.Decimal(18, 6)
+  active Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model CalculationSettings {
+  id Int @id @default(1)
+  energyRate Decimal @db.Decimal(18, 6)
+  maintenancePercent Decimal @db.Decimal(18, 6)
+  failurePercent Decimal @db.Decimal(18, 6)
+  finishingPercent Decimal @db.Decimal(18, 6)
+  fixation Decimal @db.Decimal(18, 6)
+  markupPercent Decimal @db.Decimal(18, 6)
+  version Int @default(1)
+  updatedAt DateTime @updatedAt
+  updatedById String
+  updatedBy User @relation(fields: [updatedById], references: [id])
+}
