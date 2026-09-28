@@ -1,17 +1,30 @@
 # B2T · Calculadora de impressão 3D
 
-Ferramenta interna para precificação de filamento e resina, com PostgreSQL centralizado, contas individuais e configurações exclusivas de administradores. Interface responsiva em português, valores em reais e motor decimal independente para futura integração com catálogo.
+Ferramenta de precificação de filamento e resina com catálogo público de produtos, PostgreSQL centralizado, contas individuais e configurações exclusivas de administradores. Interface responsiva em português, valores em reais e motor decimal compartilhado entre calculadora e catálogo.
 
 ## O que está incluído
 
 - Calculadora de material, energia, máquina, manutenção, falhas, acabamento, fixação e lucro.
 - Painel separado de materiais, impressoras, custos/taxas e equipe.
+- Portfólio público com foto, descrição, preço e formas de pagamento; painel de produtos para administradores e operadores.
 - Administrador cria contas e configura a operação. Operador consulta os parâmetros e calcula.
 - Senhas com scrypt e salt; cookies HttpOnly; sessões revogadas na troca de senha e desativação.
 - Gravação com versão para evitar sobrescrita entre administradores.
 - Next.js / TypeScript / Prisma / PostgreSQL, Dockerfile com múltiplos estágios e Docker Compose.
 
-O catálogo de produtos é uma próxima etapa. Nenhuma conta ou tarifa de demonstração é criada automaticamente na instalação.
+Nenhuma conta, produto ou tarifa de demonstração é criada automaticamente na instalação.
+
+## Portfólio e produtos
+
+- `/portfolio`: catálogo público, sem login, com somente produtos ativos. Custos e margens não são expostos.
+- `/produtos`: painel protegido; ADMIN e OPERATOR podem criar, editar, inativar e reativar qualquer produto da equipe. Cadastro de usuários e configurações globais continuam exclusivos de ADMIN.
+- **Novo produto**: informe nome, descrição, foto e condições de pagamento. Selecione material e impressora, informe consumo/tempo e ajuste os custos necessários. Todos os campos da calculadora estão disponíveis por produto.
+- **Salvar produto** publica o preço calculado e validado pelo servidor. Alterar valores globais não reajusta produtos já salvos. **Carregar configurações atuais** atualiza somente o rascunho; revise e salve para publicar. Referências inativas não impedem editar os valores previamente salvos.
+- **Inativar** retira o produto do catálogo sem excluir seu registro. **Reativar** restaura a publicação. Em conflito de edição, preserve seu texto, volte à lista, use **Atualizar lista** e abra novamente a versão atual do produto.
+
+Fotos: JPEG, PNG ou WebP estático, até 5 MiB e 40 milhões de pixels. O servidor normaliza para WebP de até 1600 pixels por dimensão. Produto e foto são gravados juntos, e ambos são incluídos no backup PostgreSQL existente; não há diretório de uploads ou serviço externo a configurar. O proxy HTTP deve aceitar requisições multipart de até 6 MiB. As condições de pagamento são texto informativo; não há cobrança nem cálculo de parcelas.
+
+Ao atualizar uma instalação existente, aplique a migração `202609280002_products` antes de servir a nova versão. No Compose, o serviço `migrate` já executa esse passo. Fora do Compose, com `DATABASE_URL` apontando ao banco correto, execute `npm run db:migrate` e depois faça o build/inicie a aplicação. A migração adiciona tabelas sem remover os cadastros existentes.
 
 ## Executar com Docker
 

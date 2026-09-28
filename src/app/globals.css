@@ -1209,8 +1209,10 @@ td small {
   }
   .sidebar nav {
     display: flex;
+    flex-wrap: wrap;
+    width: 100%;
     gap: 3px;
-    margin-left: auto;
+    margin-left: 0;
   }
   .nav-item {
     font-size: 10px;

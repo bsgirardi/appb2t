@@ -13,6 +13,86 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+it("uploads selected photo with the draft and preserves it after server error", async () => {
+  const createURL = vi.fn(() => "blob:test-photo"),
+    revokeURL = vi.fn();
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    value: createURL,
+  });
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    value: revokeURL,
+  });
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: { code: "VALIDATION", message: "Foto inválida" },
+        }),
+        { status: 422 },
+      ),
+    );
+  const view = render(
+    <ProductForm
+      product={productDTO}
+      data={calculatorData}
+      role="OPERATOR"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  const file = new File(["photo bytes"], "piece.png", { type: "image/png" });
+  fireEvent.change(screen.getByLabelText("Foto do produto"), {
+    target: { files: [file] },
+  });
+  expect(
+    screen.getByAltText("Prévia da foto do produto").getAttribute("src"),
+  ).toBe("blob:test-photo");
+  fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
+  await screen.findByText("Foto inválida");
+  const body = fetch.mock.calls[0][1]?.body as FormData;
+  expect(body.get("photo")).toBe(file);
+  expect(JSON.parse(body.get("data") as string).expectedVersion).toBe(1);
+  expect(
+    screen.getByAltText("Prévia da foto do produto").getAttribute("src"),
+  ).toBe("blob:test-photo");
+  view.unmount();
+  expect(revokeURL).toHaveBeenCalledWith("blob:test-photo");
+});
+it("applies updated rates to preview without a product write", async () => {
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            ...calculatorData,
+            settings: { ...calculatorData.settings, markupPercent: "0" },
+          },
+        }),
+      ),
+    );
+  render(
+    <ProductForm
+      product={productDTO}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Carregar configurações atuais" }),
+  );
+  await screen.findByText(/Configurações carregadas no rascunho/);
+  expect(
+    screen.getByText("R$ 16,06", { selector: ".sale-price" }),
+  ).toBeTruthy();
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][1]?.method).toBe("GET");
+});
 it("edits saved calculator fields and recalculates price", () => {
   render(
     <ProductForm

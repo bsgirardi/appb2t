@@ -30,3 +30,26 @@ O projeto está preparado para instalação. Domínio, HTTPS e publicação exte
 5. Corrigir a tradução das mensagens de validação junto com o problema de espaços no tempo, porque o idioma português faz parte dos requisitos aprovados.
 
 As decisões não alteram as fórmulas nem o escopo aprovado. Commits permanecem locais; nenhum remoto ou serviço externo foi publicado.
+
+## Portfólio e produtos — 28/09/2026
+
+Implementados `/portfolio` público e `/produtos` protegido, com fotos, descrição, preço, condições de pagamento, inativação/reativação e edição de todos os parâmetros da calculadora por produto. A migração `202609280002_products` foi aplicada aos bancos locais isolados `b2t_test` e `b2t_preview`; não foi aplicada a uma instalação de produção.
+
+Verificações realizadas nesta etapa:
+
+- Suíte completa: **84 testes aprovados em 18 arquivos**, incluindo PostgreSQL real.
+- Testes de domínio, imagem e formulário criados antes da implementação dos respectivos módulos; falhas iniciais por módulo ausente e aprovação posterior observadas.
+- Fluxo integrado usando os Route Handlers reais: upload multipart, normalização WebP, cálculo no servidor, edição preservando foto, inativação, foto privada de produto inativo, permissão de operador e recusa de sessão de usuário desativado. Somente o contexto de cookies do Next é substituído nesse teste; sessão, banco e serviços são reais.
+- Projeção pública sem parâmetros internos; snapshot preservado após alterações globais e referências inativas; conflito concorrente preservando texto e foto atomicamente.
+- Interface automatizada: edição de custos e prévia de preço, atualização de configurações apenas no rascunho, upload com prévia, preservação de dados em erros e inativação/reativação com versão atual.
+- TypeScript, ESLint e `git diff --check` aprovados.
+- Build de produção Next.js aprovado com as novas rotas dinâmicas.
+- Revisão independente do código não encontrou problemas materiais. A navegação móvel foi ajustada para permitir quebra de linha com os novos itens.
+
+Limitações desta etapa:
+
+- A inicialização do servidor de prévia foi recusada pela revisão automática da ferramenta de execução, com a mensagem `blocked by policy` e sem justificativa adicional. A inspeção visual no navegador em 1440px/390px e o fluxo manual completo não foram executados. Os testes de componentes não substituem essa inspeção visual.
+- Docker Desktop retornou erro 500 ao consultar o engine Linux. Build e execução dos contêineres não foram confirmados. Os testes usam PostgreSQL 18.4 local, enquanto o Compose de implantação usa PostgreSQL 17.
+- Persistência foi exercitada em transações reais; reinício completo do banco/aplicação e restauração de backup não foram repetidos nesta etapa.
+
+Decisões de execução: continuar no checkout e branch existentes `feat/calculadora`, mantendo a integração local; registrar progresso com ferramentas nativas do Windows em vez dos auxiliares Bash; reutilizar PostgreSQL de teste isolado diante da indisponibilidade do Docker. O custo dessas escolhas é não haver isolamento adicional de checkout e permanecer pendente a verificação específica dos contêineres. Não houve push, merge ou publicação externa.
