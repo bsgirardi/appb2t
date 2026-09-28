@@ -77,6 +77,19 @@ export function AppShell({
             </Link>
           )}
           <Link
+            className={
+              path.startsWith("/produtos") ? "nav-item active" : "nav-item"
+            }
+            href="/produtos"
+          >
+            <Box size={19} />
+            Produtos
+          </Link>
+          <Link className="nav-item" href="/portfolio">
+            <ArrowUpRight size={19} />
+            Portfólio público
+          </Link>
+          <Link
             className={path === "/conta" ? "nav-item active" : "nav-item"}
             href="/conta"
           >
@@ -124,9 +137,11 @@ export function AppShell({
             <strong>
               {path.startsWith("/configuracoes")
                 ? "Configurações"
-                : path === "/conta"
-                  ? "Minha conta"
-                  : "Calculadora de custos"}
+                : path.startsWith("/produtos")
+                  ? "Produtos"
+                  : path === "/conta"
+                    ? "Minha conta"
+                    : "Calculadora de custos"}
             </strong>
           </span>
           <span className="internal-chip">
