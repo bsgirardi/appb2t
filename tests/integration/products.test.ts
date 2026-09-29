@@ -21,7 +21,7 @@ it.each(["ADMIN", "OPERATOR"] as const)(
   async (role) => {
     const actor = await seedUser(role);
     const product = await createProduct(actor, productInput, image);
-    expect(product.price).toBe("48.19");
+    expect(product.price).toBe("75.00");
     const publicProducts = await listPublicProducts();
     expect(Object.keys(publicProducts[0]).sort()).toEqual(
       ["id", "name", "description", "paymentTerms", "price", "imageUrl"].sort(),
@@ -65,14 +65,15 @@ it("keeps snapshots independent of global changes and inactive references", asyn
     where: { id: material.id },
     data: { active: false, price: "500" },
   });
-  expect((await getProduct(actor, product.id)).price).toBe("48.19");
+  expect((await getProduct(actor, product.id)).price).toBe("75.00");
   const updated = await updateProduct(actor, product.id, {
     ...productInput,
     materialId: material.id,
     name: "Novo nome",
+    calculation: { ...productInput.calculation, materialPrice: "400" },
     expectedVersion: 1,
   });
-  expect(updated.price).toBe("48.19");
+  expect(updated.price).toBe("75.00");
 });
 it("rolls back stale concurrent text and image writes together", async () => {
   const actor = await seedUser();
@@ -96,7 +97,7 @@ it("rolls back stale concurrent text and image writes together", async () => {
     Number(current.name.slice(-1)),
   );
 });
-it("rejects missing photo, incompatible reference and client price", async () => {
+it("rejects missing photo, incompatible reference and invalid final price", async () => {
   const actor = await seedUser();
   const material = await db.material.create({
     data: { name: "Resina", technology: "RESIN", price: "100" },
@@ -105,7 +106,7 @@ it("rejects missing photo, incompatible reference and client price", async () =>
     createProduct(actor, { ...productInput, materialId: material.id }, image),
   ).rejects.toMatchObject({ code: "VALIDATION" });
   await expect(
-    createProduct(actor, { ...productInput, price: "0.01" }, image),
+    createProduct(actor, { ...productInput, price: "0" }, image),
   ).rejects.toThrow();
   await expect(
     createProduct(actor, productInput, undefined as never),

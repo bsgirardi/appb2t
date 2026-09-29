@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-29-catalogo-aparencia-design.md` e regras de `2026-09-29-gestao-interna-index.md`, no mesmo diretório.
 
-**Execução:** direta nesta conversa, conforme escolha já aprovada. Este plano aguarda revisão escrita; não muda essa escolha.
+**Execução:** direta nesta conversa, conforme escolha já aprovada. Plano aprovado em 29/09/2026.
 
 ## Global Constraints
 
@@ -38,7 +38,7 @@
 
 Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/products/{types,validation}.ts`, `src/server/products.ts`, `src/lib/{product-request,product-client}.ts` e componentes em `src/components/products`. Criar domínios/serviços de coleções e aparência. Isolar a marca em `src/components/shell/brand.tsx`, retirando sua implementação de `app-shell.tsx` para reaproveitar no catálogo, login e impressão futura.
 
-### Tarefa 1: Separar preço final da sugestão
+### Task 1: Separar preço final da sugestão
 
 **Arquivos:** alterar os arquivos de domínio/serviço de produtos, `product-form.tsx`, `cost-breakdown.tsx`, `tests/fixtures/product.ts`, `tests/unit/{products,product-form}.test.*`, `tests/integration/{products,product-http}.test.ts`.
 
@@ -50,7 +50,7 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 - [ ] Testar `expect(saved.price).toBe("75.00")` após recarregar custos; clicar em “Usar preço sugerido” muda o campo, mas não chama fetch de gravação. Reexecutar os testes e confirmar aprovação.
 - [ ] Commit: `feat: separar preco final da sugestao de custos`.
 
-### Tarefa 2: Galeria atômica e carrossel acessível
+### Task 2: Galeria atômica e carrossel acessível
 
 **Arquivos:** alterar `prisma/schema.prisma`, `src/server/{products,product-images}.ts`, `src/lib/{product-request,product-client}.ts`, rotas atuais de produtos, `src/domain/products/types.ts`, `product-form.tsx`, `product-catalog.tsx`; criar migração `202609290001_product_gallery`, `src/components/products/{product-gallery-editor,product-carousel}.tsx`, `src/app/api/products/[id]/images/[imageId]/route.ts`, `tests/integration/product-gallery.test.ts`, `tests/unit/{product-gallery,product-carousel}.test.tsx`; ampliar testes de multipart/imagem existentes.
 
@@ -63,7 +63,7 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 - [ ] Testar `expect(await imageCount(product.id)).toBe(2)` e ordem/capa após salvar; conflito com nova foto deixa bytes antigos. Em UI, verificar que dois cliques em Próxima mudam posição sem salvar e que teclado/toque não acionam navegação global. Reexecutar testes; atualizar testes anteriores para o novo contrato e confirmar aprovação.
 - [ ] Commit: `feat: adicionar galeria e carrossel de produtos`.
 
-### Tarefa 3: Coleções e associações concorrentes
+### Task 3: Coleções e associações concorrentes
 
 **Arquivos:** criar `src/domain/collections/{types,validation}.ts`, `src/server/{collections,catalog-memberships}.ts`, `src/components/collections/{collection-panel,collection-form}.tsx`, `src/app/(private)/colecoes/page.tsx`, `src/app/api/collections/route.ts`, `src/app/api/collections/[id]/route.ts`, `src/app/api/collections/[id]/image/route.ts`, `tests/integration/collections.test.ts`, `tests/unit/collections-ui.test.tsx`; alterar produto, catálogo, navegação, esquema e criar migração `202609290002_collections`.
 
@@ -76,7 +76,7 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 - [ ] Verificar `expect(allProducts).toHaveLength(3)` e coleção filtrada com apenas seus ativos; imagem de coleção inativa exige sessão. Reexecutar os testes, os de produtos e typecheck.
 - [ ] Commit: `feat: organizar produtos em colecoes`.
 
-### Tarefa 4: Identidade visual administrável
+### Task 4: Identidade visual administrável
 
 **Arquivos:** criar `src/domain/appearance/{types,validation,colors}.ts`, `src/server/appearance.ts`, `src/components/settings/appearance-panel.tsx`, `src/components/shell/brand.tsx`, `src/app/(private)/configuracoes/aparencia/page.tsx`, `src/app/api/appearance/route.ts`, `src/app/api/appearance/logo/route.ts`, `tests/unit/appearance.test.ts`, `tests/integration/appearance.test.ts`, `tests/unit/appearance-ui.test.tsx`; alterar shell/login/catálogo/layout, esquema e criar migração `202609290003_appearance`.
 
@@ -89,7 +89,7 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 - [ ] Reexecutar testes e confirmar que mudanças de rascunho não chegam ao DTO público até salvar. Testar logo transparente em fundo claro/escuro.
 - [ ] Commit: `feat: configurar identidade visual da empresa`.
 
-### Tarefa 5: Revisão visual e tema automático
+### Task 5: Revisão visual e tema automático
 
 **Arquivos:** alterar `src/app/globals.css`, layout, shell e componentes de calculadora/settings/produtos/coleções/aparência; criar `src/app/theme.css`, `tests/unit/theme.test.tsx`; atualizar testes de componentes afetados.
 
@@ -101,7 +101,7 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 - [ ] Verificar 1440px/390px, temas claro/escuro e primeiro carregamento; contraste de textos normais ≥4,5:1, foco visível, menus acessíveis e ausência de overflow inesperado. Executar `npm run test:unit`, typecheck e lint. Se emulação não estiver disponível, documentar o limite e validar a variante CSS em teste isolado, sem afirmar verificação manual inexistente.
 - [ ] Commit: `style: melhorar legibilidade e aplicar tema automatico`.
 
-### Tarefa 6: Migração e validação integrada
+### Task 6: Migração e validação integrada
 
 **Arquivos:** atualizar `README.md`, `docs/VALIDACAO.md`, fixtures/setup de testes e este plano.
 
@@ -114,3 +114,4 @@ Preservar `src/domain/calculation` como única fórmula. Evoluir `src/domain/pro
 ## Revisão do plano
 
 Cobertura: preço (1), galerias/migração (2), coleções/concorrência (3), identidade/permissões (4), legibilidade/tema (5), operação (6). Contratos de mídia e preço usados pelas tarefas posteriores estão definidos acima. Rotas públicas continuam restritas a apresentação. Próxima entrega consome Product.price e CompanyIdentityDTO, sem depender de componentes visuais.
+

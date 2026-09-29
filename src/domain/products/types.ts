@@ -1,5 +1,6 @@
 import type { CalculationInput } from "@/domain/calculation/types";
 export interface ProductInput {
+  price: string;
   name: string;
   description: string;
   paymentTerms: string;

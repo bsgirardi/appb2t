@@ -5,8 +5,19 @@ import { calculate } from "@/domain/calculation/calculate";
 import type { CalculationInput } from "@/domain/calculation/types";
 import { AppError } from "@/lib/errors";
 import type { ProductInput } from "./types";
+const finalPriceSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{1,16}([.,]\d{1,2})?$/)
+  .transform((value) => value.replace(",", "."))
+  .refine((value) => new Decimal(value).gt(0), "Informe um preço positivo.")
+  .transform((value) => new Decimal(value).toFixed(2));
+export function parseFinalPrice(raw: string): string {
+  return finalPriceSchema.parse(raw);
+}
 export const productSchema = z
   .object({
+    price: finalPriceSchema,
     name: z.string().trim().min(2).max(120),
     description: z.string().trim().min(1).max(5000),
     paymentTerms: z.string().trim().min(1).max(1000),
@@ -25,7 +36,7 @@ export const productStateSchema = z
 export function validateProduct(input: unknown): ProductInput {
   return productSchema.parse(input);
 }
-export function productPrice(calculation: CalculationInput): string {
+export function suggestedProductPrice(calculation: CalculationInput): string {
   const price = new Decimal(calculate(calculation).sale).toDecimalPlaces(
     2,
     Decimal.ROUND_HALF_UP,

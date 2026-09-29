@@ -2,7 +2,6 @@ import { Prisma, type Product } from "@prisma/client";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import {
-  productPrice,
   validateProduct,
   updateProductSchema,
   productStateSchema,
@@ -79,7 +78,7 @@ function dataFor(input: ProductInput) {
     materialId: input.materialId ?? null,
     printerId: input.printerId ?? null,
     calculation: input.calculation as unknown as Prisma.InputJsonValue,
-    price: productPrice(input.calculation),
+    price: input.price,
   };
 }
 export async function createProduct(

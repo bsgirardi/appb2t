@@ -21,6 +21,7 @@ export const calculation = {
   },
 };
 export const productInput = {
+  price: "75.00",
   name: "Vaso geométrico",
   description: "Peça impressa em PLA.",
   paymentTerms: "Pix ou cartão",

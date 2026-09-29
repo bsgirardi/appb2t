@@ -24,16 +24,14 @@ it("uploads selected photo with the draft and preserves it after server error", 
     configurable: true,
     value: revokeURL,
   });
-  const fetch = vi
-    .spyOn(globalThis, "fetch")
-    .mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          error: { code: "VALIDATION", message: "Foto inválida" },
-        }),
-        { status: 422 },
-      ),
-    );
+  const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        error: { code: "VALIDATION", message: "Foto inválida" },
+      }),
+      { status: 422 },
+    ),
+  );
   const view = render(
     <ProductForm
       product={productDTO}
@@ -62,18 +60,16 @@ it("uploads selected photo with the draft and preserves it after server error", 
   expect(revokeURL).toHaveBeenCalledWith("blob:test-photo");
 });
 it("applies updated rates to preview without a product write", async () => {
-  const fetch = vi
-    .spyOn(globalThis, "fetch")
-    .mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          data: {
-            ...calculatorData,
-            settings: { ...calculatorData.settings, markupPercent: "0" },
-          },
-        }),
-      ),
-    );
+  const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        data: {
+          ...calculatorData,
+          settings: { ...calculatorData.settings, markupPercent: "0" },
+        },
+      }),
+    ),
+  );
   render(
     <ProductForm
       product={productDTO}
@@ -215,4 +211,28 @@ it("copies compatible selections and reports missing setup", () => {
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
+});
+it("preserves negotiated price through recalculation and copies suggestion only on demand", () => {
+  const fetch = vi.spyOn(globalThis, "fetch");
+  render(
+    <ProductForm
+      product={{ ...productDTO, price: "75.00" }}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  const price = screen.getByLabelText(
+    "Preço final de venda",
+  ) as HTMLInputElement;
+  fireEvent.change(screen.getByLabelText("Acréscimo sobre o custo"), {
+    target: { value: "0" },
+  });
+  expect(price.value).toBe("75.00");
+  fireEvent.click(screen.getByRole("button", { name: "Usar preço sugerido" }));
+  expect(price.value).toBe("16.06");
+  expect(fetch).not.toHaveBeenCalled();
+  fireEvent.change(price, { target: { value: "1" } });
+  expect(screen.getByText(/abaixo do custo/)).toBeTruthy();
 });

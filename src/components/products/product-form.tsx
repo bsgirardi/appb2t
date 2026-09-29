@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import Decimal from "decimal.js";
 import Image from "next/image";
 import Link from "next/link";
 import { RefreshCw, Save, ArrowLeft } from "lucide-react";
@@ -10,8 +11,12 @@ import type {
   Technology,
 } from "@/domain/calculation/types";
 import type { ProductDTO, ProductInput } from "@/domain/products/types";
-import { productSchema } from "@/domain/products/validation";
-import { calculate } from "@/domain/calculation/calculate";
+import {
+  productSchema,
+  parseFinalPrice,
+  suggestedProductPrice,
+} from "@/domain/products/validation";
+import { calculate, formatBRL } from "@/domain/calculation/calculate";
 import { api } from "@/lib/client-api";
 import { saveProductRequest } from "@/lib/product-client";
 import { Field, Notice } from "@/components/ui/field";
@@ -61,6 +66,7 @@ export function ProductForm({
     product
       ? {
           name: product.name,
+          price: product.price,
           description: product.description,
           paymentTerms: product.paymentTerms,
           active: product.active,
@@ -70,6 +76,7 @@ export function ProductForm({
         }
       : {
           name: "",
+          price: "",
           description: "",
           paymentTerms: "",
           active: true,
@@ -107,6 +114,13 @@ export function ProductForm({
     result = calculate(draft.calculation);
   } catch {
     /* Incomplete drafts do not have a price. */
+  }
+  let belowCost = false;
+  try {
+    belowCost =
+      !!result && new Decimal(parseFinalPrice(draft.price)).lt(result.total);
+  } catch {
+    /* Price may be incomplete while typing. */
   }
   function choosePhoto(file?: File) {
     if (!file) return;
@@ -155,7 +169,7 @@ export function ProductForm({
         },
       });
       setInfo(
-        "Configurações carregadas no rascunho. Salve para publicar o novo preço.",
+        "Configurações carregadas no rascunho. A sugestão foi recalculada; o preço final foi preservado.",
       );
     } catch (e) {
       setError((e as Error).message);
@@ -266,6 +280,37 @@ export function ProductForm({
                   }
                 />
               </div>
+              <Field
+                label="Preço final de venda"
+                value={draft.price}
+                inputMode="decimal"
+                required
+                onChange={(e) => setDraft({ ...draft, price: e.target.value })}
+                hint="Valor publicado no catálogo. Independente da sugestão de custos."
+              />
+              <button
+                type="button"
+                className="button secondary"
+                disabled={!result}
+                onClick={() => {
+                  try {
+                    setDraft({
+                      ...draft,
+                      price: suggestedProductPrice(draft.calculation),
+                    });
+                  } catch {
+                    setError("A sugestão excede o limite de preço permitido.");
+                  }
+                }}
+              >
+                Usar preço sugerido
+              </button>
+              {belowCost && result && (
+                <Notice kind="info">
+                  Preço final abaixo do custo de produção de{" "}
+                  {formatBRL(result.total)}. Confira sua decisão comercial.
+                </Notice>
+              )}
               <Field
                 label="Foto do produto"
                 type="file"

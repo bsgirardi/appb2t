@@ -55,7 +55,7 @@ it("runs authenticated multipart lifecycle and denies revoked sessions", async (
   const response = await POST(await form(productInput));
   expect(response.status).toBe(200);
   const product = (await response.json()).data;
-  expect(product.price).toBe("48.19");
+  expect(product.price).toBe("75.00");
   expect((await settingsGET()).status).toBe(403);
   const context = { params: Promise.resolve({ id: product.id }) };
   const updated = await PUT(
