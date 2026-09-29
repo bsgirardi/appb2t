@@ -149,6 +149,25 @@ model CompanyLogo {
  bytes Bytes
  mimeType String
 }
+enum CustomerType {
+ PERSON
+ COMPANY
+}
+model Customer {
+ id String @id @default(cuid())
+ name String
+ type CustomerType
+ document String @default("")
+ email String @default("")
+ phone String @default("")
+ address String @default("")
+ notes String @default("")
+ active Boolean @default(true)
+ version Int @default(1)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([active,name])
+}
 model ProductImage {
   id String @id @default(cuid())
   productId String
