@@ -1,5 +1,6 @@
 import { AuthForm } from "@/components/auth-form";
-import { Brand } from "@/components/shell/app-shell";
+import { Brand } from "@/components/shell/brand";
+import { getPublicAppearance } from "@/server/appearance";
 import { Layers3, Check } from "lucide-react";
 export default async function Login({
   searchParams,
@@ -7,10 +8,11 @@ export default async function Login({
   searchParams: Promise<{ changed?: string }>;
 }) {
   const { changed } = await searchParams;
+  const identity = await getPublicAppearance();
   return (
     <div className="login-page">
       <section className="login-story">
-        <Brand />
+        <Brand identity={identity} />
         <div className="story-main">
           <div className="eyebrow">DA IDEIA AO PREÇO CERTO</div>
           <h1>
@@ -37,7 +39,7 @@ export default async function Login({
             </span>
           </div>
         </div>
-        <small>B2T PRINT STUDIO · FERRAMENTAS DE PRODUÇÃO</small>
+        <small>{identity.footer}</small>
       </section>
       <section className="login-panel">
         <div className="login-box">

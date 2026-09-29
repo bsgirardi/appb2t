@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { getPublicAppearance } from "@/server/appearance";
 import "./globals.css";
-export const metadata: Metadata = {
-  title: "B2T · Calculadora 3D",
-  description: "Custos claros. Impressões rentáveis.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getPublicAppearance();
+  return {
+    title: `${identity.name} · Gestão`,
+    description: identity.slogan,
+    robots: { index: false, follow: false },
+  };
+}
 export default function RootLayout({
   children,
 }: {

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireActor } from "@/server/auth/guards";
 import { AppError } from "@/lib/errors";
 import { AppShell } from "@/components/shell/app-shell";
+import { getPublicAppearance } from "@/server/appearance";
 export const dynamic = "force-dynamic";
 export default async function PrivateLayout({
   children,
@@ -13,5 +14,9 @@ export default async function PrivateLayout({
       redirect("/login");
     throw e;
   });
-  return <AppShell actor={actor}>{children}</AppShell>;
+  return (
+    <AppShell actor={actor} identity={await getPublicAppearance()}>
+      {children}
+    </AppShell>
+  );
 }

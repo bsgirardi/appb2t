@@ -11,7 +11,7 @@ export function setupDatabase() {
     )
       throw new Error("Tests require local b2t_test database");
     await db.$executeRawUnsafe(
-      'TRUNCATE "Collection", "ProductImage", "Product", "Session", "CalculationSettings", "LoginAttempt", "Material", "Printer", "User" CASCADE',
+      'TRUNCATE "CompanyAppearance", "Collection", "ProductImage", "Product", "Session", "CalculationSettings", "LoginAttempt", "Material", "Printer", "User" CASCADE',
     );
   });
   afterAll(async () => {

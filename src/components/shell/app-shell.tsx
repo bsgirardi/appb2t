@@ -13,23 +13,16 @@ import {
 } from "lucide-react";
 import type { Actor } from "@/server/auth/session";
 import { api } from "@/lib/client-api";
-export function Brand() {
-  return (
-    <div className="brand">
-      <span className="brand-icon">
-        <Box size={25} strokeWidth={1.7} />
-      </span>
-      <span>
-        B2T<span className="brand-sub">PRINT STUDIO</span>
-      </span>
-    </div>
-  );
-}
+import { Brand } from "./brand";
+import type { CompanyIdentityDTO } from "@/domain/appearance/types";
+import { defaultAppearance } from "@/domain/appearance/validation";
 export function AppShell({
   actor,
+  identity = { ...defaultAppearance, logoUrl: null },
   children,
 }: {
   actor: Actor;
+  identity?: CompanyIdentityDTO;
   children: ReactNode;
 }) {
   const router = useRouter(),
@@ -47,14 +40,27 @@ export function AppShell({
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link href="/calculadora" aria-label="B2T início">
-          <Brand />
+        <Link href="/calculadora" aria-label={`${identity.name} início`}>
+          <Brand identity={identity} />
         </Link>
         <div className="workspace-badge">
           <span className="dot" /> Ambiente da equipe <ShieldCheck size={14} />
         </div>
         <div className="nav-title">ÁREA DE TRABALHO</div>
         <nav aria-label="Menu principal">
+          {actor.role === "ADMIN" && (
+            <Link
+              className={
+                path === "/configuracoes/aparencia"
+                  ? "nav-item active"
+                  : "nav-item"
+              }
+              href="/configuracoes/aparencia"
+            >
+              <Settings2 size={19} />
+              Aparência
+            </Link>
+          )}
           <Link
             className={path === "/calculadora" ? "nav-item active" : "nav-item"}
             href="/calculadora"
@@ -159,7 +165,7 @@ export function AppShell({
         </header>
         <main>{children}</main>
         <footer className="workspace-footer">
-          <span>B2T · Precisão em cada camada.</span>
+          <span>{identity.footer}</span>
           <span>Valores em BRL · Português (Brasil)</span>
         </footer>
       </div>

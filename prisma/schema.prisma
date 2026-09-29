@@ -124,6 +124,30 @@ model CollectionImage {
   bytes Bytes
   mimeType String
 }
+model CompanyAppearance {
+ id Int @id @default(1)
+ name String
+ shortName String
+ slogan String
+ email String
+ phone String
+ address String
+ footer String
+ lightPrimary String
+ lightAccent String
+ darkPrimary String
+ darkAccent String
+ version Int @default(1)
+ updatedAt DateTime @updatedAt
+ updatedById String
+ logo CompanyLogo?
+}
+model CompanyLogo {
+ appearanceId Int @id
+ appearance CompanyAppearance @relation(fields:[appearanceId],references:[id],onDelete:Cascade)
+ bytes Bytes
+ mimeType String
+}
 model ProductImage {
   id String @id @default(cuid())
   productId String
