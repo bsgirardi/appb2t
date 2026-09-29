@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-29-vendas-orcamentos-design.md` e `2026-09-29-gestao-interna-index.md`, no mesmo diretório.
 
-**Pré-requisito:** entrega 1 aprovada nos testes, com Product.price como preço final e CompanyIdentityDTO. Execução direta já escolhida; plano aguarda revisão escrita.
+**Pré-requisito:** entrega 1 aprovada nos testes, com Product.price como preço final e CompanyIdentityDTO. Execução direta já escolhida; plano aprovado em 29/09/2026.
 
 ## Global Constraints
 
@@ -40,7 +40,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 
 `DocumentInput` contém customerId, items, discount, shipping, paymentTerms e internalNotes; `DocumentItemInput = { productId?: string; description: string; quantity: number; unitPrice: string }`. `DocumentTotals = { subtotal: string; discount: string; shipping: string; total: string }`. `InstallmentInput = { number: number; amount: string; dueDate: string }` usa data `YYYY-MM-DD`. `CustomerSnapshot` copia nome, tipo, documento, e-mail, telefone e endereço, sem notas; `DocumentItemSnapshot` copia productId opcional, nome/descrição, quantidade e preço unitário. DTOs privados retornam moeda como string e timestamps ISO; bytes/imagens do produto não acompanham itens comerciais.
 
-### Tarefa 1: Dinheiro, datas, parcelas e transições
+### Task 1: Dinheiro, datas, parcelas e transições
 
 **Arquivos:** criar domínio commerce e paginação acima; criar `tests/unit/{commerce-totals,commerce-dates,commerce-installments,commerce-states}.test.ts`.
 
@@ -52,7 +52,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 - [ ] Implementar dinheiro em Decimal, centavos distribuídos por índice e datas civis sem depender do fuso da máquina. Data mensal parte sempre da data original. Rejeitar transições operacionais inválidas, inclusive cancelamento de ENTREGUE; permitir retorno explícito de emitido não convertido a RASCUNHO.
 - [ ] Reexecutar os quatro arquivos e confirmar aprovação. Commit: `feat: definir regras comerciais e parcelamento`.
 
-### Tarefa 2: Cadastro privado de clientes
+### Task 2: Cadastro privado de clientes
 
 **Arquivos:** criar `src/domain/customers/{types,validation}.ts`, `src/server/customers.ts`, `src/components/customers/{customer-panel,customer-form}.tsx`, `src/app/(private)/clientes/page.tsx`, `src/app/api/customers/route.ts`, `src/app/api/customers/[id]/route.ts`, `tests/integration/customers.test.ts`, `tests/unit/customers-ui.test.tsx`; alterar schema/setup e criar migração `202609290004_customers`.
 
@@ -63,7 +63,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 - [ ] Implementar modelo, filtros parametrizados, guardas por rota/página e formulário. Usar nome 2–160, documento até 32 após normalização, e-mail até 254, telefone até 50, endereço até 500 e notas até 2000. Endpoints GET/POST em coleção e GET/PUT/PATCH em item; PATCH de estado verifica versão.
 - [ ] Reexecutar testes e confirmar que inativação não apaga dados. Commit: `feat: cadastrar clientes da equipe`.
 
-### Tarefa 3: Orçamento, snapshots e impressão
+### Task 3: Orçamento, snapshots e impressão
 
 **Arquivos:** criar `src/server/quotes.ts`, `src/server/commerce/{snapshots,audit}.ts`, `src/components/commerce/{document-items,quote-form,quote-panel,quote-detail,document-print}.tsx`, `src/app/(private)/orcamentos/page.tsx`, `src/app/(private)/orcamentos/[id]/page.tsx`, `src/app/(private)/orcamentos/[id]/imprimir/page.tsx`, `src/app/api/quotes/route.ts`, `src/app/api/quotes/[id]/route.ts`, `src/app/api/quotes/[id]/transition/route.ts`, `src/app/api/quotes/[id]/logo/route.ts`, `tests/integration/quotes.test.ts`, `tests/unit/quote-ui.test.tsx`; alterar schema/setup, `src/lib/http.ts` e criar migração `202609290005_quotes`.
 
@@ -76,7 +76,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 - [ ] Implementar lista, detalhe, editor de linhas, totais, transições e página de impressão privada. Impressão usa tema claro próprio e snapshot, sem notas internas/custos. Aprovação/envio são registros internos e não enviam mensagens. Reexecutar testes e `tests/unit/http.test.ts`.
 - [ ] Commit: `feat: emitir e acompanhar orcamentos`.
 
-### Tarefa 4: Venda, conversão e recebíveis atômicos
+### Task 4: Venda, conversão e recebíveis atômicos
 
 **Arquivos:** criar `src/server/sales.ts`, `src/server/finance/entries.ts`, `src/server/commerce/locks.ts`, `src/domain/finance/types.ts`, `tests/integration/sales.test.ts`; alterar schema/setup e criar migração `202609290006_sales_entries`.
 
@@ -92,7 +92,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 - [ ] Criar cancelamento `cancelSale(actor,id,expectedVersion,reason): Promise<SaleDTO>`: versão, estado pré-entrega e total recebido vigente zero sob bloqueio compartilhado. Cancelar recebíveis e registrar evento na mesma transação. Definir `getSaleReceiptSummary(tx,saleId)` nesta camada, inicializado a zero e substituído por agregação de Settlement na entrega 3.
 - [ ] Reexecutar testes, inclusive rollback de falha após inserir venda e antes de terminar parcelas. Commit: `feat: converter vendas em recebiveis sem duplicacao`.
 
-### Tarefa 5: Operação de vendas e integração da interface
+### Task 5: Operação de vendas e integração da interface
 
 **Arquivos:** criar `src/components/commerce/{sale-panel,sale-form,sale-detail,installment-editor}.tsx`, `src/app/(private)/vendas/page.tsx`, `src/app/(private)/vendas/[id]/page.tsx`, `src/app/api/sales/route.ts`, `src/app/api/sales/[id]/route.ts`, `src/app/api/sales/[id]/confirm/route.ts`, `src/app/api/sales/[id]/transition/route.ts`, `src/app/api/quotes/[id]/convert/route.ts`, `tests/unit/sales-ui.test.tsx`, `tests/integration/commerce-http.test.ts`; alterar shell e quotes UI.
 
@@ -104,7 +104,7 @@ Criar `src/domain/commerce/{types,validation,totals,dates,installments,states}.t
 - [ ] Integrar Clientes, Orçamentos e Vendas à navegação. Implementar busca/filtros/paginação, datas civis, estados vazios e loading. Acrescentar notas e prazo operacional com audit/version. Não enviar e-mail/WhatsApp automaticamente.
 - [ ] Reexecutar testes de UI, HTTP e serviços e verificar snapshots, documentos impressos e fluxo completo no navegador. Commit: `feat: operar vendas e orcamentos no painel`.
 
-### Tarefa 6: Aceitação e documentação
+### Task 6: Aceitação e documentação
 
 **Arquivos:** atualizar `README.md`, `docs/VALIDACAO.md`, plano e fixtures de testes.
 
