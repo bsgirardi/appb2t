@@ -4,7 +4,7 @@
 
 Em 29/09/2026, o usuário aprovou o desenho de três entregas: catálogo e aparência; clientes, orçamentos e vendas; financeiro. Confirmou gestão interna primeiro, sem integrações bancárias, cobrança externa ou emissão de notas fiscais.
 
-A aprovação em conversa autoriza detalhar estas especificações. Elas registram as regras propostas para revisão escrita antes dos planos de implementação. Não representam funcionalidades já implementadas.
+O desenho e estas especificações escritas foram aprovados pelo usuário. Os planos vinculados abaixo detalham a execução e aguardam sua revisão antes da implementação. Estes documentos não representam funcionalidades já implementadas.
 
 ## Ordem e dependências
 
@@ -13,6 +13,16 @@ A aprovação em conversa autoriza detalhar estas especificações. Elas registr
 3. [Financeiro](2026-09-29-financeiro-design.md): usa os recebíveis da entrega 2 e acrescenta contas financeiras, pagamentos, despesas, transferências, estornos e fluxo de caixa. Não recria parcelas já geradas pelas vendas.
 
 Cada entrega terá um plano próprio. A execução direta nesta conversa permanece como método escolhido pelo usuário; não será necessário escolher novamente o método em cada entrega.
+
+## Planos de implementação
+
+| Ordem | Plano | Resultado verificável |
+| --- | --- | --- |
+| 1 | [Catálogo e aparência](../plans/2026-09-29-catalogo-aparencia.md) | Preço final separado, galeria, coleções, identidade e temas legíveis |
+| 2 | [Vendas e orçamentos](../plans/2026-09-29-vendas-orcamentos.md) | Cliente, orçamento imutável após emissão/conversão, venda e recebíveis |
+| 3 | [Financeiro](../plans/2026-09-29-financeiro.md) | Baixas, estornos, contas, transferências, caixa previsto/realizado e relatórios |
+
+Os planos mantêm contratos explícitos entre entregas para preço final, identidade histórica, parcelas, bloqueios transacionais e resumo de recebimento. A revisão dos três planos pode ser feita em conjunto; a execução continua sequencial por dependência, com testes e validação de cada entrega.
 
 ## Regras compartilhadas
 
@@ -43,4 +53,4 @@ Mudanças no nome/logo/contatos aplicam-se às páginas atuais e aos novos docum
 
 Cada entrega exige seus testes de domínio, permissões, integração e interface, análise de tipos, lint e build. A entrega visual inclui verificação em computador e celular, nos temas claro e escuro; o financeiro inclui casos de centavos, concorrência e estorno. Limitações de ambiente devem ser relatadas com precisão e não registradas como testes aprovados.
 
-Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Próxima etapa: revisão das especificações escritas pelo usuário.
+Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Especificações aprovadas; próxima etapa: revisão dos planos de implementação escritos.
