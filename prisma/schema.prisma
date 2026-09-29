@@ -80,6 +80,7 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  collections CollectionProduct[]
   id String @id @default(cuid())
   name String
   description String
@@ -96,6 +97,32 @@ model Product {
   updatedAt DateTime @updatedAt
   images ProductImage[]
   @@index([active, name])
+}
+model Collection {
+  id String @id @default(cuid())
+  name String
+  description String
+  active Boolean @default(true)
+  position Int @default(0)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products CollectionProduct[]
+  image CollectionImage?
+}
+model CollectionProduct {
+  collectionId String
+  productId String
+  collection Collection @relation(fields:[collectionId],references:[id],onDelete:Cascade)
+  product Product @relation(fields:[productId],references:[id],onDelete:Cascade)
+  @@id([collectionId,productId])
+  @@index([productId])
+}
+model CollectionImage {
+  collectionId String @id
+  collection Collection @relation(fields:[collectionId],references:[id],onDelete:Cascade)
+  bytes Bytes
+  mimeType String
 }
 model ProductImage {
   id String @id @default(cuid())

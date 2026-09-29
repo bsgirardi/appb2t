@@ -15,6 +15,7 @@ import type {
 } from "@/domain/products/types";
 import type { Actor } from "./auth/session";
 import type { NormalizedImage } from "./product-images";
+import { lockCatalog, setProductCollections } from "./catalog-memberships";
 const notFound = () => new AppError("NOT_FOUND", "Produto não encontrado.");
 const publicSelect = {
   images: {
@@ -44,11 +45,15 @@ function publicDTO(
   };
 }
 function dto(
-  row: Product & { images: { id: string; position: number }[] },
+  row: Product & {
+    images: { id: string; position: number }[];
+    collections: { collectionId: string }[];
+  },
 ): ProductDTO {
   return {
     ...publicDTO(row),
     active: row.active,
+    collectionIds: row.collections.map((c) => c.collectionId),
     version: row.version,
     materialId: row.materialId,
     printerId: row.printerId,
@@ -87,7 +92,8 @@ async function references(
   }
 }
 function dataFor(input: ProductInput) {
-  const { images: _images, ...fields } = input;
+  const { images: _images, collectionIds: _collectionIds, ...fields } = input;
+  void _collectionIds;
   void _images;
   return {
     ...fields,
@@ -98,6 +104,7 @@ function dataFor(input: ProductInput) {
   };
 }
 const imageInclude = {
+  collections: { select: { collectionId: true } },
   images: {
     select: { id: true, position: true },
     orderBy: { position: "asc" as const },
@@ -161,6 +168,7 @@ export async function createProduct(
     data = dataFor(input);
   validateImages(input.images, uploads, []);
   return db.$transaction(async (tx) => {
+    await lockCatalog(tx);
     await references(tx, input);
     const row = await tx.product.create({
       data: {
@@ -168,6 +176,7 @@ export async function createProduct(
       },
     });
     await saveImages(tx, row.id, input.images, uploads);
+    await setProductCollections(tx, row.id, input.collectionIds);
     return dto(
       await tx.product.findUniqueOrThrow({
         where: { id: row.id },
@@ -185,6 +194,7 @@ export async function updateProduct(
   const { expectedVersion, ...input } = updateProductSchema.parse(raw),
     data = dataFor(input);
   return db.$transaction(async (tx) => {
+    await lockCatalog(tx);
     const old = await tx.product.findUnique({
       where: { id },
       include: imageInclude,
@@ -202,6 +212,7 @@ export async function updateProduct(
     });
     if (!updated.count) throw conflict();
     await saveImages(tx, id, input.images, uploads);
+    await setProductCollections(tx, id, input.collectionIds);
     return dto(
       await tx.product.findUniqueOrThrow({
         where: { id },
@@ -251,10 +262,21 @@ export async function getProduct(
   if (!row) throw notFound();
   return dto(row);
 }
-export async function listPublicProducts(): Promise<PublicProductDTO[]> {
+export async function listPublicProducts(
+  collectionId?: string,
+): Promise<PublicProductDTO[]> {
   return (
     await db.product.findMany({
-      where: { active: true },
+      where: {
+        active: true,
+        ...(collectionId
+          ? {
+              collections: {
+                some: { collectionId, collection: { active: true } },
+              },
+            }
+          : {}),
+      },
       select: publicSelect,
       orderBy: { name: "asc" },
     })

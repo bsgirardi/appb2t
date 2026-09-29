@@ -90,6 +90,15 @@ export function AppShell({
             Portfólio público
           </Link>
           <Link
+            className={
+              path.startsWith("/colecoes") ? "nav-item active" : "nav-item"
+            }
+            href="/colecoes"
+          >
+            <Box size={19} />
+            Coleções
+          </Link>
+          <Link
             className={path === "/conta" ? "nav-item active" : "nav-item"}
             href="/conta"
           >

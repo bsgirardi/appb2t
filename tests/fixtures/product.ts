@@ -21,6 +21,7 @@ export const calculation = {
   },
 };
 export const productInput = {
+  collectionIds: [] as string[],
   images: [{ uploadKey: "a" }],
   price: "75.00",
   name: "Vaso geométrico",

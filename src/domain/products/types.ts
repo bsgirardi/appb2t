@@ -6,6 +6,7 @@ export interface ProductImageDTO {
   position: number;
 }
 export interface ProductInput {
+  collectionIds: string[];
   images: ImageSelection[];
   price: string;
   name: string;

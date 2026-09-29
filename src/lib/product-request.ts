@@ -7,6 +7,22 @@ import {
 export async function readProductRequest(
   request: Request,
 ): Promise<{ input: unknown; uploads: Record<string, NormalizedImage> }> {
+  return readMediaRequest(request, {
+    maxBytes: 52 * 1024 * 1024,
+    maxJsonBytes: 16384,
+    maxFiles: 10,
+    normalize: normalizeProductImage,
+  });
+}
+export async function readMediaRequest(
+  request: Request,
+  options: {
+    maxBytes: number;
+    maxJsonBytes: number;
+    maxFiles: number;
+    normalize: (bytes: Uint8Array) => Promise<NormalizedImage>;
+  },
+): Promise<{ input: unknown; uploads: Record<string, NormalizedImage> }> {
   if (request.headers.get("origin") !== appUrl().origin)
     throw new AppError("FORBIDDEN", "Origem da requisição inválida.");
   const contentType = request.headers.get("content-type") ?? "";
@@ -15,7 +31,7 @@ export async function readProductRequest(
       "VALIDATION",
       "Envie os dados e a foto pelo formulário.",
     );
-  const limit = 52 * 1024 * 1024;
+  const limit = options.maxBytes;
   const invalid = () =>
     new AppError(
       "VALIDATION",
@@ -49,12 +65,12 @@ export async function readProductRequest(
       (key) => key !== "data" && !/^photo:[a-zA-Z0-9_-]{1,100}$/.test(key),
     ) ||
     form.getAll("data").length !== 1 ||
-    [...form.keys()].length > 11 ||
+    [...form.keys()].length > options.maxFiles + 1 ||
     [...form.keys()].some((key) => form.getAll(key).length !== 1)
   )
     throw invalid();
   const raw = form.get("data");
-  if (typeof raw !== "string" || Buffer.byteLength(raw) > 16384)
+  if (typeof raw !== "string" || Buffer.byteLength(raw) > options.maxJsonBytes)
     throw invalid();
   let input: unknown;
   try {
@@ -66,7 +82,7 @@ export async function readProductRequest(
   for (const [key, photo] of form.entries()) {
     if (key === "data") continue;
     if (!(photo instanceof Blob)) throw invalid();
-    uploads[key.slice(6)] = await normalizeProductImage(
+    uploads[key.slice(6)] = await options.normalize(
       new Uint8Array(await photo.arrayBuffer()),
     );
   }

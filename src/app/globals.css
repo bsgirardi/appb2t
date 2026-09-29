@@ -1714,3 +1714,7 @@ td small {
 .carousel-controls { padding:12px; }
 .product-carousel { touch-action:pan-y; }
 .product-carousel:focus-visible { outline:3px solid var(--brand); outline-offset:3px; }
+.collection-filters {display:flex;flex-wrap:wrap;gap:12px;margin:20px 0;}
+.collection-filters [aria-current="page"] {outline:2px solid var(--brand);}
+.collection-filters img {width:48px;height:48px;object-fit:cover;border-radius:8px;}
+.selection-list {max-height:320px;overflow:auto;display:grid;gap:8px;margin:16px 0;}

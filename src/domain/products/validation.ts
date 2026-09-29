@@ -17,6 +17,10 @@ export function parseFinalPrice(raw: string): string {
 }
 export const productSchema = z
   .object({
+    collectionIds: z
+      .array(z.string().min(1).max(100))
+      .max(100)
+      .refine((ids) => new Set(ids).size === ids.length),
     images: z
       .array(
         z.union([

@@ -9,14 +9,17 @@ import { formatBRL } from "@/domain/calculation/calculate";
 import { api } from "@/lib/client-api";
 import { Notice } from "@/components/ui/field";
 import { ProductForm } from "./product-form";
+import type { CollectionDTO } from "@/domain/collections/types";
 export function ProductPanel({
   products,
   data,
   role,
+  collections = [],
 }: {
   products: ProductDTO[];
   data: CalculatorData;
   role: "ADMIN" | "OPERATOR";
+  collections?: CollectionDTO[];
 }) {
   const [rows, setRows] = useState(products),
     [editing, setEditing] = useState<ProductDTO | "new" | null>(null),
@@ -90,6 +93,7 @@ export function ProductPanel({
           product={editing === "new" ? undefined : editing}
           data={data}
           role={role}
+          collections={collections}
           onCancel={() => setEditing(null)}
           onSaved={(row) => {
             replace(row);

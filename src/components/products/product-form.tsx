@@ -25,6 +25,7 @@ import { saveProductRequest } from "@/lib/product-client";
 import { Field, Notice } from "@/components/ui/field";
 import { CostBreakdown } from "@/components/calculator/cost-breakdown";
 import { ProductCalculationFields } from "./product-calculation-fields";
+import type { CollectionDTO } from "@/domain/collections/types";
 function initialCalculation(data: CalculatorData): CalculationInput {
   return {
     technology: "FDM",
@@ -55,12 +56,14 @@ export function ProductForm({
   product,
   data,
   role,
+  collections = [],
   onSaved,
   onCancel,
 }: {
   product?: ProductDTO;
   data: CalculatorData;
   role: "ADMIN" | "OPERATOR";
+  collections?: CollectionDTO[];
   onSaved: (product: ProductDTO) => void;
   onCancel: () => void;
 }) {
@@ -70,6 +73,7 @@ export function ProductForm({
       ? {
           name: product.name,
           price: product.price,
+          collectionIds: product.collectionIds,
           images: product.images.map((i) => ({ id: i.id })),
           description: product.description,
           paymentTerms: product.paymentTerms,
@@ -81,6 +85,7 @@ export function ProductForm({
       : {
           name: "",
           price: "",
+          collectionIds: [],
           images: [],
           description: "",
           paymentTerms: "",
@@ -302,6 +307,32 @@ export function ProductForm({
                 onChange={setGallery}
                 onError={setError}
               />
+              <h2>Coleções</h2>
+              <div className="selection-list">
+                {collections.map((c) => (
+                  <label className="product-checkbox" key={c.id}>
+                    <input
+                      type="checkbox"
+                      checked={draft.collectionIds.includes(c.id)}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          collectionIds: e.target.checked
+                            ? [...draft.collectionIds, c.id]
+                            : draft.collectionIds.filter((id) => id !== c.id),
+                        })
+                      }
+                    />
+                    {c.name}
+                    {c.active ? "" : " (inativa)"}
+                  </label>
+                ))}
+              </div>
+              {!collections.length && (
+                <p className="muted">
+                  Crie suas coleções em <Link href="/colecoes">Coleções</Link>.
+                </p>
+              )}
               <label className="product-checkbox">
                 <input
                   type="checkbox"
