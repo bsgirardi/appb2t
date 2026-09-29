@@ -1,0 +1,488 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f3f5f7;
+  --paper: #ffffff;
+  --surface: #eaf0f3;
+  --ink: #182637;
+  --muted: #526174;
+  --line: #cbd5df;
+  --brand: var(--light-primary, #176b59);
+  --on-brand: var(--light-on-primary, #ffffff);
+  --accent: var(--light-accent, #b68b39);
+  --on-accent: var(--light-on-accent, #111827);
+  --brand-ink: #125b4a;
+  --green: var(--brand-ink);
+  --green-light: #e1f0e9;
+  --success: #205f37;
+  --success-bg: #e5f4e9;
+  --warning: #794a06;
+  --warning-bg: #fff2d6;
+  --danger: #a02626;
+  --danger-bg: #ffeded;
+  --shadow: 0 4px 20px #162a3510;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101820;
+    --paper: #192530;
+    --surface: #253442;
+    --ink: #eff5fa;
+    --muted: #b5c4d1;
+    --line: #425566;
+    --brand: var(--dark-primary, #6cdbc0);
+    --on-brand: var(--dark-on-primary, #111827);
+    --accent: var(--dark-accent, #eac473);
+    --on-accent: var(--dark-on-accent, #111827);
+    --brand-ink: #83e1c8;
+    --green-light: #203e36;
+    --success: #98e8ad;
+    --success-bg: #1c3a29;
+    --warning: #ffe0a0;
+    --warning-bg: #43341c;
+    --danger: #ffb5b5;
+    --danger-bg: #44272d;
+    --shadow: 0 4px 20px #00000018;
+  }
+}
+body {
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--ink);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+input,
+select,
+textarea {
+  color-scheme: inherit;
+}
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.sidebar,
+.topbar,
+.card,
+.button.secondary,
+.technology-switch button.selected,
+.product-card,
+.login-panel {
+  background: var(--paper);
+  color: var(--ink);
+}
+.portfolio-page {
+  background: var(--bg);
+}
+.product-photo,
+.technology-switch,
+.workspace-badge,
+.tag,
+.settings-tabs button span,
+.settings-values > div,
+th,
+.avatar,
+.section-number,
+.portfolio-hero-icon {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.brand-icon,
+.button.primary {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.button.primary:hover {
+  background: var(--brand);
+  filter: brightness(0.95);
+}
+.nav-item,
+.icon-button,
+.topbar strong,
+.field label,
+.time-heading,
+.parameter-grid strong,
+.cost-row dt,
+.cost-row dd,
+.cost-total,
+.checkbox-field,
+.settings-values strong,
+.empty-state h3 {
+  color: var(--ink);
+}
+.muted,
+.brand-sub,
+.workspace-badge,
+.nav-title,
+.internal-note,
+.internal-note strong,
+.internal-chip,
+.topbar,
+.slash,
+.page-heading p,
+.field small,
+.field input::placeholder,
+.suffix,
+.time-heading + .form-grid label,
+.calculation-status,
+.parameter-grid span,
+.loaded-at,
+.rounding-note,
+.workspace-footer,
+.settings-tabs button,
+.empty-state,
+.empty-state p,
+th,
+td small,
+.settings-values span,
+.settings-values small,
+.settings-footnote,
+.secure-note,
+.login-box > p,
+.login-help,
+.portfolio-hero p,
+.catalog-heading > span,
+.product-description,
+.product-payment,
+.portfolio-footer,
+.catalog-empty {
+  color: var(--muted);
+}
+.nav-item.active,
+.technology-switch button.selected {
+  background: var(--green-light);
+  color: var(--brand-ink);
+}
+.nav-item:hover,
+.icon-button:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+.button.secondary:hover {
+  border-color: var(--muted);
+}
+.field input,
+.field select,
+.field > select,
+.field textarea,
+.product-form textarea {
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.product-form textarea:focus {
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 2px;
+  border-color: var(--brand-ink);
+}
+.field {
+  margin-bottom: 16px;
+  min-width: 0;
+}
+.form-grid .field {
+  margin-bottom: 0;
+}
+.button,
+.nav-item,
+.page-heading p,
+.section-description,
+.technology-switch button,
+.field label,
+.time-heading,
+.time-heading + .form-grid label,
+.parameter-grid strong,
+.text-link,
+.cost-row,
+.cost-total,
+.bottom-tip p,
+.notice,
+.settings-tabs button,
+table,
+.empty-state p,
+.checkbox-field,
+.machine-hint,
+.login-box > p,
+.story-features,
+.product-payment {
+  font-size: 14px;
+}
+small,
+.brand-sub,
+.sidebar .brand-sub,
+.workspace-badge,
+.nav-title,
+.internal-note strong,
+.internal-note p,
+.profile strong,
+.profile small,
+.topbar,
+.internal-chip,
+.eyebrow,
+.page-heading .eyebrow,
+.section-number,
+.technology-switch small,
+.field small,
+.suffix,
+.calculation-status,
+.parameter-grid span,
+.loaded-at,
+.price-top,
+.price-card > p,
+.price-stats span,
+.markup-badge,
+.tag,
+.rounding-note,
+.workspace-footer,
+.admin-label,
+.settings-tabs button span,
+th,
+.status-pill,
+.settings-values span,
+.settings-values small,
+.settings-footnote,
+.secure-note,
+.login-story > small,
+.login-help,
+.product-status,
+.refresh-button,
+.list-actions .button,
+.portfolio-header .button,
+.catalog-heading > span {
+  font-size: 12px;
+}
+.brand {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.brand > span:last-child {
+  min-width: 0;
+}
+.brand-sub {
+  letter-spacing: 0.8px;
+  line-height: 1.4;
+}
+.sidebar {
+  overflow-y: auto;
+}
+.sidebar-bottom {
+  padding-top: 24px;
+}
+.workspace-badge {
+  margin: 24px 0;
+}
+.nav-title {
+  letter-spacing: 1px;
+}
+.nav-item {
+  padding: 11px 10px;
+}
+.price-card {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.price-top,
+.price-top svg,
+.price-card > p,
+.price-stats span,
+.price-stats > div:last-child strong,
+.markup-badge {
+  color: inherit;
+}
+.price-divider {
+  background: currentColor;
+  opacity: 0.25;
+}
+.markup-badge {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+.cost-row {
+  padding: 5px 0;
+  margin-bottom: 9px;
+}
+.cost-row dd {
+  font-variant-numeric: tabular-nums;
+}
+.cost-dot {
+  width: 9px;
+  height: 9px;
+}
+.breakdown h2 {
+  font-size: 18px;
+}
+.cost-total {
+  font-size: 16px;
+}
+.bottom-tip,
+.machine-hint,
+.admin-label {
+  background: var(--green-light);
+  border-color: var(--line);
+  color: var(--brand-ink);
+}
+.bottom-tip strong {
+  color: inherit;
+}
+.notice.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.notice.success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+.notice.info {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.field-error {
+  color: var(--danger);
+}
+.status-pill,
+.product-status.inactive {
+  background: var(--surface);
+  color: var(--muted);
+}
+.status-pill.enabled,
+.product-status {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.empty-state svg {
+  background: var(--surface);
+}
+.settings-values > div,
+.product-card,
+.portfolio-header {
+  border-color: var(--line);
+}
+.login-story {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.login-story .brand-icon {
+  background: transparent;
+  color: inherit;
+}
+.login-story .brand-sub,
+.story-main .eyebrow,
+.story-main h1 span,
+.story-main > p,
+.story-features,
+.login-story > small {
+  color: inherit;
+}
+.appearance-preview {
+  display: grid;
+  gap: 18px;
+  position: sticky;
+  top: 20px;
+  overflow-wrap: anywhere;
+}
+.preview-swatches {
+  display: grid;
+  gap: 12px;
+}
+.field input[type="color"] {
+  padding: 4px;
+  min-height: 44px;
+}
+.gallery-controls {
+  flex-wrap: wrap;
+}
+.gallery-thumbnails li {
+  max-width: 100%;
+}
+.product-edit-grid > * {
+  min-width: 0;
+}
+.collection-filters .button {
+  white-space: normal;
+}
+.product-admin-info p {
+  overflow-wrap: anywhere;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--brand-ink);
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+@media (max-width: 700px) {
+  .sidebar .brand {
+    font-size: 23px;
+  }
+  .sidebar .brand-sub {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+  }
+  .nav-item {
+    font-size: 14px;
+    padding: 10px;
+  }
+  .page-heading p {
+    font-size: 14px;
+  }
+  .workspace-footer {
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .topbar .internal-chip {
+    font-size: 12px;
+  }
+  .settings-tabs button,
+  .technology-switch button {
+    font-size: 14px;
+  }
+  .technology-switch small {
+    font-size: 12px;
+    opacity: 1;
+  }
+  .appearance-preview {
+    position: static;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .parameter-grid {
+    gap: 16px;
+  }
+  .portfolio-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .brand-sub {
+    display: block;
+  }
+  .topbar {
+    height: auto;
+    min-height: 48px;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
