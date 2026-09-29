@@ -30,7 +30,7 @@ async function form(input: unknown, photo = true) {
       .png()
       .toBuffer();
     body.set(
-      "photo",
+      "photo:a",
       new Blob([new Uint8Array(bytes)], { type: "image/png" }),
       "photo.png",
     );
@@ -60,7 +60,12 @@ it("runs authenticated multipart lifecycle and denies revoked sessions", async (
   const context = { params: Promise.resolve({ id: product.id }) };
   const updated = await PUT(
     await form(
-      { ...productInput, name: "Atualizado", expectedVersion: 1 },
+      {
+        ...productInput,
+        images: product.images.map((i: { id: string }) => ({ id: i.id })),
+        name: "Atualizado",
+        expectedVersion: 1,
+      },
       false,
     ),
     context,

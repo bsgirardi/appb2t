@@ -21,6 +21,7 @@ export const calculation = {
   },
 };
 export const productInput = {
+  images: [{ uploadKey: "a" }],
   price: "75.00",
   name: "Vaso geométrico",
   description: "Peça impressa em PLA.",
@@ -54,6 +55,9 @@ export const calculatorData = {
 };
 export const productDTO = {
   ...productInput,
+  images: [
+    { id: "photo", url: "/api/products/product/images/photo", position: 0 },
+  ],
   id: "product",
   price: "48.19",
   imageUrl: "/api/products/product/image",

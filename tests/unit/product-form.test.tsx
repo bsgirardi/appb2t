@@ -42,19 +42,20 @@ it("uploads selected photo with the draft and preserves it after server error", 
     />,
   );
   const file = new File(["photo bytes"], "piece.png", { type: "image/png" });
-  fireEvent.change(screen.getByLabelText("Foto do produto"), {
+  fireEvent.change(screen.getByLabelText("Fotos do produto"), {
     target: { files: [file] },
   });
   expect(
-    screen.getByAltText("Prévia da foto do produto").getAttribute("src"),
+    screen.getByAltText("Prévia da foto 2 do produto").getAttribute("src"),
   ).toBe("blob:test-photo");
   fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
   await screen.findByText("Foto inválida");
   const body = fetch.mock.calls[0][1]?.body as FormData;
-  expect(body.get("photo")).toBe(file);
+  const input = JSON.parse(body.get("data") as string);
+  expect(body.get(`photo:${input.images[1].uploadKey}`)).toBe(file);
   expect(JSON.parse(body.get("data") as string).expectedVersion).toBe(1);
   expect(
-    screen.getByAltText("Prévia da foto do produto").getAttribute("src"),
+    screen.getByAltText("Prévia da foto 2 do produto").getAttribute("src"),
   ).toBe("blob:test-photo");
   view.unmount();
   expect(revokeURL).toHaveBeenCalledWith("blob:test-photo");

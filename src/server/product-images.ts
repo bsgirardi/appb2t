@@ -7,11 +7,24 @@ export interface NormalizedImage {
 export async function normalizeProductImage(
   bytes: Uint8Array,
 ): Promise<NormalizedImage> {
-  if (!bytes.byteLength || bytes.byteLength > 5 * 1024 * 1024)
-    throw new AppError("VALIDATION", "Envie uma foto de até 5 MiB.");
+  return normalizeImage(bytes, {
+    maxBytes: 5 * 1024 * 1024,
+    maxPixels: 40_000_000,
+    maxDimension: 1600,
+  });
+}
+export async function normalizeImage(
+  bytes: Uint8Array,
+  limits: { maxBytes: number; maxPixels: number; maxDimension: number },
+): Promise<NormalizedImage> {
+  if (!bytes.byteLength || bytes.byteLength > limits.maxBytes)
+    throw new AppError(
+      "VALIDATION",
+      "Imagem vazia ou acima do limite permitido.",
+    );
   try {
     const image = sharp(bytes, {
-      limitInputPixels: 40_000_000,
+      limitInputPixels: limits.maxPixels,
       failOn: "warning",
     });
     const meta = await image.metadata();
@@ -25,8 +38,8 @@ export async function normalizeProductImage(
       bytes: await image
         .rotate()
         .resize({
-          width: 1600,
-          height: 1600,
+          width: limits.maxDimension,
+          height: limits.maxDimension,
           fit: "inside",
           withoutEnlargement: true,
         })

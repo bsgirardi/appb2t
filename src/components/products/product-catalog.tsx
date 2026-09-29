@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ProductCarousel } from "./product-carousel";
 import { Box, CreditCard } from "lucide-react";
 import { formatBRL } from "@/domain/calculation/calculate";
 import type { PublicProductDTO } from "@/domain/products/types";
@@ -18,15 +18,7 @@ export function ProductCatalog({ products }: { products: PublicProductDTO[] }) {
     <div className="product-grid">
       {products.map((product) => (
         <article className="product-card" key={product.id}>
-          <div className="product-photo">
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              width={800}
-              height={800}
-              unoptimized
-            />
-          </div>
+          <ProductCarousel name={product.name} images={product.images} />
           <div className="product-card-body">
             <h2>{product.name}</h2>
             <p className="product-description">{product.description}</p>

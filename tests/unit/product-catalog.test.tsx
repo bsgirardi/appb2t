@@ -14,6 +14,7 @@ it("shows price and payment terms while escaping description markup", () => {
           price: "48.19",
           paymentTerms: "Pix ou cartão",
           imageUrl: "/photo",
+          images: [{ id: "photo", url: "/photo", position: 0 }],
         },
       ]}
     />,
@@ -21,7 +22,7 @@ it("shows price and payment terms while escaping description markup", () => {
   expect(screen.getByText("R$ 48,19")).toBeTruthy();
   expect(screen.getByText("Pix ou cartão")).toBeTruthy();
   expect(container.querySelector("script")).toBeNull();
-  expect(screen.getByAltText("Vaso")).toBeTruthy();
+  expect(screen.getByAltText("Vaso — foto 1 de 1")).toBeTruthy();
 });
 it("shows an honest empty state", () => {
   render(<ProductCatalog products={[]} />);

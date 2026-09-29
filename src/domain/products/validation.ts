@@ -17,6 +17,26 @@ export function parseFinalPrice(raw: string): string {
 }
 export const productSchema = z
   .object({
+    images: z
+      .array(
+        z.union([
+          z.object({ id: z.string().min(1).max(100) }).strict(),
+          z
+            .object({ uploadKey: z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/) })
+            .strict(),
+        ]),
+      )
+      .min(1)
+      .max(10)
+      .refine(
+        (images) =>
+          new Set(
+            images.map((i) =>
+              "id" in i ? `id:${i.id}` : `upload:${i.uploadKey}`,
+            ),
+          ).size === images.length,
+        "Fotos repetidas.",
+      ),
     price: finalPriceSchema,
     name: z.string().trim().min(2).max(120),
     description: z.string().trim().min(1).max(5000),

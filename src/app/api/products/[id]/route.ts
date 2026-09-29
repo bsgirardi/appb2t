@@ -13,9 +13,9 @@ export async function GET(_request: Request, context: Context) {
 export async function PUT(request: Request, context: Context) {
   return endpoint(async () => {
     const actor = await requireActor();
-    const { input, image } = await readProductRequest(request);
+    const { input, uploads } = await readProductRequest(request);
     return ok(
-      await updateProduct(actor, (await context.params).id, input, image),
+      await updateProduct(actor, (await context.params).id, input, uploads),
     );
   });
 }

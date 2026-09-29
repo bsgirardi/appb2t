@@ -1707,3 +1707,10 @@ td small {
     padding: 20px;
   }
 }
+.gallery-thumbnails { display:flex; flex-wrap:wrap; gap:16px; padding:0; list-style:none; }
+.gallery-thumbnails li { display:grid; gap:8px; border:1px solid var(--line); padding:12px; border-radius:12px; }
+.gallery-thumbnails img { object-fit:contain; border-radius:8px; }
+.gallery-controls,.carousel-controls { display:flex; align-items:center; justify-content:center; gap:8px; }
+.carousel-controls { padding:12px; }
+.product-carousel { touch-action:pan-y; }
+.product-carousel:focus-visible { outline:3px solid var(--brand); outline-offset:3px; }

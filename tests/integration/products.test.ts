@@ -20,11 +20,19 @@ it.each(["ADMIN", "OPERATOR"] as const)(
   "lets %s manage products, hides private fields and inactive photos",
   async (role) => {
     const actor = await seedUser(role);
-    const product = await createProduct(actor, productInput, image);
+    const product = await createProduct(actor, productInput, { a: image });
     expect(product.price).toBe("75.00");
     const publicProducts = await listPublicProducts();
     expect(Object.keys(publicProducts[0]).sort()).toEqual(
-      ["id", "name", "description", "paymentTerms", "price", "imageUrl"].sort(),
+      [
+        "id",
+        "name",
+        "description",
+        "paymentTerms",
+        "price",
+        "imageUrl",
+        "images",
+      ].sort(),
     );
     expect((await getProductImage(product.id, null)).bytes).toEqual(
       image.bytes,
@@ -54,7 +62,7 @@ it("keeps snapshots independent of global changes and inactive references", asyn
   const product = await createProduct(
     actor,
     { ...productInput, materialId: material.id },
-    image,
+    { a: image },
   );
   await saveSettings(actor, {
     ...productInput.calculation.settings,
@@ -68,6 +76,7 @@ it("keeps snapshots independent of global changes and inactive references", asyn
   expect((await getProduct(actor, product.id)).price).toBe("75.00");
   const updated = await updateProduct(actor, product.id, {
     ...productInput,
+    images: product.images.map((i) => ({ id: i.id })),
     materialId: material.id,
     name: "Novo nome",
     calculation: { ...productInput.calculation, materialPrice: "400" },
@@ -77,14 +86,14 @@ it("keeps snapshots independent of global changes and inactive references", asyn
 });
 it("rolls back stale concurrent text and image writes together", async () => {
   const actor = await seedUser();
-  const product = await createProduct(actor, productInput, image);
+  const product = await createProduct(actor, productInput, { a: image });
   const results = await Promise.allSettled(
     [1, 2].map((n) =>
       updateProduct(
         actor,
         product.id,
         { ...productInput, name: `Produto ${n}`, expectedVersion: 1 },
-        { ...image, bytes: new Uint8Array([n]) },
+        { a: { ...image, bytes: new Uint8Array([n]) } },
       ),
     ),
   );
@@ -103,10 +112,14 @@ it("rejects missing photo, incompatible reference and invalid final price", asyn
     data: { name: "Resina", technology: "RESIN", price: "100" },
   });
   await expect(
-    createProduct(actor, { ...productInput, materialId: material.id }, image),
+    createProduct(
+      actor,
+      { ...productInput, materialId: material.id },
+      { a: image },
+    ),
   ).rejects.toMatchObject({ code: "VALIDATION" });
   await expect(
-    createProduct(actor, { ...productInput, price: "0" }, image),
+    createProduct(actor, { ...productInput, price: "0" }, { a: image }),
   ).rejects.toThrow();
   await expect(
     createProduct(actor, productInput, undefined as never),

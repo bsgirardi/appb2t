@@ -3,11 +3,12 @@ import type { ProductDTO } from "@/domain/products/types";
 export async function saveProductRequest(
   id: string | undefined,
   input: unknown,
-  photo?: File,
+  uploads: Record<string, File> = {},
 ): Promise<ProductDTO> {
   const body = new FormData();
   body.set("data", JSON.stringify(input));
-  if (photo) body.set("photo", photo);
+  for (const [key, photo] of Object.entries(uploads))
+    body.set(`photo:${key}`, photo);
   let response: Response;
   try {
     response = await fetch(id ? `/api/products/${id}` : "/api/products", {

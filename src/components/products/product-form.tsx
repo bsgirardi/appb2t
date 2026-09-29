@@ -1,7 +1,10 @@
 "use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Decimal from "decimal.js";
-import Image from "next/image";
+import {
+  ProductGalleryEditor,
+  type GalleryDraft,
+} from "./product-gallery-editor";
 import Link from "next/link";
 import { RefreshCw, Save, ArrowLeft } from "lucide-react";
 import type {
@@ -67,6 +70,7 @@ export function ProductForm({
       ? {
           name: product.name,
           price: product.price,
+          images: product.images.map((i) => ({ id: i.id })),
           description: product.description,
           paymentTerms: product.paymentTerms,
           active: product.active,
@@ -77,6 +81,7 @@ export function ProductForm({
       : {
           name: "",
           price: "",
+          images: [],
           description: "",
           paymentTerms: "",
           active: true,
@@ -85,22 +90,14 @@ export function ProductForm({
           printerId: null,
         },
   );
-  const [photo, setPhoto] = useState<File>(),
-    [preview, setPreview] = useState(
-      product ? `${product.imageUrl}?v=${product.version}` : "",
-    );
-  const previewRef = useRef<string | null>(null),
-    pending = useRef(false);
+  const [gallery, setGallery] = useState<GalleryDraft[]>(
+    () => product?.images.map((i) => ({ id: i.id, url: i.url })) ?? [],
+  );
+  const pending = useRef(false);
   const [saving, setSaving] = useState(false),
     [refreshing, setRefreshing] = useState(false),
     [error, setError] = useState(""),
     [info, setInfo] = useState("");
-  useEffect(
-    () => () => {
-      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    },
-    [],
-  );
   const technology = draft.calculation.technology;
   const materials = snapshot.materials.filter(
       (m) => m.technology === technology,
@@ -121,22 +118,6 @@ export function ProductForm({
       !!result && new Decimal(parseFinalPrice(draft.price)).lt(result.total);
   } catch {
     /* Price may be incomplete while typing. */
-  }
-  function choosePhoto(file?: File) {
-    if (!file) return;
-    setError("");
-    if (
-      !file.size ||
-      file.size > 5 * 1024 * 1024 ||
-      !["image/jpeg", "image/png", "image/webp"].includes(file.type)
-    ) {
-      setError("Envie uma foto JPEG, PNG ou WebP de até 5 MiB.");
-      return;
-    }
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    previewRef.current = URL.createObjectURL(file);
-    setPreview(previewRef.current);
-    setPhoto(file);
   }
   async function refresh() {
     if (pending.current) return;
@@ -183,15 +164,16 @@ export function ProductForm({
     if (pending.current) return;
     setError("");
     setInfo("");
-    const parsed = productSchema.safeParse(draft);
+    const parsed = productSchema.safeParse({
+      ...draft,
+      images: gallery.map((i) =>
+        i.id ? { id: i.id } : { uploadKey: i.uploadKey },
+      ),
+    });
     if (!parsed.success) {
       setError(
         "Confira os campos do produto e da calculadora. Preencha todos os valores; o tempo e o consumo devem ser positivos.",
       );
-      return;
-    }
-    if (!product && !photo) {
-      setError("Envie uma foto do produto.");
       return;
     }
     pending.current = true;
@@ -204,7 +186,11 @@ export function ProductForm({
             ...parsed.data,
             ...(product ? { expectedVersion: product.version } : {}),
           },
-          photo,
+          Object.fromEntries(
+            gallery
+              .filter((i) => i.file && i.uploadKey)
+              .map((i) => [i.uploadKey!, i.file!]),
+          ),
         ),
       );
     } catch (e) {
@@ -311,23 +297,11 @@ export function ProductForm({
                   {formatBRL(result.total)}. Confira sua decisão comercial.
                 </Notice>
               )}
-              <Field
-                label="Foto do produto"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                hint="JPEG, PNG ou WebP · até 5 MiB"
-                onChange={(e) => choosePhoto(e.target.files?.[0])}
+              <ProductGalleryEditor
+                value={gallery}
+                onChange={setGallery}
+                onError={setError}
               />
-              {preview && (
-                <Image
-                  src={preview}
-                  width={140}
-                  height={140}
-                  unoptimized
-                  alt="Prévia da foto do produto"
-                  className="product-image-preview"
-                />
-              )}
               <label className="product-checkbox">
                 <input
                   type="checkbox"

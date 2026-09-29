@@ -1,5 +1,12 @@
 import type { CalculationInput } from "@/domain/calculation/types";
+export type ImageSelection = { id: string } | { uploadKey: string };
+export interface ProductImageDTO {
+  id: string;
+  url: string;
+  position: number;
+}
 export interface ProductInput {
+  images: ImageSelection[];
   price: string;
   name: string;
   description: string;
@@ -10,6 +17,7 @@ export interface ProductInput {
   printerId?: string | null;
 }
 export interface PublicProductDTO {
+  images: ProductImageDTO[];
   id: string;
   name: string;
   description: string;
@@ -17,6 +25,7 @@ export interface PublicProductDTO {
   price: string;
   imageUrl: string;
 }
-export interface ProductDTO extends PublicProductDTO, ProductInput {
+export interface ProductDTO
+  extends PublicProductDTO, Omit<ProductInput, "images"> {
   version: number;
 }

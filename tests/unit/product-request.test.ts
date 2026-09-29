@@ -14,6 +14,7 @@ it("reads data without requiring replacement photo", async () => {
   data.set("data", '{"name":"Peça"}');
   expect(await readProductRequest(request(data))).toEqual({
     input: { name: "Peça" },
+    uploads: {},
   });
 });
 it("rejects foreign origin, malformed JSON and unexpected fields", async () => {
@@ -35,7 +36,11 @@ it("rejects foreign origin, malformed JSON and unexpected fields", async () => {
 it("limits bytes even without Content-Length", async () => {
   const data = new FormData();
   data.set("data", "{}");
-  data.set("photo", new Blob([new Uint8Array(6 * 1024 * 1024)]), "large.png");
+  data.set(
+    "photo:a",
+    new Blob([new Uint8Array(53 * 1024 * 1024)]),
+    "large.png",
+  );
   await expect(readProductRequest(request(data))).rejects.toMatchObject({
     code: "VALIDATION",
   });
