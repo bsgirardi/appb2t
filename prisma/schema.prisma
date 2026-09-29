@@ -143,6 +143,7 @@ model CompanyAppearance {
  logo CompanyLogo?
 }
 model CompanyLogo {
+ cacheKey String @default(cuid())
  appearanceId Int @id
  appearance CompanyAppearance @relation(fields:[appearanceId],references:[id],onDelete:Cascade)
  bytes Bytes

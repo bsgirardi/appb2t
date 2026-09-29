@@ -18,11 +18,17 @@ Nenhuma conta, produto ou tarifa de demonstração é criada automaticamente na 
 
 - `/portfolio`: catálogo público, sem login, com somente produtos ativos. Custos e margens não são expostos.
 - `/produtos`: painel protegido; ADMIN e OPERATOR podem criar, editar, inativar e reativar qualquer produto da equipe. Cadastro de usuários e configurações globais continuam exclusivos de ADMIN.
-- **Novo produto**: informe nome, descrição, foto e condições de pagamento. Selecione material e impressora, informe consumo/tempo e ajuste os custos necessários. Todos os campos da calculadora estão disponíveis por produto.
-- **Salvar produto** publica o preço calculado e validado pelo servidor. Alterar valores globais não reajusta produtos já salvos. **Carregar configurações atuais** atualiza somente o rascunho; revise e salve para publicar. Referências inativas não impedem editar os valores previamente salvos.
+- **Novo produto**: informe nome, descrição, preço final, de 1 a 10 fotos e condições de pagamento. Selecione material e impressora, informe consumo/tempo e ajuste os custos necessários. Todos os campos da calculadora estão disponíveis por produto.
+- **Preço final de venda** é independente da sugestão da calculadora. Recalcular custos e carregar configurações atuais não alteram o preço negociado. **Usar preço sugerido** copia a sugestão somente para o rascunho; **Salvar produto** publica o preço final informado. Referências inativas não impedem editar os valores previamente salvos.
 - **Inativar** retira o produto do catálogo sem excluir seu registro. **Reativar** restaura a publicação. Em conflito de edição, preserve seu texto, volte à lista, use **Atualizar lista** e abra novamente a versão atual do produto.
 
-Fotos: JPEG, PNG ou WebP estático, até 5 MiB e 40 milhões de pixels. O servidor normaliza para WebP de até 1600 pixels por dimensão. Produto e foto são gravados juntos, e ambos são incluídos no backup PostgreSQL existente; não há diretório de uploads ou serviço externo a configurar. O proxy HTTP deve aceitar requisições multipart de até 6 MiB. As condições de pagamento são texto informativo; não há cobrança nem cálculo de parcelas.
+Fotos: JPEG, PNG ou WebP estático, até 5 MiB e 40 milhões de pixels por imagem. O servidor normaliza para WebP de até 1600 pixels por dimensão. Produto, fotos e ordem são gravados juntos, com controle de versão. A primeira imagem é a capa; o catálogo oferece carrossel manual. Tudo fica no backup PostgreSQL, sem diretório de uploads. O proxy HTTP deve aceitar requisições multipart de até **52 MiB**. As condições de pagamento do catálogo são texto informativo; não executam cobrança.
+
+**Coleções**: administradores e operadores agrupam produtos em várias coleções, definem capa opcional, ordem e estado ativo. Inativar coleção não inativa seus produtos. O catálogo público oferece filtros e mostra somente produtos e coleções ativos.
+
+**Aparência**: em `/configuracoes/aparencia`, administradores configuram nome, contatos públicos, rodapé, logo e cores dos dois temas. Logo aceita até 2 MiB/16 milhões de pixels e é normalizado até 1024 px, preservando transparência. As mudanças são publicadas ao salvar. O tema segue a preferência do sistema; os textos de marca usam contraste validado. Dados existentes sem configuração mantêm a identidade B2T.
+
+As migrações de galeria preservam os bytes da foto antiga, o preço publicado e os parâmetros de custos; cada foto existente passa a ser a capa. Faça backup antes de atualizar e execute `migrate deploy` pelo serviço de migração.
 
 Ao atualizar uma instalação existente, aplique a migração `202609280002_products` antes de servir a nova versão. No Compose, o serviço `migrate` já executa esse passo. Fora do Compose, com `DATABASE_URL` apontando ao banco correto, execute `npm run db:migrate` e depois faça o build/inicie a aplicação. A migração adiciona tabelas sem remover os cadastros existentes.
 

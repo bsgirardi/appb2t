@@ -49,3 +49,18 @@ it("denies operators without altering public identity", async () => {
   ).rejects.toMatchObject({ code: "FORBIDDEN" });
   expect((await getPublicAppearance()).shortName).toBe("B2T");
 });
+it("changes the logo URL after replacing bytes so open pages refresh the image", async () => {
+  const admin = await seedUser();
+  const first = await saveAppearance(
+    admin,
+    { ...defaultAppearance, expectedVersion: 0 },
+    { bytes: new Uint8Array([1]), mimeType: "image/webp" },
+  );
+  const second = await saveAppearance(
+    admin,
+    { ...defaultAppearance, expectedVersion: 1 },
+    { bytes: new Uint8Array([2]), mimeType: "image/webp" },
+  );
+  expect(second.logoUrl).not.toBe(first.logoUrl);
+  expect((await getPublicAppearance()).logoUrl).toBe(second.logoUrl);
+});

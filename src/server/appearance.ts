@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { randomUUID } from "node:crypto";
 import { AppError, conflict } from "@/lib/errors";
 import { assertAdmin } from "./auth/authorization";
 import type { Actor } from "./auth/session";
@@ -27,11 +28,14 @@ const publicSelect = {
 export async function getPublicAppearance(): Promise<PublicAppearanceDTO> {
   const row = await db.companyAppearance.findUnique({
     where: { id: 1 },
-    select: { ...publicSelect, logo: { select: { appearanceId: true } } },
+    select: { ...publicSelect, logo: { select: { cacheKey: true } } },
   });
   if (!row) return { ...defaultAppearance, logoUrl: null };
   const { logo, ...fields } = row;
-  return { ...fields, logoUrl: logo ? "/api/appearance/logo" : null };
+  return {
+    ...fields,
+    logoUrl: logo ? `/api/appearance/logo?asset=${logo.cacheKey}` : null,
+  };
 }
 export async function getAppearance(actor: Actor): Promise<AppearanceDTO> {
   assertAdmin(actor);
@@ -40,12 +44,15 @@ export async function getAppearance(actor: Actor): Promise<AppearanceDTO> {
     select: {
       ...publicSelect,
       version: true,
-      logo: { select: { appearanceId: true } },
+      logo: { select: { cacheKey: true } },
     },
   });
   if (!row) return { ...defaultAppearance, version: 0, logoUrl: null };
   const { logo, ...fields } = row;
-  return { ...fields, logoUrl: logo ? "/api/appearance/logo" : null };
+  return {
+    ...fields,
+    logoUrl: logo ? `/api/appearance/logo?asset=${logo.cacheKey}` : null,
+  };
 }
 export async function saveAppearance(
   actor: Actor,
@@ -69,18 +76,27 @@ export async function saveAppearance(
     if (removeLogo)
       await tx.companyLogo.deleteMany({ where: { appearanceId: 1 } });
     if (logo) {
-      const data = { bytes: Buffer.from(logo.bytes), mimeType: logo.mimeType };
+      const data = {
+        cacheKey: randomUUID(),
+        bytes: Buffer.from(logo.bytes),
+        mimeType: logo.mimeType,
+      };
       await tx.companyLogo.upsert({
         where: { appearanceId: 1 },
         create: { appearanceId: 1, ...data },
         update: data,
       });
     }
-    const hasLogo = await tx.companyLogo.count({ where: { appearanceId: 1 } });
+    const savedLogo = await tx.companyLogo.findUnique({
+      where: { appearanceId: 1 },
+      select: { cacheKey: true },
+    });
     return {
       ...data,
       version: row.version,
-      logoUrl: hasLogo ? "/api/appearance/logo" : null,
+      logoUrl: savedLogo
+        ? `/api/appearance/logo?asset=${savedLogo.cacheKey}`
+        : null,
     };
   });
 }

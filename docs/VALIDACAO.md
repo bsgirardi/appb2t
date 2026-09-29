@@ -53,3 +53,17 @@ Limitações desta etapa:
 - Persistência foi exercitada em transações reais; reinício completo do banco/aplicação e restauração de backup não foram repetidos nesta etapa.
 
 Decisões de execução: continuar no checkout e branch existentes `feat/calculadora`, mantendo a integração local; registrar progresso com ferramentas nativas do Windows em vez dos auxiliares Bash; reutilizar PostgreSQL de teste isolado diante da indisponibilidade do Docker. O custo dessas escolhas é não haver isolamento adicional de checkout e permanecer pendente a verificação específica dos contêineres. Não houve push, merge ou publicação externa.
+
+## Catálogo, coleções e aparência — 29/09/2026
+
+- Preço final informado separadamente da sugestão, galeria de 1–10 fotos, carrossel acessível, coleções e personalização administrativa implementados.
+- Suíte completa: 106 testes aprovados em 27 arquivos, com PostgreSQL real isolado; TypeScript e ESLint aprovados.
+- Migração completa em banco descartável da versão anterior preservou preço 75,15, snapshot e bytes da foto. Migração de galeria também testada em tabela temporária.
+- Docker Linux voltou a funcionar: imagens de produção construídas, migrações aplicadas e aplicação saudável em projeto de validação separado, acessível somente por loopback.
+- Navegador: produto criado com dez fotos, troca da capa, reabertura com todas as imagens, alteração de custos mantendo preço final 75,00, criação de coleção e troca do nome da empresa. Carrossel público navegável, filtro e imagens carregados.
+- HTTP de produção: visitante acessa portfólio e fotos; API de produtos exige sessão; operador acessa produtos/coleções e não altera aparência. Reinício do banco e da aplicação preservou fotos, preço, coleções e marca.
+- Visual: rótulos de custos passaram de 10px para 14px. Variantes clara/escura renderizadas em fixture isolada do formulário real, em 1440/390px; sem overflow horizontal. Catálogo real verificado em 390px. O navegador disponível não oferece emulação de preferência de cor; a troca do tema do sistema durante a sessão não foi exercitada. A fixture seleciona a regra CSS de cada tema, sem mudar preferências do computador.
+- Revisão independente tentada, mas o agente não iniciou por falta de créditos do ambiente. Foi feita revisão local pelo autor, que é menos independente. Ela identificou URL de logo inalterada após substituição; corrigida com chave de imagem renovada, teste inicialmente falhando e suíte 106/106 após a correção. Não há parecer independente desta entrega.
+- Decisões: manter checkout/branch aprovados; usar cabeçalhos `Task` para compatibilidade dos auxiliares de execução; prosseguir com revisão local diante da indisponibilidade do revisor. Custos residuais: sem isolamento adicional de checkout e possibilidade de pontos cegos do autor. Metadados e identidade são carregados em execução, permitindo build Docker sem banco conectado.
+
+Esta validação atualiza as limitações antigas de Docker e início da prévia descritas acima. Não houve publicação externa, push ou merge. Vendas e financeiro pertencem às próximas entregas aprovadas.
