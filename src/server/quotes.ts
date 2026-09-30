@@ -141,7 +141,13 @@ export async function transitionQuote(
     let data: Prisma.QuoteUpdateInput = { version: { increment: 1 } };
     if (action === "ISSUE") {
       if (status !== "RASCUNHO") throw conflict();
-      const input = quoteSchema.parse(q.input);
+      const parsed = quoteSchema.safeParse(q.input);
+      if (!parsed.success)
+        throw new AppError(
+          "VALIDATION",
+          "Revise o cliente, os itens, a validade e as condições de pagamento; informe também desconto e frete, mesmo que sejam zero.",
+        );
+      const input = parsed.data;
       if (input.validUntil < todaySaoPaulo(new Date()))
         throw new AppError(
           "VALIDATION",
@@ -229,9 +235,13 @@ export async function listQuotes(
   }
   if (f.from || f.to)
     where.createdAt = {
-      ...(f.from ? { gte: civilDateToDb(f.from) } : {}),
+      ...(f.from ? { gte: new Date(`${f.from}T00:00:00-03:00`) } : {}),
       ...(f.to
-        ? { lt: new Date(civilDateToDb(f.to).getTime() + 86400000) }
+        ? {
+            lt: new Date(
+              new Date(`${f.to}T00:00:00-03:00`).getTime() + 86400000,
+            ),
+          }
         : {}),
     };
   const [rows, total] = await db.$transaction(

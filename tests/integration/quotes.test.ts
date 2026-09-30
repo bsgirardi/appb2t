@@ -2,13 +2,32 @@ import { expect, it } from "vitest";
 import { setupDatabase, seedUser } from "./setup";
 import { db } from "@/lib/db";
 import { saveCustomer } from "@/server/customers";
-import { saveQuote, transitionQuote, getQuote } from "@/server/quotes";
+import {
+  saveQuote,
+  transitionQuote,
+  getQuote,
+  listQuotes,
+} from "@/server/quotes";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { saveAppearance } from "@/server/appearance";
 import { defaultAppearance } from "@/domain/appearance/validation";
 import { createProduct } from "@/server/products";
 import { productInput } from "../fixtures/product";
 setupDatabase();
+it("filters issuance days in Sao Paulo instead of UTC", async () => {
+  const { actor } = await fixture();
+  const q = await saveQuote(actor, undefined, {});
+  await db.quote.update({
+    where: { id: q.id },
+    data: { createdAt: new Date("2026-09-30T01:00:00Z") },
+  });
+  expect(
+    (await listQuotes(actor, { from: "2026-09-29", to: "2026-09-29" })).total,
+  ).toBe(1);
+  expect(
+    (await listQuotes(actor, { from: "2026-09-30", to: "2026-09-30" })).total,
+  ).toBe(0);
+});
 it("archives the logo and negotiated product price at issuance", async () => {
   const { actor, input } = await fixture();
   await saveAppearance(
@@ -116,7 +135,9 @@ it("issues with inclusive validity, immutable commercial snapshot and audited re
 it("rejects incomplete, inactive, expired and converted documents", async () => {
   const { actor, customer, input } = await fixture();
   const empty = await saveQuote(actor, undefined, {});
-  await expect(transitionQuote(actor, empty.id, 1, "ISSUE")).rejects.toThrow();
+  await expect(transitionQuote(actor, empty.id, 1, "ISSUE")).rejects.toThrow(
+    /cliente.*itens.*validade.*pagamento/i,
+  );
   const draft = await saveQuote(actor, undefined, input);
   await db.customer.update({
     where: { id: customer.id },

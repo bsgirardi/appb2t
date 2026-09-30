@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import type { QuoteDTO } from "@/domain/commerce/types";
+import type { QuoteDTO, SaleDTO } from "@/domain/commerce/types";
+import { InstallmentEditor } from "./installment-editor";
 import type { CustomerDTO } from "@/domain/customers/types";
 import { api } from "@/lib/client-api";
 import { Notice } from "@/components/ui/field";
@@ -52,14 +53,20 @@ export function QuoteDetail({
         Estado: <strong>{quote.status}</strong>
       </p>
       {error && <Notice>{error}</Notice>}
+      {quote.saleId && (
+        <Link href={`/vendas/${quote.saleId}`}>Abrir venda vinculada</Link>
+      )}
       <div className="form-actions">
         {quote.status === "RASCUNHO" && (
           <>
-            <button className="btn-secondary" onClick={() => setEditing(true)}>
+            <button
+              className="button secondary"
+              onClick={() => setEditing(true)}
+            >
               Editar rascunho
             </button>
             <button
-              className="btn-primary"
+              className="button primary"
               disabled={busy}
               onClick={() => transition("ISSUE")}
             >
@@ -70,14 +77,14 @@ export function QuoteDetail({
         {quote.status === "ENVIADO" && (
           <>
             <button
-              className="btn-primary"
+              className="button primary"
               disabled={busy}
               onClick={() => transition("APPROVE")}
             >
               Registrar aprovação
             </button>
             <button
-              className="btn-secondary"
+              className="button secondary"
               disabled={busy}
               onClick={() => transition("REJECT")}
             >
@@ -87,7 +94,7 @@ export function QuoteDetail({
         )}
         {!["RASCUNHO", "CONVERTIDO"].includes(quote.status) && (
           <button
-            className="btn-secondary"
+            className="button secondary"
             disabled={busy}
             onClick={() => transition("REOPEN")}
           >
@@ -96,7 +103,7 @@ export function QuoteDetail({
         )}
         {quote.snapshot && (
           <Link
-            className="btn-secondary"
+            className="button secondary"
             href={`/orcamentos/${quote.id}/imprimir`}
           >
             Versão para impressão
@@ -107,6 +114,20 @@ export function QuoteDetail({
         Emissão e aprovação são registros internos. Nenhuma mensagem é enviada
         automaticamente.
       </p>
+      {quote.status === "APROVADO" && quote.totals && (
+        <InstallmentEditor
+          total={quote.totals.total}
+          onConfirm={async (installments, operationKey) => {
+            const sale = await api<SaleDTO>(`/api/quotes/${quote.id}/convert`, {
+              expectedVersion: quote.version,
+              installments,
+              operationKey,
+            });
+            router.push(`/vendas/${sale.id}`);
+            router.refresh();
+          }}
+        />
+      )}
       {editing && (
         <QuoteForm
           quote={quote}
@@ -129,7 +150,7 @@ export function QuoteDetail({
           validUntil={quote.input.validUntil}
         />
       ) : (
-        <div className="panel">
+        <div className="card">
           <p>
             Cliente:{" "}
             {customers.find((c) => c.id === quote.input.customerId)?.name ??
@@ -142,12 +163,12 @@ export function QuoteDetail({
         </div>
       )}
       {quote.input.internalNotes && (
-        <section className="panel">
+        <section className="card">
           <h2>Notas internas</h2>
           <p className="preserve-lines">{quote.input.internalNotes}</p>
         </section>
       )}
-      <section className="panel">
+      <section className="card">
         <h2>Histórico</h2>
         <ul>
           {quote.events.map((e) => (

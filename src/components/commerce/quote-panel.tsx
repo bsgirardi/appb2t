@@ -36,7 +36,7 @@ export function QuotePanel({
           <h1>Orçamentos</h1>
           <p>Prepare propostas e acompanhe a aprovação do cliente.</p>
         </div>
-        <button className="btn-primary" onClick={() => setCreating(true)}>
+        <button className="button primary" onClick={() => setCreating(true)}>
           Novo orçamento
         </button>
       </div>
@@ -83,9 +83,9 @@ export function QuotePanel({
           Até
           <input type="date" name="to" defaultValue={filters.to} />
         </label>
-        <button className="btn-secondary">Filtrar</button>
+        <button className="button secondary">Filtrar</button>
       </form>
-      <div className="panel table-scroll">
+      <div className="card table-scroll">
         <table>
           <thead>
             <tr>
@@ -116,7 +116,7 @@ export function QuotePanel({
       </div>
       <div className="form-actions">
         <button
-          className="btn-secondary"
+          className="button secondary"
           disabled={initial.page <= 1}
           onClick={() => router.push(url(initial.page - 1))}
         >
@@ -126,7 +126,7 @@ export function QuotePanel({
           {initial.total} orçamento(s) · Página {initial.page}
         </span>
         <button
-          className="btn-secondary"
+          className="button secondary"
           disabled={initial.page * initial.pageSize >= initial.total}
           onClick={() => router.push(url(initial.page + 1))}
         >

@@ -13,12 +13,16 @@ export function QuoteForm({
   products,
   onSaved,
   onCancel,
+  saveDraft,
+  title,
 }: {
   quote?: QuoteDTO;
   customers: CustomerDTO[];
   products: CommercialProduct[];
   onSaved: (q: QuoteDTO) => void;
   onCancel: () => void;
+  saveDraft?: (draft: QuoteDraftInput) => Promise<void>;
+  title?: string;
 }) {
   const [draft, setDraft] = useState<QuoteDraftInput>(
     quote?.input ?? { discount: "0.00", shipping: "0.00", internalNotes: "" },
@@ -49,6 +53,10 @@ export function QuoteForm({
     pending.current = true;
     setBusy(true);
     try {
+      if (saveDraft) {
+        await saveDraft(parsed.data);
+        return;
+      }
       onSaved(
         await api<QuoteDTO>(
           quote ? `/api/quotes/${quote.id}` : "/api/quotes",
@@ -68,7 +76,7 @@ export function QuoteForm({
   }
   return (
     <form onSubmit={save} className="commerce-form">
-      <h2>{quote ? "Editar orçamento" : "Novo orçamento"}</h2>
+      <h2>{title ?? (quote ? "Editar orçamento" : "Novo orçamento")}</h2>
       {error && <Notice>{error}</Notice>}
       <label>
         Cliente
@@ -78,19 +86,21 @@ export function QuoteForm({
         >
           <option value="">Selecionar depois</option>
           {customers.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.id} disabled={!c.active}>
               {c.name}
               {c.active ? "" : " (inativo)"}
             </option>
           ))}
         </select>
       </label>
-      <Field
-        label="Válido até"
-        type="date"
-        value={draft.validUntil ?? ""}
-        onChange={(e) => update({ validUntil: e.target.value || undefined })}
-      />
+      {!saveDraft && (
+        <Field
+          label="Válido até"
+          type="date"
+          value={draft.validUntil ?? ""}
+          onChange={(e) => update({ validUntil: e.target.value || undefined })}
+        />
+      )}
       <DocumentItems
         items={draft.items ?? []}
         products={products}
@@ -134,14 +144,15 @@ export function QuoteForm({
         />
       </label>
       <p>
-        Salvar mantém o rascunho. A emissão exige cliente, itens, validade e
-        condições de pagamento.
+        {saveDraft
+          ? "A venda será salva como rascunho. Revise o parcelamento antes de confirmar."
+          : "Salvar mantém o rascunho. A emissão exige cliente, itens, validade e condições de pagamento."}
       </p>
       <div className="form-actions">
-        <button className="btn-primary" disabled={busy}>
+        <button className="button primary" disabled={busy}>
           {busy ? "Salvando…" : "Salvar rascunho"}
         </button>
-        <button type="button" className="btn-secondary" onClick={onCancel}>
+        <button type="button" className="button secondary" onClick={onCancel}>
           Cancelar
         </button>
       </div>

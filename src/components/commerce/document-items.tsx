@@ -16,7 +16,7 @@ export function DocumentItems({
     );
   }
   return (
-    <section className="panel">
+    <section className="card">
       <h2>Itens do documento</h2>
       <p>
         O preço do catálogo é copiado ao selecionar o produto. Ajuste o valor
@@ -85,7 +85,7 @@ export function DocumentItems({
           </label>
           <button
             type="button"
-            className="btn-secondary"
+            className="button secondary"
             onClick={() => onChange(items.filter((_, i) => i !== index))}
           >
             Remover item {index + 1}
@@ -94,7 +94,7 @@ export function DocumentItems({
       ))}
       <button
         type="button"
-        className="btn-secondary"
+        className="button secondary"
         disabled={items.length >= 100}
         onClick={() =>
           onChange([...items, { description: "", quantity: 1, unitPrice: "" }])

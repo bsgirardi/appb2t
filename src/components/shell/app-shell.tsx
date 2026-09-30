@@ -48,6 +48,20 @@ export function AppShell({
         </div>
         <div className="nav-title">ÁREA DE TRABALHO</div>
         <nav aria-label="Menu principal">
+          {[
+            ["/clientes", "Clientes"],
+            ["/orcamentos", "Orçamentos"],
+            ["/vendas", "Vendas"],
+          ].map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              className={path.startsWith(href) ? "nav-item active" : "nav-item"}
+            >
+              <Box size={19} />
+              {label}
+            </Link>
+          ))}
           {actor.role === "ADMIN" && (
             <Link
               className={
@@ -150,13 +164,21 @@ export function AppShell({
           <span>
             Workspace <span className="slash">/</span>{" "}
             <strong>
-              {path.startsWith("/configuracoes")
-                ? "Configurações"
-                : path.startsWith("/produtos")
-                  ? "Produtos"
-                  : path === "/conta"
-                    ? "Minha conta"
-                    : "Calculadora de custos"}
+              {path.startsWith("/clientes")
+                ? "Clientes"
+                : path.startsWith("/orcamentos")
+                  ? "Orçamentos"
+                  : path.startsWith("/vendas")
+                    ? "Vendas"
+                    : path.startsWith("/colecoes")
+                      ? "Coleções"
+                      : path.startsWith("/configuracoes")
+                        ? "Configurações"
+                        : path.startsWith("/produtos")
+                          ? "Produtos"
+                          : path === "/conta"
+                            ? "Minha conta"
+                            : "Calculadora de custos"}
             </strong>
           </span>
           <span className="internal-chip">

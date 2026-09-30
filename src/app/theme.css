@@ -499,6 +499,10 @@ button:disabled {
 .commercial-print section,.commercial-print table,.commercial-print dl { margin: 24px 0; }
 .commercial-print dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
 .commercial-print footer { margin-top: 32px; }
+.commercial-print thead,.commercial-print th { background:#e9eef3 !important; }
+.commercial-print tbody,.commercial-print td,.commercial-print tr:hover { background:#fff !important; }
+.commercial-print dt,.commercial-print dd {color:#172133 !important;}
+@media print { .workspace {width:100% !important;} .workspace main {padding:0 !important;} .workspace-footer {display:none !important;} }
 .preserve-lines { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media(max-width:600px) { .commerce-item {grid-template-columns:1fr;} .commercial-print,.commerce-form {padding:16px;} }
 @media print { .sidebar,.topbar,.no-print {display:none !important;} .app-shell,.main-content,.workspace {display:block !important;margin:0 !important;padding:0 !important;} .commercial-print {border:0;border-radius:0;} body {background:#fff !important;} .commercial-print tr {break-inside:avoid;} }
