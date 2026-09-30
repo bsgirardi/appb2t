@@ -53,4 +53,4 @@ Mudanças no nome/logo/contatos aplicam-se às páginas atuais e aos novos docum
 
 Cada entrega exige seus testes de domínio, permissões, integração e interface, análise de tipos, lint e build. A entrega visual inclui verificação em computador e celular, nos temas claro e escuro; o financeiro inclui casos de centavos, concorrência e estorno. Limitações de ambiente devem ser relatadas com precisão e não registradas como testes aprovados.
 
-Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Especificações e planos aprovados; implementação e validação sequenciais em andamento.
+Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Especificações e planos aprovados; as três entregas estão implementadas e validadas localmente. Resultados e limites da revisão visual, operacional e independente estão registrados em `docs/VALIDACAO.md`.

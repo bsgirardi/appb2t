@@ -151,6 +151,22 @@ Orçamento aprovado e vigente pode virar uma única venda. Revise entrada, parce
 
 O fluxo é **Confirmada → Em produção → Pronta → Entregue**. Prazo e observações operacionais mantêm histórico. Antes da entrega, cancelamento exige motivo e ausência de recebimentos vigentes; os recebíveis são cancelados juntos. Conteúdo de venda confirmada não pode ser alterado retroativamente. Edições concorrentes geram conflito, preservando os dados preenchidos no formulário.
 
+## Financeiro interno
+
+Somente **ADMIN** acessa `/financeiro`, contas, categorias, obrigações, movimentos e exportações. Operadores continuam vendo apenas o resumo de recebimento nas vendas.
+
+1. Cadastre as contas com o saldo inicial e sua data de referência. Após a primeira movimentação, corrija diferenças com **Ajustar saldo**, informando motivo. Contas ativas podem ficar negativas, com alerta; a inativação exige saldo zero.
+2. Cadastre categorias de receita/despesa e lançamentos avulsos. O parcelamento divide o total em até 120 vencimentos mensais, preservando centavos. As parcelas das vendas são criadas automaticamente, sem duplicação. A categoria de receita de vendas permanece ativa.
+3. Em **A pagar e receber → Ver detalhes → Registrar baixa**, registre um pagamento já realizado fora da aplicação, inclusive parcial. Escolha conta, valor, data e forma de pagamento. Isso atualiza o saldo e o resumo da venda; não envia dinheiro nem emite cobrança.
+4. Use **Estornar baixa** para corrigir um registro. O movimento original permanece e um movimento inverso é registrado na data efetiva. A data precisa estar entre a baixa original e hoje; a conta deve estar ativa. Transferências são estornadas por inteiro, nas duas contas.
+5. Lançamentos avulsos permitem alteração de valor/vencimento apenas sem baixa vigente. Recebíveis comerciais não têm edição livre: seu cancelamento cancela a venda de origem inteira e todas as parcelas, antes da entrega e após estornar todas as baixas. Nenhum histórico é apagado.
+
+O painel separa **previsto** de **realizado**. A projeção parte do saldo atual, acrescenta o líquido dos vencidos em aberto e considera somente o restante das obrigações. Transferências e ajustes aparecem separados das entradas/saídas operacionais. Saldos anteriores à abertura são apresentados como sem referência. As datas são civis; os horários do histórico usam São Paulo.
+
+Filtros por data usam vencimento nas obrigações e data efetiva nos movimentos. O saldo atual não é limitado pelo período ou categoria; corresponde às contas selecionadas. Como uma obrigação ainda sem baixa não possui conta de pagamento definida, filtrar por conta restringe as previsões às obrigações que já tiveram baixa naquela conta. Totais abrangem todos os registros filtrados, não apenas a página. CSV usa ponto e vírgula, proteção de fórmulas textuais e limite de 10.000 movimentos; refine os filtros se exceder.
+
+Baixas, estornos, transferências, ajustes e lotes têm proteção contra reenvio da mesma operação. Migrações preservam os recebíveis existentes. Esta etapa não inclui integração bancária, emissão fiscal, cobrança automática Pix/boleto ou conciliação externa.
+
 ## Backup e restauração
 
 Faça backups regulares fora do volume Docker e teste a restauração. Os comandos abaixo evitam redirecionar binários pelo PowerShell:

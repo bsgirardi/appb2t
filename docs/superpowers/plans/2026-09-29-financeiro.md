@@ -10,7 +10,9 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-29-financeiro-design.md` e `2026-09-29-gestao-interna-index.md`, no mesmo diretório.
 
-**Pré-requisito:** entregas 1 e 2 verificadas. Execução direta já escolhida; plano aguarda revisão escrita.
+**Pré-requisito:** entregas 1 e 2 verificadas. Plano aprovado, execução direta no checkout existente.
+
+**Estado em 30/09/2026:** tarefas 1–6 implementadas; aceitação da tarefa 7 realizada com PostgreSQL real, 168 testes, build Docker, navegação, reinício e restauração em banco separado. Correções finais verificadas por 12 testes direcionados, tipos, lint e novo build. Revisão financeira feita pelo autor, sem novo parecer independente; detalhes e limitações em `docs/VALIDACAO.md`. Os passos de falha inicial abaixo são o roteiro original, não uma afirmação de que toda verificação de aceitação seguiu RED→GREEN.
 
 ## Global Constraints
 
