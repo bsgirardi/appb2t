@@ -286,6 +286,10 @@ model SaleInstallment {
  @@unique([saleId,number])
 }
 model FinancialEntry {
+ categoryId String?
+ category FinancialCategory? @relation(fields:[categoryId],references:[id],onDelete:Restrict)
+ groupId String?
+ settlements Settlement[]
  id String @id @default(cuid())
  kind FinancialEntryKind
  amount Decimal @db.Decimal(18,2)
@@ -307,6 +311,126 @@ model CommercialOperation {
  type String
  payloadHash String
  result Json
+ createdAt DateTime @default(now())
+}
+enum AccountType {
+ CASH
+ BANK
+ OTHER
+}
+enum CategoryKind {
+ REVENUE
+ EXPENSE
+}
+enum MovementKind {
+ RECEIPT
+ PAYMENT
+ TRANSFER
+ ADJUSTMENT
+ REVERSAL
+}
+enum PaymentMethod {
+ PIX
+ CASH
+ CARD
+ BOLETO
+ TRANSFER
+ OTHER
+}
+model FinancialAccount {
+ id String @id @default(cuid())
+ name String
+ type AccountType
+ openingBalance Decimal @db.Decimal(18,2)
+ openingDate DateTime @db.Date
+ active Boolean @default(true)
+ version Int @default(1)
+ movements CashMovement[]
+ settlements Settlement[]
+ outgoingTransfers FinancialTransfer[] @relation("TransferFrom")
+ incomingTransfers FinancialTransfer[] @relation("TransferTo")
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+}
+model FinancialCategory {
+ id String @id @default(cuid())
+ name String
+ kind CategoryKind
+ active Boolean @default(true)
+ version Int @default(1)
+ systemCode String? @unique
+ entries FinancialEntry[]
+ movements CashMovement[]
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+}
+model Settlement {
+ id String @id @default(cuid())
+ entryId String
+ entry FinancialEntry @relation(fields:[entryId],references:[id],onDelete:Restrict)
+ accountId String
+ account FinancialAccount @relation(fields:[accountId],references:[id],onDelete:Restrict)
+ amount Decimal @db.Decimal(18,2)
+ method PaymentMethod
+ effectiveDate DateTime @db.Date
+ notes String @default("")
+ movement CashMovement?
+ createdAt DateTime @default(now())
+ @@index([entryId])
+}
+model CashMovement {
+ id String @id @default(cuid())
+ accountId String
+ account FinancialAccount @relation(fields:[accountId],references:[id],onDelete:Restrict)
+ categoryId String?
+ category FinancialCategory? @relation(fields:[categoryId],references:[id],onDelete:Restrict)
+ amount Decimal @db.Decimal(18,2)
+ effectiveDate DateTime @db.Date
+ kind MovementKind
+ description String
+ actorId String
+ actorName String
+ settlementId String? @unique
+ settlement Settlement? @relation(fields:[settlementId],references:[id],onDelete:Restrict)
+ transferId String?
+ transfer FinancialTransfer? @relation(fields:[transferId],references:[id],onDelete:Restrict)
+ reversalOfId String? @unique
+ reversalOf CashMovement? @relation("MovementReversal",fields:[reversalOfId],references:[id],onDelete:Restrict)
+ reversedBy CashMovement? @relation("MovementReversal")
+ createdAt DateTime @default(now())
+ @@index([accountId,effectiveDate])
+ @@index([categoryId,effectiveDate])
+}
+model FinancialTransfer {
+ id String @id @default(cuid())
+ fromAccountId String
+ fromAccount FinancialAccount @relation("TransferFrom",fields:[fromAccountId],references:[id],onDelete:Restrict)
+ toAccountId String
+ toAccount FinancialAccount @relation("TransferTo",fields:[toAccountId],references:[id],onDelete:Restrict)
+ amount Decimal @db.Decimal(18,2)
+ effectiveDate DateTime @db.Date
+ description String
+ movements CashMovement[]
+ createdAt DateTime @default(now())
+}
+model FinancialAuditEvent {
+ id String @id @default(cuid())
+ entityType String
+ entityId String
+ action String
+ reason String @default("")
+ changes Json
+ actorId String
+ actorName String
+ createdAt DateTime @default(now())
+ @@index([entityType,entityId,createdAt])
+}
+model FinanceCommand {
+ key String @id
+ type String
+ payloadHash String
+ result Json
+ actorId String
  createdAt DateTime @default(now())
 }
 model ProductImage {

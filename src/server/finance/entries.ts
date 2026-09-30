@@ -6,6 +6,7 @@ import type {
   ReceiptSummary,
 } from "@/domain/commerce/types";
 import { civilDateToDb, todaySaoPaulo } from "@/domain/commerce/dates";
+import { SALE_REVENUE_ID } from "@/domain/finance/validation";
 export async function createSaleReceivables(
   tx: Prisma.TransactionClient,
   saleId: string,
@@ -18,6 +19,7 @@ export async function createSaleReceivables(
   await tx.financialEntry.createMany({
     data: sale.installments.map((p) => ({
       kind: "RECEIVABLE",
+      categoryId: SALE_REVENUE_ID,
       amount: p.amount,
       dueDate: p.dueDate,
       description: `VEN-${String(sale.sequence).padStart(6, "0")} · Parcela ${p.number}`,

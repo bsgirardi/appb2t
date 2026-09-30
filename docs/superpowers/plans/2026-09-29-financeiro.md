@@ -42,7 +42,7 @@ DTOs retornam dinheiro como string, datas civis `YYYY-MM-DD`, timestamp ISO, id/
 
 Todas as mutações financeiras chamam assertAdmin no serviço além de requireAdmin na rota. A ordem global de bloqueios é operação idempotente → quote (quando aplicável) → sale → entries por id → accounts por id. Alterações só de conta começam em accounts; nenhuma operação adquire sale/entry depois de já adquirir account.
 
-### Tarefa 1: Contas, categorias e trilha imutável
+### Task 1: Contas, categorias e trilha imutável
 
 **Arquivos:** criar `src/server/finance/{accounts,categories,audit,commands}.ts`, domínio financeiro acima, `tests/unit/finance-balances.test.ts`, `tests/integration/finance-accounts.test.ts`; alterar schema/setup e criar migração `202609290007_finance_foundation`.
 
@@ -58,7 +58,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Implementar contas/categorias com versões e bloqueio de conta para saldo/inativação. Guardar saldo inicial na conta (não duplicar como movimento), histórico para mudanças pré-movimentação e ajustes posteriores. Implementar auditoria de alterações sem guardar credenciais. Usar parseMoney assinado somente em abertura/ajuste.
 - [ ] Reexecutar testes e confirmar recusa de inativação concorrente com movimento que deixa saldo não zero. Commit: `feat: criar contas e registros financeiros`.
 
-### Tarefa 2: Obrigações avulsas e recebíveis comerciais
+### Task 2: Obrigações avulsas e recebíveis comerciais
 
 **Arquivos:** estender `src/server/finance/entries.ts`, `src/domain/finance/{types,validation}.ts`; criar `tests/integration/finance-entries.test.ts`, `tests/unit/finance-entries.test.ts`; alterar serviço de vendas para usar a agregação compartilhada quando disponível.
 
@@ -72,7 +72,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Atualizar `getSaleReceiptSummary(tx,saleId)` para agregar liquidações não estornadas na tabela Settlement criada na tarefa 1, mantendo o contrato da entrega 2. Os testes desta tarefa podem inserir fixtures de liquidações/movimentos pela camada de teste, sem depender do serviço de baixa ainda não implementado.
 - [ ] Reexecutar testes de entries e `tests/integration/sales.test.ts`; confirmar que obrigações não criam caixa. Commit: `feat: gerenciar contas a pagar e receber`.
 
-### Tarefa 3: Baixas parciais e estornos idempotentes
+### Task 3: Baixas parciais e estornos idempotentes
 
 **Arquivos:** criar `src/server/finance/settlements.ts`, `tests/integration/finance-settlements.test.ts`, `tests/integration/finance-concurrency.test.ts`; reutilizar commands da tarefa 1 e ajustar `src/server/commerce/locks.ts` e cancelSale para o protocolo compartilhado.
 
@@ -85,7 +85,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Implementar estorno sem alterar original, com reversalOfId único e data entre baixa e hoje, exigindo conta ativa. Cancelamento e resumo comercial usam o mesmo lock e a mesma definição de liquidação vigente. Registros de FinanceCommand ficam ligados ao autor e resultado, sem expor payload a visitantes.
 - [ ] Reexecutar testes, inclusive falha injetada entre Settlement e CashMovement com rollback sem saldo parcial. Commit: `feat: registrar baixas e estornos com idempotencia`.
 
-### Tarefa 4: Transferências e correções de caixa
+### Task 4: Transferências e correções de caixa
 
 **Arquivos:** criar `src/server/finance/transfers.ts`, `tests/integration/finance-transfers.test.ts`; usar FinancialTransfer da migração de fundação, sem segunda criação de schema.
 
@@ -96,7 +96,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Implementar grupo com duas pernas em transação sob locks de contas ordenados. Revalidar datas contra abertura de ambas, estado ativo e valor positivo. Estorno somente pelo grupo; proibir rota genérica de reversão de uma perna. Ajustes só podem ser revertidos pelo fluxo próprio com justificativa.
 - [ ] Reexecutar testes de transferências, ajustes e concorrência; confirmar que saldo negativo é permitido com alerta e não cria “crédito” externo. Commit: `feat: transferir e ajustar saldos com historico`.
 
-### Tarefa 5: Painel, relatórios e CSV
+### Task 5: Painel, relatórios e CSV
 
 **Arquivos:** criar `src/server/finance/reports.ts`, `src/domain/finance/{projection,csv}.ts`, `tests/unit/finance-projection.test.ts`, `tests/unit/finance-csv.test.ts`, `tests/integration/finance-reports.test.ts`.
 
@@ -109,7 +109,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Implementar CSV UTF-8 com separador ponto e vírgula, escaping de aspas/quebras, proteção de fórmulas e limite de 10000 registros: buscar no máximo 10001 e recusar com orientação se exceder. Não truncar silenciosamente nem exportar dados fora dos filtros.
 - [ ] Reexecutar testes e confirmar mesmos totais entre consulta/exportação. Commit: `feat: apresentar fluxo de caixa e relatorios`.
 
-### Tarefa 6: Interface financeira e autorização ponta a ponta
+### Task 6: Interface financeira e autorização ponta a ponta
 
 **Arquivos:** criar `src/components/finance/{finance-dashboard,entry-panel,entry-form,settlement-form,account-panel,category-panel,transfer-form,movement-panel,cash-flow}.tsx`; criar páginas privadas `src/app/(private)/financeiro/{page,layout}.tsx`, `src/app/(private)/financeiro/contas/page.tsx`, `src/app/(private)/financeiro/lancamentos/page.tsx`, `src/app/(private)/financeiro/movimentos/page.tsx`; criar `route.ts` em cada caminho de API da tabela abaixo, relativo a `src/app/api/finance/`. Criar `tests/unit/finance-ui.test.tsx`, `tests/integration/finance-http.test.ts`; alterar shell e detalhe de venda.
 
@@ -142,7 +142,7 @@ Todas as mutações financeiras chamam assertAdmin no serviço além de requireA
 - [ ] Implementar navegação, dashboard e formulários com os tokens da entrega 1. Mostrar “previsto” e “realizado” de forma explícita, estado vencido em texto e data de referência. Formulário de baixa descreve que registra um pagamento realizado fora da aplicação. Categoria de sistema não pode ser apagada/desativada pela interface.
 - [ ] Reexecutar testes e percorrer venda → parcela → baixa → estorno → cancelamento; conferir efeito no resumo da venda e em contas. Commit: `feat: integrar painel financeiro restrito a administradores`.
 
-### Tarefa 7: Aceitação financeira e operação
+### Task 7: Aceitação financeira e operação
 
 **Arquivos:** atualizar README, `docs/VALIDACAO.md`, fixtures e este plano.
 
