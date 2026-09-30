@@ -23,8 +23,11 @@ export async function audit(
     },
   });
 }
-export function movementDTO(m: CashMovement): MovementDTO {
+export function movementDTO(
+  m: CashMovement & { reversedBy?: { id: string } | null },
+): MovementDTO {
   return {
+    reversed: Boolean(m.reversedBy),
     id: m.id,
     accountId: m.accountId,
     categoryId: m.categoryId,

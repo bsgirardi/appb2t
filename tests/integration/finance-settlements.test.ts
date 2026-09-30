@@ -8,12 +8,36 @@ import { settleEntry, reverseSettlement } from "@/server/finance/settlements";
 setupDatabase();
 it("rejects inactive accounts, dates before opening, and reversals before payment", async () => {
   const { actor, a, input } = await fixture();
-  await expect(settleEntry(actor, { ...input, effectiveDate: "2025-12-31" })).rejects.toMatchObject({ code: "VALIDATION" });
-  const inactive = await saveAccount(actor, a.id, { name: a.name, type: a.type, openingBalance: a.openingBalance, openingDate: a.openingDate, active: false, expectedVersion: a.version });
-  await expect(settleEntry(actor, input)).rejects.toMatchObject({ code: "VALIDATION" });
-  await saveAccount(actor, a.id, { name: a.name, type: a.type, openingBalance: a.openingBalance, openingDate: a.openingDate, active: true, expectedVersion: inactive.version });
+  await expect(
+    settleEntry(actor, { ...input, effectiveDate: "2025-12-31" }),
+  ).rejects.toMatchObject({ code: "VALIDATION" });
+  const inactive = await saveAccount(actor, a.id, {
+    name: a.name,
+    type: a.type,
+    openingBalance: a.openingBalance,
+    openingDate: a.openingDate,
+    active: false,
+    expectedVersion: a.version,
+  });
+  await expect(settleEntry(actor, input)).rejects.toMatchObject({
+    code: "VALIDATION",
+  });
+  await saveAccount(actor, a.id, {
+    name: a.name,
+    type: a.type,
+    openingBalance: a.openingBalance,
+    openingDate: a.openingDate,
+    active: true,
+    expectedVersion: inactive.version,
+  });
   const settlement = await settleEntry(actor, input);
-  await expect(reverseSettlement(actor, settlement.id, { reason: "Data incorreta", effectiveDate: "2026-01-01", operationKey: "early-reversal-key" })).rejects.toMatchObject({ code: "VALIDATION" });
+  await expect(
+    reverseSettlement(actor, settlement.id, {
+      reason: "Data incorreta",
+      effectiveDate: "2026-01-01",
+      operationKey: "early-reversal-key",
+    }),
+  ).rejects.toMatchObject({ code: "VALIDATION" });
   expect(await db.cashMovement.count()).toBe(1);
 });
 async function fixture(kind: "RECEIVABLE" | "PAYABLE" = "RECEIVABLE") {

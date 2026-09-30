@@ -251,8 +251,10 @@ export function SaleDetail({
         <ul>
           {sale.events.map((e) => (
             <li key={e.id}>
-              {new Date(e.createdAt).toLocaleString("pt-BR")} · {e.action} ·{" "}
-              {e.actorName}
+              {new Date(e.createdAt).toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo",
+              })}{" "}
+              · {e.action} · {e.actorName}
               {e.reason && ` · ${e.reason}`}
             </li>
           ))}

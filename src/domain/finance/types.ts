@@ -1,4 +1,28 @@
 export type FinancialEntryKind = "RECEIVABLE" | "PAYABLE";
+export interface MovementTotals {
+  incoming: string;
+  outgoing: string;
+  transfersNet: string;
+  adjustmentsNet: string;
+  net: string;
+}
+export interface CashDay {
+  date: string;
+  incoming: string;
+  outgoing: string;
+  transfersNet: string;
+  adjustmentsNet: string;
+  closingBalance: string | null;
+}
+export interface FinanceDashboardDTO {
+  balance: string;
+  receivablePending: string;
+  receivableOverdue: string;
+  payablePending: string;
+  payableOverdue: string;
+  realizedIn: string;
+  realizedOut: string;
+}
 export interface TransferDTO {
   id: string;
   fromAccountId: string;
@@ -59,6 +83,7 @@ export interface CategoryDTO {
   systemCode: string | null;
 }
 export interface MovementDTO {
+  reversed?: boolean;
   id: string;
   accountId: string;
   categoryId: string | null;

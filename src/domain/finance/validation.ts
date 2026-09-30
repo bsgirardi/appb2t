@@ -31,14 +31,20 @@ export const financeFilterSchema = paginationSchema.extend({
 });
 export type FinanceFilter = z.infer<typeof financeFilterSchema>;
 export const SALE_REVENUE_ID = "system-sale-revenue";
-export const transferSchema = z.object({
-  fromAccountId: z.string().min(1).max(100),
-  toAccountId: z.string().min(1).max(100),
-  amount: positiveMoneySchema,
-  effectiveDate: civilDateSchema,
-  description: z.string().trim().min(3).max(2000),
-  operationKey: z.string().min(8).max(160),
-}).strict().refine(v => v.fromAccountId !== v.toAccountId, "Escolha contas diferentes.");
+export const transferSchema = z
+  .object({
+    fromAccountId: z.string().min(1).max(100),
+    toAccountId: z.string().min(1).max(100),
+    amount: positiveMoneySchema,
+    effectiveDate: civilDateSchema,
+    description: z.string().trim().min(3).max(2000),
+    operationKey: z.string().min(8).max(160),
+  })
+  .strict()
+  .refine(
+    (v) => v.fromAccountId !== v.toAccountId,
+    "Escolha contas diferentes.",
+  );
 export const settlementSchema = z
   .object({
     entryId: z.string().min(1).max(100),

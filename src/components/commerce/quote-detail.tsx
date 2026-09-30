@@ -173,8 +173,10 @@ export function QuoteDetail({
         <ul>
           {quote.events.map((e) => (
             <li key={e.id}>
-              {new Date(e.createdAt).toLocaleString("pt-BR")} · {e.action} ·{" "}
-              {e.actorName}
+              {new Date(e.createdAt).toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo",
+              })}{" "}
+              · {e.action} · {e.actorName}
             </li>
           ))}
         </ul>
