@@ -31,6 +31,33 @@ export const financeFilterSchema = paginationSchema.extend({
 });
 export type FinanceFilter = z.infer<typeof financeFilterSchema>;
 export const SALE_REVENUE_ID = "system-sale-revenue";
+export const transferSchema = z.object({
+  fromAccountId: z.string().min(1).max(100),
+  toAccountId: z.string().min(1).max(100),
+  amount: positiveMoneySchema,
+  effectiveDate: civilDateSchema,
+  description: z.string().trim().min(3).max(2000),
+  operationKey: z.string().min(8).max(160),
+}).strict().refine(v => v.fromAccountId !== v.toAccountId, "Escolha contas diferentes.");
+export const settlementSchema = z
+  .object({
+    entryId: z.string().min(1).max(100),
+    accountId: z.string().min(1).max(100),
+    amount: positiveMoneySchema,
+    effectiveDate: civilDateSchema,
+    method: z.enum(["PIX", "CASH", "CARD", "BOLETO", "TRANSFER", "OTHER"]),
+    notes: z.string().trim().max(2000).default(""),
+    expectedVersion: z.number().int().positive(),
+    operationKey: z.string().min(8).max(160),
+  })
+  .strict();
+export const reversalSchema = z
+  .object({
+    reason: z.string().trim().min(3).max(2000),
+    effectiveDate: civilDateSchema,
+    operationKey: z.string().min(8).max(160),
+  })
+  .strict();
 export const signedMoneySchema = z.string().transform((raw, ctx) => {
   try {
     return parseMoney(raw, { signed: true });

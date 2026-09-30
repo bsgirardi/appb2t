@@ -1,4 +1,14 @@
 export type FinancialEntryKind = "RECEIVABLE" | "PAYABLE";
+export interface TransferDTO {
+  id: string;
+  fromAccountId: string;
+  toAccountId: string;
+  amount: string;
+  effectiveDate: string;
+  description: string;
+  reversed: boolean;
+  movements: MovementDTO[];
+}
 export interface EntryDTO extends FinancialEntryDTO {
   categoryId: string | null;
   groupId: string | null;
