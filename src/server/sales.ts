@@ -345,6 +345,7 @@ export async function cancelSale(
   id: string,
   expectedVersion: number,
   reason: string,
+  entryGuard?: { id: string; expectedVersion: number },
 ): Promise<SaleDTO> {
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
@@ -358,6 +359,16 @@ export async function cancelSale(
       select: { id: true },
     });
     await lockCommerce(tx, { entryIds: entries.map((e) => e.id) });
+    if (entryGuard) {
+      const guarded = await tx.financialEntry.findUnique({
+        where: { id: entryGuard.id },
+      });
+      if (
+        !entries.some((e) => e.id === entryGuard.id) ||
+        guarded?.version !== entryGuard.expectedVersion
+      )
+        throw conflict();
+    }
     const summary = await getSaleReceiptSummary(tx, id);
     if (summary.received !== "0.00")
       throw new AppError(

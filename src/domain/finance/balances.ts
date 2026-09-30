@@ -4,6 +4,28 @@ export const FinanceDecimal = Decimal.clone({
   precision: 50,
   rounding: Decimal.ROUND_HALF_UP,
 });
+export function entryState(
+  amount: string,
+  netSettled: string,
+  canceled: boolean,
+  dueDate: string,
+  today: string,
+) {
+  const paid = new FinanceDecimal(netSettled),
+    remaining = new FinanceDecimal(amount).minus(paid);
+  return {
+    paidAmount: paid.toFixed(2),
+    remainingAmount: canceled ? "0.00" : remaining.toFixed(2),
+    state: canceled
+      ? ("CANCELADO" as const)
+      : remaining.eq(0)
+        ? ("LIQUIDADO" as const)
+        : paid.gt(0)
+          ? ("PARCIAL" as const)
+          : ("ABERTO" as const),
+    overdue: !canceled && remaining.gt(0) && dueDate < today,
+  };
+}
 export function balanceAt(
   openingBalance: string,
   openingDate: string,

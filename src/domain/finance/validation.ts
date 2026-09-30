@@ -1,5 +1,35 @@
 import { z } from "zod";
-import { parseMoney, civilDateSchema } from "@/domain/commerce/validation";
+import {
+  parseMoney,
+  civilDateSchema,
+  positiveMoneySchema,
+} from "@/domain/commerce/validation";
+import { paginationSchema } from "@/domain/shared/pagination";
+export const entrySchema = z
+  .object({
+    kind: z.enum(["RECEIVABLE", "PAYABLE"]),
+    description: z.string().trim().min(2).max(1000),
+    counterparty: z.string().trim().min(2).max(160),
+    customerId: z.string().min(1).max(100).nullable().optional(),
+    categoryId: z.string().min(1).max(100),
+    amount: positiveMoneySchema,
+    dueDate: civilDateSchema,
+    expectedVersion: z.number().int().positive().optional(),
+  })
+  .strict();
+export const financeFilterSchema = paginationSchema.extend({
+  dateFrom: civilDateSchema.optional(),
+  dateTo: civilDateSchema.optional(),
+  accountId: z.string().max(100).optional(),
+  categoryId: z.string().max(100).optional(),
+  kind: z.enum(["RECEIVABLE", "PAYABLE"]).optional(),
+  state: z.enum(["ABERTO", "PARCIAL", "LIQUIDADO", "CANCELADO"]).optional(),
+  counterparty: z.string().trim().max(160).optional(),
+  overdue: z.enum(["true", "false"]).optional(),
+  saleId: z.string().max(100).optional(),
+  groupId: z.string().max(100).optional(),
+});
+export type FinanceFilter = z.infer<typeof financeFilterSchema>;
 export const SALE_REVENUE_ID = "system-sale-revenue";
 export const signedMoneySchema = z.string().transform((raw, ctx) => {
   try {
