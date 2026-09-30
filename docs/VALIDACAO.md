@@ -67,3 +67,14 @@ Decisões de execução: continuar no checkout e branch existentes `feat/calcula
 - Decisões: manter checkout/branch aprovados; usar cabeçalhos `Task` para compatibilidade dos auxiliares de execução; prosseguir com revisão local diante da indisponibilidade do revisor. Custos residuais: sem isolamento adicional de checkout e possibilidade de pontos cegos do autor. Metadados e identidade são carregados em execução, permitindo build Docker sem banco conectado.
 
 Esta validação atualiza as limitações antigas de Docker e início da prévia descritas acima. Não houve publicação externa, push ou merge. Vendas e financeiro pertencem às próximas entregas aprovadas.
+
+## Clientes, orçamentos e vendas — 30/09/2026
+
+- Implementados clientes privados, orçamentos com emissão/aprovação/reabertura, snapshots comerciais e arquivo de logo, impressão privada, vendas diretas/conversão, parcelas, estados operacionais e cancelamento.
+- Suíte após correção de revisão: 132 testes aprovados em 40 arquivos, com PostgreSQL real. TypeScript, lint, build local e build Docker executados; imagens de validação contêm a entrega comercial. O ajuste final do parcelamento é coberto pelo teste de regressão.
+- Concorrência: mesma conversão repetida cria uma venda e seus recebíveis uma única vez. Falha de constraint durante a gravação desfaz venda, parcelas, operação idempotente e mudança do orçamento. Confirmação não registra pagamento.
+- Navegador: cliente fictício → orçamento com preço negociado R$ 100 → emissão → aprovação → entrada R$ 20 + duas parcelas R$ 40 → venda → produção → pronta → entregue. Resumo manteve recebido R$ 0 e pendente R$ 100.
+- HTTP de produção com operador confirmou acesso comercial, recusa de visitante e impressão sem notas privadas do cliente/documento. Reinício do banco e aplicação preservou snapshots, eventos, parcelas, estado entregue e vínculo com orçamento convertido.
+- Visual: aplicativo real no tema escuro, tela móvel 390px sem overflow horizontal; impressão com fundo claro e cabeçalhos legíveis. Formulários reais renderizados em fixture nos temas claro/escuro, incluindo 390px. Alternância do tema do sistema e diálogo nativo de impressão/PDF não foram automatizados. Capturas preservadas no diretório de evidências desta entrega.
+- Revisão independente comercial concluída: nenhuma falha crítica; um achado importante no parcelamento com entrada em 31/01 foi reproduzido por teste falhando e corrigido. Vencimentos agora mantêm 28/02, 31/03 e 30/04. Observação menor adiada: os horários do histórico comercial seguem o fuso do navegador; datas civis e validações de validade usam São Paulo.
+- Escopo financeiro nesta etapa: recebíveis persistentes e resumo com recebido zero. Baixas, contas e caixa pertencem à entrega financeira seguinte; não há integração bancária/fiscal.

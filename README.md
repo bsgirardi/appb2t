@@ -141,6 +141,16 @@ Nas parcelas percentuais, divida o percentual informado por 100. O lucro represe
 
 Os cálculos mantêm casas decimais intermediárias. A exibição usa duas casas, com arredondamento HALF_UP. Uma simulação representa o trabalho inteiro informado, sem multiplicação automática por quantidade. Parâmetros são carregados ao abrir a tela; use **Atualizar parâmetros** para carregar alterações de outro dispositivo.
 
+## Clientes, orçamentos e vendas
+
+Administradores e operadores acessam **Clientes**, **Orçamentos** e **Vendas**. Clientes podem ser inativados sem apagar o histórico. O documento opcional é apenas um identificador informado pela equipe.
+
+Salve um orçamento como rascunho, complete cliente, itens, validade e condições de pagamento e use **Emitir orçamento**. Ao selecionar um produto, seu preço final é copiado para a linha e pode ser negociado. A emissão preserva nome, contatos, logo e dados comerciais. A versão privada para impressão não inclui notas internas ou custos. Registrar envio/aprovação não transmite mensagens.
+
+Orçamento aprovado e vigente pode virar uma única venda. Revise entrada, parcelas e vencimentos antes de confirmar. A soma precisa coincidir com o total; centavos são distribuídos nas primeiras parcelas. Confirmar cria contas a receber, sem registrar dinheiro recebido.
+
+O fluxo é **Confirmada → Em produção → Pronta → Entregue**. Prazo e observações operacionais mantêm histórico. Antes da entrega, cancelamento exige motivo e ausência de recebimentos vigentes; os recebíveis são cancelados juntos. Conteúdo de venda confirmada não pode ser alterado retroativamente. Edições concorrentes geram conflito, preservando os dados preenchidos no formulário.
+
 ## Backup e restauração
 
 Faça backups regulares fora do volume Docker e teste a restauração. Os comandos abaixo evitam redirecionar binários pelo PowerShell:

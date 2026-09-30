@@ -36,12 +36,16 @@ export function InstallmentEditor({
       const installments = splitInstallments(
         new Decimal(total).minus(upfront).toFixed(2),
         count,
-        upfront.gt(0) ? addMonthsClamped(date, 1) : date,
+        date,
       );
       const result = upfront.gt(0)
         ? [
             { number: 1, amount: upfront.toFixed(2), dueDate: date },
-            ...installments.map((i) => ({ ...i, number: i.number + 1 })),
+            ...installments.map((i) => ({
+              ...i,
+              number: i.number + 1,
+              dueDate: addMonthsClamped(date, i.number),
+            })),
           ]
         : installments;
       validateInstallments(total, result);

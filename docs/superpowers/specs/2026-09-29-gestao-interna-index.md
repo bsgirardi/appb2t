@@ -4,7 +4,7 @@
 
 Em 29/09/2026, o usuário aprovou o desenho de três entregas: catálogo e aparência; clientes, orçamentos e vendas; financeiro. Confirmou gestão interna primeiro, sem integrações bancárias, cobrança externa ou emissão de notas fiscais.
 
-O desenho e estas especificações escritas foram aprovados pelo usuário. Os planos vinculados abaixo detalham a execução e aguardam sua revisão antes da implementação. Estes documentos não representam funcionalidades já implementadas.
+O desenho, as especificações e os três planos vinculados abaixo foram aprovados pelo usuário. A execução direta está em andamento; resultados verificados constam em `docs/VALIDACAO.md`.
 
 ## Ordem e dependências
 
@@ -53,4 +53,4 @@ Mudanças no nome/logo/contatos aplicam-se às páginas atuais e aos novos docum
 
 Cada entrega exige seus testes de domínio, permissões, integração e interface, análise de tipos, lint e build. A entrega visual inclui verificação em computador e celular, nos temas claro e escuro; o financeiro inclui casos de centavos, concorrência e estorno. Limitações de ambiente devem ser relatadas com precisão e não registradas como testes aprovados.
 
-Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Especificações aprovadas; próxima etapa: revisão dos planos de implementação escritos.
+Revisão interna deste conjunto: limites de acesso, preservação de preços, fronteira comercial/financeira, cancelamentos e arredondamento estão descritos nos documentos vinculados. Especificações e planos aprovados; implementação e validação sequenciais em andamento.
