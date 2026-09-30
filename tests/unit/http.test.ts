@@ -1,6 +1,26 @@
 import { it, expect } from "vitest";
 import { jsonBody, endpoint } from "@/lib/http";
 import { printerValuesSchema } from "@/domain/calculation/validation";
+it("allows an explicit commercial body budget without widening the default", async () => {
+  const request = (length: number) =>
+    new Request("http://localhost:3000/api/quotes", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost:3000",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ notes: "x".repeat(length) }),
+    });
+  expect(await jsonBody(request(20000), { maxBytes: 262144 })).toHaveProperty(
+    "notes",
+  );
+  await expect(jsonBody(request(20000))).rejects.toMatchObject({
+    code: "VALIDATION",
+  });
+  await expect(
+    jsonBody(request(262144), { maxBytes: 262144 }),
+  ).rejects.toMatchObject({ code: "VALIDATION" });
+});
 it("returns Portuguese field errors for invalid printer limits", async () => {
   const response = await endpoint(async () => {
     printerValuesSchema.parse({

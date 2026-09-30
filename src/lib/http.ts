@@ -11,12 +11,15 @@ const statuses = {
   RATE_LIMIT: 429,
   NOT_FOUND: 404,
 };
-export async function jsonBody(request: Request): Promise<unknown> {
+export async function jsonBody(
+  request: Request,
+  options: { maxBytes: number } = { maxBytes: 16384 },
+): Promise<unknown> {
   if (request.headers.get("origin") !== appUrl().origin)
     throw new AppError("FORBIDDEN", "Origem da requisição inválida.");
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     throw new AppError("VALIDATION", "Envie os dados em JSON.");
-  if (Number(request.headers.get("content-length")) > 16384)
+  if (Number(request.headers.get("content-length")) > options.maxBytes)
     throw new AppError("VALIDATION", "Requisição muito grande.");
   const reader = request.body?.getReader();
   let text = "";
@@ -27,7 +30,7 @@ export async function jsonBody(request: Request): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       bytes += value.byteLength;
-      if (bytes > 16384) {
+      if (bytes > options.maxBytes) {
         await reader.cancel();
         throw new AppError("VALIDATION", "Requisição muito grande.");
       }
