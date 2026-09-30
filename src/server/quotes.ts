@@ -24,7 +24,9 @@ import type {
 import { paginationSchema, type Page } from "@/domain/shared/pagination";
 import { createDocumentSnapshot } from "./commerce/snapshots";
 import { quoteEvent } from "./commerce/audit";
-type Row = Prisma.QuoteGetPayload<{ include: { events: true } }>;
+type Row = Prisma.QuoteGetPayload<{
+  include: { events: true; sale: { select: { id: true } } };
+}>;
 function dto(row: Row): QuoteDTO {
   return {
     id: row.id,
@@ -46,13 +48,16 @@ function dto(row: Row): QuoteDTO {
       createdAt: e.createdAt.toISOString(),
     })),
     createdAt: row.createdAt.toISOString(),
-    saleId: null,
+    saleId: row.sale?.id ?? null,
   };
 }
 async function row(tx: Prisma.TransactionClient, id: string) {
   const q = await tx.quote.findUnique({
     where: { id },
-    include: { events: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] } },
+    include: {
+      sale: { select: { id: true } },
+      events: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
+    },
   });
   if (!q) throw new AppError("NOT_FOUND", "Orçamento não encontrado.");
   return q;
@@ -233,7 +238,7 @@ export async function listQuotes(
     [
       db.quote.findMany({
         where,
-        include: { events: true },
+        include: { events: true, sale: { select: { id: true } } },
         orderBy: { sequence: "desc" },
         skip: (f.page - 1) * f.pageSize,
         take: f.pageSize,
