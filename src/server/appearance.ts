@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { randomUUID } from "node:crypto";
+import { storefrontSchema } from "@/domain/appearance/storefront";
 import { AppError, conflict } from "@/lib/errors";
 import { assertAdmin } from "./auth/authorization";
 import type { Actor } from "./auth/session";
@@ -13,6 +14,7 @@ import {
   defaultAppearance,
 } from "@/domain/appearance/validation";
 const publicSelect = {
+  storefront: true,
   name: true,
   shortName: true,
   slogan: true,
@@ -34,6 +36,7 @@ export async function getPublicAppearance(): Promise<PublicAppearanceDTO> {
   const { logo, ...fields } = row;
   return {
     ...fields,
+    storefront: storefrontSchema.parse(fields.storefront),
     logoUrl: logo ? `/api/appearance/logo?asset=${logo.cacheKey}` : null,
   };
 }
@@ -51,6 +54,7 @@ export async function getAppearance(actor: Actor): Promise<AppearanceDTO> {
   const { logo, ...fields } = row;
   return {
     ...fields,
+    storefront: storefrontSchema.parse(fields.storefront),
     logoUrl: logo ? `/api/appearance/logo?asset=${logo.cacheKey}` : null,
   };
 }
@@ -93,6 +97,7 @@ export async function saveAppearance(
     });
     return {
       ...data,
+      storefront: storefrontSchema.parse(row.storefront),
       version: row.version,
       logoUrl: savedLogo
         ? `/api/appearance/logo?asset=${savedLogo.cacheKey}`

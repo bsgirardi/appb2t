@@ -52,16 +52,29 @@ it("runs authenticated multipart lifecycle and denies revoked sessions", async (
       expiresAt: new Date(Date.now() + 60_000),
     },
   });
-  const response = await POST(await form(productInput));
+  const completeInput = {
+    ...productInput,
+    description: "ç".repeat(5000),
+    specifications: "é".repeat(3000),
+    paymentTerms: "à".repeat(1000),
+  };
+  expect(Buffer.byteLength(JSON.stringify(completeInput))).toBeGreaterThan(16384);
+  const response = await POST(await form(completeInput));
   expect(response.status).toBe(200);
   const product = (await response.json()).data;
   expect(product.price).toBe("75.00");
+  expect(await db.product.findUnique({ where: { id: product.id } })).toMatchObject({
+    description: completeInput.description,
+    specifications: completeInput.specifications,
+    paymentTerms: completeInput.paymentTerms,
+  });
   expect((await settingsGET()).status).toBe(403);
   const context = { params: Promise.resolve({ id: product.id }) };
   const updated = await PUT(
     await form(
       {
-        ...productInput,
+        ...completeInput,
+        specifications: "ó".repeat(3000),
         images: product.images.map((i: { id: string }) => ({ id: i.id })),
         name: "Atualizado",
         expectedVersion: 1,
@@ -71,6 +84,11 @@ it("runs authenticated multipart lifecycle and denies revoked sessions", async (
     context,
   );
   expect(updated.status).toBe(200);
+  expect(await db.product.findUnique({ where: { id: product.id } })).toMatchObject({
+    description: completeInput.description,
+    specifications: "ó".repeat(3000),
+    paymentTerms: completeInput.paymentTerms,
+  });
   const patch = new Request("http://localhost:3000", {
     method: "PATCH",
     headers: {

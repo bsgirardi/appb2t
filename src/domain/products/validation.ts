@@ -5,6 +5,7 @@ import { calculate } from "@/domain/calculation/calculate";
 import type { CalculationInput } from "@/domain/calculation/types";
 import { AppError } from "@/lib/errors";
 import type { ProductInput } from "./types";
+import { commercialShape } from "./commercial";
 const finalPriceSchema = z
   .string()
   .trim()
@@ -17,6 +18,9 @@ export function parseFinalPrice(raw: string): string {
 }
 export const productSchema = z
   .object({
+    ...commercialShape,
+    seoTitle: z.string().trim().max(70).optional(),
+    seoDescription: z.string().trim().max(170).optional(),
     collectionIds: z
       .array(z.string().min(1).max(100))
       .max(100)

@@ -9,6 +9,7 @@ export interface CompanyIdentityDTO {
   logoUrl: string | null;
 }
 export interface PublicAppearanceDTO extends CompanyIdentityDTO {
+  storefront?: import("./storefront").StorefrontConfig;
   lightPrimary: string;
   lightAccent: string;
   darkPrimary: string;

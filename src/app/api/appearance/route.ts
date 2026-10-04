@@ -12,7 +12,7 @@ export async function PUT(request: Request) {
     const actor = await requireAdmin();
     const { input, uploads } = await readMediaRequest(request, {
       maxBytes: 3 * 1024 * 1024,
-      maxJsonBytes: 16384,
+      maxJsonBytes: 262144,
       maxFiles: 1,
       normalize: (bytes) =>
         normalizeImage(bytes, {

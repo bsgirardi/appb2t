@@ -1,0 +1,2 @@
+ALTER TABLE "Product" ADD COLUMN "seoTitle" TEXT NOT NULL DEFAULT '',
+ADD COLUMN "seoDescription" TEXT NOT NULL DEFAULT '';

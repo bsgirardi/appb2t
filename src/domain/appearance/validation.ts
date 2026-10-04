@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { readableText } from "./colors";
+import { storefrontSchema, defaultStorefront } from "./storefront";
 export const defaultAppearance = {
+  storefront: defaultStorefront,
   name: "B2T Print Studio",
   shortName: "B2T",
   slogan: "Precisão em cada camada.",
@@ -26,6 +28,7 @@ const color = z
   }, "Ajuste a cor para garantir contraste de leitura.");
 export const appearanceSchema = z
   .object({
+    storefront: storefrontSchema.optional(),
     name: z.string().trim().min(2).max(120),
     shortName: z.string().trim().max(30),
     slogan: z.string().trim().max(160),

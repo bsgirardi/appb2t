@@ -80,6 +80,15 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  sku String? @unique
+  shortDescription String @default("")
+  specifications String @default("")
+  colors String[] @default([])
+  sizes String[] @default([])
+  availability String @default("CONSULT")
+  leadTimeDays Int?
+  seoTitle String @default("")
+  seoDescription String @default("")
   collections CollectionProduct[]
   id String @id @default(cuid())
   name String
@@ -125,6 +134,7 @@ model CollectionImage {
   mimeType String
 }
 model CompanyAppearance {
+ storefront Json @default("{}")
  id Int @id @default(1)
  name String
  shortName String

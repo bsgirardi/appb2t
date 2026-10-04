@@ -1,4 +1,5 @@
 import { Prisma, type Product } from "@prisma/client";
+import type { Availability } from "@/domain/products/commercial";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import {
@@ -18,6 +19,15 @@ import type { NormalizedImage } from "./product-images";
 import { lockCatalog, setProductCollections } from "./catalog-memberships";
 const notFound = () => new AppError("NOT_FOUND", "Produto não encontrado.");
 const publicSelect = {
+  sku: true,
+  shortDescription: true,
+  specifications: true,
+  colors: true,
+  sizes: true,
+  availability: true,
+  leadTimeDays: true,
+  seoTitle: true,
+  seoDescription: true,
   images: {
     select: { id: true, position: true },
     orderBy: { position: "asc" as const },
@@ -31,11 +41,36 @@ const publicSelect = {
 function publicDTO(
   row: Pick<
     Product,
-    "id" | "name" | "description" | "paymentTerms" | "price"
+    | "id"
+    | "name"
+    | "description"
+    | "paymentTerms"
+    | "price"
+    | "seoTitle"
+    | "seoDescription"
+    | "sku"
+    | "shortDescription"
+    | "specifications"
+    | "colors"
+    | "sizes"
+    | "availability"
+    | "leadTimeDays"
   > & { images: { id: string; position: number }[] },
 ): PublicProductDTO {
   return {
-    ...row,
+    id: row.id,
+    sku: row.sku ?? "",
+    shortDescription: row.shortDescription,
+    specifications: row.specifications,
+    colors: row.colors,
+    sizes: row.sizes,
+    availability: row.availability as Availability,
+    leadTimeDays: row.leadTimeDays,
+    name: row.name,
+    description: row.description,
+    paymentTerms: row.paymentTerms,
+    seoTitle: row.seoTitle,
+    seoDescription: row.seoDescription,
     price: row.price.toFixed(2),
     images: row.images.map((i) => ({
       ...i,
@@ -65,6 +100,17 @@ async function references(
   input: ProductInput,
   old?: Product,
 ) {
+  if (
+    input.sku &&
+    (await tx.product.findFirst({
+      where: { sku: input.sku, ...(old ? { id: { not: old.id } } : {}) },
+      select: { id: true },
+    }))
+  )
+    throw new AppError(
+      "VALIDATION",
+      "Este código de produto já está em uso. Informe outro código.",
+    );
   for (const key of ["materialId", "printerId"] as const) {
     const id = input[key];
     if (!id) continue;
@@ -97,6 +143,7 @@ function dataFor(input: ProductInput) {
   void _images;
   return {
     ...fields,
+    ...(input.sku !== undefined ? { sku: input.sku || null } : {}),
     materialId: input.materialId ?? null,
     printerId: input.printerId ?? null,
     calculation: input.calculation as unknown as Prisma.InputJsonValue,

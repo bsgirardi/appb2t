@@ -32,6 +32,15 @@ it.each(["ADMIN", "OPERATOR"] as const)(
         "price",
         "imageUrl",
         "images",
+        "seoTitle",
+        "seoDescription",
+        "sku",
+        "shortDescription",
+        "specifications",
+        "colors",
+        "sizes",
+        "availability",
+        "leadTimeDays",
       ].sort(),
     );
     expect((await getProductImage(product.id, null)).bytes).toEqual(

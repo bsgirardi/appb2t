@@ -9,7 +9,8 @@ export async function readProductRequest(
 ): Promise<{ input: unknown; uploads: Record<string, NormalizedImage> }> {
   return readMediaRequest(request, {
     maxBytes: 52 * 1024 * 1024,
-    maxJsonBytes: 16384,
+    // Commercial fields, collection IDs and UTF-8 text can exceed 16 KiB.
+    maxJsonBytes: 256 * 1024,
     maxFiles: 10,
     normalize: normalizeProductImage,
   });
