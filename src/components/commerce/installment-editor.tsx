@@ -1,4 +1,6 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import Decimal from "decimal.js";
 import type { InstallmentInput } from "@/domain/commerce/types";
@@ -74,76 +76,86 @@ export function InstallmentEditor({
     }
   }
   return (
-    <section className="card commerce-form">
-      <h2>Revisar parcelamento</h2>
-      <p>
-        Total da venda: <strong>R$ {total}</strong>. A confirmação cria contas a
-        receber. O pagamento será registrado no financeiro.
-      </p>
-      {error && <Notice>{error}</Notice>}
-      <fieldset disabled={busy}>
-        <div className="form-grid">
-          <Field
-            label="Entrada opcional (R$)"
-            inputMode="decimal"
-            value={entry}
-            onChange={(e) => setEntry(e.target.value)}
-          />
-          <Field
-            label="Número de parcelas"
-            type="number"
-            min={1}
-            max={120}
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-          />
-          <Field
-            label="Primeiro vencimento / entrada"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
-        <button type="button" className="button secondary" onClick={divide}>
-          Dividir valor
-        </button>
-        {rows.map((row, index) => (
-          <div className="form-grid" key={row.number}>
+    <Card asChild>
+      <section className="commerce-form">
+        <h2>Revisar parcelamento</h2>
+        <p>
+          Total da venda: <strong>R$ {total}</strong>. A confirmação cria contas
+          a receber. O pagamento será registrado no financeiro.
+        </p>
+        {error && <Notice>{error}</Notice>}
+        <fieldset disabled={busy}>
+          <div className="form-grid">
             <Field
-              label={`Valor da parcela ${row.number}`}
+              label="Entrada opcional (R$)"
               inputMode="decimal"
-              value={row.amount}
-              onChange={(e) =>
-                setRows((old) =>
-                  old.map((r, i) =>
-                    i === index ? { ...r, amount: e.target.value } : r,
-                  ),
-                )
-              }
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
             />
             <Field
-              label={`Vencimento da parcela ${row.number}`}
+              label="Número de parcelas"
+              type="number"
+              min={1}
+              max={120}
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+            />
+            <Field
+              label="Primeiro vencimento / entrada"
               type="date"
-              value={row.dueDate}
-              onChange={(e) =>
-                setRows((old) =>
-                  old.map((r, i) =>
-                    i === index ? { ...r, dueDate: e.target.value } : r,
-                  ),
-                )
-              }
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
             />
           </div>
-        ))}
-      </fieldset>
-      <button
-        type="button"
-        className="button primary"
-        disabled={busy}
-        onClick={confirm}
-      >
-        {busy ? "Confirmando…" : "Confirmar parcelamento"}
-      </button>
-    </section>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            className=""
+            onClick={divide}
+          >
+            Dividir valor
+          </Button>
+          {rows.map((row, index) => (
+            <div className="form-grid" key={row.number}>
+              <Field
+                label={`Valor da parcela ${row.number}`}
+                inputMode="decimal"
+                value={row.amount}
+                onChange={(e) =>
+                  setRows((old) =>
+                    old.map((r, i) =>
+                      i === index ? { ...r, amount: e.target.value } : r,
+                    ),
+                  )
+                }
+              />
+              <Field
+                label={`Vencimento da parcela ${row.number}`}
+                type="date"
+                value={row.dueDate}
+                onChange={(e) =>
+                  setRows((old) =>
+                    old.map((r, i) =>
+                      i === index ? { ...r, dueDate: e.target.value } : r,
+                    ),
+                  )
+                }
+              />
+            </div>
+          ))}
+        </fieldset>
+        <Button
+          variant="default"
+          size="sm"
+          type="button"
+          className=""
+          disabled={busy}
+          onClick={confirm}
+        >
+          {busy ? "Confirmando…" : "Confirmar parcelamento"}
+        </Button>
+      </section>
+    </Card>
   );
 }

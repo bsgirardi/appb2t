@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { requireActor } from "@/server/auth/guards";
 import { redirect } from "next/navigation";
 import { AppError } from "@/lib/errors";
@@ -13,10 +14,14 @@ export default async function SettingsLayout({
   });
   if (actor.role !== "ADMIN")
     return (
-      <section className="card">
-        <h1>Acesso restrito</h1>
-        <p>As configurações são gerenciadas pelos administradores da equipe.</p>
-      </section>
+      <Card asChild>
+        <section className="">
+          <h1>Acesso restrito</h1>
+          <p>
+            As configurações são gerenciadas pelos administradores da equipe.
+          </p>
+        </section>
+      </Card>
     );
   return children;
 }

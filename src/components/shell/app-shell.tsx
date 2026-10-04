@@ -1,4 +1,6 @@
 "use client";
+import { Alert } from "@/components/ui/alert";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -10,9 +12,19 @@ import {
   ShieldCheck,
   ArrowUpRight,
   UserRound,
+  Menu,
 } from "lucide-react";
 import type { Actor } from "@/server/auth/session";
 import { api } from "@/lib/client-api";
+import { Button } from "@/components/ui/button";
+import { Sidebar } from "@/components/ui/sidebar";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Brand } from "./brand";
 import type { CompanyIdentityDTO } from "@/domain/appearance/types";
 import { defaultAppearance } from "@/domain/appearance/validation";
@@ -28,6 +40,7 @@ export function AppShell({
   const router = useRouter(),
     path = usePathname(),
     [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   async function exit() {
     try {
       await api("/api/auth/logout", {});
@@ -37,106 +50,214 @@ export function AppShell({
       setError((e as Error).message);
     }
   }
+  const navigation = (
+    <nav
+      aria-label="Menu principal"
+      data-open={menuOpen}
+      onClick={(event) => {
+        if ((event.target as HTMLElement).closest("a")) setMenuOpen(false);
+      }}
+    >
+      {[
+        ["/clientes", "Clientes"],
+        ["/orcamentos", "Orçamentos"],
+        ["/vendas", "Vendas"],
+      ].map(([href, label]) => (
+        <Button
+          key={href}
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+        >
+          <Link
+            href={href}
+            aria-current={path.startsWith(href) ? "page" : undefined}
+            className={path.startsWith(href) ? "nav-item active" : "nav-item"}
+          >
+            <Box size={19} />
+            {label}
+          </Link>
+        </Button>
+      ))}
+      {actor.role === "ADMIN" && (
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+        >
+          <Link
+            aria-current={path === "/financeiro" ? "page" : undefined}
+            className={
+              path.startsWith("/financeiro") ? "nav-item active" : "nav-item"
+            }
+            href="/financeiro"
+          >
+            <Box size={19} />
+            Financeiro
+          </Link>
+        </Button>
+      )}
+      {actor.role === "ADMIN" && (
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+        >
+          <Link
+            aria-current={
+              path === "/configuracoes/aparencia" ? "page" : undefined
+            }
+            className={
+              path === "/configuracoes/aparencia"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            href="/configuracoes/aparencia"
+          >
+            <Settings2 size={19} />
+            Aparência
+          </Link>
+        </Button>
+      )}
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
+          aria-current={path === "/calculadora" ? "page" : undefined}
+          className={path === "/calculadora" ? "nav-item active" : "nav-item"}
+          href="/calculadora"
+        >
+          <Calculator size={19} />
+          Calculadora
+          <span className="nav-marker" />
+        </Link>
+      </Button>
+      {actor.role === "ADMIN" && (
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+        >
+          <Link
+            aria-current={path === "/configuracoes" ? "page" : undefined}
+            className={
+              path.startsWith("/configuracoes") &&
+              path !== "/configuracoes/aparencia"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            href="/configuracoes"
+          >
+            <Settings2 size={19} />
+            Configurações
+          </Link>
+        </Button>
+      )}
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
+          aria-current={path === "/produtos" ? "page" : undefined}
+          className={
+            path.startsWith("/produtos") ? "nav-item active" : "nav-item"
+          }
+          href="/produtos"
+        >
+          <Box size={19} />
+          Produtos
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
+          aria-current={path === "/" ? "page" : undefined}
+          className="nav-item"
+          href="/"
+        >
+          <ArrowUpRight size={19} />
+          Abrir loja
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
+          aria-current={path === "/colecoes" ? "page" : undefined}
+          className={
+            path.startsWith("/colecoes") ? "nav-item active" : "nav-item"
+          }
+          href="/colecoes"
+        >
+          <Box size={19} />
+          Coleções
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
+          aria-current={path === "/conta" ? "page" : undefined}
+          className={path === "/conta" ? "nav-item active" : "nav-item"}
+          href="/conta"
+        >
+          <UserRound size={19} />
+          Minha conta
+        </Link>
+      </Button>
+    </nav>
+  );
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
+    <div className="app-shell admin-ui font-store text-sm">
+      <a href="#admin-content" className="store-skip">
+        Pular para o conteúdo
+      </a>
+      <Sidebar aria-label="Área administrativa">
         <Link href="/calculadora" aria-label={`${identity.name} início`}>
           <Brand identity={identity} />
         </Link>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="admin-menu-toggle md:hidden"
+            >
+              <Menu aria-hidden="true" /> Menu
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="admin-ui font-store">
+            <SheetTitle>Menu principal</SheetTitle>
+            <SheetDescription>
+              Navegação da equipe {identity.name}
+            </SheetDescription>
+            {navigation}
+          </SheetContent>
+        </Sheet>
         <div className="workspace-badge">
           <span className="dot" /> Ambiente da equipe <ShieldCheck size={14} />
         </div>
         <div className="nav-title">ÁREA DE TRABALHO</div>
-        <nav aria-label="Menu principal">
-          {[
-            ["/clientes", "Clientes"],
-            ["/orcamentos", "Orçamentos"],
-            ["/vendas", "Vendas"],
-          ].map(([href, label]) => (
-            <Link
-              key={href}
-              href={href}
-              className={path.startsWith(href) ? "nav-item active" : "nav-item"}
-            >
-              <Box size={19} />
-              {label}
-            </Link>
-          ))}
-          {actor.role === "ADMIN" && (
-            <Link
-              className={
-                path.startsWith("/financeiro") ? "nav-item active" : "nav-item"
-              }
-              href="/financeiro"
-            >
-              <Box size={19} />
-              Financeiro
-            </Link>
-          )}
-          {actor.role === "ADMIN" && (
-            <Link
-              className={
-                path === "/configuracoes/aparencia"
-                  ? "nav-item active"
-                  : "nav-item"
-              }
-              href="/configuracoes/aparencia"
-            >
-              <Settings2 size={19} />
-              Aparência
-            </Link>
-          )}
-          <Link
-            className={path === "/calculadora" ? "nav-item active" : "nav-item"}
-            href="/calculadora"
-          >
-            <Calculator size={19} />
-            Calculadora
-            <span className="nav-marker" />
-          </Link>
-          {actor.role === "ADMIN" && (
-            <Link
-              className={
-                path.startsWith("/configuracoes")
-                  ? "nav-item active"
-                  : "nav-item"
-              }
-              href="/configuracoes"
-            >
-              <Settings2 size={19} />
-              Configurações
-            </Link>
-          )}
-          <Link
-            className={
-              path.startsWith("/produtos") ? "nav-item active" : "nav-item"
-            }
-            href="/produtos"
-          >
-            <Box size={19} />
-            Produtos
-          </Link>
-          <Link className="nav-item" href="/portfolio">
-            <ArrowUpRight size={19} />
-            Portfólio público
-          </Link>
-          <Link
-            className={
-              path.startsWith("/colecoes") ? "nav-item active" : "nav-item"
-            }
-            href="/colecoes"
-          >
-            <Box size={19} />
-            Coleções
-          </Link>
-          <Link
-            className={path === "/conta" ? "nav-item active" : "nav-item"}
-            href="/conta"
-          >
-            <UserRound size={19} />
-            Minha conta
-          </Link>
-        </nav>
+        <div className="admin-desktop-nav">{navigation}</div>
         <div className="sidebar-bottom">
           <div className="internal-note">
             <ShieldCheck size={19} />
@@ -159,21 +280,24 @@ export function AppShell({
                 {actor.role === "ADMIN" ? "Administrador" : "Operador"}
               </small>
             </div>
-            <button
-              className="icon-button"
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className=""
               aria-label="Sair da conta"
               onClick={exit}
             >
               <LogOut size={17} />
-            </button>
+            </Button>
           </div>
-          {error && <p role="alert">{error}</p>}
+          {error && <Alert role="alert">{error}</Alert>}
         </div>
-      </aside>
+      </Sidebar>
       <div className="workspace">
         <header className="topbar">
           <span>
-            Workspace <span className="slash">/</span>{" "}
+            Gestão <span className="slash">/</span>{" "}
             <strong>
               {path.startsWith("/financeiro")
                 ? "Financeiro"
@@ -198,7 +322,9 @@ export function AppShell({
             <span className="dot" /> Uso interno <ArrowUpRight size={13} />
           </span>
         </header>
-        <main>{children}</main>
+        <main id="admin-content" className="min-w-0">
+          {children}
+        </main>
         <footer className="workspace-footer">
           <span>{identity.footer}</span>
           <span>Valores em BRL · Português (Brasil)</span>

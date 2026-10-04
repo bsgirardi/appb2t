@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import type { ProductImageDTO } from "@/domain/products/types";
@@ -20,7 +21,7 @@ export function ProductCarousel({
       role="region"
       aria-label={`Fotos de ${name}`}
       aria-roledescription="carrossel"
-      className="product-carousel"
+      className="product-carousel min-w-0"
       tabIndex={images.length > 1 ? 0 : undefined}
       onKeyDown={(e) => {
         if (images.length > 1 && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -30,6 +31,10 @@ export function ProductCarousel({
         }
       }}
       onTouchStart={(e) => {
+        if ((e.target as Element).closest('[aria-label="Escolher foto"]')) {
+          touch.current = null;
+          return;
+        }
         const t = e.touches[0];
         touch.current = { x: t.clientX, y: t.clientY };
       }}
@@ -54,27 +59,53 @@ export function ProductCarousel({
         />
       </div>
       {images.length > 1 && (
-        <div className="carousel-controls">
-          <button
-            type="button"
-            className="button secondary"
-            aria-label="Foto anterior"
-            onClick={() => next(-1)}
+        <>
+          <div
+            className="flex max-w-full gap-2 overflow-x-auto py-3"
+            aria-label="Escolher foto"
           >
-            ←
-          </button>
-          <span aria-live="polite">
-            {current + 1} / {images.length}
-          </span>
-          <button
-            type="button"
-            className="button secondary"
-            aria-label="Próxima foto"
-            onClick={() => next(1)}
-          >
-            →
-          </button>
-        </div>
+            {images.map((image, photo) => (
+              <Button
+                key={image.id}
+                type="button"
+                aria-label={`Ver foto ${photo + 1} de ${name}`}
+                aria-pressed={current === photo}
+                onClick={() => setIndex(photo)}
+                className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 border-solid bg-white p-1 ${current === photo ? "border-primary" : "border-border"}`}
+              >
+                <Image
+                  src={image.url}
+                  alt=""
+                  width={64}
+                  height={64}
+                  unoptimized
+                  className="h-full w-full object-contain"
+                />
+              </Button>
+            ))}
+          </div>
+          <div className="carousel-controls">
+            <Button
+              type="button"
+              className=""
+              aria-label="Foto anterior"
+              onClick={() => next(-1)}
+            >
+              ←
+            </Button>
+            <span aria-live="polite">
+              {current + 1} / {images.length}
+            </span>
+            <Button
+              type="button"
+              className=""
+              aria-label="Próxima foto"
+              onClick={() => next(1)}
+            >
+              →
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LockKeyhole } from "lucide-react";
@@ -91,14 +92,14 @@ export function AuthForm({ mode = "login" }: { mode?: "login" | "password" }) {
         </>
       )}
       {error && <Notice>{error}</Notice>}
-      <button className="button primary full-width" disabled={pending}>
+      <Button className="full-width" disabled={pending}>
         {pending
           ? "Aguarde…"
           : mode === "login"
             ? "Entrar no workspace"
             : "Atualizar senha"}
         <ArrowRight size={17} />
-      </button>
+      </Button>
       <p className="secure-note">
         <LockKeyhole size={13} />
         {mode === "login"

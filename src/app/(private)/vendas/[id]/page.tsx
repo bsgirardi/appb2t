@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { requireActor } from "@/server/auth/guards";
 import { getSale } from "@/server/sales";
 import { commerceOptions } from "@/server/commerce/options";
@@ -17,12 +18,11 @@ export default async function SalePage({
   return (
     <>
       {actor.role === "ADMIN" && (
-        <Link
-          className="button secondary"
-          href={`/financeiro/lancamentos?saleId=${initial.id}`}
-        >
-          Ver parcelas no financeiro
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={`/financeiro/lancamentos?saleId=${initial.id}`}>
+            Ver parcelas no financeiro
+          </Link>
+        </Button>
       )}
       <SaleDetail
         key={`${initial.id}:${initial.version}`}

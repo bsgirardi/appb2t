@@ -1,4 +1,14 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
@@ -33,12 +43,11 @@ export function MovementPanel({
           <h1>Movimentos realizados</h1>
           <p>Histórico preservado. Correções são registradas por estorno.</p>
         </div>
-        <a
-          className="button secondary"
-          href={`/api/finance/export?${new URLSearchParams(query)}`}
-        >
-          Exportar CSV
-        </a>
+        <Button asChild variant="outline">
+          <a href={`/api/finance/export?${new URLSearchParams(query)}`}>
+            Exportar CSV
+          </a>
+        </Button>
       </div>
       <div className="finance-grid">
         {[
@@ -47,10 +56,12 @@ export function MovementPanel({
           ["Transferências líquidas", result.totals.transfersNet],
           ["Ajustes líquidos", result.totals.adjustmentsNet],
         ].map(([name, value]) => (
-          <div className="card finance-account" key={name}>
-            <small>{name} · todos os registros filtrados</small>
-            <strong className="finance-value">{money(value)}</strong>
-          </div>
+          <Card key={name} asChild>
+            <div className="finance-account" >
+              <small>{name} · todos os registros filtrados</small>
+              <strong className="finance-value">{money(value)}</strong>
+            </div>
+          </Card>
         ))}
       </div>
       {reversal && (
@@ -63,67 +74,74 @@ export function MovementPanel({
           }}
         />
       )}
-      <div className="card table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Conta</th>
-              <th>Tipo</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Autor</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.items.map((m) => (
-              <tr key={m.id}>
-                <td>{dateLabel(m.effectiveDate)}</td>
-                <td>
-                  {accounts.find((a) => a.id === m.accountId)?.name ?? "Conta"}
-                </td>
-                <td>{labels[m.kind]}</td>
-                <td>{m.description}</td>
-                <td>{money(m.amount)}</td>
-                <td>{m.actorName}</td>
-                <td>
-                  {m.reversed && <span>Estornado</span>}
-                  {m.kind === "ADJUSTMENT" && !m.reversed && (
-                    <button
-                      className="button secondary"
-                      onClick={() =>
-                        setReversal(`/api/finance/movements/${m.id}/reverse`)
-                      }
-                    >
-                      Estornar ajuste
-                    </button>
-                  )}
-                  {m.kind === "TRANSFER" && !m.reversed && (
-                    <button
-                      className="button secondary"
-                      onClick={() =>
-                        setReversal(
-                          `/api/finance/transfers/${m.transferId}/reverse`,
-                        )
-                      }
-                    >
-                      Estornar transferência completa
-                    </button>
-                  )}
-                  {m.settlementId && (
-                    <span>Estorno pelo detalhe do lançamento</span>
-                  )}
-                  {m.kind === "REVERSAL" && <span>Registro de estorno</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!result.items.length && (
-          <p className="commerce-form">Nenhum movimento encontrado.</p>
-        )}
-      </div>
+      <Card asChild>
+        <div className="table-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Conta</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead>Autor</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {result.items.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell>{dateLabel(m.effectiveDate)}</TableCell>
+                  <TableCell>
+                    {accounts.find((a) => a.id === m.accountId)?.name ??
+                      "Conta"}
+                  </TableCell>
+                  <TableCell>{labels[m.kind]}</TableCell>
+                  <TableCell>{m.description}</TableCell>
+                  <TableCell>{money(m.amount)}</TableCell>
+                  <TableCell>{m.actorName}</TableCell>
+                  <TableCell>
+                    {m.reversed && <span>Estornado</span>}
+                    {m.kind === "ADJUSTMENT" && !m.reversed && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className=""
+                        onClick={() =>
+                          setReversal(`/api/finance/movements/${m.id}/reverse`)
+                        }
+                      >
+                        Estornar ajuste
+                      </Button>
+                    )}
+                    {m.kind === "TRANSFER" && !m.reversed && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className=""
+                        onClick={() =>
+                          setReversal(
+                            `/api/finance/transfers/${m.transferId}/reverse`,
+                          )
+                        }
+                      >
+                        Estornar transferência completa
+                      </Button>
+                    )}
+                    {m.settlementId && (
+                      <span>Estorno pelo detalhe do lançamento</span>
+                    )}
+                    {m.kind === "REVERSAL" && <span>Registro de estorno</span>}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!result.items.length && (
+            <p className="commerce-form">Nenhum movimento encontrado.</p>
+          )}
+        </div>
+      </Card>
       <Pagination result={result} base="/financeiro/movimentos" query={query} />
     </section>
   );

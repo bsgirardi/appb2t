@@ -1,4 +1,19 @@
 "use client";
+import { Pagination } from "@/components/ui/pagination";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -46,9 +61,14 @@ export function SalePanel({
           <h1>Vendas</h1>
           <p>Do pedido à produção e entrega.</p>
         </div>
-        <button className="button primary" onClick={() => setCreating(true)}>
+        <Button
+          variant="default"
+          size="sm"
+          className=""
+          onClick={() => setCreating(true)}
+        >
           Nova venda
-        </button>
+        </Button>
       </div>
       {creating && (
         <SaleForm
@@ -59,17 +79,17 @@ export function SalePanel({
         />
       )}
       <form className="commerce-filters" onSubmit={filter}>
-        <label>
+        <Label>
           Buscar
-          <input
+          <Input
             name="search"
             defaultValue={filters.search}
             placeholder="Número ou cliente"
           />
-        </label>
-        <label>
+        </Label>
+        <Label>
           Estado
-          <select name="status" defaultValue={filters.status}>
+          <NativeSelect name="status" defaultValue={filters.status}>
             {[
               "all",
               "RASCUNHO",
@@ -83,78 +103,90 @@ export function SalePanel({
                 {s === "all" ? "Todos" : s}
               </option>
             ))}
-          </select>
-        </label>
-        <label>
+          </NativeSelect>
+        </Label>
+        <Label>
           Cliente
-          <select name="customerId" defaultValue={filters.customerId ?? ""}>
+          <NativeSelect
+            name="customerId"
+            defaultValue={filters.customerId ?? ""}
+          >
             <option value="">Todos</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
-          </select>
-        </label>
-        <label>
+          </NativeSelect>
+        </Label>
+        <Label>
           De
-          <input type="date" name="from" defaultValue={filters.from} />
-        </label>
-        <label>
+          <Input type="date" name="from" defaultValue={filters.from} />
+        </Label>
+        <Label>
           Até
-          <input type="date" name="to" defaultValue={filters.to} />
-        </label>
-        <button className="button secondary">Filtrar</button>
+          <Input type="date" name="to" defaultValue={filters.to} />
+        </Label>
+        <Button variant="outline" size="sm" className="">
+          Filtrar
+        </Button>
       </form>
-      <div className="card table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Venda</th>
-              <th>Cliente</th>
-              <th>Estado</th>
-              <th>Total</th>
-              <th>Pendente</th>
-            </tr>
-          </thead>
-          <tbody>
-            {initial.items.map((s) => (
-              <tr key={s.id}>
-                <td>
-                  <Link href={`/vendas/${s.id}`}>{s.number}</Link>
-                </td>
-                <td>
-                  {s.snapshot?.customer.name ??
-                    customers.find((c) => c.id === s.document.customerId)?.name}
-                </td>
-                <td>{s.status}</td>
-                <td>R$ {s.totals.total}</td>
-                <td>R$ {s.receiptSummary.pending}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!initial.total && <p>Nenhuma venda encontrada.</p>}
-      </div>
-      <div className="form-actions">
-        <button
-          className="button secondary"
+      <Card asChild>
+        <div className="table-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Venda</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Pendente</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {initial.items.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell>
+                    <Link href={`/vendas/${s.id}`}>{s.number}</Link>
+                  </TableCell>
+                  <TableCell>
+                    {s.snapshot?.customer.name ??
+                      customers.find((c) => c.id === s.document.customerId)
+                        ?.name}
+                  </TableCell>
+                  <TableCell>{s.status}</TableCell>
+                  <TableCell>R$ {s.totals.total}</TableCell>
+                  <TableCell>R$ {s.receiptSummary.pending}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!initial.total && <p>Nenhuma venda encontrada.</p>}
+        </div>
+      </Card>
+      <Pagination className="form-actions">
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
           disabled={initial.page <= 1}
           onClick={() => router.push(url(initial.page - 1))}
         >
           Anterior
-        </button>
+        </Button>
         <span>
           {initial.total} venda(s) · Página {initial.page}
         </span>
-        <button
-          className="button secondary"
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
           disabled={initial.page * initial.pageSize >= initial.total}
           onClick={() => router.push(url(initial.page + 1))}
         >
           Próxima
-        </button>
-      </div>
+        </Button>
+      </Pagination>
     </div>
   );
 }

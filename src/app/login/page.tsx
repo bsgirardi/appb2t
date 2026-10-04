@@ -1,4 +1,5 @@
 import { AuthForm } from "@/components/auth-form";
+import { Notice } from "@/components/ui/field";
 import { Brand } from "@/components/shell/brand";
 import { getPublicAppearance } from "@/server/appearance";
 import { Layers3, Check } from "lucide-react";
@@ -47,9 +48,7 @@ export default async function Login({
           <h2>Bom ter você por aqui.</h2>
           <p>Entre para continuar suas simulações.</p>
           {changed && (
-            <div className="notice success">
-              Senha atualizada. Entre novamente.
-            </div>
+            <Notice kind="success">Senha atualizada. Entre novamente.</Notice>
           )}
           <AuthForm />
           <div className="login-help">

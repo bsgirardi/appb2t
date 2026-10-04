@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
@@ -23,10 +24,10 @@ export function LogoutButton() {
   return (
     <div>
       {error && <Notice>{error}</Notice>}
-      <button className="button secondary" onClick={logout} disabled={pending}>
+      <Button className="" onClick={logout} disabled={pending}>
         <LogOut size={16} />
         Sair da conta
-      </button>
+      </Button>
     </div>
   );
 }

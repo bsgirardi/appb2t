@@ -1,4 +1,17 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
+
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
   Layers3,
@@ -238,215 +251,229 @@ export function SettingsPanel({ initialData }: { initialData: AdminData }) {
         </div>
         <span className="admin-label">Acesso de administrador</span>
       </div>
-      <div className="settings-tabs" role="tablist" aria-label="Configurações">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            role="tab"
-            aria-selected={tab === t.key}
-            onClick={() => selectTab(t.key)}
-          >
-            <t.icon size={18} />
-            {t.label}
-            {t.key !== "settings" && <span>{data[t.key].length}</span>}
-          </button>
-        ))}
-      </div>
-      {notice && <Notice kind="success">{notice}</Notice>}
-      {error && <Notice>{error}</Notice>}
-      {editing ? (
-        <RecordEditor
-          key={`${tab}-${editing.id ?? "new"}-${resetting}-${reloadKey}`}
-          title={
-            resetting
-              ? "Redefinir senha"
-              : `${editing.id || tab === "settings" ? "Editar" : "Adicionar"} · ${title}`
-          }
-          endpoint={endpoint}
-          fields={fields}
-          initial={resetting ? { password: "" } : editing}
-          onSaved={saved}
-          onCancel={() => {
-            setEditing(null);
-            setResetting(false);
-          }}
-          onReload={reloadRecord}
-          method={resetting ? "POST" : undefined}
-        />
-      ) : (
-        <section className="card settings-list">
-          <div className="section-heading">
-            <div>
-              <h2>{title}</h2>
-              <p className="section-description">
-                {tab === "materials"
-                  ? "Preços de compra para filamentos e resinas."
-                  : tab === "printers"
-                    ? "Potência e amortização dos seus equipamentos."
-                    : tab === "users"
-                      ? "Acessos individuais. Um workspace compartilhado."
-                      : "Parâmetros utilizados em todas as simulações."}
-              </p>
-            </div>
-            <div className="list-actions">
-              <button
-                className="icon-button"
-                aria-label="Atualizar lista"
-                onClick={refresh}
-                disabled={busy}
-              >
-                <RefreshCw size={17} />
-              </button>
-              <button
-                className="button primary"
-                onClick={() => {
-                  setEditing(
-                    tab === "settings" && data.settings
-                      ? { ...data.settings }
-                      : defaults[tab],
-                  );
-                  setNotice("");
-                }}
-              >
-                <Plus size={16} />
-                {tab === "settings" ? "Configurar custos" : "Adicionar"}
-              </button>
-            </div>
-          </div>
-          {tab === "settings" ? (
-            data.settings ? (
-              <div className="settings-values">
-                {costFields.map((f) => (
-                  <div key={f.key}>
-                    <span>{f.label}</span>
-                    <strong>
-                      {f.suffix === "%"
-                        ? `${data.settings![f.key as keyof SettingsDTO]}%`
-                        : formatBRL(
-                            String(data.settings![f.key as keyof SettingsDTO]),
-                          )}
-                      {f.key === "energyRate" ? " / kWh" : ""}
-                    </strong>
-                    {f.hint && <small>{f.hint}</small>}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <SlidersHorizontal size={32} />
-                <h3>Defina os custos da sua operação</h3>
-                <p>
-                  Informe sua tarifa de energia e os percentuais de produção
-                  para começar.
-                </p>
-              </div>
-            )
-          ) : rows.length === 0 ? (
-            <div className="empty-state">
-              <Plus size={32} />
-              <h3>
-                {tab === "materials"
-                  ? "Seu primeiro material começa aqui"
-                  : tab === "printers"
-                    ? "Adicione sua primeira impressora"
-                    : "Convide sua equipe"}
-              </h3>
-              <p>Use o botão Adicionar para criar um cadastro.</p>
-            </div>
+      <Tabs value={tab} onValueChange={(value) => selectTab(value as Tab)}>
+        <TabsList
+          className="h-auto flex-wrap justify-start"
+          aria-label="Configurações"
+        >
+          {tabs.map((t) => (
+            <TabsTrigger key={t.key} value={t.key}>
+              <t.icon size={18} />
+              {t.label}
+              {t.key !== "settings" && <span>{data[t.key].length}</span>}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value={tab}>
+          {notice && <Notice kind="success">{notice}</Notice>}
+          {error && <Notice>{error}</Notice>}
+          {editing ? (
+            <RecordEditor
+              key={`${tab}-${editing.id ?? "new"}-${resetting}-${reloadKey}`}
+              title={
+                resetting
+                  ? "Redefinir senha"
+                  : `${editing.id || tab === "settings" ? "Editar" : "Adicionar"} · ${title}`
+              }
+              endpoint={endpoint}
+              fields={fields}
+              initial={resetting ? { password: "" } : editing}
+              onSaved={saved}
+              onCancel={() => {
+                setEditing(null);
+                setResetting(false);
+              }}
+              onReload={reloadRecord}
+              method={resetting ? "POST" : undefined}
+            />
           ) : (
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>
-                      {tab === "users"
-                        ? "Perfil / E-mail"
-                        : tab === "materials"
-                          ? "Tecnologia / Preço"
-                          : "Tecnologia / Potência"}
-                    </th>
-                    <th>Status</th>
-                    <th>
-                      <span className="sr-only">Ações</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.id}>
-                      <td>
-                        <strong>{row.name}</strong>
-                      </td>
-                      <td>
-                        {"email" in row ? (
-                          <>
-                            <span>
-                              {row.role === "ADMIN"
-                                ? "Administrador"
-                                : "Operador"}
-                            </span>
-                            <small>{row.email}</small>
-                          </>
-                        ) : "price" in row ? (
-                          <>
-                            <span>
-                              {row.technology === "FDM"
-                                ? "Filamento"
-                                : "Resina"}
-                            </span>
-                            <small>
-                              {formatBRL(row.price)} /{" "}
-                              {row.technology === "FDM" ? "kg" : "litro"}
-                            </small>
-                          </>
-                        ) : (
-                          <>
-                            <span>
-                              {row.technology === "FDM" ? "FDM" : "SLA / DLP"}
-                            </span>
-                            <small>{row.watts} W</small>
-                          </>
-                        )}
-                      </td>
-                      <td>
-                        <span
-                          className={`status-pill ${row.active ? "enabled" : ""}`}
-                        >
-                          {row.active ? "Ativo" : "Inativo"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="row-actions">
-                          <button
-                            className="icon-button"
-                            aria-label={`Editar ${row.name}`}
-                            onClick={() => setEditing({ ...row })}
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          {tab === "users" && (
-                            <button
-                              className="icon-button"
-                              aria-label={`Redefinir senha de ${row.name}`}
-                              onClick={() => {
-                                setEditing({ ...row });
-                                setResetting(true);
-                              }}
-                            >
-                              <KeyRound size={16} />
-                            </button>
-                          )}
+            <Card asChild>
+              <section className="settings-list">
+                <div className="section-heading">
+                  <div>
+                    <h2>{title}</h2>
+                    <p className="section-description">
+                      {tab === "materials"
+                        ? "Preços de compra para filamentos e resinas."
+                        : tab === "printers"
+                          ? "Potência e amortização dos seus equipamentos."
+                          : tab === "users"
+                            ? "Acessos individuais. Um workspace compartilhado."
+                            : "Parâmetros utilizados em todas as simulações."}
+                    </p>
+                  </div>
+                  <div className="list-actions">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className=""
+                      aria-label="Atualizar lista"
+                      onClick={refresh}
+                      disabled={busy}
+                    >
+                      <RefreshCw size={17} />
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className=""
+                      onClick={() => {
+                        setEditing(
+                          tab === "settings" && data.settings
+                            ? { ...data.settings }
+                            : defaults[tab],
+                        );
+                        setNotice("");
+                      }}
+                    >
+                      <Plus size={16} />
+                      {tab === "settings" ? "Configurar custos" : "Adicionar"}
+                    </Button>
+                  </div>
+                </div>
+                {tab === "settings" ? (
+                  data.settings ? (
+                    <div className="settings-values">
+                      {costFields.map((f) => (
+                        <div key={f.key}>
+                          <span>{f.label}</span>
+                          <strong>
+                            {f.suffix === "%"
+                              ? `${data.settings![f.key as keyof SettingsDTO]}%`
+                              : formatBRL(
+                                  String(
+                                    data.settings![f.key as keyof SettingsDTO],
+                                  ),
+                                )}
+                            {f.key === "energyRate" ? " / kWh" : ""}
+                          </strong>
+                          {f.hint && <small>{f.hint}</small>}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-state">
+                      <SlidersHorizontal size={32} />
+                      <h3>Defina os custos da sua operação</h3>
+                      <p>
+                        Informe sua tarifa de energia e os percentuais de
+                        produção para começar.
+                      </p>
+                    </div>
+                  )
+                ) : rows.length === 0 ? (
+                  <div className="empty-state">
+                    <Plus size={32} />
+                    <h3>
+                      {tab === "materials"
+                        ? "Seu primeiro material começa aqui"
+                        : tab === "printers"
+                          ? "Adicione sua primeira impressora"
+                          : "Convide sua equipe"}
+                    </h3>
+                    <p>Use o botão Adicionar para criar um cadastro.</p>
+                  </div>
+                ) : (
+                  <div className="table-scroll">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>
+                            {tab === "users"
+                              ? "Perfil / E-mail"
+                              : tab === "materials"
+                                ? "Tecnologia / Preço"
+                                : "Tecnologia / Potência"}
+                          </TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>
+                            <span className="sr-only">Ações</span>
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {rows.map((row) => (
+                          <TableRow key={row.id}>
+                            <TableCell>
+                              <strong>{row.name}</strong>
+                            </TableCell>
+                            <TableCell>
+                              {"email" in row ? (
+                                <>
+                                  <span>
+                                    {row.role === "ADMIN"
+                                      ? "Administrador"
+                                      : "Operador"}
+                                  </span>
+                                  <small>{row.email}</small>
+                                </>
+                              ) : "price" in row ? (
+                                <>
+                                  <span>
+                                    {row.technology === "FDM"
+                                      ? "Filamento"
+                                      : "Resina"}
+                                  </span>
+                                  <small>
+                                    {formatBRL(row.price)} /{" "}
+                                    {row.technology === "FDM" ? "kg" : "litro"}
+                                  </small>
+                                </>
+                              ) : (
+                                <>
+                                  <span>
+                                    {row.technology === "FDM"
+                                      ? "FDM"
+                                      : "SLA / DLP"}
+                                  </span>
+                                  <small>{row.watts} W</small>
+                                </>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">
+                                {row.active ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="row-actions">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className=""
+                                  aria-label={`Editar ${row.name}`}
+                                  onClick={() => setEditing({ ...row })}
+                                >
+                                  <Pencil size={16} />
+                                </Button>
+                                {tab === "users" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    className=""
+                                    aria-label={`Redefinir senha de ${row.name}`}
+                                    onClick={() => {
+                                      setEditing({ ...row });
+                                      setResetting(true);
+                                    }}
+                                  >
+                                    <KeyRound size={16} />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </section>
+            </Card>
           )}
-        </section>
-      )}
+        </TabsContent>
+      </Tabs>
       <div className="settings-footnote">
         Alterações só são aplicadas depois de salvar. Simulações abertas
         precisam atualizar os parâmetros.

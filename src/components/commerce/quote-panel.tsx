@@ -1,4 +1,19 @@
 "use client";
+import { Pagination } from "@/components/ui/pagination";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -36,9 +51,14 @@ export function QuotePanel({
           <h1>Orçamentos</h1>
           <p>Prepare propostas e acompanhe a aprovação do cliente.</p>
         </div>
-        <button className="button primary" onClick={() => setCreating(true)}>
+        <Button
+          variant="default"
+          size="sm"
+          className=""
+          onClick={() => setCreating(true)}
+        >
           Novo orçamento
-        </button>
+        </Button>
       </div>
       {creating && (
         <QuoteForm
@@ -49,17 +69,17 @@ export function QuotePanel({
         />
       )}
       <form className="commerce-filters" onSubmit={filter}>
-        <label>
+        <Label>
           Buscar
-          <input
+          <Input
             name="search"
             defaultValue={filters.search}
             placeholder="Número ou cliente"
           />
-        </label>
-        <label>
+        </Label>
+        <Label>
           Estado
-          <select name="status" defaultValue={filters.status}>
+          <NativeSelect name="status" defaultValue={filters.status}>
             {[
               "all",
               "RASCUNHO",
@@ -73,66 +93,75 @@ export function QuotePanel({
                 {s === "all" ? "Todos" : s}
               </option>
             ))}
-          </select>
-        </label>
-        <label>
+          </NativeSelect>
+        </Label>
+        <Label>
           De
-          <input type="date" name="from" defaultValue={filters.from} />
-        </label>
-        <label>
+          <Input type="date" name="from" defaultValue={filters.from} />
+        </Label>
+        <Label>
           Até
-          <input type="date" name="to" defaultValue={filters.to} />
-        </label>
-        <button className="button secondary">Filtrar</button>
+          <Input type="date" name="to" defaultValue={filters.to} />
+        </Label>
+        <Button variant="outline" size="sm" className="">
+          Filtrar
+        </Button>
       </form>
-      <div className="card table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Orçamento</th>
-              <th>Cliente</th>
-              <th>Estado</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {initial.items.map((q) => (
-              <tr key={q.id}>
-                <td>
-                  <Link href={`/orcamentos/${q.id}`}>{q.number}</Link>
-                </td>
-                <td>
-                  {q.snapshot?.customer.name ??
-                    customers.find((c) => c.id === q.input.customerId)?.name ??
-                    "Não informado"}
-                </td>
-                <td>{q.status}</td>
-                <td>R$ {q.totals?.total ?? "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!initial.total && <p>Nenhum orçamento encontrado.</p>}
-      </div>
-      <div className="form-actions">
-        <button
-          className="button secondary"
+      <Card asChild>
+        <div className="table-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Orçamento</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {initial.items.map((q) => (
+                <TableRow key={q.id}>
+                  <TableCell>
+                    <Link href={`/orcamentos/${q.id}`}>{q.number}</Link>
+                  </TableCell>
+                  <TableCell>
+                    {q.snapshot?.customer.name ??
+                      customers.find((c) => c.id === q.input.customerId)
+                        ?.name ??
+                      "Não informado"}
+                  </TableCell>
+                  <TableCell>{q.status}</TableCell>
+                  <TableCell>R$ {q.totals?.total ?? "—"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!initial.total && <p>Nenhum orçamento encontrado.</p>}
+        </div>
+      </Card>
+      <Pagination className="form-actions">
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
           disabled={initial.page <= 1}
           onClick={() => router.push(url(initial.page - 1))}
         >
           Anterior
-        </button>
+        </Button>
         <span>
           {initial.total} orçamento(s) · Página {initial.page}
         </span>
-        <button
-          className="button secondary"
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
           disabled={initial.page * initial.pageSize >= initial.total}
           onClick={() => router.push(url(initial.page + 1))}
         >
           Próxima
-        </button>
-      </div>
+        </Button>
+      </Pagination>
     </div>
   );
 }

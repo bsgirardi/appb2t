@@ -1,4 +1,16 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -66,15 +78,17 @@ export function EntryPanel({
           <h1>Contas a pagar e receber</h1>
           <p>Obrigações previstas, parcelas de vendas e histórico de baixas.</p>
         </div>
-        <button
-          className="button primary"
+        <Button
+          variant="default"
+          size="sm"
+          className=""
           onClick={() => {
             setDetail(null);
             setMode("new");
           }}
         >
           Novo lançamento
-        </button>
+        </Button>
       </div>
       {error && <Notice>{error}</Notice>}
       {(mode === "new" || mode === "edit") && (
@@ -87,109 +101,125 @@ export function EntryPanel({
         />
       )}
       {detail && (
-        <section className="card commerce-form">
-          <div className="page-heading">
-            <div>
-              <h2>{detail.description}</h2>
-              <p>
-                {detail.counterparty} · {dateLabel(detail.dueDate)} ·{" "}
-                {detail.state}
-                {detail.overdue ? " · Vencido" : ""}
-              </p>
+        <Card asChild>
+          <section className="commerce-form">
+            <div className="page-heading">
+              <div>
+                <h2>{detail.description}</h2>
+                <p>
+                  {detail.counterparty} · {dateLabel(detail.dueDate)} ·{" "}
+                  {detail.state}
+                  {detail.overdue ? " · Vencido" : ""}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className=""
+                onClick={() => {
+                  setDetail(null);
+                  setMode("list");
+                  setReversal(null);
+                }}
+              >
+                Fechar detalhe
+              </Button>
             </div>
-            <button
-              className="button secondary"
-              onClick={() => {
-                setDetail(null);
-                setMode("list");
-                setReversal(null);
-              }}
-            >
-              Fechar detalhe
-            </button>
-          </div>
-          <p>
-            Valor: {money(detail.amount)} · Baixado: {money(detail.paidAmount)}{" "}
-            · Restante: <strong>{money(detail.remainingAmount)}</strong>
-          </p>
-          {detail.saleId && (
             <p>
-              Origem:{" "}
-              <Link href={`/vendas/${detail.saleId}`}>{detail.saleNumber}</Link>{" "}
-              · Parcela {detail.installmentNumber}
+              Valor: {money(detail.amount)} · Baixado:{" "}
+              {money(detail.paidAmount)} · Restante:{" "}
+              <strong>{money(detail.remainingAmount)}</strong>
             </p>
-          )}
-          <div className="finance-actions">
-            {!detail.canceledAt && detail.remainingAmount !== "0.00" && (
-              <button
-                className="button primary"
-                onClick={() => {
-                  setMode("settle");
-                  setReversal(null);
-                }}
-              >
-                Registrar baixa
-              </button>
+            {detail.saleId && (
+              <p>
+                Origem:{" "}
+                <Link href={`/vendas/${detail.saleId}`}>
+                  {detail.saleNumber}
+                </Link>{" "}
+                · Parcela {detail.installmentNumber}
+              </p>
             )}
-            {!detail.saleId && !detail.canceledAt && (
-              <button
-                className="button secondary"
-                onClick={() => {
-                  setMode("edit");
-                  setReversal(null);
-                }}
-              >
-                Editar lançamento
-              </button>
-            )}
-            {!detail.canceledAt && detail.paidAmount === "0.00" && (
-              <button
-                className="button secondary"
-                onClick={() => {
-                  setMode("cancel");
-                  setReversal(null);
-                }}
-              >
-                {detail.saleId
-                  ? "Cancelar venda de origem"
-                  : "Cancelar lançamento"}
-              </button>
-            )}
-          </div>
-          <h3>Baixas registradas</h3>
-          {!detail.settlements.length && <p>Nenhuma baixa registrada.</p>}
-          {detail.settlements.map((s) => (
-            <div className="finance-history" key={s.id}>
-              <span>
-                {dateLabel(s.effectiveDate)} · {money(s.amount)} · {s.method} ·{" "}
-                {accounts.find((a) => a.id === s.accountId)?.name ?? "Conta"} ·{" "}
-                {s.reversed ? "Estornada" : "Vigente"}
-              </span>
-              {!s.reversed && (
-                <button
-                  className="button secondary"
+            <div className="finance-actions">
+              {!detail.canceledAt && detail.remainingAmount !== "0.00" && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className=""
                   onClick={() => {
-                    setReversal(s.id);
-                    setMode("list");
+                    setMode("settle");
+                    setReversal(null);
                   }}
                 >
-                  Estornar baixa
-                </button>
+                  Registrar baixa
+                </Button>
+              )}
+              {!detail.saleId && !detail.canceledAt && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className=""
+                  onClick={() => {
+                    setMode("edit");
+                    setReversal(null);
+                  }}
+                >
+                  Editar lançamento
+                </Button>
+              )}
+              {!detail.canceledAt && detail.paidAmount === "0.00" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className=""
+                  onClick={() => {
+                    setMode("cancel");
+                    setReversal(null);
+                  }}
+                >
+                  {detail.saleId
+                    ? "Cancelar venda de origem"
+                    : "Cancelar lançamento"}
+                </Button>
               )}
             </div>
-          ))}
-          <details>
-            <summary>Histórico de alterações</summary>
-            {detail.events.map((e) => (
-              <p key={e.id}>
-                {new Date(e.createdAt).toLocaleString("pt-BR", {
-                  timeZone: "America/Sao_Paulo",
-                })}{" "}
-                · {e.actorName} · {e.action} {e.reason}
-              </p>
+            <h3>Baixas registradas</h3>
+            {!detail.settlements.length && <p>Nenhuma baixa registrada.</p>}
+            {detail.settlements.map((s) => (
+              <div className="finance-history" key={s.id}>
+                <span>
+                  {dateLabel(s.effectiveDate)} · {money(s.amount)} · {s.method}{" "}
+                  ·{" "}
+                  {accounts.find((a) => a.id === s.accountId)?.name ?? "Conta"}{" "}
+                  · {s.reversed ? "Estornada" : "Vigente"}
+                </span>
+                {!s.reversed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=""
+                    onClick={() => {
+                      setReversal(s.id);
+                      setMode("list");
+                    }}
+                  >
+                    Estornar baixa
+                  </Button>
+                )}
+              </div>
             ))}
-          </details>
-        </section>
+            <details>
+              <summary>Histórico de alterações</summary>
+              {detail.events.map((e) => (
+                <p key={e.id}>
+                  {new Date(e.createdAt).toLocaleString("pt-BR", {
+                    timeZone: "America/Sao_Paulo",
+                  })}{" "}
+                  · {e.actorName} · {e.action} {e.reason}
+                </p>
+              ))}
+            </details>
+          </section>
+        </Card>
       )}
       {mode === "settle" && detail && (
         <SettlementForm
@@ -231,56 +261,62 @@ export function EntryPanel({
               estornadas. Vendas entregues não podem ser canceladas.
             </Notice>
           )}
-          <label className="field">
+          <Label className="field">
             Justificativa
-            <input name="reason" minLength={3} maxLength={2000} required />
-          </label>
+            <Input name="reason" minLength={3} maxLength={2000} required />
+          </Label>
         </ActionForm>
       )}
-      <div className="card table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Lançamento</th>
-              <th>Tipo</th>
-              <th>Vencimento</th>
-              <th>Valor</th>
-              <th>Restante</th>
-              <th>Situação</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.items.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  <strong>{e.description}</strong>
-                  <small>{e.counterparty}</small>
-                </td>
-                <td>{e.kind === "RECEIVABLE" ? "A receber" : "A pagar"}</td>
-                <td>{dateLabel(e.dueDate)}</td>
-                <td>{money(e.amount)}</td>
-                <td>{money(e.remainingAmount)}</td>
-                <td>
-                  {e.state}
-                  {e.overdue && <small>Vencido</small>}
-                </td>
-                <td>
-                  <button
-                    className="button secondary"
-                    onClick={() => void load(e.id)}
-                  >
-                    Ver detalhes
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!result.items.length && (
-          <p className="commerce-form">Nenhum lançamento encontrado.</p>
-        )}
-      </div>
+      <Card asChild>
+        <div className="table-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Lançamento</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Vencimento</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead>Restante</TableHead>
+                <TableHead>Situação</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {result.items.map((e) => (
+                <TableRow key={e.id}>
+                  <TableCell>
+                    <strong>{e.description}</strong>
+                    <small>{e.counterparty}</small>
+                  </TableCell>
+                  <TableCell>
+                    {e.kind === "RECEIVABLE" ? "A receber" : "A pagar"}
+                  </TableCell>
+                  <TableCell>{dateLabel(e.dueDate)}</TableCell>
+                  <TableCell>{money(e.amount)}</TableCell>
+                  <TableCell>{money(e.remainingAmount)}</TableCell>
+                  <TableCell>
+                    {e.state}
+                    {e.overdue && <small>Vencido</small>}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className=""
+                      onClick={() => void load(e.id)}
+                    >
+                      Ver detalhes
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!result.items.length && (
+            <p className="commerce-form">Nenhum lançamento encontrado.</p>
+          )}
+        </div>
+      </Card>
       <Pagination
         result={result}
         base="/financeiro/lancamentos"

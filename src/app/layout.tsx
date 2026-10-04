@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getPublicAppearance } from "@/server/appearance";
-import "./globals.css";
-import "./theme.css";
+import "./design.css";
 import { themeVariables } from "@/domain/appearance/theme";
 import type { CSSProperties } from "react";
 export const dynamic = "force-dynamic";

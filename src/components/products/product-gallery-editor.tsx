@@ -1,4 +1,6 @@
 "use client";
+
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { Field } from "@/components/ui/field";
@@ -85,27 +87,33 @@ export function ProductGalleryEditor({
             />
             <span>{index === 0 ? "Capa" : `Foto ${index + 1}`}</span>
             <div className="gallery-controls">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
-                className="button secondary"
+                className=""
                 disabled={index === 0}
                 aria-label={`Mover foto ${index + 1} para antes`}
                 onClick={() => move(index, -1)}
               >
                 ←
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
-                className="button secondary"
+                className=""
                 disabled={index === value.length - 1}
                 aria-label={`Mover foto ${index + 1} para depois`}
                 onClick={() => move(index, 1)}
               >
                 →
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
-                className="button secondary"
+                className=""
                 aria-label={`Remover foto ${index + 1}`}
                 onClick={() => {
                   if (photo.file) {
@@ -116,7 +124,7 @@ export function ProductGalleryEditor({
                 }}
               >
                 Remover
-              </button>
+              </Button>
             </div>
           </li>
         ))}

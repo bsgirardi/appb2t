@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { AuthForm } from "@/components/auth-form";
 import { LogoutButton } from "@/components/logout-button";
 export default function Account() {
@@ -11,10 +12,12 @@ export default function Account() {
         </div>
         <LogoutButton />
       </div>
-      <section className="card account-card">
-        <h2>Alterar senha</h2>
-        <AuthForm mode="password" />
-      </section>
+      <Card asChild>
+        <section className="account-card">
+          <h2>Alterar senha</h2>
+          <AuthForm mode="password" />
+        </section>
+      </Card>
     </>
   );
 }

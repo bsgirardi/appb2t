@@ -1,4 +1,5 @@
 "use client";
+import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import type {
   CalculationInput,
@@ -32,101 +33,109 @@ export function ProductCalculationFields({
     Number.isFinite(number) ? String(number) : "";
   return (
     <>
-      <section className="card">
-        <h2>Dados da produção</h2>
-        <div className="form-grid">
-          <Field
-            label="Consumo de material"
-            value={value.consumption}
-            inputMode="decimal"
-            suffix={value.technology === "FDM" ? "g" : "ml"}
-            onChange={(e) =>
-              onChange({ ...value, consumption: e.target.value })
-            }
-          />
-          <Field
-            label="Preço do material"
-            value={value.materialPrice}
-            inputMode="decimal"
-            suffix={value.technology === "FDM" ? "R$/kg" : "R$/litro"}
-            onChange={(e) =>
-              onChange({ ...value, materialPrice: e.target.value })
-            }
-          />
-          <Field
-            label="Horas"
-            value={displayed(value.hours)}
-            inputMode="numeric"
-            suffix="h"
-            onChange={(e) =>
-              onChange({ ...value, hours: integer(e.target.value) })
-            }
-          />
-          <Field
-            label="Minutos"
-            value={displayed(value.minutes)}
-            inputMode="numeric"
-            suffix="min"
-            onChange={(e) =>
-              onChange({ ...value, minutes: integer(e.target.value) })
-            }
-          />
-        </div>
-      </section>
-      <section className="card">
-        <h2>Custos da impressora</h2>
-        <div className="form-grid">
-          {printerFields.map(([key, label, suffix]) => {
-            const isInteger =
-              key === "amortizationMonths" || key === "daysPerMonth";
-            return (
+      <Card asChild>
+        <section className="">
+          <h2>Dados da produção</h2>
+          <div className="form-grid">
+            <Field
+              label="Consumo de material"
+              value={value.consumption}
+              inputMode="decimal"
+              suffix={value.technology === "FDM" ? "g" : "ml"}
+              onChange={(e) =>
+                onChange({ ...value, consumption: e.target.value })
+              }
+            />
+            <Field
+              label="Preço do material"
+              value={value.materialPrice}
+              inputMode="decimal"
+              suffix={value.technology === "FDM" ? "R$/kg" : "R$/litro"}
+              onChange={(e) =>
+                onChange({ ...value, materialPrice: e.target.value })
+              }
+            />
+            <Field
+              label="Horas"
+              value={displayed(value.hours)}
+              inputMode="numeric"
+              suffix="h"
+              onChange={(e) =>
+                onChange({ ...value, hours: integer(e.target.value) })
+              }
+            />
+            <Field
+              label="Minutos"
+              value={displayed(value.minutes)}
+              inputMode="numeric"
+              suffix="min"
+              onChange={(e) =>
+                onChange({ ...value, minutes: integer(e.target.value) })
+              }
+            />
+          </div>
+        </section>
+      </Card>
+      <Card asChild>
+        <section className="">
+          <h2>Custos da impressora</h2>
+          <div className="form-grid">
+            {printerFields.map(([key, label, suffix]) => {
+              const isInteger =
+                key === "amortizationMonths" || key === "daysPerMonth";
+              return (
+                <Field
+                  key={key}
+                  label={label}
+                  suffix={suffix}
+                  inputMode={isInteger ? "numeric" : "decimal"}
+                  value={
+                    typeof value.printer[key] === "number"
+                      ? displayed(value.printer[key] as number)
+                      : value.printer[key]
+                  }
+                  onChange={(e) =>
+                    onChange({
+                      ...value,
+                      printer: {
+                        ...value.printer,
+                        [key]: isInteger
+                          ? integer(e.target.value)
+                          : e.target.value,
+                      },
+                    })
+                  }
+                />
+              );
+            })}
+          </div>
+        </section>
+      </Card>
+      <Card asChild>
+        <section className="">
+          <h2>Custos e acréscimo</h2>
+          <p className="muted">
+            Estes ajustes valem somente para este produto.
+          </p>
+          <div className="form-grid">
+            {settingsFields.map(([key, label, suffix]) => (
               <Field
                 key={key}
                 label={label}
                 suffix={suffix}
-                inputMode={isInteger ? "numeric" : "decimal"}
-                value={
-                  typeof value.printer[key] === "number"
-                    ? displayed(value.printer[key] as number)
-                    : value.printer[key]
-                }
+                inputMode="decimal"
+                value={value.settings[key]}
                 onChange={(e) =>
                   onChange({
                     ...value,
-                    printer: {
-                      ...value.printer,
-                      [key]: isInteger
-                        ? integer(e.target.value)
-                        : e.target.value,
-                    },
+                    settings: { ...value.settings, [key]: e.target.value },
                   })
                 }
               />
-            );
-          })}
-        </div>
-      </section>
-      <section className="card">
-        <h2>Custos e acréscimo</h2>
-        <p className="muted">Estes ajustes valem somente para este produto.</p>
-        <div className="form-grid">
-          {settingsFields.map(([key, label, suffix]) => (
-            <Field
-              key={key}
-              label={label}
-              suffix={suffix}
-              inputMode="decimal"
-              value={value.settings[key]}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  settings: { ...value.settings, [key]: e.target.value },
-                })
-              }
-            />
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </Card>
     </>
   );
 }

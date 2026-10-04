@@ -1,12 +1,41 @@
 // @vitest-environment jsdom
 import { expect, it, afterEach, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  act,
+} from "@testing-library/react";
 import { ActionForm } from "@/components/finance/shared";
 import { SettlementForm } from "@/components/finance/settlement-form";
 import type { EntryDTO, AccountDTO } from "@/domain/finance/types";
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+});
+it("pending_action_submits_once", async () => {
+  let finish!: () => void;
+  const submit = vi.fn(
+    () =>
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const { container } = render(
+    <ActionForm title="Transferir" onSubmit={submit} onDone={() => {}}>
+      <label>
+        Valor
+        <input name="amount" defaultValue="20.00" />
+      </label>
+    </ActionForm>,
+  );
+  fireEvent.submit(container.querySelector("form")!);
+  fireEvent.submit(container.querySelector("form")!);
+  expect(submit).toHaveBeenCalledTimes(1);
+  expect(screen.getByLabelText("Valor").matches(":disabled")).toBe(true);
+  await act(async () => finish());
+  expect(screen.getByLabelText("Valor").matches(":disabled")).toBe(false);
 });
 it("keeps the financial draft and operation key on an identical retry", async () => {
   const submit = vi

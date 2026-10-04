@@ -1,4 +1,6 @@
 "use client";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import type { AccountDTO, EntryDTO } from "@/domain/finance/types";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { api } from "@/lib/client-api";
@@ -52,25 +54,25 @@ export function SettlementForm({
               label: `${a.name} · ${money(a.balance)}`,
             }))}
         />
-        <label className="field">
+        <Label className="field">
           Valor (R$)
-          <input
+          <Input
             name="amount"
             inputMode="decimal"
             defaultValue={entry.remainingAmount}
             required
           />
-        </label>
-        <label className="field">
+        </Label>
+        <Label className="field">
           Data efetiva
-          <input
+          <Input
             name="effectiveDate"
             type="date"
             defaultValue={todaySaoPaulo(new Date())}
             max={todaySaoPaulo(new Date())}
             required
           />
-        </label>
+        </Label>
         <Select
           name="method"
           label="Forma de pagamento"
@@ -84,10 +86,10 @@ export function SettlementForm({
             { value: "OTHER", label: "Outra" },
           ]}
         />
-        <label className="field">
+        <Label className="field">
           Observações
-          <input name="notes" maxLength={2000} />
-        </label>
+          <Input name="notes" maxLength={2000} />
+        </Label>
       </div>
     </ActionForm>
   );

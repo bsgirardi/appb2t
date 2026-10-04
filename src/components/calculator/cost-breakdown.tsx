@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { ArrowUpRight, ChartNoAxesCombined, Info } from "lucide-react";
 import { formatBRL } from "@/domain/calculation/calculate";
 import type { CalculationResult } from "@/domain/calculation/types";
@@ -32,7 +34,7 @@ export function CostBreakdown({
             ? "Um preço que considera toda a sua produção."
             : "Preencha os dados para encontrar seu preço."}
         </p>
-        <div className="price-divider" />
+        <Separator className="my-4 bg-current opacity-25" />
         <div className="price-stats">
           <div>
             <span>Custo de produção</span>
@@ -48,48 +50,50 @@ export function CostBreakdown({
           {markup}% de acréscimo sobre o custo
         </div>
       </div>
-      <div className="card breakdown">
-        <div className="section-heading">
-          <h2>Composição do custo</h2>
-          <span className="tag">DETALHADO</span>
-        </div>
-        <div className="cost-bar" aria-hidden="true">
-          {rows.map(([key, , color]) => (
-            <span
-              key={key}
-              style={{
-                background: color,
-                flex:
-                  result && Number(result.total) > 0
-                    ? Number(result[key]) / Number(result.total)
-                    : 1,
-              }}
-            />
-          ))}
-        </div>
-        <dl>
-          {rows.map(([key, label, color]) => (
-            <div className="cost-row" key={key}>
-              <dt>
-                <span className="cost-dot" style={{ background: color }} />
-                {label}
-              </dt>
-              <dd>{result ? formatBRL(result[key]) : "—"}</dd>
-            </div>
-          ))}
-          <div className="cost-total">
-            <dt>Custo total</dt>
-            <dd>{result ? formatBRL(result.total) : "—"}</dd>
+      <Card asChild>
+        <div className="breakdown">
+          <div className="section-heading">
+            <h2>Composição do custo</h2>
+            <span className="tag">DETALHADO</span>
           </div>
-        </dl>
-        <div className="rounding-note">
-          <Info size={14} />
-          <p>
-            Os valores são arredondados apenas na exibição. A soma das parcelas
-            pode variar em um centavo.
-          </p>
+          <div className="cost-bar" aria-hidden="true">
+            {rows.map(([key, , color]) => (
+              <span
+                key={key}
+                style={{
+                  background: color,
+                  flex:
+                    result && Number(result.total) > 0
+                      ? Number(result[key]) / Number(result.total)
+                      : 1,
+                }}
+              />
+            ))}
+          </div>
+          <dl>
+            {rows.map(([key, label, color]) => (
+              <div className="cost-row" key={key}>
+                <dt>
+                  <span className="cost-dot" style={{ background: color }} />
+                  {label}
+                </dt>
+                <dd>{result ? formatBRL(result[key]) : "—"}</dd>
+              </div>
+            ))}
+            <div className="cost-total">
+              <dt>Custo total</dt>
+              <dd>{result ? formatBRL(result.total) : "—"}</dd>
+            </div>
+          </dl>
+          <div className="rounding-note">
+            <Info size={14} />
+            <p>
+              Os valores são arredondados apenas na exibição. A soma das
+              parcelas pode variar em um centavo.
+            </p>
+          </div>
         </div>
-      </div>
+      </Card>
     </section>
   );
 }

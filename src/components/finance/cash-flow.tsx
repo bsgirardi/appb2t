@@ -1,4 +1,13 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import type { CashDay } from "@/domain/finance/types";
 import { money, dateLabel } from "./shared";
 export function CashFlow({
@@ -25,35 +34,37 @@ export function CashFlow({
       ].map(([label, value]) => (
         <div key={String(label)}>
           <h3>{String(label)}</h3>
-          <div className="card table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Entradas</th>
-                  <th>Saídas</th>
-                  <th>Transferências líquidas</th>
-                  <th>Ajustes líquidos</th>
-                  <th>Saldo ao final</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(value as CashDay[]).map((day) => (
-                  <tr key={day.date}>
-                    <td>{dateLabel(day.date)}</td>
-                    <td>{money(day.incoming)}</td>
-                    <td>{money(day.outgoing)}</td>
-                    <td>{money(day.transfersNet)}</td>
-                    <td>{money(day.adjustmentsNet)}</td>
-                    <td>{money(day.closingBalance)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {!(value as CashDay[]).length && (
-              <p className="commerce-form">Nenhum valor neste período.</p>
-            )}
-          </div>
+          <Card asChild>
+            <div className="table-scroll">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Entradas</TableHead>
+                    <TableHead>Saídas</TableHead>
+                    <TableHead>Transferências líquidas</TableHead>
+                    <TableHead>Ajustes líquidos</TableHead>
+                    <TableHead>Saldo ao final</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(value as CashDay[]).map((day) => (
+                    <TableRow key={day.date}>
+                      <TableCell>{dateLabel(day.date)}</TableCell>
+                      <TableCell>{money(day.incoming)}</TableCell>
+                      <TableCell>{money(day.outgoing)}</TableCell>
+                      <TableCell>{money(day.transfersNet)}</TableCell>
+                      <TableCell>{money(day.adjustmentsNet)}</TableCell>
+                      <TableCell>{money(day.closingBalance)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!(value as CashDay[]).length && (
+                <p className="commerce-form">Nenhum valor neste período.</p>
+              )}
+            </div>
+          </Card>
         </div>
       ))}
       <p>

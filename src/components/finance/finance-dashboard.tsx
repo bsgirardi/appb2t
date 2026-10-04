@@ -1,4 +1,5 @@
 "use client";
+import { Card } from "@/components/ui/card";
 import type { FinanceDashboardDTO } from "@/domain/finance/types";
 import { money } from "./shared";
 export function FinanceDashboard({
@@ -31,10 +32,12 @@ export function FinanceDashboard({
       </div>
       <div className="finance-grid">
         {cards.map(([label, value]) => (
-          <article className="card finance-account" key={label}>
-            <small>{label}</small>
-            <strong className="finance-value">{money(value)}</strong>
-          </article>
+          <Card key={label} asChild>
+            <article className="finance-account" >
+              <small>{label}</small>
+              <strong className="finance-value">{money(value)}</strong>
+            </article>
+          </Card>
         ))}
       </div>
       <p>

@@ -1,4 +1,6 @@
 "use client";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import type { AccountDTO } from "@/domain/finance/types";
 import { api } from "@/lib/client-api";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
@@ -39,24 +41,24 @@ export function TransferForm({
           options={options}
         />
         <Select name="toAccountId" label="Conta de destino" options={options} />
-        <label className="field">
+        <Label className="field">
           Valor (R$)
-          <input name="amount" inputMode="decimal" required />
-        </label>
-        <label className="field">
+          <Input name="amount" inputMode="decimal" required />
+        </Label>
+        <Label className="field">
           Data efetiva
-          <input
+          <Input
             name="effectiveDate"
             type="date"
             defaultValue={todaySaoPaulo(new Date())}
             max={todaySaoPaulo(new Date())}
             required
           />
-        </label>
-        <label className="field">
+        </Label>
+        <Label className="field">
           Descrição
-          <input name="description" minLength={3} maxLength={2000} required />
-        </label>
+          <Input name="description" minLength={3} maxLength={2000} required />
+        </Label>
       </div>
     </ActionForm>
   );

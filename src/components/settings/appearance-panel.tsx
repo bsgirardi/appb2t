@@ -1,4 +1,8 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import {
   useEffect,
   useRef,
@@ -12,6 +16,12 @@ import { Brand } from "@/components/shell/brand";
 import type { AppearanceDTO } from "@/domain/appearance/types";
 import { appearanceSchema } from "@/domain/appearance/validation";
 import { readableText } from "@/domain/appearance/colors";
+import { StorefrontEditor } from "./storefront-editor";
+import {
+  defaultStorefront,
+  sectionNames,
+} from "@/domain/appearance/storefront";
+import type { CollectionDTO } from "@/domain/collections/types";
 const texts = [
   ["name", "Nome da empresa", 120],
   ["shortName", "Nome curto", 30],
@@ -27,7 +37,13 @@ const colors = [
   ["darkPrimary", "Cor principal · tema escuro"],
   ["darkAccent", "Cor de destaque · tema escuro"],
 ] as const;
-export function AppearancePanel({ initial }: { initial: AppearanceDTO }) {
+export function AppearancePanel({
+  initial,
+  collections = [],
+}: {
+  initial: AppearanceDTO;
+  collections?: CollectionDTO[];
+}) {
   const [draft, setDraft] = useState(initial),
     [photo, setPhoto] = useState<File>(),
     [preview, setPreview] = useState<string>(),
@@ -77,7 +93,7 @@ export function AppearancePanel({ initial }: { initial: AppearanceDTO }) {
       setPhoto(undefined);
       setPreview(undefined);
       setRemoveLogo(false);
-      setMessage("Identidade da empresa atualizada.");
+      setMessage("Aparência e catálogo atualizados.");
       router.refresh();
     } catch (e) {
       setError((e as Error).message);
@@ -104,107 +120,128 @@ export function AppearancePanel({ initial }: { initial: AppearanceDTO }) {
       </div>
       <form onSubmit={save} className="product-edit-grid">
         {" "}
-        <section className="card">
-          {error && <Notice>{error}</Notice>}
-          {message && <Notice kind="success">{message}</Notice>}
-          <fieldset disabled={busy}>
-            {texts.map(([key, label, max]) => (
-              <Field
-                key={key}
-                label={label}
-                value={draft[key]}
-                maxLength={max}
-                type={key === "email" ? "email" : "text"}
-                required={key === "name"}
-                onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-              />
-            ))}
-            <Field
-              label="Logo da empresa"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              hint="JPEG, PNG ou WebP · até 2 MiB"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (file.size > 2 * 1024 * 1024) {
-                  setError("O logo deve ter até 2 MiB.");
-                  return;
-                }
-                setPhoto(file);
-                setPreview(URL.createObjectURL(file));
-                setRemoveLogo(false);
-              }}
-            />
-            <label className="product-checkbox">
-              <input
-                type="checkbox"
-                checked={removeLogo}
-                onChange={(e) => {
-                  setRemoveLogo(e.target.checked);
-                  if (e.target.checked) {
-                    setPhoto(undefined);
-                    setPreview(undefined);
-                  }
-                }}
-              />{" "}
-              Remover logo
-            </label>
-            <h2>Cores dos temas</h2>
-            <p className="muted">
-              O tema acompanha automaticamente a preferência do dispositivo.
-            </p>
-            <div className="form-grid">
-              {colors.map(([key, label]) => (
+        <Card asChild>
+          <section className="">
+            {error && <Notice>{error}</Notice>}
+            {message && <Notice kind="success">{message}</Notice>}
+            <fieldset disabled={busy}>
+              {texts.map(([key, label, max]) => (
                 <Field
                   key={key}
                   label={label}
-                  type="color"
                   value={draft[key]}
+                  maxLength={max}
+                  type={key === "email" ? "email" : "text"}
+                  required={key === "name"}
                   onChange={(e) =>
                     setDraft({ ...draft, [key]: e.target.value })
                   }
                 />
               ))}
-            </div>
-            <button type="submit" className="button primary">
-              {busy ? "Salvando…" : "Salvar aparência"}
-            </button>
-          </fieldset>
-        </section>
-        <aside className="appearance-preview card">
-          <h2>Prévia da marca</h2>
-          <Brand identity={identity} />
-          <h3>{draft.name}</h3>
-          {draft.slogan && <p>{draft.slogan}</p>}
-          {draft.email && <p>{draft.email}</p>}
-          {draft.phone && <p>{draft.phone}</p>}
-          {draft.address && <p>{draft.address}</p>}
-          <div className="preview-swatches">
-            {colors.map(([key, label]) => {
-              let color = "#111827";
-              try {
-                color = readableText(draft[key]);
-              } catch {}
-              return (
-                <div
-                  key={key}
-                  style={
-                    {
-                      background: draft[key],
-                      color,
-                      padding: 16,
-                      borderRadius: 10,
-                    } as CSSProperties
+              <Field
+                label="Logo da empresa"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hint="JPEG, PNG ou WebP · até 2 MiB"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    setError("O logo deve ter até 2 MiB.");
+                    return;
                   }
-                >
-                  {label}
-                </div>
-              );
-            })}
-          </div>
-          <small>{draft.footer}</small>
-        </aside>
+                  setPhoto(file);
+                  setPreview(URL.createObjectURL(file));
+                  setRemoveLogo(false);
+                }}
+              />
+              <Label className="product-checkbox">
+                <Checkbox
+                  checked={removeLogo}
+                  onChange={(e) => {
+                    setRemoveLogo(e.target.checked);
+                    if (e.target.checked) {
+                      setPhoto(undefined);
+                      setPreview(undefined);
+                    }
+                  }}
+                />{" "}
+                Remover logo
+              </Label>
+              <h2>Cores dos temas</h2>
+              <p className="muted">
+                O tema acompanha automaticamente a preferência do dispositivo.
+              </p>
+              <div className="form-grid">
+                {colors.map(([key, label]) => (
+                  <Field
+                    key={key}
+                    label={label}
+                    type="color"
+                    value={draft[key]}
+                    onChange={(e) =>
+                      setDraft({ ...draft, [key]: e.target.value })
+                    }
+                  />
+                ))}
+              </div>
+              <StorefrontEditor
+                value={draft.storefront ?? defaultStorefront}
+                collections={collections}
+                onChange={(storefront) => setDraft({ ...draft, storefront })}
+              />
+              <Button variant="default" size="sm" type="submit" className="">
+                {busy ? "Salvando…" : "Salvar aparência"}
+              </Button>
+            </fieldset>
+          </section>
+        </Card>
+        <Card asChild>
+          <aside className="appearance-preview ">
+            <h2>Prévia da marca</h2>
+            <Brand identity={identity} />
+            <h3>{draft.name}</h3>
+            {draft.slogan && <p>{draft.slogan}</p>}
+            {draft.email && <p>{draft.email}</p>}
+            {draft.phone && <p>{draft.phone}</p>}
+            {draft.address && <p>{draft.address}</p>}
+            <div className="preview-swatches">
+              {colors.map(([key, label]) => {
+                let color = "#111827";
+                try {
+                  color = readableText(draft[key]);
+                } catch {}
+                return (
+                  <div
+                    key={key}
+                    style={
+                      {
+                        background: draft[key],
+                        color,
+                        padding: 16,
+                        borderRadius: 10,
+                      } as CSSProperties
+                    }
+                  >
+                    {label}
+                  </div>
+                );
+              })}
+            </div>
+            <small>{draft.footer}</small>
+            <h2>Estrutura do catálogo</h2>
+            <ol className="store-structure-preview">
+              {(draft.storefront ?? defaultStorefront).sectionOrder.map(
+                (section) => (
+                  <li key={section}>{sectionNames[section]}</li>
+                ),
+              )}
+            </ol>
+            <a href="/" target="_blank" rel="noopener noreferrer">
+              Abrir catálogo publicado ↗
+            </a>
+          </aside>
+        </Card>
       </form>
     </>
   );

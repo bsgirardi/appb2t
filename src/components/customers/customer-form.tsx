@@ -1,4 +1,10 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useRef, useState, type FormEvent } from "react";
 import type { CustomerDTO, CustomerInput } from "@/domain/customers/types";
 import { customerSchema } from "@/domain/customers/validation";
@@ -69,81 +75,88 @@ export function CustomerForm({
     }
   }
   return (
-    <form onSubmit={save} className="card product-form">
-      {error && <Notice>{error}</Notice>}
-      <fieldset disabled={busy}>
-        <Field
-          label="Nome do cliente"
-          value={draft.name}
-          maxLength={160}
-          required
-          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-        />
-        <div className="field">
-          <label htmlFor="customer-type">Tipo de cliente</label>
-          <select
-            id="customer-type"
-            value={draft.type}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                type: e.target.value as CustomerInput["type"],
-              })
-            }
-          >
-            <option value="PERSON">Pessoa física</option>
-            <option value="COMPANY">Pessoa jurídica</option>
-          </select>
-        </div>
-        <div className="form-grid">
-          {(
-            [
-              ["document", "Documento", 32],
-              ["email", "E-mail", 254],
-              ["phone", "Telefone", 50],
-              ["address", "Endereço", 500],
-            ] as const
-          ).map(([key, label, max]) => (
-            <Field
-              key={key}
-              label={label}
-              value={draft[key]}
-              maxLength={key === "document" ? 100 : max}
-              type={key === "email" ? "email" : "text"}
-              onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
+    <Card asChild>
+      <form onSubmit={save} className="product-form">
+        {error && <Notice>{error}</Notice>}
+        <fieldset disabled={busy}>
+          <Field
+            label="Nome do cliente"
+            value={draft.name}
+            maxLength={160}
+            required
+            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+          />
+          <div className="field">
+            <Label htmlFor="customer-type">Tipo de cliente</Label>
+            <NativeSelect
+              id="customer-type"
+              value={draft.type}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  type: e.target.value as CustomerInput["type"],
+                })
+              }
+            >
+              <option value="PERSON">Pessoa física</option>
+              <option value="COMPANY">Pessoa jurídica</option>
+            </NativeSelect>
+          </div>
+          <div className="form-grid">
+            {(
+              [
+                ["document", "Documento", 32],
+                ["email", "E-mail", 254],
+                ["phone", "Telefone", 50],
+                ["address", "Endereço", 500],
+              ] as const
+            ).map(([key, label, max]) => (
+              <Field
+                key={key}
+                label={label}
+                value={draft[key]}
+                maxLength={key === "document" ? 100 : max}
+                type={key === "email" ? "email" : "text"}
+                onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
+              />
+            ))}
+          </div>
+          <p className="muted">
+            Documento opcional, informado pela equipe. Sem validação fiscal
+            externa.
+          </p>
+          <div className="field">
+            <Label htmlFor="customer-notes">Observações internas</Label>
+            <Textarea
+              id="customer-notes"
+              value={draft.notes}
+              maxLength={2000}
+              onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
             />
-          ))}
-        </div>
-        <p className="muted">
-          Documento opcional, informado pela equipe. Sem validação fiscal
-          externa.
-        </p>
-        <div className="field">
-          <label htmlFor="customer-notes">Observações internas</label>
-          <textarea
-            id="customer-notes"
-            value={draft.notes}
-            maxLength={2000}
-            onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-          />
-        </div>
-        <label className="product-checkbox">
-          <input
-            type="checkbox"
-            checked={draft.active}
-            onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
-          />
-          Cliente ativo
-        </label>
-        <div className="product-actions">
-          <button type="submit" className="button primary">
-            {busy ? "Salvando…" : "Salvar cliente"}
-          </button>
-          <button type="button" className="button secondary" onClick={onCancel}>
-            Voltar
-          </button>
-        </div>
-      </fieldset>
-    </form>
+          </div>
+          <Label className="product-checkbox">
+            <Checkbox
+              checked={draft.active}
+              onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
+            />
+            Cliente ativo
+          </Label>
+          <div className="product-actions">
+            <Button variant="default" size="sm" type="submit" className="">
+              {busy ? "Salvando…" : "Salvar cliente"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              className=""
+              onClick={onCancel}
+            >
+              Voltar
+            </Button>
+          </div>
+        </fieldset>
+      </form>
+    </Card>
   );
 }

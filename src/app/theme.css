@@ -68,8 +68,6 @@ fieldset {
 }
 .sidebar,
 .topbar,
-.card,
-.button.secondary,
 .technology-switch button.selected,
 .product-card,
 .login-panel {
@@ -83,9 +81,7 @@ fieldset {
 .technology-switch,
 .workspace-badge,
 .tag,
-.settings-tabs button span,
 .settings-values > div,
-th,
 .avatar,
 .section-number,
 .portfolio-hero-icon {
@@ -93,17 +89,11 @@ th,
   color: var(--ink);
   border-color: var(--line);
 }
-.brand-icon,
-.button.primary {
+.brand-icon {
   background: var(--brand);
   color: var(--on-brand);
 }
-.button.primary:hover {
-  background: var(--brand);
-  filter: brightness(0.95);
-}
 .nav-item,
-.icon-button,
 .topbar strong,
 .field label,
 .time-heading,
@@ -127,7 +117,6 @@ th,
 .slash,
 .page-heading p,
 .field small,
-.field input::placeholder,
 .suffix,
 .time-heading + .form-grid label,
 .calculation-status,
@@ -135,11 +124,8 @@ th,
 .loaded-at,
 .rounding-note,
 .workspace-footer,
-.settings-tabs button,
 .empty-state,
 .empty-state p,
-th,
-td small,
 .settings-values span,
 .settings-values small,
 .settings-footnote,
@@ -159,31 +145,9 @@ td small,
   background: var(--green-light);
   color: var(--brand-ink);
 }
-.nav-item:hover,
-.icon-button:hover {
+.nav-item:hover {
   background: var(--surface);
   color: var(--ink);
-}
-.button.secondary:hover {
-  border-color: var(--muted);
-}
-.field input,
-.field select,
-.field > select,
-.field textarea,
-.product-form textarea {
-  font-size: 14px;
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-.field input:focus,
-.field select:focus,
-.field textarea:focus,
-.product-form textarea:focus {
-  outline: 2px solid var(--brand-ink);
-  outline-offset: 2px;
-  border-color: var(--brand-ink);
 }
 .field {
   margin-bottom: 16px;
@@ -192,7 +156,6 @@ td small,
 .form-grid .field {
   margin-bottom: 0;
 }
-.button,
 .nav-item,
 .page-heading p,
 .section-description,
@@ -205,9 +168,6 @@ td small,
 .cost-row,
 .cost-total,
 .bottom-tip p,
-.notice,
-.settings-tabs button,
-table,
 .empty-state p,
 .checkbox-field,
 .machine-hint,
@@ -244,9 +204,6 @@ small,
 .rounding-note,
 .workspace-footer,
 .admin-label,
-.settings-tabs button span,
-th,
-.status-pill,
 .settings-values span,
 .settings-values small,
 .settings-footnote,
@@ -255,8 +212,6 @@ th,
 .login-help,
 .product-status,
 .refresh-button,
-.list-actions .button,
-.portfolio-header .button,
 .catalog-heading > span {
   font-size: 12px;
 }
@@ -333,30 +288,13 @@ th,
 .bottom-tip strong {
   color: inherit;
 }
-.notice.error {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border-color: var(--danger);
-}
-.notice.success {
-  background: var(--success-bg);
-  color: var(--success);
-  border-color: var(--success);
-}
-.notice.info {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--line);
-}
 .field-error {
   color: var(--danger);
 }
-.status-pill,
 .product-status.inactive {
   background: var(--surface);
   color: var(--muted);
 }
-.status-pill.enabled,
 .product-status {
   background: var(--success-bg);
   color: var(--success);
@@ -396,10 +334,6 @@ th,
   display: grid;
   gap: 12px;
 }
-.field input[type="color"] {
-  padding: 4px;
-  min-height: 44px;
-}
 .gallery-controls {
   flex-wrap: wrap;
 }
@@ -408,9 +342,6 @@ th,
 }
 .product-edit-grid > * {
   min-width: 0;
-}
-.collection-filters .button {
-  white-space: normal;
 }
 .product-admin-info p {
   overflow-wrap: anywhere;
@@ -447,7 +378,6 @@ button:disabled {
   .topbar .internal-chip {
     font-size: 12px;
   }
-  .settings-tabs button,
   .technology-switch button {
     font-size: 14px;
   }
@@ -486,35 +416,212 @@ button:disabled {
     transition: none !important;
   }
 }
-:root .commerce-page { display: grid; gap: 20px; }
-.commerce-form { display: grid; gap: 18px; padding: 24px; border: 1px solid var(--line); border-radius: 16px; }
-.finance-workspace { display:grid; gap:24px; min-width:0; }
-.finance-workspace section { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; min-width:0; }
-.finance-nav,.finance-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-.finance-nav a { padding:10px 14px; border:1px solid var(--line); border-radius:10px; color:var(--ink); }
-.finance-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:16px; }
-.finance-account { display:grid; gap:12px; padding:22px; min-width:0; overflow-wrap:anywhere; }
-.finance-value { display:block; font-size:clamp(21px,2.4vw,30px); font-variant-numeric:tabular-nums; }
-.finance-history { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:12px 0; border-bottom:1px solid var(--line); }
-.finance-workspace fieldset { min-width:0; border:0; padding:0; display:grid; gap:18px; }
-.finance-workspace .table-scroll { max-width:100%; overflow-x:auto; }
-.finance-workspace .page-heading { flex-wrap:wrap; gap:16px; }
-.finance-workspace select option { background:var(--surface); color:var(--ink); }
-.commerce-form label,.commerce-filters label,.commerce-item label { display: grid; gap: 8px; }
-.commerce-form input,.commerce-form select,.commerce-form textarea,.commerce-filters input,.commerce-filters select { width: 100%; padding: 10px; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: 8px; }
-.commerce-form textarea { min-height: 96px; }
-.commerce-item { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; padding: 18px; margin: 16px 0; border: 1px solid var(--line); border-radius: 10px; }
-.commerce-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
-.commercial-print { color: #172133; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 32px; }
-.commercial-print h1,.commercial-print h2,.commercial-print h3,.commercial-print p,.commercial-print strong,.commercial-print td,.commercial-print th { color: #172133 !important; }
-.commercial-print header { border-bottom: 2px solid #334155; padding-bottom: 20px; }
-.commercial-print section,.commercial-print table,.commercial-print dl { margin: 24px 0; }
-.commercial-print dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-.commercial-print footer { margin-top: 32px; }
-.commercial-print thead,.commercial-print th { background:#e9eef3 !important; }
-.commercial-print tbody,.commercial-print td,.commercial-print tr:hover { background:#fff !important; }
-.commercial-print dt,.commercial-print dd {color:#172133 !important;}
-@media print { .workspace {width:100% !important;} .workspace main {padding:0 !important;} .workspace-footer {display:none !important;} }
-.preserve-lines { white-space: pre-wrap; overflow-wrap: anywhere; }
-@media(max-width:600px) { .commerce-item {grid-template-columns:1fr;} .commercial-print,.commerce-form {padding:16px;} }
-@media print { .sidebar,.topbar,.no-print {display:none !important;} .app-shell,.main-content,.workspace {display:block !important;margin:0 !important;padding:0 !important;} .commercial-print {border:0;border-radius:0;} body {background:#fff !important;} .commercial-print tr {break-inside:avoid;} }
+:root .commerce-page {
+  display: grid;
+  gap: 20px;
+}
+.commerce-form {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.finance-workspace {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.finance-workspace section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  min-width: 0;
+}
+.finance-nav,
+.finance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.finance-nav a {
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+}
+.finance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 16px;
+}
+.finance-account {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.finance-value {
+  display: block;
+  font-size: clamp(21px, 2.4vw, 30px);
+  font-variant-numeric: tabular-nums;
+}
+.finance-history {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.finance-workspace fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+.finance-workspace .table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.finance-workspace .page-heading {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.finance-workspace select option {
+  background: var(--surface);
+  color: var(--ink);
+}
+.commerce-form label,
+.commerce-filters label,
+.commerce-item label {
+  display: grid;
+  gap: 8px;
+}
+.commerce-form input,
+.commerce-form select,
+.commerce-form textarea,
+.commerce-filters input,
+.commerce-filters select {
+  width: 100%;
+  padding: 10px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.commerce-form textarea {
+  min-height: 96px;
+}
+.commerce-item {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px;
+  margin: 16px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.commerce-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+.commercial-print {
+  color: #172133;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 32px;
+}
+.commercial-print h1,
+.commercial-print h2,
+.commercial-print h3,
+.commercial-print p,
+.commercial-print strong,
+.commercial-print td,
+.commercial-print th {
+  color: #172133 !important;
+}
+.commercial-print header {
+  border-bottom: 2px solid #334155;
+  padding-bottom: 20px;
+}
+.commercial-print section,
+.commercial-print table,
+.commercial-print dl {
+  margin: 24px 0;
+}
+.commercial-print dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+.commercial-print footer {
+  margin-top: 32px;
+}
+.commercial-print thead,
+.commercial-print th {
+  background: #e9eef3 !important;
+}
+.commercial-print tbody,
+.commercial-print td,
+.commercial-print tr:hover {
+  background: #fff !important;
+}
+.commercial-print dt,
+.commercial-print dd {
+  color: #172133 !important;
+}
+@media print {
+  .workspace {
+    width: 100% !important;
+  }
+  .workspace main {
+    padding: 0 !important;
+  }
+  .workspace-footer {
+    display: none !important;
+  }
+}
+.preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .commerce-item {
+    grid-template-columns: 1fr;
+  }
+  .commercial-print,
+  .commerce-form {
+    padding: 16px;
+  }
+}
+@media print {
+  .sidebar,
+  .topbar,
+  .no-print {
+    display: none !important;
+  }
+  .app-shell,
+  .main-content,
+  .workspace {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .commercial-print {
+    border: 0;
+    border-radius: 0;
+  }
+  body {
+    background: #fff !important;
+  }
+  .commercial-print tr {
+    break-inside: avoid;
+  }
+}

@@ -1,4 +1,16 @@
 "use client";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CategoryDTO } from "@/domain/finance/types";
@@ -12,9 +24,14 @@ export function CategoryPanel({ categories }: { categories: CategoryDTO[] }) {
     <section>
       <div className="page-heading">
         <h2>Categorias</h2>
-        <button className="button secondary" onClick={() => setEditing("new")}>
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
+          onClick={() => setEditing("new")}
+        >
           Nova categoria
-        </button>
+        </Button>
       </div>
       {editing && (
         <ActionForm
@@ -39,16 +56,16 @@ export function CategoryPanel({ categories }: { categories: CategoryDTO[] }) {
           }
         >
           <div className="form-grid">
-            <label className="field">
+            <Label className="field">
               Nome
-              <input
+              <Input
                 name="name"
                 required
                 minLength={2}
                 maxLength={100}
                 defaultValue={current?.name}
               />
-            </label>
+            </Label>
             <Select
               name="kind"
               label="Tipo"
@@ -77,35 +94,41 @@ export function CategoryPanel({ categories }: { categories: CategoryDTO[] }) {
           )}
         </ActionForm>
       )}
-      <div className="card table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Categoria</th>
-              <th>Tipo</th>
-              <th>Situação</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((c) => (
-              <tr key={c.id}>
-                <td>{c.name}</td>
-                <td>{c.kind === "REVENUE" ? "Receita" : "Despesa"}</td>
-                <td>{c.active ? "Ativa" : "Inativa"}</td>
-                <td>
-                  <button
-                    className="button secondary"
-                    onClick={() => setEditing(c)}
-                  >
-                    Editar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card asChild>
+        <div className="table-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Situação</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell>{c.name}</TableCell>
+                  <TableCell>
+                    {c.kind === "REVENUE" ? "Receita" : "Despesa"}
+                  </TableCell>
+                  <TableCell>{c.active ? "Ativa" : "Inativa"}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className=""
+                      onClick={() => setEditing(c)}
+                    >
+                      Editar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </section>
   );
 }

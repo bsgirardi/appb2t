@@ -8,6 +8,8 @@ export default defineConfig([
     ".next/**",
     "node_modules/**",
     ".superpowers/**",
+    "test-results/**",
+    "playwright-report/**",
     "next-env.d.ts",
   ]),
 ]);

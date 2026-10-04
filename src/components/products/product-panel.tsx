@@ -1,4 +1,8 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
+
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -83,9 +87,11 @@ export function ProductPanel({
             Da sua calculadora para a vitrine. Gerencie cada peça e seu preço.
           </p>
         </div>
-        <Link href="/portfolio" className="button secondary">
-          Ver catálogo público <ArrowUpRight size={16} />
-        </Link>
+        <Button asChild variant="outline">
+          <Link href="/">
+            Ver catálogo público <ArrowUpRight size={16} />
+          </Link>
+        </Button>
       </div>
       {editing ? (
         <ProductForm
@@ -111,15 +117,19 @@ export function ProductPanel({
               {rows.filter((p) => !p.active).length} inativos
             </span>
             <div className="product-actions">
-              <button
-                className="button secondary"
+              <Button
+                variant="outline"
+                size="sm"
+                className=""
                 disabled={busy}
                 onClick={reload}
               >
                 Atualizar lista
-              </button>
-              <button
-                className="button primary"
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                className=""
                 disabled={busy}
                 onClick={() => {
                   setEditing("new");
@@ -129,55 +139,61 @@ export function ProductPanel({
               >
                 <Plus size={17} />
                 Novo produto
-              </button>
+              </Button>
             </div>
           </div>
           {!rows.length ? (
-            <div className="card catalog-empty">
-              <Package size={32} />
-              <h2>Seu primeiro produto começa aqui.</h2>
-              <p>
-                Cadastre uma foto, os detalhes e os custos de produção para
-                publicar.
-              </p>
-            </div>
+            <Card asChild>
+              <div className="catalog-empty">
+                <Package size={32} />
+                <h2>Seu primeiro produto começa aqui.</h2>
+                <p>
+                  Cadastre uma foto, os detalhes e os custos de produção para
+                  publicar.
+                </p>
+              </div>
+            </Card>
           ) : (
             <div className="product-admin-list">
               {rows.map((row) => (
-                <article key={row.id} className="card product-admin-row">
-                  <Image
-                    src={`${row.imageUrl}?v=${row.version}`}
-                    alt={row.name}
-                    width={76}
-                    height={76}
-                    unoptimized
-                  />
-                  <div className="product-admin-info">
-                    <h2>{row.name}</h2>
-                    <strong>{formatBRL(row.price)}</strong>
-                    <span
-                      className={`product-status${row.active ? "" : " inactive"}`}
-                    >
-                      {row.active ? "Ativo" : "Inativo"}
-                    </span>
-                  </div>
-                  <div className="product-actions">
-                    <button
-                      className="button secondary"
-                      disabled={busy}
-                      onClick={() => setEditing(row)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="button secondary"
-                      disabled={busy}
-                      onClick={() => toggle(row)}
-                    >
-                      {row.active ? "Inativar" : "Reativar"}
-                    </button>
-                  </div>
-                </article>
+                <Card key={row.id} asChild>
+                  <article  className="product-admin-row">
+                    <Image
+                      src={`${row.imageUrl}?v=${row.version}`}
+                      alt={row.name}
+                      width={76}
+                      height={76}
+                      unoptimized
+                    />
+                    <div className="product-admin-info">
+                      <h2>{row.name}</h2>
+                      <strong>{formatBRL(row.price)}</strong>
+                      <Badge variant="secondary">
+                        {row.active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </div>
+                    <div className="product-actions">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className=""
+                        disabled={busy}
+                        onClick={() => setEditing(row)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className=""
+                        disabled={busy}
+                        onClick={() => toggle(row)}
+                      >
+                        {row.active ? "Inativar" : "Reativar"}
+                      </Button>
+                    </div>
+                  </article>
+                </Card>
               ))}
             </div>
           )}

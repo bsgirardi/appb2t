@@ -1,0 +1,225 @@
+/* Compact administrative theme. Existing behavior and native form semantics stay intact. */
+@layer components {
+  .admin-ui {
+    --sidebar-width: 216px;
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --primary: var(--brand);
+    --primary-foreground: var(--on-brand);
+    --secondary: var(--surface);
+    --secondary-foreground: var(--ink);
+    --store-accent: var(--surface);
+    --store-muted: var(--surface);
+    --muted-foreground: var(--muted);
+    --border: var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .admin-ui .sidebar {
+    padding: 20px 12px 12px;
+    overflow-y: auto;
+  }
+  .admin-ui .brand {
+    font-size: 23px;
+  }
+  .admin-ui .workspace-badge {
+    margin: 16px 0;
+    padding: 8px;
+  }
+  .admin-ui .nav-title {
+    margin: 0 8px 8px;
+  }
+  .admin-ui .nav-item {
+    margin: 2px 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 9px;
+    min-height: 36px;
+    height: auto;
+    white-space: normal;
+  }
+  .admin-ui .nav-item.active {
+    background: var(--green-light);
+    color: var(--green);
+  }
+  .admin-ui .sidebar-bottom {
+    padding-top: 16px;
+  }
+  .admin-ui .internal-note {
+    padding: 8px 4px 12px;
+    font-size: 11px;
+  }
+  .admin-ui .profile {
+    padding-top: 12px;
+  }
+  .admin-ui .topbar {
+    height: 52px;
+    padding: 0 24px;
+  }
+  .admin-ui .workspace {
+    min-width: 0;
+  }
+  .admin-ui .workspace main {
+    padding: 24px;
+  }
+  .admin-ui .page-heading {
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+  .admin-ui h1 {
+    font-size: 24px;
+    letter-spacing: -0.6px;
+  }
+  .admin-ui h2 {
+    font-size: 15px;
+  }
+  .admin-ui .page-heading p {
+    margin-top: 6px;
+  }
+  .admin-ui :is(.calculator-grid, .input-column, .result-column) {
+    gap: 16px;
+  }
+  .admin-ui .form-grid {
+    gap: 12px;
+  }
+  .admin-ui .field label {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .admin-ui
+    .field
+    :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+    height: 36px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  .admin-ui textarea {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .admin-ui .field small {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  .admin-ui [data-slot="button"] {
+    min-height: 34px;
+    height: auto;
+    font-size: 12px;
+    padding: 7px 12px;
+    border: 1px solid transparent;
+    box-shadow: none;
+  }
+  .admin-ui [data-variant="outline"] {
+    border-color: var(--line);
+  }
+  .admin-ui [data-variant="ghost"] {
+    background: transparent;
+    color: var(--ink);
+  }
+  .admin-ui [data-slot="button"]:hover {
+    filter: brightness(0.97);
+  }
+  .admin-ui [data-slot="button"][data-size="icon-sm"] {
+    width: 34px;
+    padding: 7px;
+  }
+  .admin-ui :is(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+  .admin-ui .technology-switch {
+    margin: 16px 0;
+  }
+  .admin-ui .technology-switch button {
+    padding: 8px;
+  }
+  .admin-ui .table-scroll {
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .admin-ui .settings-values {
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .admin-ui .form-actions {
+    margin-top: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .admin-ui .workspace-footer {
+    padding: 16px 24px;
+  }
+  .admin-ui .admin-menu-toggle {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .admin-ui {
+      display: block;
+    }
+    .admin-ui .sidebar {
+      position: relative;
+      width: 100%;
+      padding: 12px 16px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+      gap: 12px;
+      overflow: visible;
+    }
+    .admin-ui .sidebar :is(.workspace-badge, .nav-title, .internal-note) {
+      display: none;
+    }
+    .admin-ui .admin-menu-toggle {
+      display: inline-flex;
+      margin-left: auto;
+    }
+    .admin-ui .sidebar nav {
+      display: none;
+      width: 100%;
+    }
+    .admin-ui .sidebar nav[data-open="true"] {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+    }
+    .admin-ui .sidebar-bottom {
+      display: block;
+      width: 100%;
+      padding: 0;
+    }
+    .admin-ui .profile {
+      padding: 8px 0 0;
+    }
+    .admin-ui .sidebar .profile strong {
+      max-width: 220px;
+    }
+    .admin-ui .workspace {
+      margin: 0;
+      width: 100%;
+    }
+    .admin-ui .topbar {
+      padding: 0 16px;
+      height: 44px;
+    }
+    .admin-ui .workspace main {
+      padding: 20px 16px;
+    }
+    .admin-ui :is([data-slot="button"], .nav-item) {
+      min-height: 44px;
+    }
+    .admin-ui
+      .field
+      :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+      height: 44px;
+      font-size: 16px;
+    }
+    .admin-ui textarea {
+      font-size: 16px;
+    }
+  }
+}

@@ -1,4 +1,9 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { Save, X } from "lucide-react";
 import { api, ApiError } from "@/lib/client-api";
@@ -109,110 +114,121 @@ export function RecordEditor({
     } catch {}
   }
   return (
-    <section className="card editor-card">
-      <div className="section-heading">
-        <h2>{title}</h2>
-        <button
-          className="icon-button"
-          onClick={onCancel}
-          aria-label="Fechar edição"
-          disabled={pending}
-        >
-          <X size={20} />
-        </button>
-      </div>
-      <form onSubmit={submit}>
-        <div className="form-grid editor-fields">
-          {fields.map((f) => (
-            <div key={f.key}>
-              {f.kind === "select" ? (
-                <div className="field">
-                  <label htmlFor={`edit-${f.key}`}>{f.label}</label>
-                  <select
-                    id={`edit-${f.key}`}
-                    value={String(draft[f.key] ?? "")}
-                    onChange={(e) => update(f.key, e.target.value)}
-                  >
-                    {f.options?.map((o) => (
-                      <option value={o.value} key={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : f.kind === "checkbox" ? (
-                <label className="checkbox-field">
-                  <input
-                    type="checkbox"
-                    checked={!!draft[f.key]}
-                    onChange={(e) => update(f.key, e.target.checked)}
-                  />
-                  {f.label}
-                </label>
-              ) : (
-                <Field
-                  label={f.label}
-                  value={String(draft[f.key] ?? "")}
-                  onChange={(e) => update(f.key, e.target.value)}
-                  type={
-                    f.kind === "password"
-                      ? "password"
-                      : f.kind === "email"
-                        ? "email"
-                        : "text"
-                  }
-                  inputMode={
-                    f.kind === "decimal"
-                      ? "decimal"
-                      : f.kind === "integer"
-                        ? "numeric"
-                        : undefined
-                  }
-                  required
-                  hint={f.hint}
-                  suffix={f.suffix}
-                  autoComplete={
-                    f.kind === "password" ? "new-password" : undefined
-                  }
-                  maxLength={
-                    f.kind === "password"
-                      ? 128
-                      : f.kind === "email"
-                        ? 254
-                        : f.kind === "text"
-                          ? 100
-                          : 24
-                  }
-                />
-              )}
-              {fieldErrors[f.key] && (
-                <small className="field-error">{fieldErrors[f.key]}</small>
-              )}
-            </div>
-          ))}
-        </div>
-        {machineHint && <div className="machine-hint">{machineHint}</div>}
-        {error && <Notice>{error}</Notice>}
-        {conflict && (
-          <button type="button" className="button secondary" onClick={onReload}>
-            Recarregar registro
-          </button>
-        )}
-        <div className="form-actions">
-          <button
-            type="button"
-            className="button secondary"
+    <Card asChild>
+      <section className="editor-card">
+        <div className="section-heading">
+          <h2>{title}</h2>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className=""
             onClick={onCancel}
+            aria-label="Fechar edição"
             disabled={pending}
           >
-            Cancelar
-          </button>
-          <button className="button primary" disabled={pending}>
-            <Save size={16} />
-            {pending ? "Salvando…" : "Salvar alterações"}
-          </button>
+            <X size={20} />
+          </Button>
         </div>
-      </form>
-    </section>
+        <form onSubmit={submit}>
+          <div className="form-grid editor-fields">
+            {fields.map((f) => (
+              <div key={f.key}>
+                {f.kind === "select" ? (
+                  <div className="field">
+                    <Label htmlFor={`edit-${f.key}`}>{f.label}</Label>
+                    <NativeSelect
+                      id={`edit-${f.key}`}
+                      value={String(draft[f.key] ?? "")}
+                      onChange={(e) => update(f.key, e.target.value)}
+                    >
+                      {f.options?.map((o) => (
+                        <option value={o.value} key={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </NativeSelect>
+                  </div>
+                ) : f.kind === "checkbox" ? (
+                  <Label className="checkbox-field">
+                    <Checkbox
+                      checked={!!draft[f.key]}
+                      onChange={(e) => update(f.key, e.target.checked)}
+                    />
+                    {f.label}
+                  </Label>
+                ) : (
+                  <Field
+                    label={f.label}
+                    value={String(draft[f.key] ?? "")}
+                    onChange={(e) => update(f.key, e.target.value)}
+                    type={
+                      f.kind === "password"
+                        ? "password"
+                        : f.kind === "email"
+                          ? "email"
+                          : "text"
+                    }
+                    inputMode={
+                      f.kind === "decimal"
+                        ? "decimal"
+                        : f.kind === "integer"
+                          ? "numeric"
+                          : undefined
+                    }
+                    required
+                    hint={f.hint}
+                    suffix={f.suffix}
+                    autoComplete={
+                      f.kind === "password" ? "new-password" : undefined
+                    }
+                    maxLength={
+                      f.kind === "password"
+                        ? 128
+                        : f.kind === "email"
+                          ? 254
+                          : f.kind === "text"
+                            ? 100
+                            : 24
+                    }
+                  />
+                )}
+                {fieldErrors[f.key] && (
+                  <small className="field-error">{fieldErrors[f.key]}</small>
+                )}
+              </div>
+            ))}
+          </div>
+          {machineHint && <div className="machine-hint">{machineHint}</div>}
+          {error && <Notice>{error}</Notice>}
+          {conflict && (
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              className=""
+              onClick={onReload}
+            >
+              Recarregar registro
+            </Button>
+          )}
+          <div className="form-actions">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              className=""
+              onClick={onCancel}
+              disabled={pending}
+            >
+              Cancelar
+            </Button>
+            <Button variant="default" size="sm" className="" disabled={pending}>
+              <Save size={16} />
+              {pending ? "Salvando…" : "Salvar alterações"}
+            </Button>
+          </div>
+        </form>
+      </section>
+    </Card>
   );
 }

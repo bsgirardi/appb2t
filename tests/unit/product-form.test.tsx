@@ -100,7 +100,9 @@ it("edits saved calculator fields and recalculates price", () => {
       onCancel={vi.fn()}
     />,
   );
-  expect(screen.getByText("R$ 48,19")).toBeTruthy();
+  expect(
+    screen.getByText("R$ 48,19", { selector: ".sale-price" }),
+  ).toBeTruthy();
   fireEvent.change(screen.getByLabelText("Acréscimo sobre o custo"), {
     target: { value: "0" },
   });
@@ -171,7 +173,9 @@ it("loads current settings into draft only and keeps snapshot for inactive refer
     screen.getByRole("button", { name: "Carregar configurações atuais" }),
   );
   await screen.findByText(/Selecione material e impressora ativos/);
-  expect(screen.getByText("R$ 48,19")).toBeTruthy();
+  expect(
+    screen.getByText("R$ 48,19", { selector: ".sale-price" }),
+  ).toBeTruthy();
   expect(fetch).toHaveBeenCalledTimes(1);
 });
 it("copies compatible selections and reports missing setup", () => {

@@ -1,4 +1,17 @@
 "use client";
+import { Pagination } from "@/components/ui/pagination";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Page } from "@/domain/shared/pagination";
@@ -35,9 +48,14 @@ export function CustomerPanel({
           <h1>Clientes</h1>
           <p>Cadastros privados da equipe para orçamentos e vendas.</p>
         </div>
-        <button className="button primary" onClick={() => setEditing("new")}>
+        <Button
+          variant="default"
+          size="sm"
+          className=""
+          onClick={() => setEditing("new")}
+        >
           Novo cliente
-        </button>
+        </Button>
       </div>
       {editing ? (
         <CustomerForm
@@ -57,8 +75,8 @@ export function CustomerPanel({
               onChange={(e) => setQuery(e.target.value)}
             />
             <div className="field">
-              <label htmlFor="customer-active-filter">Situação</label>
-              <select
+              <Label htmlFor="customer-active-filter">Situação</Label>
+              <NativeSelect
                 id="customer-active-filter"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
@@ -66,66 +84,78 @@ export function CustomerPanel({
                 <option value="all">Todos</option>
                 <option value="true">Ativos</option>
                 <option value="false">Inativos</option>
-              </select>
+              </NativeSelect>
             </div>
-            <button className="button secondary">Buscar</button>
+            <Button variant="outline" size="sm" className="">
+              Buscar
+            </Button>
           </form>
-          <div className="card table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Contato</th>
-                  <th>Situação</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {initial.items.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <strong>{c.name}</strong>
-                      <small>{c.document}</small>
-                    </td>
-                    <td>{c.email || c.phone || "Não informado"}</td>
-                    <td>{c.active ? "Ativo" : "Inativo"}</td>
-                    <td>
-                      <button
-                        className="button secondary"
-                        onClick={() => setEditing(c)}
-                      >
-                        Editar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {!initial.items.length && (
-              <p className="empty-state">Nenhum cliente encontrado.</p>
-            )}
-          </div>
-          <div className="product-toolbar">
+          <Card asChild>
+            <div className="table-scroll">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Contato</TableHead>
+                    <TableHead>Situação</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {initial.items.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <strong>{c.name}</strong>
+                        <small>{c.document}</small>
+                      </TableCell>
+                      <TableCell>
+                        {c.email || c.phone || "Não informado"}
+                      </TableCell>
+                      <TableCell>{c.active ? "Ativo" : "Inativo"}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className=""
+                          onClick={() => setEditing(c)}
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!initial.items.length && (
+                <p className="empty-state">Nenhum cliente encontrado.</p>
+              )}
+            </div>
+          </Card>
+          <Pagination className="product-toolbar">
             <span>
               {initial.total} clientes · página {initial.page}
             </span>
             <div className="product-actions">
-              <button
-                className="button secondary"
+              <Button
+                variant="outline"
+                size="sm"
+                className=""
                 disabled={initial.page <= 1}
                 onClick={() => navigate(initial.page - 1)}
               >
                 Anterior
-              </button>
-              <button
-                className="button secondary"
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className=""
                 disabled={initial.page * initial.pageSize >= initial.total}
                 onClick={() => navigate(initial.page + 1)}
               >
                 Próxima
-              </button>
+              </Button>
             </div>
-          </div>
+          </Pagination>
         </>
       )}
     </>

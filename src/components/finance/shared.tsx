@@ -1,4 +1,11 @@
 "use client";
+import { Pagination as PaginationNav } from "@/components/ui/pagination";
+
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRef, useState, type ReactNode, type FormEvent } from "react";
 import { api } from "@/lib/client-api";
@@ -25,17 +32,17 @@ export function Select({
   required?: boolean;
 }) {
   return (
-    <label className="field">
+    <Label className="field">
       {label}
-      <select name={name} defaultValue={value ?? ""} required={required}>
+      <NativeSelect name={name} defaultValue={value ?? ""} required={required}>
         <option value="">Selecione</option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
-      </select>
-    </label>
+      </NativeSelect>
+    </Label>
   );
 }
 export function ActionForm({
@@ -78,27 +85,31 @@ export function ActionForm({
     }
   }
   return (
-    <form className="card commerce-form" onSubmit={send}>
-      <h2>{title}</h2>
-      {error && <Notice>{error}</Notice>}
-      <fieldset disabled={busy}>
-        {children}
-        <div className="finance-actions">
-          <button className="button primary">
-            {busy ? "Salvando…" : submit}
-          </button>
-          {onCancel && (
-            <button
-              className="button secondary"
-              type="button"
-              onClick={onCancel}
-            >
-              Voltar
-            </button>
-          )}
-        </div>
-      </fieldset>
-    </form>
+    <Card asChild>
+      <form className="commerce-form" onSubmit={send}>
+        <h2>{title}</h2>
+        {error && <Notice>{error}</Notice>}
+        <fieldset disabled={busy}>
+          {children}
+          <div className="finance-actions">
+            <Button variant="default" size="sm" className="">
+              {busy ? "Salvando…" : submit}
+            </Button>
+            {onCancel && (
+              <Button
+                variant="outline"
+                size="sm"
+                className=""
+                type="button"
+                onClick={onCancel}
+              >
+                Voltar
+              </Button>
+            )}
+          </div>
+        </fieldset>
+      </form>
+    </Card>
   );
 }
 export function ReversalForm({
@@ -125,14 +136,14 @@ export function ReversalForm({
         informada.
       </p>
       <div className="form-grid">
-        <label className="field">
+        <Label className="field">
           Data do estorno
-          <input name="effectiveDate" type="date" required />
-        </label>
-        <label className="field">
+          <Input name="effectiveDate" type="date" required />
+        </Label>
+        <Label className="field">
           Justificativa
-          <input name="reason" minLength={3} maxLength={2000} required />
-        </label>
+          <Input name="reason" minLength={3} maxLength={2000} required />
+        </Label>
       </div>
     </ActionForm>
   );
@@ -149,21 +160,21 @@ export function Pagination({
   const href = (page: number) =>
     `${base}?${new URLSearchParams({ ...query, page: String(page) })}`;
   return (
-    <div className="finance-actions">
+    <PaginationNav className="finance-actions">
       <span>
         {result.total} registros · Página {result.page} de{" "}
         {Math.max(1, Math.ceil(result.total / result.pageSize))}
       </span>
       {result.page > 1 && (
-        <Link className="button secondary" href={href(result.page - 1)}>
-          Anterior
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={href(result.page - 1)}>Anterior</Link>
+        </Button>
       )}
       {result.page * result.pageSize < result.total && (
-        <Link className="button secondary" href={href(result.page + 1)}>
-          Próxima
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={href(result.page + 1)}>Próxima</Link>
+        </Button>
       )}
-    </div>
+    </PaginationNav>
   );
 }

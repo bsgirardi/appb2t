@@ -1,4 +1,8 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -102,18 +106,25 @@ export function SaleDetail({
       {error && <Notice>{error}</Notice>}
       <div className="form-actions">
         {sale.status === "RASCUNHO" && (
-          <button className="button secondary" onClick={() => setEditing(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className=""
+            onClick={() => setEditing(true)}
+          >
             Editar rascunho
-          </button>
+          </Button>
         )}
         {next[sale.status] && (
-          <button
-            className="button primary"
+          <Button
+            variant="default"
+            size="sm"
+            className=""
             disabled={busy}
             onClick={() => change(next[sale.status]!)}
           >
             {labels[next[sale.status]!]}
-          </button>
+          </Button>
         )}
       </div>
       {editing && (
@@ -125,23 +136,25 @@ export function SaleDetail({
           onSaved={saved}
         />
       )}
-      <section className="card">
-        <h2>Resumo de recebimento</h2>
-        <div className="form-grid">
-          {Object.entries({
-            Total: sale.receiptSummary.total,
-            Recebido: sale.receiptSummary.received,
-            Pendente: sale.receiptSummary.pending,
-            Vencido: sale.receiptSummary.overdue,
-          }).map(([label, value]) => (
-            <p key={label}>
-              {label}
-              <br />
-              <strong>R$ {value}</strong>
-            </p>
-          ))}
-        </div>
-      </section>
+      <Card asChild>
+        <section className="">
+          <h2>Resumo de recebimento</h2>
+          <div className="form-grid">
+            {Object.entries({
+              Total: sale.receiptSummary.total,
+              Recebido: sale.receiptSummary.received,
+              Pendente: sale.receiptSummary.pending,
+              Vencido: sale.receiptSummary.overdue,
+            }).map(([label, value]) => (
+              <p key={label}>
+                {label}
+                <br />
+                <strong>R$ {value}</strong>
+              </p>
+            ))}
+          </div>
+        </section>
+      </Card>
       {sale.status === "RASCUNHO" && (
         <InstallmentEditor
           total={sale.totals.total}
@@ -191,17 +204,19 @@ export function SaleDetail({
         paymentTerms={sale.document.paymentTerms}
       />
       {sale.installments.length > 0 && (
-        <section className="card">
-          <h2>Parcelas a receber</h2>
-          <ul>
-            {sale.installments.map((i) => (
-              <li key={i.number}>
-                Parcela {i.number} · R$ {i.amount} ·{" "}
-                {i.dueDate.split("-").reverse().join("/")}
-              </li>
-            ))}
-          </ul>
-        </section>
+        <Card asChild>
+          <section className="">
+            <h2>Parcelas a receber</h2>
+            <ul>
+              {sale.installments.map((i) => (
+                <li key={i.number}>
+                  Parcela {i.number} · R$ {i.amount} ·{" "}
+                  {i.dueDate.split("-").reverse().join("/")}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </Card>
       )}
       <section className="commerce-form">
         <h2>Acompanhamento da produção</h2>
@@ -211,21 +226,23 @@ export function SaleDetail({
           value={delivery}
           onChange={(e) => setDelivery(e.target.value)}
         />
-        <label>
+        <Label>
           Observações operacionais
-          <textarea
+          <Textarea
             value={notes}
             maxLength={2000}
             onChange={(e) => setNotes(e.target.value)}
           />
-        </label>
-        <button
-          className="button secondary"
+        </Label>
+        <Button
+          variant="outline"
+          size="sm"
+          className=""
           disabled={busy}
           onClick={operations}
         >
           Salvar acompanhamento
-        </button>
+        </Button>
       </section>
       {!["ENTREGUE", "CANCELADA"].includes(sale.status) && (
         <section className="commerce-form">
@@ -237,29 +254,33 @@ export function SaleDetail({
             maxLength={2000}
             onChange={(e) => setReason(e.target.value)}
           />
-          <button
-            className="button secondary"
+          <Button
+            variant="outline"
+            size="sm"
+            className=""
             disabled={busy || reason.trim().length < 3}
             onClick={() => change("CANCELADA")}
           >
             Cancelar venda
-          </button>
+          </Button>
         </section>
       )}
-      <section className="card">
-        <h2>Histórico</h2>
-        <ul>
-          {sale.events.map((e) => (
-            <li key={e.id}>
-              {new Date(e.createdAt).toLocaleString("pt-BR", {
-                timeZone: "America/Sao_Paulo",
-              })}{" "}
-              · {e.action} · {e.actorName}
-              {e.reason && ` · ${e.reason}`}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Card asChild>
+        <section className="">
+          <h2>Histórico</h2>
+          <ul>
+            {sale.events.map((e) => (
+              <li key={e.id}>
+                {new Date(e.createdAt).toLocaleString("pt-BR", {
+                  timeZone: "America/Sao_Paulo",
+                })}{" "}
+                · {e.action} · {e.actorName}
+                {e.reason && ` · ${e.reason}`}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </Card>
     </div>
   );
 }

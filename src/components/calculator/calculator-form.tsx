@@ -1,4 +1,9 @@
 "use client";
+import { Separator } from "@/components/ui/separator";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -96,202 +101,210 @@ export function CalculatorForm({
           </h1>
           <p>Entenda seus custos. Encontre o preço certo para cada peça.</p>
         </div>
-        <button
-          className="button secondary refresh-button"
+        <Button
+          variant="outline"
+          size="sm"
+          className="refresh-button"
           disabled={refreshing}
           onClick={refresh}
         >
           <RefreshCw size={16} className={refreshing ? "spin" : ""} />
           Atualizar parâmetros
-        </button>
+        </Button>
       </div>
       {error && <Notice>{error}</Notice>}
       <div className="calculator-grid">
         <div className="input-column">
-          <section className="card">
-            <div className="section-heading">
-              <h2>
-                <span className="section-number">01</span>Dados da impressão
-              </h2>
-              <Box size={19} className="muted" />
-            </div>
-            <p className="section-description">
-              Selecione a tecnologia e informe os dados do seu fatiador.
-            </p>
-            <div
-              className="technology-switch"
-              aria-label="Tecnologia de impressão"
-            >
-              <button
-                className={technology === "FDM" ? "selected" : ""}
-                onClick={() => changeTechnology("FDM")}
+          <Card asChild>
+            <section className="">
+              <div className="section-heading">
+                <h2>
+                  <span className="section-number">01</span>Dados da impressão
+                </h2>
+                <Box size={19} className="muted" />
+              </div>
+              <p className="section-description">
+                Selecione a tecnologia e informe os dados do seu fatiador.
+              </p>
+              <div
+                className="technology-switch"
+                aria-label="Tecnologia de impressão"
               >
-                <Layers3 size={20} />
-                <span>
-                  Filamento <small>FDM</small>
-                </span>
-                {technology === "FDM" && <Check size={15} />}
-              </button>
-              <button
-                className={technology === "RESIN" ? "selected" : ""}
-                onClick={() => changeTechnology("RESIN")}
-              >
-                <Droplets size={20} />
-                <span>
-                  Resina <small>SLA / DLP</small>
-                </span>
-                {technology === "RESIN" && <Check size={15} />}
-              </button>
-            </div>
-            {!ready && (
-              <Notice kind="info">
-                {role === "ADMIN" ? (
-                  <>
-                    Cadastre materiais, impressoras e custos para esta
-                    tecnologia.{" "}
-                    <Link href="/configuracoes">Abrir configurações →</Link>
-                  </>
-                ) : (
-                  "Sua equipe ainda não configurou esta tecnologia. Entre em contato com um administrador."
-                )}
-              </Notice>
-            )}
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="material">Material</label>
-                <select
-                  id="material"
-                  value={materialId}
-                  onChange={(e) => setMaterialId(e.target.value)}
+                <Button
+                  variant={technology === "FDM" ? "default" : "outline"}
+                  aria-pressed={technology === "FDM"}
+                  onClick={() => changeTechnology("FDM")}
                 >
-                  <option value="">Selecione o material</option>
-                  {materials.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
-                <small>
-                  {material
-                    ? `${formatBRL(material.price)} / ${technology === "FDM" ? "kg" : "litro"}`
-                    : "Preço definido nas configurações"}
-                </small>
-              </div>
-              <div className="field">
-                <label htmlFor="printer">Impressora</label>
-                <select
-                  id="printer"
-                  value={printerId}
-                  onChange={(e) => setPrinterId(e.target.value)}
+                  <Layers3 size={20} />
+                  <span>
+                    Filamento <small>FDM</small>
+                  </span>
+                  {technology === "FDM" && <Check size={15} />}
+                </Button>
+                <Button
+                  variant={technology === "RESIN" ? "default" : "outline"}
+                  aria-pressed={technology === "RESIN"}
+                  onClick={() => changeTechnology("RESIN")}
                 >
-                  <option value="">Selecione a impressora</option>
-                  {printers.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-                <small>
-                  {printer
-                    ? `${printer.watts} W · ${printer.amortizationMonths} meses de amortização`
-                    : "Perfil de máquina da sua equipe"}
-                </small>
+                  <Droplets size={20} />
+                  <span>
+                    Resina <small>SLA / DLP</small>
+                  </span>
+                  {technology === "RESIN" && <Check size={15} />}
+                </Button>
               </div>
-            </div>
-            <div className="divider" />
-            <Field
-              label="Consumo de material"
-              inputMode="decimal"
-              placeholder={technology === "FDM" ? "Ex.: 100" : "Ex.: 50"}
-              value={consumption}
-              onChange={(e) => setConsumption(e.target.value)}
-              suffix={technology === "FDM" ? "gramas" : "ml"}
-              hint="Inclua suportes e perdas de material informadas pelo fatiador."
-            />
-            <div className="time-heading">
-              <Clock3 size={16} />
-              <span>Tempo de impressão</span>
-            </div>
-            <div className="form-grid">
+              {!ready && (
+                <Notice kind="info">
+                  {role === "ADMIN" ? (
+                    <>
+                      Cadastre materiais, impressoras e custos para esta
+                      tecnologia.{" "}
+                      <Link href="/configuracoes">Abrir configurações →</Link>
+                    </>
+                  ) : (
+                    "Sua equipe ainda não configurou esta tecnologia. Entre em contato com um administrador."
+                  )}
+                </Notice>
+              )}
+              <div className="form-grid">
+                <div className="field">
+                  <Label htmlFor="material">Material</Label>
+                  <NativeSelect
+                    id="material"
+                    value={materialId}
+                    onChange={(e) => setMaterialId(e.target.value)}
+                  >
+                    <option value="">Selecione o material</option>
+                    {materials.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <small>
+                    {material
+                      ? `${formatBRL(material.price)} / ${technology === "FDM" ? "kg" : "litro"}`
+                      : "Preço definido nas configurações"}
+                  </small>
+                </div>
+                <div className="field">
+                  <Label htmlFor="printer">Impressora</Label>
+                  <NativeSelect
+                    id="printer"
+                    value={printerId}
+                    onChange={(e) => setPrinterId(e.target.value)}
+                  >
+                    <option value="">Selecione a impressora</option>
+                    {printers.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <small>
+                    {printer
+                      ? `${printer.watts} W · ${printer.amortizationMonths} meses de amortização`
+                      : "Perfil de máquina da sua equipe"}
+                  </small>
+                </div>
+              </div>
+              <Separator className="my-6" />
               <Field
-                label="Horas"
-                inputMode="numeric"
-                placeholder="0"
-                value={hours}
-                onChange={(e) => setHours(e.target.value)}
-                suffix="h"
+                label="Consumo de material"
+                inputMode="decimal"
+                placeholder={technology === "FDM" ? "Ex.: 100" : "Ex.: 50"}
+                value={consumption}
+                onChange={(e) => setConsumption(e.target.value)}
+                suffix={technology === "FDM" ? "gramas" : "ml"}
+                hint="Inclua suportes e perdas de material informadas pelo fatiador."
               />
-              <Field
-                label="Minutos"
-                inputMode="numeric"
-                placeholder="0"
-                value={minutes}
-                onChange={(e) => setMinutes(e.target.value)}
-                suffix="min"
-              />
-            </div>
-            {invalid && <Notice>{invalid}</Notice>}
-            <div className="calculation-status">
-              <span className="dot" />
-              Cálculo automático ao preencher os campos
-            </div>
-          </section>
-          <section className="card settings-summary">
-            <div className="section-heading">
-              <h2>
-                <span className="section-number">02</span>Parâmetros aplicados
-              </h2>
-              <SlidersHorizontal size={18} className="muted" />
-            </div>
-            <p className="section-description">
-              Custos padronizados para toda a equipe.
-            </p>
-            <div className="parameter-grid">
-              <div>
-                <span>Energia elétrica</span>
-                <strong>
-                  {snapshot.settings
-                    ? `${formatBRL(snapshot.settings.energyRate)} / kWh`
-                    : "Não configurado"}
-                </strong>
+              <div className="time-heading">
+                <Clock3 size={16} />
+                <span>Tempo de impressão</span>
               </div>
-              <div>
-                <span>Manutenção</span>
-                <strong>
-                  {snapshot.settings
-                    ? `${snapshot.settings.maintenancePercent}%`
-                    : "—"}
-                </strong>
+              <div className="form-grid">
+                <Field
+                  label="Horas"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                  suffix="h"
+                />
+                <Field
+                  label="Minutos"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={minutes}
+                  onChange={(e) => setMinutes(e.target.value)}
+                  suffix="min"
+                />
               </div>
-              <div>
-                <span>Provisão para falhas</span>
-                <strong>
-                  {snapshot.settings
-                    ? `${snapshot.settings.failurePercent}%`
-                    : "—"}
-                </strong>
+              {invalid && <Notice>{invalid}</Notice>}
+              <div className="calculation-status">
+                <span className="dot" />
+                Cálculo automático ao preencher os campos
               </div>
-              <div>
-                <span>Acabamento</span>
-                <strong>
-                  {snapshot.settings
-                    ? `${snapshot.settings.finishingPercent}%`
-                    : "—"}
-                </strong>
+            </section>
+          </Card>
+          <Card asChild>
+            <section className="settings-summary">
+              <div className="section-heading">
+                <h2>
+                  <span className="section-number">02</span>Parâmetros aplicados
+                </h2>
+                <SlidersHorizontal size={18} className="muted" />
               </div>
-            </div>
-            {role === "ADMIN" && (
-              <Link className="text-link" href="/configuracoes">
-                Gerenciar configurações <ArrowRight size={15} />
-              </Link>
-            )}
-            <small className="loaded-at">
-              Carregados em{" "}
-              {new Date(snapshot.loadedAt).toLocaleString("pt-BR", {
-                timeZone: "America/Sao_Paulo",
-              })}
-            </small>
-          </section>
+              <p className="section-description">
+                Custos padronizados para toda a equipe.
+              </p>
+              <div className="parameter-grid">
+                <div>
+                  <span>Energia elétrica</span>
+                  <strong>
+                    {snapshot.settings
+                      ? `${formatBRL(snapshot.settings.energyRate)} / kWh`
+                      : "Não configurado"}
+                  </strong>
+                </div>
+                <div>
+                  <span>Manutenção</span>
+                  <strong>
+                    {snapshot.settings
+                      ? `${snapshot.settings.maintenancePercent}%`
+                      : "—"}
+                  </strong>
+                </div>
+                <div>
+                  <span>Provisão para falhas</span>
+                  <strong>
+                    {snapshot.settings
+                      ? `${snapshot.settings.failurePercent}%`
+                      : "—"}
+                  </strong>
+                </div>
+                <div>
+                  <span>Acabamento</span>
+                  <strong>
+                    {snapshot.settings
+                      ? `${snapshot.settings.finishingPercent}%`
+                      : "—"}
+                  </strong>
+                </div>
+              </div>
+              {role === "ADMIN" && (
+                <Link className="text-link" href="/configuracoes">
+                  Gerenciar configurações <ArrowRight size={15} />
+                </Link>
+              )}
+              <small className="loaded-at">
+                Carregados em{" "}
+                {new Date(snapshot.loadedAt).toLocaleString("pt-BR", {
+                  timeZone: "America/Sao_Paulo",
+                })}
+              </small>
+            </section>
+          </Card>
         </div>
         <CostBreakdown
           result={result}

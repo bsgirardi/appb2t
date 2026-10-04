@@ -26,3 +26,15 @@ it("does not show controls for one photo", () => {
   render(<ProductCarousel name="Vaso" images={images.slice(0, 1)} />);
   expect(screen.queryByRole("button")).toBeNull();
 });
+it("selects an individual photograph and exposes the active thumbnail", () => {
+  render(<ProductCarousel name="Vaso" images={images} />);
+  const second = screen.getByRole("button", { name: "Ver foto 2 de Vaso" });
+  fireEvent.click(second);
+  expect(screen.getByRole("img").getAttribute("src")).toBe("/b.webp");
+  expect(second.getAttribute("aria-pressed")).toBe("true");
+  expect(
+    screen
+      .getByRole("button", { name: "Ver foto 1 de Vaso" })
+      .getAttribute("aria-pressed"),
+  ).toBe("false");
+});

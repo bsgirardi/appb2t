@@ -1,4 +1,8 @@
 "use client";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { useRef, useState, type FormEvent } from "react";
 import type { QuoteDTO, QuoteDraftInput } from "@/domain/commerce/types";
 import type { CustomerDTO } from "@/domain/customers/types";
@@ -78,9 +82,9 @@ export function QuoteForm({
     <form onSubmit={save} className="commerce-form">
       <h2>{title ?? (quote ? "Editar orçamento" : "Novo orçamento")}</h2>
       {error && <Notice>{error}</Notice>}
-      <label>
+      <Label>
         Cliente
-        <select
+        <NativeSelect
           value={draft.customerId ?? ""}
           onChange={(e) => update({ customerId: e.target.value || undefined })}
         >
@@ -91,8 +95,8 @@ export function QuoteForm({
               {c.active ? "" : " (inativo)"}
             </option>
           ))}
-        </select>
-      </label>
+        </NativeSelect>
+      </Label>
       {!saveDraft && (
         <Field
           label="Válido até"
@@ -125,36 +129,42 @@ export function QuoteForm({
       <p>
         <strong>Total: R$ {total}</strong>
       </p>
-      <label>
+      <Label>
         Condições de pagamento
-        <textarea
+        <Textarea
           maxLength={2000}
           value={draft.paymentTerms ?? ""}
           onChange={(e) =>
             update({ paymentTerms: e.target.value || undefined })
           }
         />
-      </label>
-      <label>
+      </Label>
+      <Label>
         Notas internas
-        <textarea
+        <Textarea
           maxLength={2000}
           value={draft.internalNotes ?? ""}
           onChange={(e) => update({ internalNotes: e.target.value })}
         />
-      </label>
+      </Label>
       <p>
         {saveDraft
           ? "A venda será salva como rascunho. Revise o parcelamento antes de confirmar."
           : "Salvar mantém o rascunho. A emissão exige cliente, itens, validade e condições de pagamento."}
       </p>
       <div className="form-actions">
-        <button className="button primary" disabled={busy}>
+        <Button variant="default" size="sm" className="" disabled={busy}>
           {busy ? "Salvando…" : "Salvar rascunho"}
-        </button>
-        <button type="button" className="button secondary" onClick={onCancel}>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          className=""
+          onClick={onCancel}
+        >
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );

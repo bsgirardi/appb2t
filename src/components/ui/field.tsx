@@ -1,4 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
+import { Input } from "./input";
+import { Label } from "./label";
+import { Alert } from "./alert";
 export function Field({
   label,
   hint,
@@ -13,12 +16,16 @@ export function Field({
     id = props.id || generated;
   return (
     <div className="field">
-      <label htmlFor={id}>{label}</label>
+      <Label htmlFor={id}>{label}</Label>
       <div className="input-wrap">
-        <input
+        <Input
           {...props}
           id={id}
-          aria-describedby={hint ? `${id}-hint` : undefined}
+          aria-describedby={
+            [props["aria-describedby"], hint ? `${id}-hint` : undefined]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
         />
         {suffix && <span className="suffix">{suffix}</span>}
       </div>
@@ -34,11 +41,12 @@ export function Notice({
   kind?: "error" | "success" | "info";
 }) {
   return (
-    <div
-      className={`notice ${kind}`}
+    <Alert
+      variant={kind === "error" ? "destructive" : "default"}
+      className="my-3 break-words"
       role={kind === "error" ? "alert" : "status"}
     >
       {children}
-    </div>
+    </Alert>
   );
 }

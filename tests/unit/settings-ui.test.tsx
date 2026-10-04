@@ -8,6 +8,27 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { RecordEditor } from "@/components/settings/record-editor";
+import { SettingsPanel } from "@/components/settings/settings-panel";
+it("selects settings tabs with arrow keys and connects their panel", async () => {
+  render(
+    <SettingsPanel
+      initialData={{ materials: [], printers: [], users: [], settings: null }}
+    />,
+  );
+  const first = screen.getByRole("tab", { name: /Materiais/ });
+  first.focus();
+  fireEvent.keyDown(first, { key: "ArrowRight" });
+  await waitFor(() =>
+    expect(
+      screen
+        .getByRole("tab", { name: /Impressoras/ })
+        .getAttribute("aria-selected"),
+    ).toBe("true"),
+  );
+  expect(screen.getByRole("tabpanel").textContent).toContain(
+    "Adicione sua primeira impressora",
+  );
+});
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

@@ -1,4 +1,6 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -59,55 +61,64 @@ export function QuoteDetail({
       <div className="form-actions">
         {quote.status === "RASCUNHO" && (
           <>
-            <button
-              className="button secondary"
+            <Button
+              variant="outline"
+              size="sm"
+              className=""
               onClick={() => setEditing(true)}
             >
               Editar rascunho
-            </button>
-            <button
-              className="button primary"
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className=""
               disabled={busy}
               onClick={() => transition("ISSUE")}
             >
               Emitir orçamento
-            </button>
+            </Button>
           </>
         )}
         {quote.status === "ENVIADO" && (
           <>
-            <button
-              className="button primary"
+            <Button
+              variant="default"
+              size="sm"
+              className=""
               disabled={busy}
               onClick={() => transition("APPROVE")}
             >
               Registrar aprovação
-            </button>
-            <button
-              className="button secondary"
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className=""
               disabled={busy}
               onClick={() => transition("REJECT")}
             >
               Registrar recusa
-            </button>
+            </Button>
           </>
         )}
         {!["RASCUNHO", "CONVERTIDO"].includes(quote.status) && (
-          <button
-            className="button secondary"
+          <Button
+            variant="outline"
+            size="sm"
+            className=""
             disabled={busy}
             onClick={() => transition("REOPEN")}
           >
             Reabrir para editar
-          </button>
+          </Button>
         )}
         {quote.snapshot && (
-          <Link
-            className="button secondary"
-            href={`/orcamentos/${quote.id}/imprimir`}
-          >
-            Versão para impressão
-          </Link>
+          <Button asChild variant="outline">
+            <Link href={`/orcamentos/${quote.id}/imprimir`}>
+              Versão para impressão
+            </Link>
+          </Button>
         )}
       </div>
       <p>
@@ -150,37 +161,43 @@ export function QuoteDetail({
           validUntil={quote.input.validUntil}
         />
       ) : (
-        <div className="card">
-          <p>
-            Cliente:{" "}
-            {customers.find((c) => c.id === quote.input.customerId)?.name ??
-              "Não informado"}
-          </p>
-          <p>
-            {quote.input.items?.length ?? 0} item(ns) · Total: R${" "}
-            {quote.totals?.total ?? "—"}
-          </p>
-        </div>
+        <Card asChild>
+          <div className="">
+            <p>
+              Cliente:{" "}
+              {customers.find((c) => c.id === quote.input.customerId)?.name ??
+                "Não informado"}
+            </p>
+            <p>
+              {quote.input.items?.length ?? 0} item(ns) · Total: R${" "}
+              {quote.totals?.total ?? "—"}
+            </p>
+          </div>
+        </Card>
       )}
       {quote.input.internalNotes && (
-        <section className="card">
-          <h2>Notas internas</h2>
-          <p className="preserve-lines">{quote.input.internalNotes}</p>
-        </section>
+        <Card asChild>
+          <section className="">
+            <h2>Notas internas</h2>
+            <p className="preserve-lines">{quote.input.internalNotes}</p>
+          </section>
+        </Card>
       )}
-      <section className="card">
-        <h2>Histórico</h2>
-        <ul>
-          {quote.events.map((e) => (
-            <li key={e.id}>
-              {new Date(e.createdAt).toLocaleString("pt-BR", {
-                timeZone: "America/Sao_Paulo",
-              })}{" "}
-              · {e.action} · {e.actorName}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Card asChild>
+        <section className="">
+          <h2>Histórico</h2>
+          <ul>
+            {quote.events.map((e) => (
+              <li key={e.id}>
+                {new Date(e.createdAt).toLocaleString("pt-BR", {
+                  timeZone: "America/Sao_Paulo",
+                })}{" "}
+                · {e.action} · {e.actorName}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </Card>
     </div>
   );
 }

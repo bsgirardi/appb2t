@@ -1,4 +1,9 @@
 "use client";
+import { Notice } from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AccountDTO } from "@/domain/finance/types";
@@ -26,8 +31,10 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
           <p>Saldos internos, contas de caixa e bancos.</p>
         </div>
         <div className="finance-actions">
-          <button
-            className="button secondary"
+          <Button
+            variant="outline"
+            size="sm"
+            className=""
             onClick={() => {
               setTransfer(true);
               setEditing(null);
@@ -35,9 +42,11 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
             }}
           >
             Transferir entre contas
-          </button>
-          <button
-            className="button primary"
+          </Button>
+          <Button
+            variant="default"
+            size="sm"
+            className=""
             onClick={() => {
               setEditing("new");
               setTransfer(false);
@@ -45,7 +54,7 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
             }}
           >
             Nova conta
-          </button>
+          </Button>
         </div>
       </div>
       {transfer && (
@@ -74,16 +83,16 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
           }
         >
           <div className="form-grid">
-            <label className="field">
+            <Label className="field">
               Nome
-              <input
+              <Input
                 name="name"
                 minLength={2}
                 maxLength={100}
                 defaultValue={current?.name}
                 required
               />
-            </label>
+            </Label>
             <Select
               name="type"
               label="Tipo"
@@ -94,25 +103,25 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
                 { value: "OTHER", label: "Outra" },
               ]}
             />
-            <label className="field">
+            <Label className="field">
               Saldo inicial (R$)
-              <input
+              <Input
                 name="openingBalance"
                 defaultValue={current?.openingBalance ?? "0.00"}
                 inputMode="decimal"
                 required
               />
-            </label>
-            <label className="field">
+            </Label>
+            <Label className="field">
               Data do saldo inicial
-              <input
+              <Input
                 name="openingDate"
                 type="date"
                 max={todaySaoPaulo(new Date())}
                 defaultValue={current?.openingDate ?? todaySaoPaulo(new Date())}
                 required
               />
-            </label>
+            </Label>
             <Select
               name="active"
               label="Situação"
@@ -147,13 +156,13 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
             o saldo. A correção ficará no histórico.
           </p>
           <div className="form-grid">
-            <label className="field">
+            <Label className="field">
               Valor do ajuste (R$)
-              <input name="amount" inputMode="decimal" required />
-            </label>
-            <label className="field">
+              <Input name="amount" inputMode="decimal" required />
+            </Label>
+            <Label className="field">
               Data efetiva
-              <input
+              <Input
                 name="effectiveDate"
                 type="date"
                 defaultValue={todaySaoPaulo(new Date())}
@@ -161,63 +170,71 @@ export function AccountPanel({ accounts }: { accounts: AccountDTO[] }) {
                 max={todaySaoPaulo(new Date())}
                 required
               />
-            </label>
-            <label className="field">
+            </Label>
+            <Label className="field">
               Justificativa
-              <input name="reason" minLength={3} maxLength={2000} required />
-            </label>
+              <Input name="reason" minLength={3} maxLength={2000} required />
+            </Label>
           </div>
         </ActionForm>
       )}
       <div className="finance-grid">
         {accounts.map((a) => (
-          <article className="card finance-account" key={a.id}>
-            <small>
-              {a.active ? "Ativa" : "Inativa"} ·{" "}
-              {a.type === "BANK"
-                ? "Banco"
-                : a.type === "CASH"
-                  ? "Caixa"
-                  : "Outra"}
-            </small>
-            <h2>{a.name}</h2>
-            <strong className="finance-value">{money(a.balance)}</strong>
-            {a.negative && <p className="notice error">Saldo negativo</p>}
-            <p>
-              Saldo inicial: {money(a.openingBalance)} em{" "}
-              {dateLabel(a.openingDate)}
-            </p>
-            <div className="finance-actions">
-              <button
-                className="button secondary"
-                onClick={() => {
-                  setEditing(a);
-                  setAdjusting(null);
-                  setTransfer(false);
-                }}
-              >
-                Editar
-              </button>
-              {a.active && (
-                <button
-                  className="button secondary"
+          <Card key={a.id} asChild>
+            <article className="finance-account">
+              <small>
+                {a.active ? "Ativa" : "Inativa"} ·{" "}
+                {a.type === "BANK"
+                  ? "Banco"
+                  : a.type === "CASH"
+                    ? "Caixa"
+                    : "Outra"}
+              </small>
+              <h2>{a.name}</h2>
+              <strong className="finance-value">{money(a.balance)}</strong>
+              {a.negative && <Notice>Saldo negativo</Notice>}
+              <p>
+                Saldo inicial: {money(a.openingBalance)} em{" "}
+                {dateLabel(a.openingDate)}
+              </p>
+              <div className="finance-actions">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className=""
                   onClick={() => {
-                    setAdjusting(a);
-                    setEditing(null);
+                    setEditing(a);
+                    setAdjusting(null);
                     setTransfer(false);
                   }}
                 >
-                  Ajustar saldo
-                </button>
-              )}
-            </div>
-          </article>
+                  Editar
+                </Button>
+                {a.active && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=""
+                    onClick={() => {
+                      setAdjusting(a);
+                      setEditing(null);
+                      setTransfer(false);
+                    }}
+                  >
+                    Ajustar saldo
+                  </Button>
+                )}
+              </div>
+            </article>
+          </Card>
         ))}
       </div>
       {!accounts.length && (
-        <p className="card commerce-form">
-          Cadastre a primeira conta para registrar pagamentos e recebimentos.
-        </p>
+        <Card asChild>
+          <p className="commerce-form">
+            Cadastre a primeira conta para registrar pagamentos e recebimentos.
+          </p>
+        </Card>
       )}
     </section>
   );

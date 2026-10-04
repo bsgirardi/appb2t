@@ -1,4 +1,6 @@
 "use client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CollectionDTO } from "@/domain/collections/types";
@@ -21,9 +23,14 @@ export function CollectionPanel({
           <h1>Coleções</h1>
           <p>Agrupe suas peças por estilo, ocasião ou finalidade.</p>
         </div>
-        <button className="button primary" onClick={() => setEditing("new")}>
+        <Button
+          variant="default"
+          size="sm"
+          className=""
+          onClick={() => setEditing("new")}
+        >
           Nova coleção
-        </button>
+        </Button>
       </div>
       {editing ? (
         <CollectionForm
@@ -40,30 +47,36 @@ export function CollectionPanel({
         <div className="product-admin-list">
           {collections.length ? (
             collections.map((c) => (
-              <article className="card product-admin-row" key={c.id}>
-                <div className="product-admin-info">
-                  <h2>{c.name}</h2>
-                  <p>{c.description}</p>
-                  <span>
-                    {c.active ? "Ativa" : "Inativa"} · {c.productIds.length}{" "}
-                    produtos
-                  </span>
-                </div>
-                <button
-                  className="button secondary"
-                  onClick={() => setEditing(c)}
-                >
-                  Editar coleção
-                </button>
-              </article>
+              <Card key={c.id} asChild>
+                <article className="product-admin-row" >
+                  <div className="product-admin-info">
+                    <h2>{c.name}</h2>
+                    <p>{c.description}</p>
+                    <span>
+                      {c.active ? "Ativa" : "Inativa"} · {c.productIds.length}{" "}
+                      produtos
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=""
+                    onClick={() => setEditing(c)}
+                  >
+                    Editar coleção
+                  </Button>
+                </article>
+              </Card>
             ))
           ) : (
-            <div className="card">
-              <h2>Nenhuma coleção cadastrada.</h2>
-              <p>
-                Crie uma coleção e escolha os produtos que farão parte dela.
-              </p>
-            </div>
+            <Card asChild>
+              <div className="">
+                <h2>Nenhuma coleção cadastrada.</h2>
+                <p>
+                  Crie uma coleção e escolha os produtos que farão parte dela.
+                </p>
+              </div>
+            </Card>
           )}
         </div>
       )}

@@ -1,0 +1,397 @@
+/* Explicit base styles preserve native controls during incremental migration. */
+@layer theme, legacy, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "./globals.css" layer(legacy);
+@import "./theme.css" layer(legacy);
+@import "./storefront.css" layer(legacy);
+@import "./admin.css";
+@import "@fontsource/poppins/latin-400.css";
+@import "@fontsource/poppins/latin-600.css";
+@import "@fontsource/poppins/latin-700.css";
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--store-accent);
+  --color-accent-foreground: var(--foreground);
+  --color-muted: var(--store-muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-b2t-blue: #0066cc;
+  --color-b2t-orange: #ff7a00;
+  --color-b2t-green: #4caf33;
+  --color-b2t-navy: #0d2b52;
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --font-store: "Poppins", Arial, sans-serif;
+}
+
+@layer components {
+  .storefront {
+    --background: #f8fafc;
+    --foreground: #0d2b52;
+    --primary: #0066cc;
+    --primary-foreground: #fff;
+    --secondary: #ff7a00;
+    --secondary-foreground: #0d2b52;
+    --store-accent: #eaf3ff;
+    --store-muted: #eef2f6;
+    --muted-foreground: #526174;
+    --border: #d6dfe9;
+    --bg: var(--background);
+    --paper: #fff;
+    --ink: var(--foreground);
+    --muted: var(--muted-foreground);
+    --line: var(--border);
+    --brand: var(--primary);
+    --on-brand: var(--primary-foreground);
+    color-scheme: light;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-store);
+  }
+  .storefront [data-slot="button"] {
+    border-style: solid;
+    border-color: var(--border);
+    border-width: 0;
+    text-decoration: none;
+    min-height: 44px;
+    white-space: normal;
+    text-align: center;
+  }
+  .storefront [data-slot="button"][data-variant="outline"] {
+    border-width: 1px;
+  }
+  .storefront [data-slot="button"][data-variant="ghost"] {
+    background-color: transparent;
+    color: var(--foreground);
+  }
+  .storefront :is(input, select, textarea) {
+    font-family: inherit;
+  }
+  .storefront :is(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 4px;
+  }
+  .storefront .store-main {
+    padding-bottom: 32px;
+  }
+  .storefront .store-heading :is(h1, h2) {
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 700;
+    margin: 8px 0 12px;
+    letter-spacing: -0.8px;
+  }
+  .storefront .store-categories {
+    gap: 12px;
+    border: 0;
+    padding: 20px 0;
+  }
+  .storefront .store-categories a {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 12px 20px;
+    background: var(--paper);
+    font-weight: 600;
+  }
+  .storefront .store-categories a[aria-current="page"] {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  .storefront .store-detail {
+    padding-top: 12px;
+  }
+  .storefront .store-detail .product-photo {
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .storefront .store-detail-info h1 {
+    font-weight: 700;
+  }
+  .storefront .store-buy {
+    border-radius: 14px;
+  }
+  .storefront .store-availability {
+    border-radius: 999px;
+    background: var(--store-accent);
+  }
+  .storefront .store-sort select {
+    border-radius: 12px;
+    min-height: 44px;
+  }
+  .storefront .store-banner {
+    border-radius: 24px;
+    background: var(--paper);
+  }
+  .storefront .store-banner h2 {
+    font-weight: 700;
+  }
+  .storefront .inquiry-summary {
+    border-radius: 24px;
+    background: var(--paper);
+  }
+  .storefront .store-empty {
+    border-radius: 24px;
+    background: var(--paper);
+  }
+  .storefront .store-about {
+    padding: 40px;
+    border: 0;
+    border-radius: 24px;
+    background: var(--store-accent);
+  }
+  @media (prefers-color-scheme: dark) {
+    .storefront {
+      --background: #101c2d;
+      --foreground: #edf4ff;
+      --primary: #79b8ff;
+      --primary-foreground: #0d2b52;
+      --paper: #172941;
+      --store-accent: #203957;
+      --store-muted: #203957;
+      --muted-foreground: #bacbdf;
+      --border: #38516f;
+      color-scheme: dark;
+    }
+  }
+  @media (max-width: 600px) {
+    .storefront .store-about {
+      padding: 24px;
+    }
+    .storefront .store-sort {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@layer components {
+  :root,
+  .admin-ui,
+  .storefront {
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --popover: var(--paper);
+    --popover-foreground: var(--ink);
+    --input: var(--border);
+    --ring: var(--primary);
+    --destructive: var(--danger);
+    --sidebar: var(--paper);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: var(--brand);
+    --sidebar-primary-foreground: var(--on-brand);
+    --sidebar-accent: var(--surface);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: var(--line);
+    --sidebar-ring: var(--brand);
+  }
+  :root {
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --primary: var(--brand);
+    --primary-foreground: var(--on-brand);
+    --secondary: var(--surface);
+    --secondary-foreground: var(--ink);
+    --store-accent: var(--surface);
+    --store-muted: var(--surface);
+    --muted-foreground: var(--muted);
+    --border: var(--line);
+  }
+  [data-slot] {
+    border-style: solid;
+    border-width: 0;
+    border-color: var(--border);
+  }
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="native-select"] {
+    border-width: 1px;
+    font: inherit;
+    color: var(--foreground);
+    background: var(--background);
+    min-width: 0;
+    max-width: 100%;
+  }
+  [data-slot="input"],
+  [data-slot="native-select"] {
+    min-height: 36px;
+  }
+  [data-slot="input"][type="color"] {
+    padding: 4px;
+  }
+  [data-slot="input"][type="file"] {
+    height: auto;
+  }
+  [data-slot="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+  }
+  [data-slot="card"],
+  [data-slot="alert"] {
+    border-width: 1px;
+  }
+  [data-slot="button"] {
+    font-family: inherit;
+    cursor: pointer;
+    min-height: 34px;
+    height: auto;
+    white-space: normal;
+    text-decoration: none;
+  }
+  [data-slot="button"][data-variant="outline"] {
+    border-width: 1px;
+    color: var(--foreground);
+  }
+  [data-slot="button"][data-variant="ghost"] {
+    background: transparent;
+    color: var(--foreground);
+  }
+  [data-slot="button"]:disabled {
+    cursor: not-allowed;
+  }
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-wrap:has(.suffix) input {
+    padding-right: 12px;
+  }
+  .input-wrap .suffix {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+  }
+  [data-slot="sheet-content"] {
+    color: var(--foreground);
+    background: var(--background);
+    overflow-y: auto;
+  }
+  [data-slot="sheet-content"] button {
+    color: inherit;
+  }
+  @media (max-width: 767px) {
+    [data-slot="input"],
+    [data-slot="native-select"],
+    [data-slot="button"],
+    [role="tab"],
+    [data-slot="sheet-content"] > button {
+      min-height: 44px;
+    }
+    [data-slot="button"][data-size^="icon"] {
+      min-width: 44px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot],
+    [role="dialog"] {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@layer components {
+  .admin-desktop-nav {
+    width: 100%;
+  }
+  [data-slot="sheet-content"] nav {
+    display: grid;
+    gap: 4px;
+    margin-top: 20px;
+  }
+  [data-slot="sheet-content"] .nav-item {
+    margin: 0;
+  }
+  @media (max-width: 767px) {
+    .admin-desktop-nav {
+      display: none;
+    }
+  }
+}
+
+@layer components {
+  [data-slot="table"] {
+    border-collapse: collapse;
+  }
+  [data-slot="table"] :is(th, td) {
+    overflow-wrap: break-word;
+  }
+  [data-slot="table"] th {
+    background: var(--surface);
+  }
+  [data-slot="table"] td small {
+    display: block;
+    color: var(--muted-foreground);
+  }
+  [data-slot="table"] tr {
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--border);
+  }
+  [data-slot="table"] td {
+    vertical-align: top;
+  }
+  .field label {
+    color: var(--foreground);
+  }
+  .field small {
+    color: var(--muted-foreground);
+  }
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .commercial-print table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .commercial-print :is(th, td) {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media print {
+    .commercial-print {
+      color: #111 !important;
+      background: #fff !important;
+    }
+    .commercial-print .table-scroll {
+      overflow: visible;
+    }
+    .commercial-print :is(th, td) {
+      color: #111 !important;
+      background: #fff !important;
+      border-color: #bbb;
+    }
+    .commercial-print table {
+      table-layout: fixed;
+    }
+    .commercial-print th:first-child {
+      width: 60%;
+    }
+    .workspace-footer,
+    [data-slot="sheet-content"] {
+      display: none !important;
+    }
+  }
+}

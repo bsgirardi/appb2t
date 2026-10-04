@@ -1,4 +1,7 @@
 "use client";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { CategoryDTO, EntryDTO } from "@/domain/finance/types";
 import { splitInstallments } from "@/domain/commerce/installments";
@@ -49,9 +52,9 @@ export function EntryForm({
       }}
     >
       <div className="form-grid">
-        <label className="field">
+        <Label className="field">
           Tipo
-          <select
+          <NativeSelect
             name="kind"
             value={kind}
             disabled={Boolean(entry)}
@@ -59,28 +62,28 @@ export function EntryForm({
           >
             <option value="PAYABLE">Conta a pagar</option>
             <option value="RECEIVABLE">Conta a receber</option>
-          </select>
-        </label>
-        <label className="field">
+          </NativeSelect>
+        </Label>
+        <Label className="field">
           Descrição
-          <input
+          <Input
             name="description"
             defaultValue={entry?.description}
             minLength={2}
             maxLength={1000}
             required
           />
-        </label>
-        <label className="field">
+        </Label>
+        <Label className="field">
           Cliente / fornecedor
-          <input
+          <Input
             name="counterparty"
             defaultValue={entry?.counterparty}
             minLength={2}
             maxLength={160}
             required
           />
-        </label>
+        </Label>
         <Select
           name="categoryId"
           label="Categoria"
@@ -93,30 +96,30 @@ export function EntryForm({
             )
             .map((c) => ({ value: c.id, label: c.name }))}
         />
-        <label className="field">
+        <Label className="field">
           {entry ? "Valor (R$)" : "Valor total (R$)"}
-          <input
+          <Input
             name="amount"
             defaultValue={entry?.amount}
             inputMode="decimal"
             required
             readOnly={Boolean(entry && entry.paidAmount !== "0.00")}
           />
-        </label>
-        <label className="field">
+        </Label>
+        <Label className="field">
           {entry ? "Vencimento" : "Primeiro vencimento"}
-          <input
+          <Input
             name="dueDate"
             type="date"
             defaultValue={entry?.dueDate ?? todaySaoPaulo(new Date())}
             required
             readOnly={Boolean(entry && entry.paidAmount !== "0.00")}
           />
-        </label>
+        </Label>
         {!entry && (
-          <label className="field">
+          <Label className="field">
             Parcelas mensais
-            <input
+            <Input
               name="count"
               type="number"
               min={1}
@@ -124,7 +127,7 @@ export function EntryForm({
               defaultValue={1}
               required
             />
-          </label>
+          </Label>
         )}
       </div>
       <p>
