@@ -89,3 +89,112 @@ Esta validação atualiza as limitações antigas de Docker e início da prévia
 - Revisão visual encontrou rolagem horizontal no fluxo de caixa em 390px; corrigida limitando as colunas do grid e mantendo rolagem dentro das tabelas. Componentes reais de painel, baixa e fluxo foram renderizados em fixtures clara/escura. A fixture e o aplicativo real atualizado apresentaram largura 390 e conteúdo 375, sem overflow da página. Navegação de campo por Tab conferida. A preferência do sistema não foi alterada; a fixture seleciona as mesmas regras CSS de cada tema.
 - O histórico comercial passou a usar São Paulo, resolvendo a observação menor da revisão anterior. O cabeçalho da área financeira também recebeu o nome correspondente.
 - Limitações: revisão desta entrega realizada pelo próprio autor, sem novo parecer independente; comportamento de troca da preferência do sistema e diálogo nativo de impressão/PDF não automatizados. Não houve publicação externa, push, merge ou integração bancária/fiscal.
+
+## Catálogo comercial e SEO — 01/10/2026
+
+- Vitrine responsiva, busca, ordenação, paginação, páginas individuais, contato contextual, campos de SEO e prévia no editor implementados. Sitemap, metadados sociais, canonical e dados estruturados de produto/oferta e navegação adicionados.
+- Suíte completa desta entrega: 173 testes aprovados em 54 arquivos; verificação de tipos e lint aprovados. Build local e build Docker de produção aprovados. Após o ajuste de streaming, build Docker, lint e verificações HTTP executados novamente.
+- Migração `202609300001_catalog_seo` aplicada no ambiente Docker existente `b2t-portfolio-validation`, após backup. Os hashes dos registros completos de produto (excluindo os dois campos novos) e das dez imagens foram idênticos antes/depois da migração. Backup e hashes em `test-results/catalog-seo`, ignorado pelo Git.
+- Navegador real: catálogo e produto inspecionados em desktop e 390px; editor e campos SEO também verificados em 390px. Largura do conteúdo móvel de 375px para viewport de 390px, sem overflow horizontal. Galeria passou da foto 1 para 2; busca sem resultado mostrou estado vazio. Imagens e logo carregaram.
+- Editor: título/descrição SEO do produto de validação foram preenchidos, salvos, reabertos e confirmados no HTML público. Os dois textos foram restaurados para vazio ao terminar, retomando os valores automáticos. Preço, descrição comercial e fotos preservados. A gravação incrementa a versão normalmente.
+- Verificação HTTP revelou resposta 200 para URLs inexistentes e antigas devido ao `loading.tsx` ancestral. Removida a fronteira de streaming antecipado; o novo script `scripts/check-catalog-http.mjs` falhou antes da correção e passou na imagem corrigida. Confirmados 404 reais, 308 com Location correto, catálogo indexável, busca/ordenação sem indexação, login sem indexação, API privada retornando 401 e sitemap válido.
+- Aplicação e banco saudáveis em `http://localhost:3100`, acessíveis apenas por loopback. O início direto de servidor no Windows continuou bloqueado pela revisão automática; a validação foi concluída pelo fluxo Docker já existente no projeto. Essa pendência de inspeção visual está resolvida.
+- Conforme orientação do usuário, domínio e publicação externa ficam a cargo do proxy. O README explica a configuração de APP_URL externa e preservação dos cabeçalhos. Nenhuma publicação externa, push ou merge foi realizada. Preferência de tema do sistema não foi alterada; esta inspeção usou o tema claro ativo.
+
+## Edição da loja e dados comerciais — 01/10/2026
+
+- Implementados banners (até 3, com imagens existentes das coleções), vitrines (até 4 coleções, 4 produtos ativos cada), ordem editável das seções e texto sobre a loja. Configuração restrita a administradores e integrada à versão da aparência.
+- Produtos ganharam código único normalizado, descrição curta, especificações, cores, tamanhos, disponibilidade e prazo de produção. Os campos preservam compatibilidade com edições antigas. Opções compartilham o preço, sem estoque individual. Seleção de opções incluída no contato por WhatsApp/e-mail; indisponíveis oferecem consulta de reposição. SEO inclui SKU e disponibilidade explícita, sem inventar estoque.
+- Suíte completa: **180 testes aprovados em 56 arquivos** com PostgreSQL 17 isolado. Os novos casos cobrem normalização/duplicidade de SKU, preservação em edições legadas, opções e prazo inválidos, ordem das vitrines, exclusão de produtos/coleções inativos, conflito de versão, permissão e conteúdo da mensagem de contato. A primeira execução revelou dois erros na preparação dos novos testes (nome de coleção abaixo do mínimo e ambiente DOM ausente); corrigidos antes da execução final aprovada.
+- TypeScript, ESLint e build Docker de produção aprovados. Migração aplicada no projeto separado `b2t-portfolio-validation`, aplicativo saudável em `http://localhost:3100`. Backup antes da atualização e hashes em `test-results/merchandising`: produtos, dez imagens e identidade existentes permaneceram idênticos após migração, excluindo somente os novos campos da comparação.
+- Navegador real: criação/salvamento/reabertura de banner, destaque, texto e ordem de seção; cadastro/salvamento/reabertura de SKU, descrição curta, opções, especificações e prazo. Página pública refletiu os dados e a ordem escolhida. Seleção de cor e tamanho liberou contato e compôs a mensagem correta; nenhum contato foi enviado.
+- Catálogo, detalhe, editor de produto e editor de aparência conferidos em 390px (conteúdo 375px, sem rolagem horizontal da página); catálogo/detalhe também em desktop. Capturas em `test-results/merchandising`. Os valores temporários de demonstração foram retirados ao final pela interface, preservando o produto e a identidade anteriores; versões avançaram normalmente. Banners e destaques ficam vazios até a configuração real pelo administrador.
+- Verificação HTTP aprovada: indexação pública, privacidade, sitemap, páginas inexistentes 404 e redirecionamento de slug 308. Esta entrega segue sem IA, visualização 3D ou integração com marketplaces. Domínio/proxy externo não alterados. Nenhum push, merge ou publicação externa.
+
+## Lista de orçamento do visitante — 01/10/2026
+
+- Adicionada lista pública local ao navegador, com até 20 combinações e 99 unidades por combinação. Opções iguais são somadas; opções diferentes permanecem separadas. Cabeçalho acompanha a quantidade e a página permite alterar/remover itens e continuar escolhendo.
+- Valores nunca vêm do armazenamento do visitante: consulta pública limitada valida identificadores, quantidades e opções e usa preços atuais com cálculo decimal. Produtos inativos não expõem nome/preço; indisponíveis e opções alteradas bloqueiam a preparação até revisão. O botão de preparar contato consulta novamente o servidor.
+- Mensagem única com itens, códigos, opções, quantidades, valores e links, disponível por WhatsApp/e-mail conforme Aparência ou por cópia. Nenhuma criação de cliente, orçamento interno, venda, reserva ou cobrança. Nenhum envio automático. Links longos dependem do aplicativo; cópia do texto serve como alternativa.
+- **187 testes aprovados em 58 arquivos**, incluindo reprecificação, limite de itens/quantidade, opções, privacidade, origem da requisição, rejeição de preço enviado pelo cliente, preservação após falha de rede e invalidação do contato após edição. TypeScript, ESLint, build Docker de produção e verificação HTTP aprovados. Lista com noindex/follow, fora do sitemap.
+- Navegador real: adicionar duas unidades, navegar à lista, recarregar mantendo seleção, mudar para três unidades e conferir total R$ 225,00 sobre unitário R$ 75,00; preparar mensagem e remover item retornando ao estado vazio. Contato vazio do ambiente local exibiu alternativa de cópia; WhatsApp foi validado nos testes, sem envio real. Não foi alterado nenhum produto ou contato do banco.
+- Desktop e celular de 390px inspecionados; conteúdo móvel de 375px, sem overflow horizontal. Capturas em `test-results/inquiry`. Item local de teste removido ao concluir. Aplicação de validação saudável em `http://localhost:3100`; esta etapa não exige nova migração de banco. Sem publicação externa, push ou merge.
+
+## SEO do catálogo e informações da loja — 01/10/2026
+
+- Título/descrição SEO do catálogo editáveis em Aparência, com limites de 70/170 caracteres e fallback de nome/slogan. Metadados de produto e coleção preservados; buscas continuam sem indexação.
+- Página Sobre a loja reutiliza o texto institucional cadastrado. Página Ajuda reúne até 12 perguntas/respostas, com edição, remoção e reordenação administrativas. Respostas usam elementos nativos expansíveis por teclado. Nenhum texto institucional ou política comercial é inventado/preenchido automaticamente.
+- Páginas entram no rodapé e sitemap somente com conteúdo; esvaziá-las remove os links e retorna 404 real. Metadados incluem título, descrição, URL canônica e compartilhamento. Configurações anteriores recebem campos vazios, sem migração adicional. Limite JSON de Aparência ampliado para 256 KiB para acomodar as respostas; limites de logo e formulário total preservados.
+- **190 testes aprovados em 60 arquivos** com PostgreSQL real. TypeScript, ESLint e build de produção aprovados. Verificação HTTP ampliada para páginas institucionais, exercitada tanto com conteúdo publicado quanto vazio.
+- Navegador: edição/salvamento/reabertura de SEO, texto institucional e FAQ; HTML público confirmou título/descrição personalizados. Links do rodapé e página Sobre conferidos; pergunta expandida por Enter. FAQ e editor verificados em 390px, conteúdo 375px sem overflow horizontal. Inspeção identificou campos de texto estreitos no editor de aparência; ampliados para toda a largura com altura mínima e redimensionamento vertical.
+- Conteúdo temporário retirado pela interface ao final; dados reais e identidade preservados, com avanço normal de versão. Capturas em `test-results/store-information`. Instalação local de validação atualizada em `http://localhost:3100`. Nenhum push, merge, publicação externa ou configuração de domínio/proxy.
+
+## Salvamento de produtos completos — 02/10/2026
+
+- Corrigido limite de envio dos dados de produto: 16 KiB recusava combinações válidas de descrição, especificações e condições de pagamento, especialmente com caracteres acentuados. O limite passou a 256 KiB, mantendo a validação de cada campo, origem, quantidade de fotos e tamanho total do formulário.
+- Regressão reproduzida com teste falhando antes da correção. Após o ajuste, os 6 testes direcionados de leitura multipart e ciclo HTTP autenticado passaram. Criação e edição preservaram os textos completos no PostgreSQL de teste; envio acima de 256 KiB sem Content-Length continuou recusado. Nenhum dado real de produto foi alterado.
+- Esta correção não exige migração e não altera o layout.
+- TypeScript, ESLint, build Docker e verificações HTTP do catálogo aprovados. Aplicação de validação atualizada e saudável em `http://localhost:3100`. A suíte completa não foi repetida nesta correção pontual; foram executados os testes diretamente afetados. Sem publicação externa, push ou merge.
+
+## Produtos da mesma coleção — 02/10/2026
+
+- Página individual ganhou a seção Mais da mesma coleção, com até quatro produtos em ordem de nome, usando os cartões existentes. Consulta no servidor considera apenas coleções compartilhadas ativas, exclui o produto atual, produtos inativos e indisponíveis, sem duplicação e sem expor custos. Sem resultados, a seção é omitida. Seleção por cadastro, sem IA ou rastreamento.
+- Três testes de integração do catálogo aprovados, incluindo limite, ordenação, duplicação, coleções inativas, produto inexistente/inativo e projeção pública. O novo teste inicialmente usou versão desatualizada após associar coleções; corrigido para ler a versão vigente antes de inativar. TypeScript, lint, build Docker e verificações HTTP aprovados.
+- Navegador real: seção e navegação entre peças conferidas no computador e em 390px; largura do conteúdo de 375px sem overflow horizontal. Capturas em `test-results/related-products`. Três produtos e uma coleção criados exclusivamente para esta inspeção foram removidos ao concluir, sem modificar os registros anteriores.
+- Ambiente local de validação atualizado. Não exige migração; sem publicação externa, push ou merge. A suíte completa não foi repetida; testes concentrados no serviço alterado.
+
+## Fechamento do escopo e pendências — 02/10/2026
+
+As funcionalidades previstas nas três especificações de gestão interna estão implementadas: catálogo/aparência, clientes/orçamentos/vendas e financeiro. As melhorias posteriores solicitadas para apresentação comercial, edição e SEO também estão implementadas, incluindo páginas individuais, informações da loja, lista de orçamento e produtos da mesma coleção.
+
+Pendências de operação/publicação:
+
+- Cadastrar conteúdo real da loja: fotos, banners, contatos, texto institucional e respostas comerciais. Campos não são preenchidos com informações inventadas; valores usados em testes foram retirados.
+- Na implantação atrás do proxy do usuário, definir APP_URL externa e validar HTTPS, cabeçalhos, URLs canônicas e acesso às imagens/sitemap. O domínio não é uma dependência para concluir o código local.
+- Após a publicação, verificar a propriedade no Google Search Console e enviar o sitemap, mediante acesso à propriedade.
+
+Limites de validação que continuam abertos: mudança da preferência de tema do sistema durante a sessão e diálogo nativo de impressão/PDF. Inspeções anteriores de temas com fixtures e páginas de impressão não substituem essas verificações. As últimas entregas tiveram revisão pelo próprio autor, sem novo parecer independente.
+
+Não são pendências desta entrega: IA, visualização 3D, marketplaces, checkout/pagamento online, integrações bancárias/fiscais e estoque/preço por variação. Permanecem fora do escopo atual.
+
+Validação consolidada concluída: **193 testes aprovados em 60 arquivos**, com PostgreSQL isolado, incluindo todas as últimas alterações. TypeScript, ESLint e verificação de diferenças aprovados. Verificação HTTP confirmou indexação, privacidade, sitemap, páginas de produto, 404 e redirecionamentos 308; contêiner da aplicação saudável. Build Docker da última alteração já havia sido aprovado na etapa anterior. Nenhuma nova funcionalidade ou mudança de dados reais nesta consolidação.
+
+## Loja na raiz e identidade B2T — 02/10/2026
+
+- A home pública agora é `/`. Entradas `/portfolio` e `/catalogo` retornam 308 preservando parâmetros. Links de retorno, busca, coleções, breadcrumbs e sitemap apontam para a raiz; URLs de produto, informações e orçamento e API de consulta foram preservadas. Calculadora permanece autenticada para equipe, sem alteração dos papéis ADMIN/OPERATOR.
+- Tailwind CSS 4 com PostCSS e Button shadcn/ui local (MIT). Camadas CSS mantêm estilos administrativos existentes, sem Preflight global. Cabeçalho, abertura institucional, cards e botões públicos usam a nova base; estilos das páginas secundárias recebem tokens e acabamento B2T. Não foi reescrito todo o CSS da gestão.
+- Identidade documentada em `docs/identidade/IDENTIDADE-B2T.md` a partir dos dez PNGs fornecidos: paleta oficial, Poppins, uso do logo, mascote, voz, aplicações e decisões digitais. Logo e mascote copiados sem alteração para `public/brand`; Dockerfile inclui esses ativos. Não foram alterados cadastros, contatos, preços, imagens de produtos ou identidade armazenada.
+- Home com um h1 editorial, catálogo com h2, cards com imagem navegável e sem carrossel embutido; galeria completa permanece no produto. Busca preserva termo e coleção. Seções comerciais previamente configuradas continuam sendo exibidas.
+- Build local e Docker aprovados. Os 121 testes unitários existentes passaram; outros 3 testes novos passaram junto aos testes diretamente afetados (13 casos em 4 arquivos). Integração direcionada: 11 testes em 4 arquivos aprovados com PostgreSQL isolado `b2t_test` na porta 55432, cobrindo catálogo, informações, lista e autenticação. A suíte inteira de integração não foi repetida.
+- Verificação HTTP aprovada contra `http://localhost:3100`: home indexável e canônica na raiz, aliases com 308 e filtros preservados, calculadora redirecionada ao login, API privada 401, busca/ordenação sem indexação, sitemap, produtos, 404 e slug antigo 308.
+- Inspeção no navegador: home desktop e celular 390px, fotos clicáveis, detalhe, inclusão na lista, preparação da mensagem e remoção do item de teste. Conteúdo móvel com 375px dentro de viewport de 390px, sem overflow horizontal. A troca de viewport demora a refletir no navegador; dimensão real conferida antes de validar. Nenhuma mensagem enviada. Capturas em `test-results/b2t-home`.
+- Ambiente de validação atualizado e saudável em `http://localhost:3100`. Não exige migração nova e não houve publicação externa, push ou merge. Conteúdo de produto continua sendo o cadastro de validação existente; fotografias comerciais e contato continuam dependentes de preenchimento pela operação.
+
+
+## 02/10/2026 — descoberta da loja e painel compacto
+
+- Home com coleções visuais e filtros removíveis. Contexto de busca, coleção, ordenação e página acompanha o produto; retorno recupera a seleção, com canonical limpa. Miniaturas selecionáveis adicionadas sem remover controles anteriores.
+- Administração com tema compacto isolado e 80 comandos migrados para Button shadcn, além do menu/perfil. Campos de 36 px confirmados no desktop; 44 px no celular. Menu recolhível, perfil e saída visíveis no celular. Cores cadastradas e regras ADMIN/OPERATOR preservadas.
+- 131 testes unitários em 38 arquivos aprovados. Após ajustes finais, 13 testes diretamente afetados em 4 arquivos aprovados novamente. Dez testes de integração de catálogo, autenticação e orçamento aprovados no banco isolado b2t_test. TypeScript, ESLint, build Docker e diff-check aprovados.
+- Verificação HTTP aprovada após atualização final: indexação, privacidade, sitemap, produtos, 404 e 308. Ambiente b2t-portfolio-validation saudável em http://localhost:3100; ambiente da porta 3000 não atualizado.
+- Inspeção visual em tema escuro: calculadora desktop a 1366 px (conteúdo 1351 px) e celular a 390 px (conteúdo 375 px); sem overflow de página. Listagem, tabela e editor de materiais também conferidos no celular, sem salvar dados. Cálculo de validação com 100 g e 2 h retornou R$ 48,19. Capturas em test-results/compact-admin/desktop.jpg e mobile.jpg.
+- Fluxo coleção → busca galeria → menor preço → produto → retorno conferido no navegador, mantendo os filtros. Terceira miniatura selecionada, estado e foto atual confirmados; canonical do produto sem query. Paginação coberta por teste de roundtrip de URL; conjunto visual tem apenas um produto, sem múltiplas páginas.
+- Nenhuma migração nova, alteração de cadastro, publicação externa, push ou merge nesta etapa. SDD Lean e aplicação administrativa da identidade registrados em docs/identidade.
+
+
+## 02/10/2026 — apresentação da lista de orçamento
+
+- Lista com cartões Tailwind, capa atual, opções, quantidade/subtotal, etapas de revisão e resumo destacado. Comandos da lista e contato direto do produto usam Button shadcn. Ajustado fundo transparente de botões ghost na loja, pois não há Preflight global.
+- Resposta pública de revisão inclui imageUrl somente para produto ativo. A lista persistida continua sem preço, nome ou foto. Testes confirmam imagem nula para produto retirado, preço atual, bloqueio de indisponibilidade e ausência de criação de registros comerciais.
+- Oito testes unitários de orçamento/comercialização e três testes de integração de orçamento aprovados; TypeScript e ESLint aprovados. Build de produção aprovado.
+- No navegador: adição de item de validação; revisão inicial de R$ 75,00; alteração para 2 unidades atualizando total para R$ 150,00 e invalidando mensagem anterior; nova preparação com quantidade/total corretos. Nenhuma mensagem enviada. Desktop e celular 390 px conferidos; conteúdo móvel 375 px, sem overflow da página.
+- Capturas salvas em test-results/inquiry-design/desktop.jpg e mobile.jpg. Item temporário retirado pela interface; estado vazio confirmado. Ambiente de validação atualizado e saudável em http://localhost:3100. Nenhuma migração nova ou publicação externa nesta etapa.
+# Migração completa shadcn — 03/10/2026
+
+- Baseline: 131 unitários, tipos e lint aprovados. Migração: 139 unitários, tipos, lint, diff sem erros de whitespace e build Docker aprovados.
+- Integrações: 72/72 aprovadas no runtime Linux da imagem de ferramentas, exclusivamente contra `b2t_test` em localhost:55432. No Windows, 69/72 passaram; três concorrências apresentaram P2028, reproduzido com duas transações SELECT 1 independentes da aplicação. Não houve alteração de domínio para contornar isso.
+- Aplicação local de revisão: porta 3100, recriada preservando DATABASE_URL, APP_URL e configuração efetivos. Porta 3000 não foi atualizada.
+- Capturas: `test-results/shadcn-completo`; matriz principal com 150 combinações de rota/papel/tema/largura, mais detalhes, editores, estados e impressão. Desktop 1366 px, celular 390 e 320 px, temas claro/escuro. Tabelas usam rolagem interna; geometria da página e erros de JavaScript conferidos.
+- Comportamentos verificados: FormData, required, checkbox disabled; Sheet/Escape/foco; Tabs/Accordion por teclado; rascunho/cancelamento, erro de atualização, pendência e repetição financeira; contexto de catálogo, galeria, lista local e impressão.
+- Limitações: Sobre/Ajuda sem conteúdo retornam 404 no ambiente; FAQ preenchida conferida em fixture. Revisão independente interrompida por falta de créditos do serviço; fechamento revisado pelo implementador. Sem certificação de acessibilidade, mensagens externas, alteração de dados comerciais, push ou merge.
+- Relatório de cobertura, exceções e decisões: [REVISAO-SHADCN.md](identidade/REVISAO-SHADCN.md).

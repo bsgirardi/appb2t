@@ -16,7 +16,39 @@ Nenhuma conta, produto ou tarifa de demonstração é criada automaticamente na 
 
 ## Portfólio e produtos
 
-- `/portfolio`: catálogo público, sem login, com somente produtos ativos. Custos e margens não são expostos.
+### Catálogo e SEO
+
+O catálogo público tem busca por nome/descrição/código, filtros por coleção, ordenação por preço/nome/novidade e paginação de 12 produtos. Cada produto publicado tem uma página própria com galeria, preço, condições e contato pelo WhatsApp (usa o telefone configurado em Aparência; números brasileiros sem DDI recebem 55). Sem telefone válido, o contato usa o e-mail, quando disponível.
+
+Em **Produtos → Editar → Informações para venda**, configure código único (SKU), descrição curta dos cards, especificações, cores, tamanhos, disponibilidade e prazo de produção em dias úteis. SKU é normalizado para maiúsculas; campos vazios são opcionais. Cores e tamanhos usam o mesmo preço e não controlam estoque por variação. O visitante seleciona as opções antes de abrir o contato; a mensagem inclui código, escolhas e link do produto. Produtos indisponíveis oferecem consulta de reposição. O prazo de produção não inclui entrega. Produtos anteriores começam como **Consulte disponibilidade**, sem pressupor estoque.
+
+Em **Aparência → Página inicial do catálogo**, administradores editam até 3 banners, até 4 coleções em destaque, o texto sobre a loja e a ordem das seções. Cada banner pode usar a capa de uma coleção (ou a primeira foto de um produto ativo dela); sem coleção, mostra texto e aponta para todos os produtos. Cada vitrine exibe até 4 produtos ativos. Coleções inativas e vitrines vazias são ocultadas. Busca, filtros e paginação levam diretamente ao catálogo, sem repetir banners. Salvar aparência publica as alterações com proteção contra edições simultâneas.
+
+Os dados estruturados de produto incluem SKU quando preenchido e disponibilidade apenas para produtos explicitamente disponíveis/indisponíveis. As opções comerciais não alteram custos da calculadora nem snapshots de orçamentos/vendas existentes.
+
+Em **Aparência → Busca e compartilhamento do catálogo**, edite título (até 70 caracteres) e descrição (até 170) da página inicial. Esses textos também alimentam o compartilhamento social. Campos vazios usam nome/slogan; coleções e produtos mantêm seus próprios metadados.
+
+O texto **Sobre a loja** ganha página própria em `/portfolio/sobre`. Em **Perguntas frequentes**, adicione até 12 perguntas com respostas, reorganize-as ou remova-as; a página `/portfolio/ajuda` oferece respostas expansíveis por mouse e teclado. Use informações reais da operação; nenhuma política comercial é preenchida automaticamente. Páginas sem conteúdo retornam 404 e não aparecem no rodapé nem no sitemap. Salvar conteúdo publica as páginas e seus links; esvaziá-lo retira as páginas. As configurações existentes recebem padrões vazios, sem nova migração. O orçamento do visitante continua sem indexação.
+
+### Lista de orçamento do visitante
+
+Na página do produto, escolha as opções e a quantidade e use **Adicionar à lista de orçamento**. O link **Minha lista** permite ajustar quantidades, remover itens e conferir os valores. Combinações iguais são somadas; cores/tamanhos diferentes permanecem em linhas separadas. Limites: 20 combinações e 99 unidades por combinação.
+
+A lista é local ao navegador e guarda somente identificadores, opções e quantidades; preços vêm do servidor. Ao usar **Conferir e preparar contato**, a aplicação consulta novamente preços, publicação, disponibilidade e opções atuais. Produtos retirados, indisponíveis ou com opções alteradas são sinalizados e impedem preparar a mensagem até a revisão. O resumo usa cálculo decimal, informa total de referência sem frete e pode ser aberto no WhatsApp/e-mail ou copiado. O visitante confirma o envio no aplicativo de contato. Links muito longos podem depender dos limites do aplicativo; **Copiar lista** oferece alternativa.
+
+Essa solicitação não cria cliente, orçamento interno, venda, reserva de estoque ou cobrança. A equipe registra o orçamento interno após o atendimento. A lista não é compartilhada entre dispositivos, pode ser perdida ao limpar dados do navegador e funciona somente em memória se o armazenamento estiver bloqueado. `/portfolio/orcamento` não é indexável nem incluído no sitemap. A consulta pública de valores tem limite de tamanho e não aceita preços enviados pelo visitante.
+
+No editor, **Busca e compartilhamento** permite preencher título e descrição para buscadores; em branco, usa o conteúdo do produto. A prévia acompanha o rascunho sem publicar. As URLs contêm o identificador e o nome legível; nomes antigos redirecionam permanentemente para o endereço atual. Produtos inativos retornam 404 na página pública e saem do sitemap.
+
+Antes de atualizar, aplique todas as migrações pendentes com `npm run db:migrate`, incluindo `202609300001_catalog_seo` e `202610010001_storefront_merchandising`. Elas preservam produtos, preços e imagens. Configure `APP_URL` com o domínio público HTTPS para gerar links canônicos, mensagens e sitemap corretos. `/sitemap.xml` lista produtos e coleções ativos; `/robots.txt` permite imagens públicas. O catálogo e as páginas de produto permitem indexação; buscas/ordenações ficam com `noindex,follow` e as telas internas mantêm `noindex`. Dados estruturados incluem Product/Offer e BreadcrumbList, sem inventar estoque, avaliações ou prazos.
+
+Após publicar no domínio definitivo, cadastre esse domínio no Google Search Console e envie `/sitemap.xml`. Essa verificação depende de acesso à propriedade e não é feita pela aplicação. Indexação e posicionamento não são garantidos. A loja permite editar banners e opções comerciais, mas não inclui checkout, cobrança online, promoções ou estoque/preço por variação.
+
+Atrás de um proxy reverso, `APP_URL` deve representar a URL externa usada pelos clientes, incluindo HTTPS quando o TLS termina no proxy; não use o endereço interno do contêiner. Preserve `Origin` e o host original. A aplicação continua atendendo HTTP na porta interna 3000. O domínio é configurado na implantação, sem alteração no código.
+
+Para conferir uma instalação local já iniciada e com ao menos um produto publicado, execute `node scripts/check-catalog-http.mjs` (padrão: `http://localhost:3100`; ajuste `CATALOG_CHECK_URL` para outra porta local). A verificação é somente leitura e cobre indexação, acesso privado, sitemap, produto, 404 e redirecionamento permanente 308. O catálogo não usa `loading.tsx` antes da validação da rota, pois o streaming antecipado impediria definir esses status HTTP corretamente.
+
+- `/`: loja B2T e catálogo público, sem login, com somente produtos ativos. Custos e margens não são expostos. `/portfolio` e `/catalogo` redirecionam com HTTP 308 para `/`, preservando busca, coleção, ordenação e paginação. As páginas individuais e a lista de orçamento mantêm seus endereços existentes.
 - `/produtos`: painel protegido; ADMIN e OPERATOR podem criar, editar, inativar e reativar qualquer produto da equipe. Cadastro de usuários e configurações globais continuam exclusivos de ADMIN.
 - **Novo produto**: informe nome, descrição, preço final, de 1 a 10 fotos e condições de pagamento. Selecione material e impressora, informe consumo/tempo e ajuste os custos necessários. Todos os campos da calculadora estão disponíveis por produto.
 - **Preço final de venda** é independente da sugestão da calculadora. Recalcular custos e carregar configurações atuais não alteram o preço negociado. **Usar preço sugerido** copia a sugestão somente para o rascunho; **Salvar produto** publica o preço final informado. Referências inativas não impedem editar os valores previamente salvos.
@@ -25,6 +57,8 @@ Nenhuma conta, produto ou tarifa de demonstração é criada automaticamente na 
 Fotos: JPEG, PNG ou WebP estático, até 5 MiB e 40 milhões de pixels por imagem. O servidor normaliza para WebP de até 1600 pixels por dimensão. Produto, fotos e ordem são gravados juntos, com controle de versão. A primeira imagem é a capa; o catálogo oferece carrossel manual. Tudo fica no backup PostgreSQL, sem diretório de uploads. O proxy HTTP deve aceitar requisições multipart de até **52 MiB**. As condições de pagamento do catálogo são texto informativo; não executam cobrança.
 
 **Coleções**: administradores e operadores agrupam produtos em várias coleções, definem capa opcional, ordem e estado ativo. Inativar coleção não inativa seus produtos. O catálogo público oferece filtros e mostra somente produtos e coleções ativos.
+
+Na página do produto, **Mais da mesma coleção** apresenta até quatro outros produtos de coleções ativas compartilhadas, em ordem de nome. Produtos inativos ou marcados como indisponíveis não aparecem nessa seção. Não há duplicatas quando as peças compartilham várias coleções; sem resultados, a seção fica oculta. A seleção usa apenas os agrupamentos cadastrados.
 
 **Aparência**: em `/configuracoes/aparencia`, administradores configuram nome, contatos públicos, rodapé, logo e cores dos dois temas. Logo aceita até 2 MiB/16 milhões de pixels e é normalizado até 1024 px, preservando transparência. As mudanças são publicadas ao salvar. O tema segue a preferência do sistema; os textos de marca usam contraste validado. Dados existentes sem configuração mantêm a identidade B2T.
 
@@ -197,3 +231,24 @@ Em uma recuperação real, valide o banco restaurado antes de trocar a conexão 
 - `docs/superpowers`: especificação e plano aprovados.
 
 As imagens Docker acompanham a série Node 22 e PostgreSQL 17. O lockfile fixa dependências npm; atualizações de imagens devem ser validadas antes de atualizar uma instalação. A CLI Prisma e ferramentas de bootstrap ficam no estágio `tools`; o runtime usa a saída standalone e usuário sem privilégios.
+
+## Identidade e interface pública B2T
+
+O guia está em [docs/identidade/IDENTIDADE-B2T.md](docs/identidade/IDENTIDADE-B2T.md), transcrito das referências fornecidas. A vitrine usa Poppins local, cores B2T, logo e mascote originais em `public/brand`; nenhum cadastro de produto, contato ou aparência é substituído.
+
+A camada visual pública usa Tailwind CSS 4 e o componente Button do shadcn/ui, adaptado localmente em `src/components/ui` (licença MIT incluída). `components.json` configura a adição de componentes. `src/app/design.css` organiza tokens e camadas, sem Preflight global. Cabeçalho, abertura e cards usam utilitários Tailwind; páginas secundárias reutilizam os estilos existentes com tokens B2T. A área administrativa também usa Button shadcn e Tailwind, com tema compacto isolado em `src/app/admin.css`: campos de 36 px, botões de 34 px e tabelas com menor espaçamento no desktop. No celular, controles passam a 44 px e o menu pode ser recolhido. Cores administrativas configuradas e permissões permanecem, inclusive acesso autenticado de ADMIN e OPERATOR à calculadora.
+
+O contêiner de produção inclui a pasta `public`, necessária para logo e mascote. Banners e coleções configurados continuam disponíveis após a abertura institucional. Não há migração de banco nesta alteração. Para conferir entradas antigas, filtros, SEO e proteção administrativa: `node scripts/check-catalog-http.mjs` contra a aplicação local de validação.
+
+
+### Descoberta e continuidade da navegação
+
+A home apresenta coleções ativas com capas existentes. Busca, coleção, ordenação e página acompanham os links dos produtos; “Voltar aos resultados” recupera a seleção. Trocar/remover um filtro reinicia a paginação, preservando os demais critérios. A busca mantém coleção e ordenação. URLs canônicas e links enviados no orçamento continuam limpos. Galerias com várias fotos oferecem miniaturas selecionáveis, além de teclado, setas e gestos.
+
+
+A lista de orçamento usa cartões com a capa atual de cada produto, etapas de revisão/preparação/contato e resumo destacado. O servidor fornece a URL da imagem apenas para produtos ativos; o armazenamento local continua limitado a identificadores, opções e quantidades. O contato depende de nova conferência e de ação explícita do visitante.
+# Biblioteca visual
+
+A interface usa componentes locais shadcn/ui em `src/components/ui`, tokens B2T em `src/app/design.css` e densidade administrativa em `src/app/admin.css`, sem Preflight global. Use Input, NativeSelect, Checkbox, Textarea, Field/Notice, Button, Card e Table nos novos consumidores. Preserve os contratos nativos de formulário e use as exceções de impressão documentadas.
+
+Cobertura, adaptações do registro e evidências: [revisão shadcn](docs/identidade/REVISAO-SHADCN.md).
