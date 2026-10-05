@@ -198,3 +198,11 @@ Validação consolidada concluída: **193 testes aprovados em 60 arquivos**, com
 - Comportamentos verificados: FormData, required, checkbox disabled; Sheet/Escape/foco; Tabs/Accordion por teclado; rascunho/cancelamento, erro de atualização, pendência e repetição financeira; contexto de catálogo, galeria, lista local e impressão.
 - Limitações: Sobre/Ajuda sem conteúdo retornam 404 no ambiente; FAQ preenchida conferida em fixture. Revisão independente interrompida por falta de créditos do serviço; fechamento revisado pelo implementador. Sem certificação de acessibilidade, mensagens externas, alteração de dados comerciais, push ou merge.
 - Relatório de cobertura, exceções e decisões: [REVISAO-SHADCN.md](identidade/REVISAO-SHADCN.md).
+
+## Upgrade de precificação — linha de base U0 — 05/10/2026
+
+- Trabalho isolado na branch codex/precificacao-avancada, base 3a343d099351364c37bc3923d0ea9bd5106732ee. Nenhuma alteração na instalação operacional.
+- Docker inicialmente indisponível; recuperado pelo usuário. PostgreSQL de teste 17 em 127.0.0.1:55432/b2t_test saudável, após recuperação automática normal de inicialização. Alternativa portátil baixada mas não inicializada nem usada.
+- Base anterior: 139 testes unitários existentes aprovados; 72 testes de integração em 25 arquivos aprovados com o cliente Prisma V1 e as 12 migrações anteriores. Cobertura existente inclui preços históricos, conversão única, parcelas, recebimentos/estornos, permissões e concorrência; não foram duplicados testes equivalentes.
+- Novo motor puro V2: 39 casos novos e os anteriores aprovados, total 178 testes unitários em 43 arquivos. Testes direcionados do motor e compatibilidade V1: 62 aprovados em 5 arquivos. Tipos verificados antes das alterações de persistência. A integração V2 ainda está em andamento.
+- Limitação observada na suíte de interface existente: aviso de navegação não implementada no JSDOM, sem teste falhando. A validação real de navegação será feita no navegador na entrega.
