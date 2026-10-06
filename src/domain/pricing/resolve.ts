@@ -9,9 +9,19 @@ import { pricingRequestSchema, pricingV2Schema } from "./validation";
 function pick<T extends { id: string; version: number; active: boolean }>(
   rows: T[],
   ref: Ref,
+  field: string,
+  label: string,
 ): T {
   const row = rows.find((r) => r.id === ref.id);
-  if (!row || !row.active || row.version !== ref.version) throw conflict();
+  if (!row || !row.active || row.version !== ref.version)
+    throw new AppError(
+      "CONFLICT",
+      `${label}: referência indisponível ou alterada. Revise os parâmetros atuais.`,
+      {
+        [field]:
+          "Referência indisponível ou alterada. Revise os parâmetros atuais.",
+      },
+    );
   return row;
 }
 export function resolveCatalogPricing(
@@ -21,19 +31,29 @@ export function resolveCatalogPricing(
   const r = pricingRequestSchema.parse(raw),
     s = catalog.settings;
   if (!s || s.version !== r.expectedSettingsVersion) throw conflict();
-  const p = pick(catalog.printers, r.printerRef);
+  const p = pick(catalog.printers, r.printerRef, "printerRef", "Impressora");
   if (p.technology !== r.technology)
     throw new AppError(
       "VALIDATION",
       "Impressora incompatível com a tecnologia.",
     );
-  const channel = pick(catalog.channels, r.channelRef);
+  const channel = pick(
+    catalog.channels,
+    r.channelRef,
+    "channelRef",
+    "Canal de venda",
+  );
   return pricingV2Schema.parse({
     version: 2,
     technology: r.technology,
     quantity: r.quantity,
-    materials: r.materials.map((m) => {
-      const row = pick(catalog.materials, m.ref);
+    materials: r.materials.map((m, i) => {
+      const row = pick(
+        catalog.materials,
+        m.ref,
+        `materials.${i}.ref`,
+        `Material ${i + 1}`,
+      );
       if (row.technology !== r.technology)
         throw new AppError(
           "VALIDATION",
@@ -65,8 +85,13 @@ export function resolveCatalogPricing(
     laborPerHour: s.laborPerHour,
     markupPercent: s.markupPercent,
     targetMarginPercent: s.targetMarginPercent,
-    extras: r.extras.map((e) => {
-      const row = pick(catalog.extras, e.ref);
+    extras: r.extras.map((e, i) => {
+      const row = pick(
+        catalog.extras,
+        e.ref,
+        `extras.${i}.ref`,
+        `Complemento ${i + 1}`,
+      );
       return { ...e, name: row.name, unitCost: row.unitCost };
     }),
     channel: {

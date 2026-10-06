@@ -4,7 +4,7 @@ import type { CalculationInput } from "@/domain/calculation/types";
 import type {
   PricingCatalogDTO,
   PricingSnapshotDTO,
-  PricingV2Input,
+  PricingRequest,
 } from "@/domain/pricing/types";
 import { api } from "@/lib/client-api";
 import { createEstimate } from "@/lib/pricing-client";
@@ -37,46 +37,38 @@ export function ProductPricingEditor({
       setError((e as Error).message);
     }
   }
-  let initial: PricingV2Input | undefined = snapshot?.input;
-  if (!initial && catalog?.settings) {
-    const material = catalog.materials.find((m) => m.id === materialId),
-      printer = catalog.printers.find((p) => p.id === printerId);
-    if (material && printer)
-      initial = {
-        technology: legacy.technology,
-        quantity: 1,
-        materials: [
-          {
-            ref: { id: material.id, version: material.version },
-            name: material.name,
-            unit: legacy.technology === "FDM" ? "G" : "ML",
-            pricePerBase: material.price,
-            consumptionPerUnit: legacy.consumption,
-            fixedWaste: "0",
-          },
-        ],
-        printer: {
-          ...printer,
-          ref: { id: printer.id, version: printer.version },
+  let legacyRequest: PricingRequest | undefined;
+  if (!snapshot && catalog) {
+    const material = catalog.materials.find(
+        (m) => m.id === materialId && m.technology === legacy.technology,
+      ),
+      printer = catalog.printers.find(
+        (p) => p.id === printerId && p.technology === legacy.technology,
+      );
+    legacyRequest = {
+      technology: legacy.technology,
+      quantity: 1,
+      materials: [
+        {
+          ref: { id: material?.id ?? "", version: material?.version ?? 1 },
+          consumptionPerUnit: legacy.consumption,
+          fixedWaste: "0",
         },
-        machineFixedMinutes: Number.isFinite(legacy.hours)
+      ],
+      printerRef: { id: printer?.id ?? "", version: printer?.version ?? 1 },
+      machineFixedMinutes:
+        Number.isFinite(legacy.hours) && Number.isFinite(legacy.minutes)
           ? String(legacy.hours * 60 + legacy.minutes)
           : "",
-        machineMinutesPerUnit: "0",
-        setupMinutes: "0",
-        finishingMinutesPerUnit: "0",
-        extras: [],
-        channel: {
-          ref: { id: "", version: 1 },
-          name: "",
-          fees: [],
-          fixedCost: "0",
-        },
-        ...catalog.settings,
-        mode: "MARKUP",
-        informedUnitPrice: "0",
-        version: 2,
-      };
+      machineMinutesPerUnit: "0",
+      setupMinutes: "0",
+      finishingMinutesPerUnit: "0",
+      extras: [],
+      channelRef: { id: "", version: 1 },
+      mode: "MARKUP",
+      informedUnitPrice: "0",
+      expectedSettingsVersion: catalog.settings?.version ?? 1,
+    };
   }
   return (
     <section className="rounded-lg border p-4 space-y-3">
@@ -97,9 +89,10 @@ export function ProductPricingEditor({
             <>
               <Notice kind="info">
                 A ficha anterior será preservada ao salvar. Consumo e tempo
-                serão copiados quando suas referências estiverem disponíveis.
-                Revise manutenção por hora, trabalho, complementos e fixação;
-                percentuais antigos não são convertidos automaticamente.
+                serão copiados. Selecione referências substitutas quando as
+                anteriores estiverem indisponíveis. Revise manutenção por hora,
+                trabalho, complementos e fixação; percentuais antigos não são
+                convertidos automaticamente.
               </Notice>
               <Label className="flex gap-2">
                 <input
@@ -113,7 +106,8 @@ export function ProductPricingEditor({
           )}
           <BatchPricingForm
             catalog={catalog}
-            initialInput={initial}
+            initialInput={snapshot?.input}
+            initialRequest={legacyRequest}
             onApply={async (request) => {
               if (!snapshot && !reviewed)
                 throw new Error(

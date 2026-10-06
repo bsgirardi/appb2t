@@ -1,10 +1,12 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useId } from "react";
 import type {
   PricingCatalogDTO,
   PricingRequest,
   PricingV2Input,
 } from "@/domain/pricing/types";
+import { z } from "zod";
+import { AppError } from "@/lib/errors";
 import { calculateV2 } from "@/domain/pricing/calculate";
 import {
   resolveCatalogPricing,
@@ -38,22 +40,26 @@ function initial(c: PricingCatalogDTO): PricingRequest {
 export function BatchPricingForm({
   catalog,
   initialInput,
+  initialRequest,
   onApply,
   applyLabel = "Aplicar estimativa",
   fixedQuantity,
 }: {
   catalog: PricingCatalogDTO;
   initialInput?: PricingV2Input;
+  initialRequest?: PricingRequest;
   onApply: (request: PricingRequest) => Promise<void>;
   applyLabel?: string;
   fixedQuantity?: number;
 }) {
   const [current, setCurrent] = useState(catalog),
     [review, setReview] = useState<PricingCatalogDTO | null>(null);
-  const [draftState, setDraft] = useState<PricingRequest>(() =>
-    initialInput
-      ? requestFromInput(initialInput, catalog.settings?.version ?? 1)
-      : initial(catalog),
+  const [draftState, setDraft] = useState<PricingRequest>(
+    () =>
+      initialRequest ??
+      (initialInput
+        ? requestFromInput(initialInput, catalog.settings?.version ?? 1)
+        : initial(catalog)),
   );
   const draft =
     fixedQuantity === undefined
@@ -61,18 +67,70 @@ export function BatchPricingForm({
       : { ...draftState, quantity: fixedQuantity };
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [touched, setTouched] = useState(!!initialInput);
+    [touched, setTouched] = useState(!!initialInput || !!initialRequest);
   const lock = useRef(false);
+  const errorPrefix = useId();
   const patch = (next: Partial<PricingRequest>) => {
     setTouched(true);
     setDraft((d) => ({ ...d, ...next }));
   };
   let input: PricingV2Input | null = null,
     result: ReturnType<typeof calculateV2> | null = null;
+  const fieldErrors: Record<string, string> = {};
+  let validationMessage = "";
   try {
     input = resolveCatalogPricing(current, draft);
     result = calculateV2(input);
-  } catch {}
+  } catch (e) {
+    if (e instanceof z.ZodError) {
+      for (const issue of e.issues) {
+        let path = issue.path
+          .join(".")
+          .replace(/^printer\.ref/, "printerRef")
+          .replace(/^channel\.ref/, "channelRef")
+          .replace(/\.(id|version)$/, "");
+        if (path === "materials") path = "materials.0.consumptionPerUnit";
+        const message =
+          path.endsWith(".ref") ||
+          path === "printerRef" ||
+          path === "channelRef"
+            ? "Selecione uma referência válida."
+            : issue.code === "too_big"
+              ? `Use um valor de até ${issue.maximum}.`
+              : issue.code === "too_small"
+                ? `Use um valor a partir de ${issue.minimum}.`
+                : issue.code === "invalid_type"
+                  ? "Informe um valor válido."
+                  : issue.message;
+        fieldErrors[path] = fieldErrors[path] ?? message;
+      }
+    } else if (e instanceof AppError && e.fields) {
+      Object.assign(fieldErrors, e.fields);
+    } else
+      validationMessage =
+        e instanceof Error
+          ? e.message
+          : "Não foi possível calcular. Revise os dados.";
+  }
+  const fieldProps = (path: string) => ({
+    "aria-invalid": (touched && !!fieldErrors[path]) || undefined,
+    hint: touched ? fieldErrors[path] : undefined,
+  });
+  const selectProps = (path: string) => ({
+    "aria-invalid": (touched && !!fieldErrors[path]) || undefined,
+    "aria-describedby":
+      touched && fieldErrors[path] ? `${errorPrefix}-${path}` : undefined,
+  });
+  const hint = (path: string) =>
+    touched && fieldErrors[path] ? (
+      <small
+        id={`${errorPrefix}-${path}`}
+        className="text-destructive"
+        role="alert"
+      >
+        {fieldErrors[path]}
+      </small>
+    ) : null;
   const unit = draft.technology === "FDM" ? "g" : "ml";
   const materials = current.materials.filter(
       (m) => m.technology === draft.technology,
@@ -140,6 +198,7 @@ export function BatchPricingForm({
           <Label className="grid gap-2">
             Tecnologia
             <NativeSelect
+              {...selectProps("technology")}
               value={draft.technology}
               onChange={(e) =>
                 patch({
@@ -154,8 +213,10 @@ export function BatchPricingForm({
               <option value="FDM">Filamento</option>
               <option value="RESIN">Resina</option>
             </NativeSelect>
+            {hint("technology")}
           </Label>
           <Field
+            {...fieldProps("quantity")}
             label="Quantidade do lote"
             readOnly={fixedQuantity !== undefined}
             type="number"
@@ -177,6 +238,7 @@ export function BatchPricingForm({
               <Label className="grid gap-2">
                 Material {i + 1}
                 <NativeSelect
+                  {...selectProps(`materials.${i}.ref`)}
                   value={m.ref.id}
                   onChange={(e) => {
                     const r = materials.find((x) => x.id === e.target.value);
@@ -201,9 +263,11 @@ export function BatchPricingForm({
                     </option>
                   ))}
                 </NativeSelect>
+                {hint(`materials.${i}.ref`)}
               </Label>
               <div className="form-grid">
                 <Field
+                  {...fieldProps(`materials.${i}.consumptionPerUnit`)}
                   label={`Consumo por peça ${i + 1} (${unit})`}
                   value={m.consumptionPerUnit}
                   inputMode="decimal"
@@ -218,6 +282,7 @@ export function BatchPricingForm({
                   }
                 />
                 <Field
+                  {...fieldProps(`materials.${i}.fixedWaste`)}
                   label={`Desperdício fixo ${i + 1} (${unit})`}
                   value={m.fixedWaste}
                   inputMode="decimal"
@@ -265,6 +330,7 @@ export function BatchPricingForm({
           <Label className="grid gap-2">
             Impressora
             <NativeSelect
+              {...selectProps("printerRef")}
               value={draft.printerRef.id}
               onChange={(e) => {
                 const p = printers.find((x) => x.id === e.target.value);
@@ -280,6 +346,7 @@ export function BatchPricingForm({
                 </option>
               ))}
             </NativeSelect>
+            {hint("printerRef")}
           </Label>
           <div className="form-grid">
             {(
@@ -295,6 +362,7 @@ export function BatchPricingForm({
             ).map(([key, label]) => (
               <Field
                 key={key}
+                {...fieldProps(key)}
                 label={label}
                 inputMode="decimal"
                 value={draft[key]}
@@ -315,6 +383,7 @@ export function BatchPricingForm({
               <Label className="grid gap-2">
                 Complemento {i + 1}
                 <NativeSelect
+                  {...selectProps(`extras.${i}.ref`)}
                   value={x.ref.id}
                   onChange={(e) => {
                     const r = current.extras.find(
@@ -341,9 +410,11 @@ export function BatchPricingForm({
                     </option>
                   ))}
                 </NativeSelect>
+                {hint(`extras.${i}.ref`)}
               </Label>
               <div className="form-grid">
                 <Field
+                  {...fieldProps(`extras.${i}.quantity`)}
                   label={`Quantidade do complemento ${i + 1}`}
                   value={x.quantity}
                   onChange={(e) =>
@@ -357,6 +428,7 @@ export function BatchPricingForm({
                 <Label className="grid gap-2">
                   Aplicação {i + 1}
                   <NativeSelect
+                    {...selectProps(`extras.${i}.basis`)}
                     value={x.basis}
                     onChange={(e) =>
                       patch({
@@ -371,6 +443,7 @@ export function BatchPricingForm({
                     <option value="UNIT">Por peça</option>
                     <option value="LOT">Por lote</option>
                   </NativeSelect>
+                  {hint(`extras.${i}.basis`)}
                 </Label>
               </div>
               <Button
@@ -404,6 +477,7 @@ export function BatchPricingForm({
           <Label className="grid gap-2">
             Canal de venda
             <NativeSelect
+              {...selectProps("channelRef")}
               value={draft.channelRef.id}
               onChange={(e) => {
                 const c = current.channels.find((x) => x.id === e.target.value);
@@ -419,10 +493,12 @@ export function BatchPricingForm({
                 </option>
               ))}
             </NativeSelect>
+            {hint("channelRef")}
           </Label>
           <Label className="grid gap-2">
             Modalidade de preço
             <NativeSelect
+              {...selectProps("mode")}
               value={draft.mode}
               onChange={(e) =>
                 patch({ mode: e.target.value as PricingRequest["mode"] })
@@ -432,15 +508,22 @@ export function BatchPricingForm({
               <option value="CONTRIBUTION">Margem de contribuição alvo</option>
               <option value="INFORMED">Preço informado</option>
             </NativeSelect>
+            {hint("mode")}
           </Label>
           {draft.mode === "INFORMED" ? (
             <Field
+              {...fieldProps("informedUnitPrice")}
               label="Preço unitário informado (R$)"
               value={draft.informedUnitPrice}
               onChange={(e) => patch({ informedUnitPrice: e.target.value })}
             />
           ) : (
             <Field
+              {...fieldProps(
+                draft.mode === "MARKUP"
+                  ? "markupPercent"
+                  : "targetMarginPercent",
+              )}
               label={draft.mode === "MARKUP" ? "Markup (%)" : "Margem alvo (%)"}
               readOnly
               value={
@@ -464,6 +547,7 @@ export function BatchPricingForm({
             ).map(([key, label]) => (
               <Field
                 key={key}
+                {...fieldProps(key)}
                 label={label}
                 readOnly
                 value={current.settings?.[key] ?? ""}
@@ -598,8 +682,8 @@ export function BatchPricingForm({
         ) : (
           touched && (
             <Notice>
-              Confira materiais, consumo, tempo e parâmetros. Margem e taxas
-              devem somar menos de 100%.
+              {validationMessage ||
+                "Confira os campos sinalizados antes de aplicar a estimativa."}
             </Notice>
           )
         )}

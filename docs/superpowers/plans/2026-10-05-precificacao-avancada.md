@@ -192,12 +192,12 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** consome todos os contratos; produz evidência de aceitação, instruções da configuração V2 e limites documentados. Nenhuma funcionalidade adicional.
 
-- [ ] Escrever fluxo integrado usando fixture aprovada: configurar → salvar produto V2 → anexar custo em orçamento → emitir → converter → receber parcialmente. Alterar tarifas e inativar material após emissão; assert preço/custo histórico idênticos, recebíveis corretos, catálogo sem custo. Repetir confirmação/conversão e verificar unicidade.
-- [ ] Rodar `npx vitest run tests/integration/pricing-flow.test.ts`; corrigir falhas no menor escopo e repetir testes afetados.
-- [ ] Rodar `npm run test:unit`, `npm run test:integration`, `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`. Usar banco de teste verificado; não afirmar sucesso de comandos bloqueados pelo ambiente. Não repetir suítes sem mudança/falha justificando.
-- [ ] Inspecionar navegador desktop e 390 px, ADMIN e OPERATOR, temas claro/escuro, rascunho com erro, parâmetros ausentes, V1, V2, impressão e preço negociado. Concluir cada cenário com evidência e resultado. Não enviar mensagens nem publicar dados reais.
-- [ ] Documentar migração aditiva e pré-requisitos: backup recuperável, ensaio de restauração em base isolada e versão de aplicação compatível com V2. Depois de gravar V2, não fazer downgrade cego para aplicativo que só lê V1. Preparar recuperação por correção para frente ou restauração coordenada; não apagar tabelas em uso. Implantação em produção não é executada por este plano de desenvolvimento.
-- [ ] Fazer revisão final da diferença contra a especificação, com foco nos cinco riscos acima. Commit `docs: record advanced pricing validation and rollout`. Reportar testes reais, arquivos alterados e limitações; aguardar instrução de integração/publicação se ainda não autorizada.
+- [x] Escrever fluxo integrado usando fixture aprovada: configurar → salvar produto V2 → anexar custo em orçamento → emitir → converter → receber parcialmente. Alterar tarifas e inativar material após emissão; assert preço/custo histórico idênticos, recebíveis corretos, catálogo sem custo. Repetir confirmação/conversão e verificar unicidade.
+- [x] Rodar `npx vitest run tests/integration/pricing-flow.test.ts`; corrigir falhas no menor escopo e repetir testes afetados.
+- [x] Rodar `npm run test:unit`, `npm run test:integration`, `npm run typecheck`, `npm run lint`, `npm run build`, `git diff --check`. Usar banco de teste verificado; não afirmar sucesso de comandos bloqueados pelo ambiente. Não repetir suítes sem mudança/falha justificando.
+- [x] Inspecionar navegador desktop e 390 px, ADMIN e OPERATOR, temas claro/escuro, rascunho com erro, parâmetros ausentes, V1, V2, impressão e preço negociado. Concluir cada cenário com evidência e resultado. Não enviar mensagens nem publicar dados reais.
+- [x] Documentar migração aditiva e pré-requisitos: backup recuperável, ensaio de restauração em base isolada e versão de aplicação compatível com V2. Depois de gravar V2, não fazer downgrade cego para aplicativo que só lê V1. Preparar recuperação por correção para frente ou restauração coordenada; não apagar tabelas em uso. Implantação em produção não é executada por este plano de desenvolvimento.
+- [x] Fazer revisão final da diferença contra a especificação, com foco nos cinco riscos acima. Commit `docs: record advanced pricing validation and rollout`. Reportar testes reais, arquivos alterados e limitações; aguardar instrução de integração/publicação se ainda não autorizada.
 
 ## Cobertura e sequência
 
@@ -214,4 +214,4 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 Dependência recomendada: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9. Cada commit inclui somente arquivos da tarefa, após testes respectivos. Não usar git add indiscriminado sobre arquivos de outros trabalhos.
 
-Execução: tarefas 1–8 implementadas e verificadas. Evidências de aceitação e resultados reais em docs/VALIDACAO.md. A tarefa 9 concentra a revisão independente final e verificações de entrega.
+Execução: tarefas 1–9 implementadas. Revisão independente realizada e três pontos importantes corrigidos com regressões. Evidências, resultados reais e a pendência menor de versão administrativa dos parâmetros estão em docs/VALIDACAO.md. Integração e implantação não executadas.

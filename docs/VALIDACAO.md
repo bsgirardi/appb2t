@@ -217,6 +217,37 @@ Validação consolidada concluída: **193 testes aprovados em 60 arquivos**, com
 - Navegador Edge isolado via Playwright empacotado: ADMIN em 1366/390 px, calculadora em claro/escuro; produto V2, parâmetros, orçamento, venda e impressão sem overflow horizontal. OPERATOR em ambos os temas/larguras e tentativa de escrever parâmetros retorna 403. Nenhum erro de JavaScript capturado. Capturas com transições desabilitadas evitam registrar cores intermediárias da troca de tema.
 - O controle integrado de navegador não iniciou (falha ao gravar arquivos do runtime); validação feita em perfil descartável de Edge, sem usar sessões pessoais. Evidências locais em `test-results/pricing-v2`; JSONs registram geometria, permissões e erros. Nenhuma publicação ou mensagem externa.
 - A página de impressão foi conferida sem `snapshotId`, tarifas, custo por peça ou seção de custos privados. Inspeção visual não equivale a certificação formal de acessibilidade.
-- Revisão independente final e verificação após seus eventuais ajustes ainda pendentes nesta versão do registro.
+- Revisão independente final realizada; correções e nova validação descritas abaixo.
 - Aceitação complementar no navegador: V1 calculando, V2 anexado ao item mantendo R$ 8,00, falha de rede preservando o rascunho, salvamento posterior e parâmetros ausentes sem valores presumidos. PDF da proposta gerado em ambiente de teste. Labels dos seletores V2 receberam espaçamento explícito após a inspeção visual.
 - Gate conjunto após ajustes: 287/287 testes em 80 arquivos aprovados (196 unitários e 91 integrações); build de produção com checagem TypeScript aprovado, ESLint sem avisos/erros e diff sem erros de whitespace.
+
+### Revisão independente e correções
+
+A revisão final, feita por outro agente em modo somente leitura, não encontrou falhas críticas. Três pontos importantes foram reproduzidos por testes e corrigidos:
+
+1. A memória privada agora exibe as premissas originais de máquina, amortização, tempos, tarifas, trabalho, complementos, canal e modalidade, mantendo a precisão das entradas e sem consultar cadastros atuais.
+2. A conversão V1 preserva tecnologia, consumo e tempo mesmo quando material/impressora anteriores estão inativos ou sem vínculo. Apenas as referências pendentes precisam ser selecionadas novamente.
+3. Erros do cálculo são associados aos campos por `aria-invalid` e `aria-describedby`, incluindo preço com mais de duas casas, limite de consumo por linha e margem mais taxas. Conflitos de referências e limites de cálculo mantêm mensagens identificáveis.
+
+Nove regressões novas cobrem esses pontos; as falhas foram observadas antes das correções. A suíte direcionada passou com 22 testes. A validação unitária completa após os ajustes passou com 205 testes em 49 arquivos; build com TypeScript e ESLint também aprovados. Na primeira repetição integral o Docker estava parado, impedindo conexão com o PostgreSQL; a execução foi interrompida, o Docker recuperado e a suíte de integração repetida no banco exclusivo.
+
+Pendência menor de auditoria: a estimativa conserva os valores resolvidos de todos os parâmetros, mas não o número da versão do conjunto global de tarifas. Os resultados históricos continuam reproduzíveis; o vínculo com essa versão administrativa específica fica para uma melhoria posterior. A revisão não deixou comportamentos sem avaliação e não houve segunda rodada de revisão independente.
+
+### Fechamento da validação
+
+- Após a recuperação do Docker: **205/205 unitários e 91/91 integrações**, total **296 testes em 81 arquivos**, aprovados. Compilação de produção com TypeScript, ESLint e `git diff --check` aprovados.
+- A revisão automática de autorização bloqueou iniciar o servidor local de produção na porta 3200, retornando somente `blocked by policy`. Não se contornou esse bloqueio: a inspeção visual complementar usou HTML estático do componente corrigido, com o CSS compilado, sem servidor. Memória expandida conferida em 1366/390 px, claro/escuro, sem overflow. Os fluxos completos de navegador anteriores e os nove testes de regressão cobrem o restante.
+- Os arquivos de evidência ficam em `test-results/pricing-v2`; a aplicação operacional não foi atualizada. Branch e checkout isolado permanecem disponíveis para revisão e integração.
+
+### Decisões de execução
+
+1. Referências inativas continuam legíveis no histórico; novas estimativas exigem referências ativas e versões atuais. Consequência: pode ser necessário escolher uma substituta para recalcular.
+2. Alterar quantidade ou identidade torna o custo desatualizado; removê-lo permite emitir sem custo, identificado como ausente. Consequência: a cobertura de rentabilidade pode ser incompleta.
+3. Com Docker indisponível no início, o motor puro avançou antes do gate de banco U0. A linha de base foi concluída antes da persistência. Consequência potencial: progresso condicionado à recuperação do ambiente.
+4. O helper de custo documental passou da tarefa 2 à 7, junto dos testes de seus consumidores. Consequência: mudança apenas da fronteira entre tarefas.
+5. PostgreSQL portátil oficial foi baixado como alternativa ao Docker, mas não foi inicializado nem usado; o Docker foi recuperado. A alternativa foi abandonada e seu material temporário removido ao fechar. Não há serviço PostgreSQL alternativo.
+6. Reutilizou-se a cobertura U0 existente, em vez de duplicar testes equivalentes. Consequência potencial: dependência da abrangência dos testes legados; cenários novos receberam regressões próprias.
+7. A aceitação visual da tarefa 5 foi consolidada na tarefa 9; wrappers preservaram os componentes originais. Consequência: problemas visuais seriam identificados no gate final, que foi realizado.
+8. Os limites locais existentes de 256 KiB para orçamentos/vendas foram mantidos. Consequência: crescimento futuro de payload exige nova revisão explícita.
+9. Edge isolado/Playwright substituiu o controle integrado de navegador que não iniciou. Consequência: particularidades exclusivas do navegador incorporado não foram validadas.
+10. A revisão independente foi tratada como um gate separado após a aceitação da tarefa 9, evitando duas revisões equivalentes. Consequência: seus ajustes reabriram testes e foram verificados na única rodada de correções prevista.
