@@ -31,7 +31,13 @@ export async function createDocumentSnapshot(
     const p = products.find((p) => p.id === item.productId);
     if (item.productId && !p?.active)
       throw new AppError("VALIDATION", "Um produto não está mais ativo.");
-    return { ...item, name: p?.name ?? item.description };
+    return {
+      ...(item.productId ? { productId: item.productId } : {}),
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      name: p?.name ?? item.description,
+    };
   });
   return {
     snapshot: {

@@ -1,9 +1,18 @@
+import {
+  readDocumentCosts,
+  readLineItems,
+  prepareLineItems,
+  itemColumns,
+  saveDocumentCosts,
+  freezeDocumentCosts,
+} from "./pricing/document-costs";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "./auth/session";
 import {
+  costBindingsSchema,
   quoteDraftSchema,
   quoteSchema,
   civilDateSchema,
@@ -27,7 +36,11 @@ import { quoteEvent } from "./commerce/audit";
 type Row = Prisma.QuoteGetPayload<{
   include: { events: true; sale: { select: { id: true } } };
 }>;
-function dto(row: Row): QuoteDTO {
+async function dto(
+  row: Row,
+  tx: Prisma.TransactionClient = db,
+): Promise<QuoteDTO> {
+  const input = row.input as QuoteDraftInput;
   return {
     id: row.id,
     number: `ORC-${String(row.sequence).padStart(6, "0")}`,
@@ -37,7 +50,13 @@ function dto(row: Row): QuoteDTO {
       todaySaoPaulo(new Date()),
     ),
     version: row.version,
-    input: row.input as QuoteDraftInput,
+    input: {
+      ...input,
+      ...(input.items
+        ? { items: await readLineItems(tx, { quoteId: row.id }, input.items) }
+        : {}),
+    },
+    costs: await readDocumentCosts(tx, { quoteId: row.id }, row.costRevisionId),
     totals: row.totals as unknown as DocumentTotals | null,
     snapshot: row.snapshot as unknown as DocumentSnapshot | null,
     events: row.events.map((e) => ({
@@ -66,7 +85,9 @@ async function lock(tx: Prisma.TransactionClient, id: string) {
   await tx.$queryRaw`SELECT id FROM "Quote" WHERE id=${id} FOR UPDATE`;
 }
 export async function getQuote(_actor: Actor, id: string) {
-  return dto(await row(db, id));
+  return db.$transaction(async (tx) => dto(await row(tx, id), tx), {
+    isolationLevel: "RepeatableRead",
+  });
 }
 export async function saveQuote(
   actor: Actor,
@@ -74,17 +95,34 @@ export async function saveQuote(
   raw: unknown,
 ): Promise<QuoteDTO> {
   const parsed = quoteDraftSchema
-    .extend({ expectedVersion: z.number().int().positive().optional() })
+    .extend({
+      expectedVersion: z.number().int().positive().optional(),
+      costBindings: costBindingsSchema.optional(),
+    })
     .parse(raw);
-  const { expectedVersion, ...input } = parsed;
+  const { expectedVersion, costBindings, ...input } = parsed;
   return db.$transaction(async (tx) => {
+    let previousRevisionId: string | null = null;
     if (id) {
       await lock(tx, id);
       const old = await row(tx, id);
+      previousRevisionId = old.costRevisionId;
       if (old.version !== expectedVersion) throw conflict();
       if (old.status !== "RASCUNHO")
         throw new AppError("CONFLICT", "Reabra o orçamento antes de editar.");
     }
+    const previous = await readDocumentCosts(
+      tx,
+      { quoteId: id ?? "" },
+      previousRevisionId,
+    );
+    if (input.items)
+      input.items = prepareLineItems(input.items, !!previous?.bindings.length);
+    else if (previous?.bindings.length)
+      throw new AppError(
+        "CONFLICT",
+        "Atualize o documento para preservar os itens e suas estimativas.",
+      );
     if (
       input.customerId &&
       !(await tx.customer.findFirst({
@@ -114,13 +152,22 @@ export async function saveQuote(
     if (input.items)
       await tx.quoteItem.createMany({
         data: input.items.map((i, position) => ({
-          ...i,
+          ...itemColumns(i, position),
           quoteId: q.id,
           position,
         })),
       });
+    const costRevisionId = await saveDocumentCosts(
+      tx,
+      actor,
+      { quoteId: q.id },
+      input.items ?? [],
+      costBindings,
+      previousRevisionId,
+    );
+    await tx.quote.update({ where: { id: q.id }, data: { costRevisionId } });
     await quoteEvent(tx, actor, q.id, id ? "EDIT" : "CREATE");
-    return dto(await row(tx, q.id));
+    return dto(await row(tx, q.id), tx);
   });
 }
 export async function transitionQuote(
@@ -137,7 +184,7 @@ export async function transitionQuote(
     await lock(tx, id);
     const q = await row(tx, id);
     if (q.version !== expectedVersion) throw conflict();
-    const status = dto(q).status;
+    const status = (await dto(q, tx)).status;
     let data: Prisma.QuoteUpdateInput = { version: { increment: 1 } };
     if (action === "ISSUE") {
       if (status !== "RASCUNHO") throw conflict();
@@ -153,6 +200,7 @@ export async function transitionQuote(
           "VALIDATION",
           "A validade não pode estar no passado.",
         );
+      await freezeDocumentCosts(tx, q.costRevisionId);
       const { snapshot, logo } = await createDocumentSnapshot(
         tx,
         input,
@@ -193,7 +241,7 @@ export async function transitionQuote(
     }
     await tx.quote.update({ where: { id }, data });
     await quoteEvent(tx, actor, id, action);
-    return dto(await row(tx, id));
+    return dto(await row(tx, id), tx);
   });
 }
 export const quoteFilterSchema = paginationSchema.extend({
@@ -257,5 +305,10 @@ export async function listQuotes(
     ],
     { isolationLevel: "RepeatableRead" },
   );
-  return { items: rows.map(dto), total, page: f.page, pageSize: f.pageSize };
+  return {
+    items: await Promise.all(rows.map((row) => dto(row))),
+    total,
+    page: f.page,
+    pageSize: f.pageSize,
+  };
 }

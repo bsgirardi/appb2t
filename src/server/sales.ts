@@ -1,3 +1,12 @@
+import {
+  readDocumentCosts,
+  readLineItems,
+  prepareLineItems,
+  itemColumns,
+  saveDocumentCosts,
+  freezeDocumentCosts,
+  copyQuoteCostsToSale,
+} from "./pricing/document-costs";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { createHash } from "node:crypto";
@@ -12,7 +21,11 @@ import type {
   SaleDTO,
   SaleStatus,
 } from "@/domain/commerce/types";
-import { documentSchema, civilDateSchema } from "@/domain/commerce/validation";
+import {
+  documentSchema,
+  civilDateSchema,
+  costBindingsSchema,
+} from "@/domain/commerce/validation";
 import { calculateDocumentTotals } from "@/domain/commerce/totals";
 import { validateInstallments } from "@/domain/commerce/installments";
 import {
@@ -62,7 +75,15 @@ async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
     quoteId: s.quoteId,
     status: s.status,
     version: s.version,
-    document: s.document as unknown as DocumentInput,
+    document: {
+      ...(s.document as unknown as DocumentInput),
+      items: await readLineItems(
+        tx,
+        { saleId: id },
+        (s.document as unknown as DocumentInput).items,
+      ),
+    },
+    costs: await readDocumentCosts(tx, { saleId: id }, s.costRevisionId),
     totals: s.totals as unknown as DocumentTotals,
     snapshot: s.snapshot as unknown as DocumentSnapshot | null,
     installments: s.installments.map((i) => ({
@@ -95,8 +116,11 @@ export async function saveSaleDraft(
   id: string | undefined,
   raw: unknown,
 ): Promise<SaleDTO> {
-  const { expectedVersion, ...document } = documentSchema
-    .extend({ expectedVersion: z.number().int().positive().optional() })
+  const { expectedVersion, costBindings, ...document } = documentSchema
+    .extend({
+      expectedVersion: z.number().int().positive().optional(),
+      costBindings: costBindingsSchema.optional(),
+    })
     .parse(raw);
   const totals = calculateDocumentTotals(
     document.items,
@@ -104,12 +128,23 @@ export async function saveSaleDraft(
     document.shipping,
   );
   return db.$transaction(async (tx) => {
+    let previousRevisionId: string | null = null;
     if (id) {
       await lockCommerce(tx, { saleId: id });
       const old = await row(tx, id);
+      previousRevisionId = old.costRevisionId;
       if (old.version !== expectedVersion || old.status !== "RASCUNHO")
         throw conflict();
     }
+    const previous = await readDocumentCosts(
+      tx,
+      { saleId: id ?? "" },
+      previousRevisionId,
+    );
+    document.items = prepareLineItems(
+      document.items,
+      !!previous?.bindings.length,
+    );
     if (
       !(await tx.customer.findFirst({
         where: { id: document.customerId, active: true },
@@ -130,11 +165,20 @@ export async function saveSaleDraft(
     await tx.saleItem.deleteMany({ where: { saleId: sale.id } });
     await tx.saleItem.createMany({
       data: document.items.map((i, position) => ({
-        ...i,
+        ...itemColumns(i, position),
         saleId: sale.id,
         position,
       })),
     });
+    const costRevisionId = await saveDocumentCosts(
+      tx,
+      actor,
+      { saleId: sale.id },
+      document.items,
+      costBindings,
+      previousRevisionId,
+    );
+    await tx.sale.update({ where: { id: sale.id }, data: { costRevisionId } });
     await event(tx, actor, sale.id, id ? "EDIT" : "CREATE");
     return dto(tx, sale.id);
   });
@@ -225,6 +269,7 @@ export async function confirmSale(
           input.shipping,
         );
       const valid = validateInstallments(totals.total, rows);
+      await freezeDocumentCosts(tx, sale.costRevisionId);
       const { snapshot, logo } = await createDocumentSnapshot(
         tx,
         input,
@@ -285,6 +330,7 @@ export async function convertQuote(
       const { validUntil: _validUntil, ...document } =
         q.input as unknown as DocumentInput & { validUntil: string };
       void _validUntil;
+      document.items = await readLineItems(tx, { quoteId }, document.items);
       if (
         !(await tx.customer.findFirst({
           where: { id: document.customerId, active: true },
@@ -324,10 +370,15 @@ export async function convertQuote(
         });
       await tx.saleItem.createMany({
         data: document.items.map((i, position) => ({
-          ...i,
+          ...itemColumns(i, position),
           saleId: sale.id,
           position,
         })),
+      });
+      const costRevisionId = await copyQuoteCostsToSale(tx, quoteId, sale.id);
+      await tx.sale.update({
+        where: { id: sale.id },
+        data: { costRevisionId },
       });
       await installments(tx, sale.id, valid);
       await tx.quote.update({

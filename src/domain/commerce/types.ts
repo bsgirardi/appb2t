@@ -1,3 +1,4 @@
+import type { DocumentCostsDTO } from "@/domain/pricing/types";
 import type { CompanyIdentityDTO } from "@/domain/appearance/types";
 export type QuoteStatus =
   "RASCUNHO" | "ENVIADO" | "APROVADO" | "REJEITADO" | "EXPIRADO" | "CONVERTIDO";
@@ -9,6 +10,7 @@ export type SaleStatus =
   | "ENTREGUE"
   | "CANCELADA";
 export interface DocumentItemInput {
+  lineId?: string;
   productId?: string;
   description: string;
   quantity: number;
@@ -62,6 +64,7 @@ export interface CommerceEventDTO {
   createdAt: string;
 }
 export interface QuoteDTO {
+  costs?: DocumentCostsDTO | null;
   id: string;
   number: string;
   status: QuoteStatus;
@@ -80,6 +83,7 @@ export interface ReceiptSummary {
   overdue: string;
 }
 export interface SaleDTO {
+  costs?: DocumentCostsDTO | null;
   id: string;
   number: string;
   quoteId: string | null;

@@ -47,6 +47,12 @@ export const civilDateSchema = z.string().transform((value, ctx) => {
 });
 export const itemSchema = z
   .object({
+    lineId: z
+      .string()
+      .min(1)
+      .max(100)
+      .regex(/^[a-zA-Z0-9:_-]+$/)
+      .optional(),
     productId: z.string().min(1).max(100).optional(),
     description: z.string().trim().min(1).max(1000),
     quantity: z.number().int().min(1).max(100000),
@@ -74,3 +80,14 @@ export const installmentSchema = z
     dueDate: civilDateSchema,
   })
   .strict();
+
+export const costBindingsSchema = z
+  .array(
+    z
+      .object({
+        lineId: z.string().min(1).max(100),
+        snapshotId: z.string().min(1).max(100),
+      })
+      .strict(),
+  )
+  .max(100);
