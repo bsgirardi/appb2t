@@ -1,6 +1,7 @@
 import { requireActor } from "@/server/auth/guards";
 import { getCalculatorData } from "@/server/catalog-inputs";
-import { CalculatorForm } from "@/components/calculator/calculator-form";
+import { CalculatorWorkspace } from "@/components/pricing/calculator-workspace";
+import { getPricingCatalog } from "@/server/pricing/catalog";
 import { redirect } from "next/navigation";
 import { AppError } from "@/lib/errors";
 export default async function CalculatorPage() {
@@ -10,6 +11,10 @@ export default async function CalculatorPage() {
     throw e;
   });
   return (
-    <CalculatorForm data={await getCalculatorData(actor)} role={actor.role} />
+    <CalculatorWorkspace
+      data={await getCalculatorData(actor)}
+      catalog={await getPricingCatalog(actor)}
+      role={actor.role}
+    />
   );
 }
