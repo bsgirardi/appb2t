@@ -1,4 +1,10 @@
 "use client";
+import type {
+  LineCostBinding,
+  PricingSnapshotDTO,
+} from "@/domain/pricing/types";
+import { lineFingerprint } from "@/domain/pricing/document-costs";
+import { LinePricingControls } from "@/components/pricing/line-pricing-controls";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,12 +31,32 @@ export function QuoteForm({
   products: CommercialProduct[];
   onSaved: (q: QuoteDTO) => void;
   onCancel: () => void;
-  saveDraft?: (draft: QuoteDraftInput) => Promise<void>;
+  saveDraft?: (
+    draft: QuoteDraftInput,
+    costBindings?: { lineId: string; snapshotId: string }[],
+  ) => Promise<void>;
   title?: string;
 }) {
-  const [draft, setDraft] = useState<QuoteDraftInput>(
-    quote?.input ?? { discount: "0.00", shipping: "0.00", internalNotes: "" },
+  const [draft, setDraft] = useState<QuoteDraftInput>(() =>
+    quote
+      ? {
+          ...quote.input,
+          items: quote.input.items?.map((i) => ({
+            ...i,
+            lineId: i.lineId ?? crypto.randomUUID(),
+          })),
+        }
+      : { discount: "0.00", shipping: "0.00", internalNotes: "" },
   );
+  const [bindings, setBindings] = useState<LineCostBinding[]>(
+    quote?.costs?.bindings ?? [],
+  );
+  const [snapshots, setSnapshots] = useState<PricingSnapshotDTO[]>(
+    quote?.costs?.snapshots ?? [],
+  );
+  const outgoing = bindings
+    .filter((b) => draft.items?.some((i) => i.lineId === b.lineId))
+    .map(({ lineId, snapshotId }) => ({ lineId, snapshotId }));
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const pending = useRef(false);
@@ -58,7 +84,7 @@ export function QuoteForm({
     setBusy(true);
     try {
       if (saveDraft) {
-        await saveDraft(parsed.data);
+        await saveDraft(parsed.data, outgoing);
         return;
       }
       onSaved(
@@ -66,6 +92,7 @@ export function QuoteForm({
           quote ? `/api/quotes/${quote.id}` : "/api/quotes",
           {
             ...parsed.data,
+            costBindings: outgoing,
             ...(quote ? { expectedVersion: quote.version } : {}),
           },
           quote ? "PUT" : "POST",
@@ -108,6 +135,41 @@ export function QuoteForm({
       <DocumentItems
         items={draft.items ?? []}
         products={products}
+        renderPrivate={(item, index) => {
+          const binding = bindings.find((b) => b.lineId === item.lineId),
+            snapshot = snapshots.find((s) => s.id === binding?.snapshotId);
+          return (
+            <LinePricingControls
+              item={item}
+              binding={binding}
+              snapshot={snapshot}
+              onAttach={(s) => {
+                setSnapshots((old) => [...old.filter((x) => x.id !== s.id), s]);
+                setBindings((old) => [
+                  ...old.filter((b) => b.lineId !== item.lineId),
+                  {
+                    lineId: item.lineId!,
+                    snapshotId: s.id,
+                    fingerprint: lineFingerprint(item),
+                    state: "VALID",
+                  },
+                ]);
+              }}
+              onRemove={() =>
+                setBindings((old) =>
+                  old.filter((b) => b.lineId !== item.lineId),
+                )
+              }
+              onPrice={(unitPrice) =>
+                update({
+                  items: draft.items!.map((i, j) =>
+                    j === index ? { ...i, unitPrice } : i,
+                  ),
+                })
+              }
+            />
+          );
+        }}
         onChange={(items) =>
           update({ items: items.length ? items : undefined })
         }
@@ -126,6 +188,11 @@ export function QuoteForm({
           onChange={(e) => update({ shipping: e.target.value })}
         />
       </div>
+      {bindings.length > 0 &&
+        ((Number(draft.discount?.replace(",", ".")) || 0) > 0 ||
+          (Number(draft.shipping?.replace(",", ".")) || 0) > 0) && (
+          <p className="no-print">resultado global não apurado nesta etapa</p>
+        )}
       <p>
         <strong>Total: R$ {total}</strong>
       </p>

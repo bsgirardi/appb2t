@@ -1,4 +1,8 @@
 "use client";
+import {
+  DocumentCostSummary,
+  currentBindingState,
+} from "@/components/pricing/line-cost-summary";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +36,11 @@ export function SaleDetail({
     [notes, setNotes] = useState(initial.operationalNotes),
     [delivery, setDelivery] = useState(initial.expectedDeliveryDate ?? "");
   const pending = useRef(false);
+  const stale =
+    sale.costs?.bindings.some((b) => {
+      const item = sale.document.items.find((i) => i.lineId === b.lineId);
+      return !item || currentBindingState(item, b) === "STALE";
+    }) ?? false;
   const next: Partial<Record<SaleStatus, SaleStatus>> = {
     CONFIRMADA: "EM_PRODUCAO",
     EM_PRODUCAO: "PRONTA",
@@ -155,7 +164,7 @@ export function SaleDetail({
           </div>
         </section>
       </Card>
-      {sale.status === "RASCUNHO" && (
+      {sale.status === "RASCUNHO" && !stale && (
         <InstallmentEditor
           total={sale.totals.total}
           onConfirm={async (installments, operationKey) =>
@@ -169,6 +178,12 @@ export function SaleDetail({
           }
         />
       )}
+      <DocumentCostSummary
+        items={sale.document.items}
+        costs={sale.costs}
+        discount={sale.document.discount}
+        shipping={sale.document.shipping}
+      />
       <DocumentPrint
         number={sale.number}
         snapshot={
@@ -194,7 +209,9 @@ export function SaleDetail({
               address: "",
             },
             items: sale.document.items.map((i) => ({
-              ...i,
+              description: i.description,
+              quantity: i.quantity,
+              unitPrice: i.unitPrice,
               name: i.description,
             })),
             issuedAt: sale.createdAt,

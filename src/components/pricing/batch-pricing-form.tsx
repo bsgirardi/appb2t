@@ -40,19 +40,25 @@ export function BatchPricingForm({
   initialInput,
   onApply,
   applyLabel = "Aplicar estimativa",
+  fixedQuantity,
 }: {
   catalog: PricingCatalogDTO;
   initialInput?: PricingV2Input;
   onApply: (request: PricingRequest) => Promise<void>;
   applyLabel?: string;
+  fixedQuantity?: number;
 }) {
   const [current, setCurrent] = useState(catalog),
     [review, setReview] = useState<PricingCatalogDTO | null>(null);
-  const [draft, setDraft] = useState<PricingRequest>(() =>
+  const [draftState, setDraft] = useState<PricingRequest>(() =>
     initialInput
       ? requestFromInput(initialInput, catalog.settings?.version ?? 1)
       : initial(catalog),
   );
+  const draft =
+    fixedQuantity === undefined
+      ? draftState
+      : { ...draftState, quantity: fixedQuantity };
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [touched, setTouched] = useState(!!initialInput);
@@ -151,6 +157,7 @@ export function BatchPricingForm({
           </Label>
           <Field
             label="Quantidade do lote"
+            readOnly={fixedQuantity !== undefined}
             type="number"
             min={1}
             max={100000}
@@ -581,10 +588,12 @@ export function BatchPricingForm({
         {result && input ? (
           <>
             <PricingResult input={input} result={result} />
-            <PricingScenarios
-              input={input}
-              onSelect={(quantity) => patch({ quantity })}
-            />
+            {fixedQuantity === undefined && (
+              <PricingScenarios
+                input={input}
+                onSelect={(quantity) => patch({ quantity })}
+              />
+            )}
           </>
         ) : (
           touched && (

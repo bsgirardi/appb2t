@@ -1,4 +1,6 @@
 "use client";
+import type { ReactNode } from "react";
+import { duplicateDocumentItem } from "@/domain/pricing/document-costs";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -10,10 +12,12 @@ export function DocumentItems({
   items,
   products,
   onChange,
+  renderPrivate,
 }: {
   items: DocumentItemInput[];
   products: CommercialProduct[];
   onChange: (items: DocumentItemInput[]) => void;
+  renderPrivate?: (item: DocumentItemInput, index: number) => ReactNode;
 }) {
   function update(index: number, patch: Partial<DocumentItemInput>) {
     onChange(
@@ -29,7 +33,7 @@ export function DocumentItems({
           negociado se necessário.
         </p>
         {items.map((item, index) => (
-          <fieldset key={index} className="commerce-item">
+          <fieldset key={item.lineId ?? index} className="commerce-item">
             <legend>Item {index + 1}</legend>
             <Label>
               Produto
@@ -89,6 +93,33 @@ export function DocumentItems({
                 onChange={(e) => update(index, { unitPrice: e.target.value })}
               />
             </Label>
+            {renderPrivate?.(item, index)}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={items.length >= 100}
+              onClick={() =>
+                onChange([
+                  ...items.slice(0, index + 1),
+                  duplicateDocumentItem(item),
+                  ...items.slice(index + 1),
+                ])
+              }
+            >
+              Duplicar item {index + 1}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={index === 0}
+              onClick={() => {
+                const next = [...items];
+                [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                onChange(next);
+              }}
+            >
+              Subir item {index + 1}
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -109,7 +140,12 @@ export function DocumentItems({
           onClick={() =>
             onChange([
               ...items,
-              { description: "", quantity: 1, unitPrice: "" },
+              {
+                lineId: crypto.randomUUID(),
+                description: "",
+                quantity: 1,
+                unitPrice: "",
+              },
             ])
           }
         >

@@ -25,6 +25,7 @@ export function SaleForm({
         status: "RASCUNHO",
         version: sale.version,
         input: sale.document,
+        costs: sale.costs,
         totals: sale.totals,
         snapshot: null,
         events: sale.events,
@@ -40,7 +41,7 @@ export function SaleForm({
       title={sale ? "Editar venda" : "Nova venda"}
       onSaved={() => {}}
       onCancel={onCancel}
-      saveDraft={async (draft) => {
+      saveDraft={async (draft, costBindings) => {
         const parsed = documentSchema.safeParse(draft);
         if (!parsed.success)
           throw new Error(
@@ -51,6 +52,7 @@ export function SaleForm({
             sale ? `/api/sales/${sale.id}` : "/api/sales",
             {
               ...parsed.data,
+              costBindings,
               ...(sale ? { expectedVersion: sale.version } : {}),
             },
             sale ? "PUT" : "POST",

@@ -1,4 +1,8 @@
 "use client";
+import {
+  DocumentCostSummary,
+  currentBindingState,
+} from "@/components/pricing/line-cost-summary";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -27,6 +31,11 @@ export function QuoteDetail({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const stale =
+    quote.costs?.bindings.some((b) => {
+      const item = quote.input.items?.find((i) => i.lineId === b.lineId);
+      return !item || currentBindingState(item, b) === "STALE";
+    }) ?? false;
   async function transition(action: string) {
     if (pending.current) return;
     pending.current = true;
@@ -73,7 +82,7 @@ export function QuoteDetail({
               variant="default"
               size="sm"
               className=""
-              disabled={busy}
+              disabled={busy || stale}
               onClick={() => transition("ISSUE")}
             >
               Emitir orçamento
@@ -152,6 +161,12 @@ export function QuoteDetail({
           }}
         />
       )}
+      <DocumentCostSummary
+        items={quote.input.items ?? []}
+        costs={quote.costs}
+        discount={quote.input.discount}
+        shipping={quote.input.shipping}
+      />
       {quote.snapshot && quote.totals ? (
         <DocumentPrint
           number={quote.number}
