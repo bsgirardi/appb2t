@@ -1,8 +1,14 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { calculationSchema } from "@/domain/calculation/validation";
+import {
+  storedCalculationSchema,
+  isBatchCalculation,
+} from "@/domain/pricing/product-calculations";
 import { calculate } from "@/domain/calculation/calculate";
-import type { CalculationInput } from "@/domain/calculation/types";
+import type {
+  StoredProductCalculation,
+  PricingSnapshotDTO,
+} from "@/domain/pricing/types";
 import { AppError } from "@/lib/errors";
 import type { ProductInput } from "./types";
 import { commercialShape } from "./commercial";
@@ -50,7 +56,7 @@ export const productSchema = z
     description: z.string().trim().min(1).max(5000),
     paymentTerms: z.string().trim().min(1).max(1000),
     active: z.boolean(),
-    calculation: calculationSchema,
+    calculation: storedCalculationSchema,
     materialId: z.string().min(1).max(100).nullable().optional(),
     printerId: z.string().min(1).max(100).nullable().optional(),
   })
@@ -64,11 +70,20 @@ export const productStateSchema = z
 export function validateProduct(input: unknown): ProductInput {
   return productSchema.parse(input);
 }
-export function suggestedProductPrice(calculation: CalculationInput): string {
-  const price = new Decimal(calculate(calculation).sale).toDecimalPlaces(
-    2,
-    Decimal.ROUND_HALF_UP,
-  );
+export function suggestedProductPrice(
+  calculation: StoredProductCalculation,
+  snapshot?: PricingSnapshotDTO,
+): string {
+  if (
+    isBatchCalculation(calculation) &&
+    snapshot?.id !== calculation.snapshotId
+  )
+    throw new AppError("VALIDATION", "Carregue a memória de custo do produto.");
+  const price = new Decimal(
+    isBatchCalculation(calculation)
+      ? snapshot!.result.offeredUnitPrice
+      : calculate(calculation).sale,
+  ).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
   if (price.gt("9999999999999999.99"))
     throw new AppError(
       "VALIDATION",

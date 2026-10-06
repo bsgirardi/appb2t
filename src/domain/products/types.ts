@@ -1,4 +1,7 @@
-import type { CalculationInput } from "@/domain/calculation/types";
+import type {
+  StoredProductCalculation,
+  PricingSnapshotDTO,
+} from "@/domain/pricing/types";
 import type { CommercialFields } from "./commercial";
 export type ImageSelection = { id: string } | { uploadKey: string };
 export interface ProductImageDTO {
@@ -16,7 +19,7 @@ export interface ProductInput extends CommercialFields {
   description: string;
   paymentTerms: string;
   active: boolean;
-  calculation: CalculationInput;
+  calculation: StoredProductCalculation;
   materialId?: string | null;
   printerId?: string | null;
 }
@@ -34,4 +37,5 @@ export interface PublicProductDTO extends CommercialFields {
 export interface ProductDTO
   extends PublicProductDTO, Omit<ProductInput, "images"> {
   version: number;
+  pricingSnapshot?: PricingSnapshotDTO;
 }

@@ -8,6 +8,12 @@ import {
   productStateSchema,
 } from "@/domain/products/validation";
 import { validateCalculation } from "@/domain/calculation/validation";
+import {
+  storedCalculationSchema,
+  isBatchCalculation,
+} from "@/domain/pricing/product-calculations";
+import { getPricingSnapshot } from "./pricing/estimates";
+import { recordProductCalculationRevision } from "./pricing/product-calculations";
 import type {
   ProductInput,
   ProductDTO,
@@ -79,12 +85,14 @@ function publicDTO(
     imageUrl: `/api/products/${row.id}/image`,
   };
 }
-function dto(
+async function dto(
   row: Product & {
     images: { id: string; position: number }[];
     collections: { collectionId: string }[];
   },
-): ProductDTO {
+  tx: Prisma.TransactionClient = db,
+): Promise<ProductDTO> {
+  const calculation = storedCalculationSchema.parse(row.calculation);
   return {
     ...publicDTO(row),
     active: row.active,
@@ -92,7 +100,12 @@ function dto(
     version: row.version,
     materialId: row.materialId,
     printerId: row.printerId,
-    calculation: validateCalculation(row.calculation),
+    calculation,
+    ...(isBatchCalculation(calculation)
+      ? {
+          pricingSnapshot: await getPricingSnapshot(tx, calculation.snapshotId),
+        }
+      : {}),
   };
 }
 async function references(
@@ -111,6 +124,12 @@ async function references(
       "VALIDATION",
       "Este código de produto já está em uso. Informe outro código.",
     );
+  if (isBatchCalculation(input.calculation)) {
+    const snapshot = await getPricingSnapshot(tx, input.calculation.snapshotId);
+    input.materialId = null;
+    input.printerId = snapshot.input.printer.ref.id;
+    return;
+  }
   for (const key of ["materialId", "printerId"] as const) {
     const id = input[key];
     if (!id) continue;
@@ -122,6 +141,7 @@ async function references(
     if (
       old?.[key] === id &&
       old &&
+      !isBatchCalculation(storedCalculationSchema.parse(old.calculation)) &&
       validateCalculation(old.calculation).technology ===
         input.calculation.technology
     )
@@ -211,12 +231,12 @@ export async function createProduct(
   raw: unknown,
   uploads: Record<string, NormalizedImage> = {},
 ): Promise<ProductDTO> {
-  const input = validateProduct(raw),
-    data = dataFor(input);
+  const input = validateProduct(raw);
   validateImages(input.images, uploads, []);
   return db.$transaction(async (tx) => {
     await lockCatalog(tx);
     await references(tx, input);
+    const data = dataFor(input);
     const row = await tx.product.create({
       data: {
         ...data,
@@ -238,8 +258,7 @@ export async function updateProduct(
   raw: unknown,
   uploads: Record<string, NormalizedImage> = {},
 ): Promise<ProductDTO> {
-  const { expectedVersion, ...input } = updateProductSchema.parse(raw),
-    data = dataFor(input);
+  const { expectedVersion, ...input } = updateProductSchema.parse(raw);
   return db.$transaction(async (tx) => {
     await lockCatalog(tx);
     const old = await tx.product.findUnique({
@@ -253,6 +272,12 @@ export async function updateProduct(
       old.images.map((i) => i.id),
     );
     await references(tx, input, old);
+    const data = dataFor(input);
+    if (
+      JSON.stringify(storedCalculationSchema.parse(old.calculation)) !==
+      JSON.stringify(input.calculation)
+    )
+      await recordProductCalculationRevision(tx, _actor, old);
     const updated = await tx.product.updateMany({
       where: { id, version: expectedVersion },
       data: { ...data, version: { increment: 1 } },
@@ -291,12 +316,14 @@ export async function setProductActive(
 }
 export async function listProducts(_actor: Actor): Promise<ProductDTO[]> {
   void _actor;
-  return (
-    await db.product.findMany({
-      include: imageInclude,
-      orderBy: [{ active: "desc" }, { name: "asc" }],
-    })
-  ).map(dto);
+  return Promise.all(
+    (
+      await db.product.findMany({
+        include: imageInclude,
+        orderBy: [{ active: "desc" }, { name: "asc" }],
+      })
+    ).map((row) => dto(row)),
+  );
 }
 export async function getProduct(
   _actor: Actor,

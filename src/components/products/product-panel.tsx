@@ -14,23 +14,31 @@ import { api } from "@/lib/client-api";
 import { Notice } from "@/components/ui/field";
 import { ProductForm } from "./product-form";
 import type { CollectionDTO } from "@/domain/collections/types";
+import type { PricingSnapshotDTO } from "@/domain/pricing/types";
 export function ProductPanel({
   products,
   data,
   role,
   collections = [],
+  initialPricingSnapshot,
 }: {
   products: ProductDTO[];
   data: CalculatorData;
   role: "ADMIN" | "OPERATOR";
   collections?: CollectionDTO[];
+  initialPricingSnapshot?: PricingSnapshotDTO;
 }) {
   const [rows, setRows] = useState(products),
-    [editing, setEditing] = useState<ProductDTO | "new" | null>(null),
+    [editing, setEditing] = useState<ProductDTO | "new" | null>(
+      initialPricingSnapshot ? "new" : null,
+    ),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const [incomingSnapshot, setIncomingSnapshot] = useState(
+    initialPricingSnapshot,
+  );
   function replace(row: ProductDTO) {
     setRows((previous) =>
       [...previous.filter((p) => p.id !== row.id), row].sort(
@@ -100,10 +108,17 @@ export function ProductPanel({
           data={data}
           role={role}
           collections={collections}
-          onCancel={() => setEditing(null)}
+          initialPricingSnapshot={
+            editing === "new" ? incomingSnapshot : undefined
+          }
+          onCancel={() => {
+            setEditing(null);
+            setIncomingSnapshot(undefined);
+          }}
           onSaved={(row) => {
             replace(row);
             setEditing(null);
+            setIncomingSnapshot(undefined);
             setMessage("Produto salvo com sucesso.");
           }}
         />
@@ -157,7 +172,7 @@ export function ProductPanel({
             <div className="product-admin-list">
               {rows.map((row) => (
                 <Card key={row.id} asChild>
-                  <article  className="product-admin-row">
+                  <article className="product-admin-row">
                     <Image
                       src={`${row.imageUrl}?v=${row.version}`}
                       alt={row.name}

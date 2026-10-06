@@ -14,8 +14,8 @@ it("uses the existing formula and rounds the published price", () => {
     validateProduct({
       ...productInput,
       calculation: { ...calculation, consumption: "100,5" },
-    }).calculation.consumption,
-  ).toBe("100.5");
+    }).calculation,
+  ).toMatchObject({ consumption: "100.5" });
 });
 it.each([
   { name: "" },

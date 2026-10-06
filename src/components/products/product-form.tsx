@@ -36,6 +36,10 @@ import { ProductCalculationFields } from "./product-calculation-fields";
 import { ProductCommercialEditor } from "./product-commercial-editor";
 import { availabilityLabels } from "@/domain/products/commercial";
 import type { CollectionDTO } from "@/domain/collections/types";
+import { isBatchCalculation } from "@/domain/pricing/product-calculations";
+import type { PricingSnapshotDTO } from "@/domain/pricing/types";
+import { ProductPricingEditor } from "@/components/pricing/product-pricing-editor";
+import { PricingResult } from "@/components/pricing/pricing-result";
 function initialCalculation(data: CalculatorData): CalculationInput {
   return {
     technology: "FDM",
@@ -69,6 +73,7 @@ export function ProductForm({
   collections = [],
   onSaved,
   onCancel,
+  initialPricingSnapshot,
 }: {
   product?: ProductDTO;
   data: CalculatorData;
@@ -76,9 +81,15 @@ export function ProductForm({
   collections?: CollectionDTO[];
   onSaved: (product: ProductDTO) => void;
   onCancel: () => void;
+  initialPricingSnapshot?: PricingSnapshotDTO;
 }) {
   const [snapshot, setSnapshot] = useState(data);
-  const [draft, setDraft] = useState<ProductInput>(() =>
+  const [pricingSnapshot, setPricingSnapshot] = useState<
+    PricingSnapshotDTO | undefined
+  >(product?.pricingSnapshot ?? initialPricingSnapshot);
+  const [draft, setDraft] = useState<
+    Omit<ProductInput, "calculation"> & { calculation: CalculationInput }
+  >(() =>
     product
       ? {
           name: product.name,
@@ -97,7 +108,9 @@ export function ProductForm({
           description: product.description,
           paymentTerms: product.paymentTerms,
           active: product.active,
-          calculation: product.calculation,
+          calculation: isBatchCalculation(product.calculation)
+            ? initialCalculation(data)
+            : product.calculation,
           materialId: product.materialId,
           printerId: product.printerId,
         }
@@ -130,6 +143,7 @@ export function ProductForm({
     ),
     printers = snapshot.printers.filter((p) => p.technology === technology);
   const ready =
+    !!pricingSnapshot ||
     !!product ||
     (!!snapshot.settings && materials.length > 0 && printers.length > 0);
   let result: CalculationResult | null = null;
@@ -192,6 +206,13 @@ export function ProductForm({
     setInfo("");
     const parsed = productSchema.safeParse({
       ...draft,
+      ...(pricingSnapshot
+        ? {
+            calculation: { version: 2, snapshotId: pricingSnapshot.id },
+            materialId: null,
+            printerId: pricingSnapshot.input.printer.ref.id,
+          }
+        : {}),
       images: gallery.map((i) =>
         i.id ? { id: i.id } : { uploadKey: i.uploadKey },
       ),
@@ -324,12 +345,16 @@ export function ProductForm({
                   size="sm"
                   type="button"
                   className=""
-                  disabled={!result}
+                  disabled={!result && !pricingSnapshot}
                   onClick={() => {
                     try {
                       setDraft({
                         ...draft,
-                        price: suggestedProductPrice(draft.calculation),
+                        price: parseFinalPrice(
+                          pricingSnapshot
+                            ? pricingSnapshot.result.offeredUnitPrice
+                            : suggestedProductPrice(draft.calculation),
+                        ),
                       });
                     } catch {
                       setError(
@@ -482,131 +507,160 @@ export function ProductForm({
                 )}
               </details>
             </Card>
-            <Card asChild>
-              <section className="">
-                <h2>Referências da calculadora</h2>
-                <p className="muted">
-                  Escolha os cadastros para preencher os custos. Você pode
-                  ajustar cada valor abaixo.
-                </p>
-                <div className="field">
-                  <Label htmlFor="product-technology">Tecnologia</Label>
-                  <NativeSelect
-                    id="product-technology"
-                    value={technology}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        materialId: null,
-                        printerId: null,
-                        calculation: {
-                          ...draft.calculation,
-                          technology: e.target.value as Technology,
-                        },
-                      })
-                    }
-                  >
-                    <option value="FDM">Filamento · FDM</option>
-                    <option value="RESIN">Resina · SLA / DLP</option>
-                  </NativeSelect>
-                </div>
-                <div className="form-grid">
-                  <div className="field">
-                    <Label htmlFor="product-material">
-                      Material de referência
-                    </Label>
-                    <NativeSelect
-                      id="product-material"
-                      value={draft.materialId ?? ""}
-                      onChange={(e) => {
-                        const material = materials.find(
-                          (m) => m.id === e.target.value,
-                        );
-                        setDraft({
-                          ...draft,
-                          materialId: material?.id ?? null,
-                          calculation: {
-                            ...draft.calculation,
-                            materialPrice:
-                              material?.price ??
-                              draft.calculation.materialPrice,
-                          },
-                        });
-                      }}
-                    >
-                      <option value="">Selecione o material</option>
-                      {draft.materialId &&
-                        !materials.some((m) => m.id === draft.materialId) && (
-                          <option value={draft.materialId}>
-                            Referência indisponível · parâmetros salvos
-                          </option>
-                        )}
-                      {materials.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name}
-                        </option>
-                      ))}
-                    </NativeSelect>
-                  </div>
-                  <div className="field">
-                    <Label htmlFor="product-printer">
-                      Impressora de referência
-                    </Label>
-                    <NativeSelect
-                      id="product-printer"
-                      value={draft.printerId ?? ""}
-                      onChange={(e) => {
-                        const printer = printers.find(
-                          (p) => p.id === e.target.value,
-                        );
-                        setDraft({
-                          ...draft,
-                          printerId: printer?.id ?? null,
-                          calculation: {
-                            ...draft.calculation,
-                            printer: printer
-                              ? { ...printer }
-                              : draft.calculation.printer,
-                          },
-                        });
-                      }}
-                    >
-                      <option value="">Selecione a impressora</option>
-                      {draft.printerId &&
-                        !printers.some((p) => p.id === draft.printerId) && (
-                          <option value={draft.printerId}>
-                            Referência indisponível · parâmetros salvos
-                          </option>
-                        )}
-                      {printers.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </NativeSelect>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  type="button"
-                  className=""
-                  onClick={refresh}
-                >
-                  <RefreshCw size={16} />
-                  {refreshing ? "Carregando…" : "Carregar configurações atuais"}
-                </Button>
-              </section>
-            </Card>
-            <ProductCalculationFields
-              value={draft.calculation}
-              onChange={(calculation) => setDraft({ ...draft, calculation })}
+            <ProductPricingEditor
+              snapshot={pricingSnapshot}
+              legacy={draft.calculation}
+              materialId={draft.materialId}
+              printerId={draft.printerId}
+              onApply={(next) => {
+                setPricingSnapshot(next);
+                setInfo(
+                  "Ficha por lote aplicada ao rascunho. O preço final foi preservado.",
+                );
+              }}
             />
+            {!pricingSnapshot && (
+              <>
+                <Card asChild>
+                  <section className="">
+                    <h2>Referências da calculadora</h2>
+                    <p className="muted">
+                      Escolha os cadastros para preencher os custos. Você pode
+                      ajustar cada valor abaixo.
+                    </p>
+                    <div className="field">
+                      <Label htmlFor="product-technology">Tecnologia</Label>
+                      <NativeSelect
+                        id="product-technology"
+                        value={technology}
+                        onChange={(e) =>
+                          setDraft({
+                            ...draft,
+                            materialId: null,
+                            printerId: null,
+                            calculation: {
+                              ...draft.calculation,
+                              technology: e.target.value as Technology,
+                            },
+                          })
+                        }
+                      >
+                        <option value="FDM">Filamento · FDM</option>
+                        <option value="RESIN">Resina · SLA / DLP</option>
+                      </NativeSelect>
+                    </div>
+                    <div className="form-grid">
+                      <div className="field">
+                        <Label htmlFor="product-material">
+                          Material de referência
+                        </Label>
+                        <NativeSelect
+                          id="product-material"
+                          value={draft.materialId ?? ""}
+                          onChange={(e) => {
+                            const material = materials.find(
+                              (m) => m.id === e.target.value,
+                            );
+                            setDraft({
+                              ...draft,
+                              materialId: material?.id ?? null,
+                              calculation: {
+                                ...draft.calculation,
+                                materialPrice:
+                                  material?.price ??
+                                  draft.calculation.materialPrice,
+                              },
+                            });
+                          }}
+                        >
+                          <option value="">Selecione o material</option>
+                          {draft.materialId &&
+                            !materials.some(
+                              (m) => m.id === draft.materialId,
+                            ) && (
+                              <option value={draft.materialId}>
+                                Referência indisponível · parâmetros salvos
+                              </option>
+                            )}
+                          {materials.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
+                          ))}
+                        </NativeSelect>
+                      </div>
+                      <div className="field">
+                        <Label htmlFor="product-printer">
+                          Impressora de referência
+                        </Label>
+                        <NativeSelect
+                          id="product-printer"
+                          value={draft.printerId ?? ""}
+                          onChange={(e) => {
+                            const printer = printers.find(
+                              (p) => p.id === e.target.value,
+                            );
+                            setDraft({
+                              ...draft,
+                              printerId: printer?.id ?? null,
+                              calculation: {
+                                ...draft.calculation,
+                                printer: printer
+                                  ? { ...printer }
+                                  : draft.calculation.printer,
+                              },
+                            });
+                          }}
+                        >
+                          <option value="">Selecione a impressora</option>
+                          {draft.printerId &&
+                            !printers.some((p) => p.id === draft.printerId) && (
+                              <option value={draft.printerId}>
+                                Referência indisponível · parâmetros salvos
+                              </option>
+                            )}
+                          {printers.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </NativeSelect>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      type="button"
+                      className=""
+                      onClick={refresh}
+                    >
+                      <RefreshCw size={16} />
+                      {refreshing
+                        ? "Carregando…"
+                        : "Carregar configurações atuais"}
+                    </Button>
+                  </section>
+                </Card>
+                <ProductCalculationFields
+                  value={draft.calculation}
+                  onChange={(calculation) =>
+                    setDraft({ ...draft, calculation })
+                  }
+                />
+              </>
+            )}
           </div>
-          <CostBreakdown
-            result={result}
-            markup={draft.calculation.settings.markupPercent || "0"}
-          />
+          {pricingSnapshot ? (
+            <PricingResult
+              input={pricingSnapshot.input}
+              result={pricingSnapshot.result}
+            />
+          ) : (
+            <CostBreakdown
+              result={result}
+              markup={draft.calculation.settings.markupPercent || "0"}
+            />
+          )}
         </div>
       </fieldset>
       <div className="product-actions">
