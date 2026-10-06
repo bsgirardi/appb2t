@@ -137,7 +137,7 @@ export function BatchPricingForm({
       {error && <Notice>{error}</Notice>}
       <fieldset disabled={busy} className="space-y-5">
         <div className="form-grid">
-          <Label>
+          <Label className="grid gap-2">
             Tecnologia
             <NativeSelect
               value={draft.technology}
@@ -174,7 +174,7 @@ export function BatchPricingForm({
           {draft.materials.map((m, i) => (
             <fieldset className="rounded-lg border p-3 space-y-3" key={i}>
               <legend>Material {i + 1}</legend>
-              <Label>
+              <Label className="grid gap-2">
                 Material {i + 1}
                 <NativeSelect
                   value={m.ref.id}
@@ -262,7 +262,7 @@ export function BatchPricingForm({
         </section>
         <section className="space-y-3">
           <h3>Máquina e trabalho</h3>
-          <Label>
+          <Label className="grid gap-2">
             Impressora
             <NativeSelect
               value={draft.printerRef.id}
@@ -312,7 +312,7 @@ export function BatchPricingForm({
           <h3>Complementos e embalagem</h3>
           {draft.extras.map((x, i) => (
             <div className="rounded-lg border p-3 space-y-2" key={i}>
-              <Label>
+              <Label className="grid gap-2">
                 Complemento {i + 1}
                 <NativeSelect
                   value={x.ref.id}
@@ -354,7 +354,7 @@ export function BatchPricingForm({
                     })
                   }
                 />
-                <Label>
+                <Label className="grid gap-2">
                   Aplicação {i + 1}
                   <NativeSelect
                     value={x.basis}
@@ -401,7 +401,7 @@ export function BatchPricingForm({
           </Button>
         </section>
         <div className="form-grid">
-          <Label>
+          <Label className="grid gap-2">
             Canal de venda
             <NativeSelect
               value={draft.channelRef.id}
@@ -420,7 +420,7 @@ export function BatchPricingForm({
               ))}
             </NativeSelect>
           </Label>
-          <Label>
+          <Label className="grid gap-2">
             Modalidade de preço
             <NativeSelect
               value={draft.mode}

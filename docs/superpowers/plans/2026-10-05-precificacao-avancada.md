@@ -1,6 +1,6 @@
 # B2T Precificação Avançada Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Método preservado: execução direta. Este plano aguarda revisão do usuário antes da implementação.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking. Método preservado: execução direta. Plano aprovado pelo usuário; execução direta autorizada.
 
 **Goal:** Acrescentar precificação por lote, parâmetros administrativos e memória privada de custos em produtos, orçamentos e vendas, preservando o motor e os documentos antigos.
 
@@ -86,10 +86,10 @@ Novas rotas privadas com `endpoint`, `jsonBody`, proteção de origem e guardas 
 
 **Interfaces:** consome serviços atuais, sem novos contratos; produz registro de evidências e fixtures de documentos V1 para a migração.
 
-- [ ] Preparar checkout isolado e banco exclusivo usando `docker compose -f compose.test.yaml up -d --wait`. No processo de teste, definir `DATABASE_URL=postgresql://b2t_test:b2t_test_local_only@127.0.0.1:55432/b2t_test` e `APP_URL=http://localhost:3000`; não alterar .env da instalação real. Executar `npm run db:migrate` somente após verificar host/porta/database.
-- [ ] Rodar `npm run test:unit` e `npm run test:integration`; registrar resultados reais. Para falhas, reproduzir causa e delimitar correção antes de alterar contratos. Não escrever teste redundante se caso já está coberto.
-- [ ] Cobrir lacunas de U0 com nomes `keepsNegotiatedPriceAfterCostChange`, `convertsQuoteOnce`, `preservesReceiptAfterCostRead`, `deniesOperatorSettingsWrite`; expectativas: preço negociado idêntico, uma venda/um conjunto de recebíveis e nenhuma escrita financeira ao consultar custo. Rodar `npx vitest run tests/integration/pricing-baseline.test.ts` se criado; esperado PASS para comportamento já existente.
-- [ ] Registrar SHA de origem, comandos, cenário e limites em VALIDACAO. Commit apenas evidências e eventuais testes novos: `test: document pricing upgrade baseline`. Nenhuma etapa de U0 autoriza declarar testes não executados como aprovados.
+- [x] Preparar checkout isolado e banco exclusivo usando `docker compose -f compose.test.yaml up -d --wait`. No processo de teste, definir `DATABASE_URL=postgresql://b2t_test:b2t_test_local_only@127.0.0.1:55432/b2t_test` e `APP_URL=http://localhost:3000`; não alterar .env da instalação real. Executar `npm run db:migrate` somente após verificar host/porta/database.
+- [x] Rodar `npm run test:unit` e `npm run test:integration`; registrar resultados reais. Para falhas, reproduzir causa e delimitar correção antes de alterar contratos. Não escrever teste redundante se caso já está coberto.
+- [x] Cobrir lacunas de U0 com nomes `keepsNegotiatedPriceAfterCostChange`, `convertsQuoteOnce`, `preservesReceiptAfterCostRead`, `deniesOperatorSettingsWrite`; expectativas: preço negociado idêntico, uma venda/um conjunto de recebíveis e nenhuma escrita financeira ao consultar custo. Rodar `npx vitest run tests/integration/pricing-baseline.test.ts` se criado; esperado PASS para comportamento já existente.
+- [x] Registrar SHA de origem, comandos, cenário e limites em VALIDACAO. Commit apenas evidências e eventuais testes novos: `test: document pricing upgrade baseline`. Nenhuma etapa de U0 autoriza declarar testes não executados como aprovados.
 
 ## Task 2 — motor decimal V2 e cenários
 
@@ -97,7 +97,7 @@ Novas rotas privadas com `endpoint`, `jsonBody`, proteção de origem e guardas 
 
 **Interfaces:** produz os contratos de domínio acima; `buildV2Draft(legacy:CalculationInput): {quantity:1,legacy:CalculationInput,pending:string[]}` copia dados físicos e lista obrigatoriamente manutenção, acabamento, fixação e parâmetros V2 para revisão; não cria PricingSnapshot.
 
-- [ ] Criar fixture exatamente igual à seção 5 da especificação; escrever primeiro as asserções:
+- [x] Criar fixture exatamente igual à seção 5 da especificação; escrever primeiro as asserções:
 
 ```ts
 expect(calculateV2(lotFixture)).toMatchObject({
@@ -112,10 +112,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 });
 ```
 
-- [ ] Adicionar `resinUsesMlWithoutDensity`, `zeroPriceHasNullMargin`, `rejectsMarginDenominatorZero`, `keepsFixedWasteOnce`, `rejectsIncompatibleUnits`, `rejectsOverflowAfterQuantity`, `doesNotMutateScenarioInput`, `conversionRequiresReview`. Testar todos os limites globais em tabela, inclusive 20/21 materiais, 30/31 extras, 10/11 cenários, consumo zero, tempo zero e tarifa ausente versus zero. No modo preço zero: receita 0, contribuição −54,2 e margem null.
-- [ ] Rodar `npx vitest run tests/unit/pricing-v2.test.ts tests/unit/pricing-validation.test.ts tests/unit/pricing-scenarios.test.ts tests/unit/pricing-conversion.test.ts`; esperado FAIL por funções ausentes antes da implementação.
-- [ ] Implementar contratos e fórmulas da especificação, normalizando strings com Decimal.toFixed() sem zeros finais obrigatórios nos intermediários; preços de exibição/contrato comercial usam formatação em 2 casas. Verificar limite monetário pelo valor absoluto, também para resultados negativos.
-- [ ] Repetir esses testes e `npx vitest run tests/unit/calculation.test.ts`; esperado PASS, inclusive V1 total 16.064 e sale 48.192. Commit `feat: add versioned batch pricing engine` com somente arquivos da tarefa.
+- [x] Adicionar `resinUsesMlWithoutDensity`, `zeroPriceHasNullMargin`, `rejectsMarginDenominatorZero`, `keepsFixedWasteOnce`, `rejectsIncompatibleUnits`, `rejectsOverflowAfterQuantity`, `doesNotMutateScenarioInput`, `conversionRequiresReview`. Testar todos os limites globais em tabela, inclusive 20/21 materiais, 30/31 extras, 10/11 cenários, consumo zero, tempo zero e tarifa ausente versus zero. No modo preço zero: receita 0, contribuição −54,2 e margem null.
+- [x] Rodar `npx vitest run tests/unit/pricing-v2.test.ts tests/unit/pricing-validation.test.ts tests/unit/pricing-scenarios.test.ts tests/unit/pricing-conversion.test.ts`; esperado FAIL por funções ausentes antes da implementação.
+- [x] Implementar contratos e fórmulas da especificação, normalizando strings com Decimal.toFixed() sem zeros finais obrigatórios nos intermediários; preços de exibição/contrato comercial usam formatação em 2 casas. Verificar limite monetário pelo valor absoluto, também para resultados negativos.
+- [x] Repetir esses testes e `npx vitest run tests/unit/calculation.test.ts`; esperado PASS, inclusive V1 total 16.064 e sale 48.192. Commit `feat: add versioned batch pricing engine` com somente arquivos da tarefa.
 
 ## Task 3 — configurações autorizadas e migração aditiva
 
@@ -123,10 +123,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** `getPricingCatalog(actor:Actor):Promise<PricingCatalogDTO>`; `savePricingSettings(actor:Actor,raw:unknown)`, `savePricingChannel(actor:Actor,raw:unknown)`, `savePricingExtra(actor:Actor,raw:unknown)` retornam DTO com versão. Catálogo inclui materiais/impressoras dos serviços atuais e apenas perfis/referências ativos; administração pode consultar inativos por filtro explícito.
 
-- [ ] Escrever testes `settingsAreInitiallyMissing`, `operatorCannotSetTariffs`, `competingUpdateConflicts`, `inactiveReferenceCannotStartEstimate`, `migrationPreservesV1Documents`. Assert: catálogo settings null até cadastro; tentativa OPERATOR não grava; dois updates da mesma versão produzem um sucesso; custos não aparecem em nenhuma rota pública. Fixture de migração inclui produto e orçamento V1 emitido e venda confirmada; comparar JSONs/preços/parcelas antes/depois.
-- [ ] Rodar `npx vitest run tests/integration/pricing-catalog.test.ts tests/integration/pricing-http.test.ts`; esperado FAIL antes dos serviços. Ensaio de migração usa banco `b2t_test` dedicado e serializado, nunca rollback no banco da aplicação.
-- [ ] Implementar schema/migração e serviços transacionais com assertAdmin e update por versão. Atualizar limpeza do banco de teste para novas tabelas preservando a guarda de host/database. Não inserir tarifas, saldo inicial ou estimativas automáticas.
-- [ ] Aplicar migração em base V1 de teste, gerar Prisma e repetir testes. Confirmar tabelas novas, constraints e JSONs antigos idênticos. Validar instalação vazia também. Commit `feat: add protected pricing catalogs and storage`.
+- [x] Escrever testes `settingsAreInitiallyMissing`, `operatorCannotSetTariffs`, `competingUpdateConflicts`, `inactiveReferenceCannotStartEstimate`, `migrationPreservesV1Documents`. Assert: catálogo settings null até cadastro; tentativa OPERATOR não grava; dois updates da mesma versão produzem um sucesso; custos não aparecem em nenhuma rota pública. Fixture de migração inclui produto e orçamento V1 emitido e venda confirmada; comparar JSONs/preços/parcelas antes/depois.
+- [x] Rodar `npx vitest run tests/integration/pricing-catalog.test.ts tests/integration/pricing-http.test.ts`; esperado FAIL antes dos serviços. Ensaio de migração usa banco `b2t_test` dedicado e serializado, nunca rollback no banco da aplicação.
+- [x] Implementar schema/migração e serviços transacionais com assertAdmin e update por versão. Atualizar limpeza do banco de teste para novas tabelas preservando a guarda de host/database. Não inserir tarifas, saldo inicial ou estimativas automáticas.
+- [x] Aplicar migração em base V1 de teste, gerar Prisma e repetir testes. Confirmar tabelas novas, constraints e JSONs antigos idênticos. Validar instalação vazia também. Commit `feat: add protected pricing catalogs and storage`.
 
 ## Task 4 — estimativas imutáveis calculadas pelo servidor
 
@@ -134,10 +134,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** `resolvePricingRequest(tx:Prisma.TransactionClient,actor:Actor,raw:unknown):Promise<PricingV2Input>`; `createPricingEstimate(actor:Actor,raw:unknown,operationKey:string):Promise<PricingSnapshotDTO>`; `getPricingSnapshot(tx:Prisma.TransactionClient,id:string):Promise<PricingSnapshotDTO>`. Key UUID, unique por ator; hash canônico inclui todo o request de cálculo.
 
-- [ ] Escrever `rejectsForgedMaterialPrice`, `staleSettingsRequireReview`, `replayReturnsSameSnapshot`, `keyReuseWithDifferentRequestConflicts`, `snapshotSurvivesReferenceDeactivation`. Assert: preços/resultados extras enviados são rejeitados; expectedVersion antigo conflita; replay idêntico retorna mesmo id; outro corpo com mesma key conflita; leitura histórica mantém valores.
-- [ ] Rodar `npx vitest run tests/integration/pricing-estimates.test.ts tests/integration/pricing-http.test.ts`; esperado FAIL.
-- [ ] Resolver referências em transação coerente, comparar versões esperadas, calcular V2 e inserir snapshot. Congelar valores efetivamente lidos; uma mudança posterior não altera snapshot. Em conflito de unicidade concorrente, recuperar snapshot vencedor e comparar hash. Snapshot é salvo somente ao aplicar/anexar, não a cada tecla da simulação. Sempre validar sessão, origem, payload e role.
-- [ ] Testar concorrência com duas requisições idênticas: count snapshot = 1, count recebível adicional = 0. Reexecutar testes com PASS e commit `feat: persist authoritative pricing snapshots`.
+- [x] Escrever `rejectsForgedMaterialPrice`, `staleSettingsRequireReview`, `replayReturnsSameSnapshot`, `keyReuseWithDifferentRequestConflicts`, `snapshotSurvivesReferenceDeactivation`. Assert: preços/resultados extras enviados são rejeitados; expectedVersion antigo conflita; replay idêntico retorna mesmo id; outro corpo com mesma key conflita; leitura histórica mantém valores.
+- [x] Rodar `npx vitest run tests/integration/pricing-estimates.test.ts tests/integration/pricing-http.test.ts`; esperado FAIL.
+- [x] Resolver referências em transação coerente, comparar versões esperadas, calcular V2 e inserir snapshot. Congelar valores efetivamente lidos; uma mudança posterior não altera snapshot. Em conflito de unicidade concorrente, recuperar snapshot vencedor e comparar hash. Snapshot é salvo somente ao aplicar/anexar, não a cada tecla da simulação. Sempre validar sessão, origem, payload e role.
+- [x] Testar concorrência com duas requisições idênticas: count snapshot = 1, count recebível adicional = 0. Reexecutar testes com PASS e commit `feat: persist authoritative pricing snapshots`.
 
 ## Task 5 — tela da calculadora e parâmetros V2
 
@@ -145,10 +145,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** `BatchPricingForm({catalog,initialInput?,onApply}: {catalog:PricingCatalogDTO,initialInput?:PricingV2Input,onApply:(request:PricingRequest)=>Promise<void>})`; `PricingResult({input,result})`; `PricingSettingsPanel({initialCatalog})`. `createEstimate(request:PricingRequest,key:string):Promise<PricingSnapshotDTO>` em pricing-client usa tratamento HTTP atual.
 
-- [ ] Escrever testes de interface: `modeDoesNotCarryMarkupIntoMargin` usa markup 200 e margem padrão 30; `invalidInputHidesOldPrice` não exibe resultado vigente após apagar consumo; `refreshShowsDiffBeforeReplacing` cancela troca e mantém tarifa anterior; `operatorCannotEditRates`; `zeroPriceCanBeSimulated`; `scenarioDoesNotPublishPrice`.
-- [ ] Rodar `npx vitest run tests/unit/pricing-ui.test.tsx tests/unit/pricing-settings-ui.test.tsx`; esperado FAIL.
-- [ ] Implementar fluxo e textos da seção 7 da especificação com controles existentes. Padrões dos modos independentes; formulário local retém inputs em erro/conflito. Sem configuração, manter V1 e indicar campos pendentes. Componente avançado compartilhado entre calculadora/produto/documento, sem copiar fórmulas para UI.
-- [ ] Rodar testes e verificar manualmente em 390 px e desktop: teclado, labels, listas de materiais/extras, aviso de premissas de lote, resumo de contribuição/depreciação e edição ADMIN. Capturar evidências locais; não alterar dados reais. Commit `feat: add batch pricing and administration screens`.
+- [x] Escrever testes de interface: `modeDoesNotCarryMarkupIntoMargin` usa markup 200 e margem padrão 30; `invalidInputHidesOldPrice` não exibe resultado vigente após apagar consumo; `refreshShowsDiffBeforeReplacing` cancela troca e mantém tarifa anterior; `operatorCannotEditRates`; `zeroPriceCanBeSimulated`; `scenarioDoesNotPublishPrice`.
+- [x] Rodar `npx vitest run tests/unit/pricing-ui.test.tsx tests/unit/pricing-settings-ui.test.tsx`; esperado FAIL.
+- [x] Implementar fluxo e textos da seção 7 da especificação com controles existentes. Padrões dos modos independentes; formulário local retém inputs em erro/conflito. Sem configuração, manter V1 e indicar campos pendentes. Componente avançado compartilhado entre calculadora/produto/documento, sem copiar fórmulas para UI.
+- [x] Rodar testes e verificar manualmente em 390 px e desktop: teclado, labels, listas de materiais/extras, aviso de premissas de lote, resumo de contribuição/depreciação e edição ADMIN. Capturar evidências locais; não alterar dados reais. Commit `feat: add batch pricing and administration screens`.
 
 ## Task 6 — produtos V1/V2 e histórico da ficha
 
@@ -156,10 +156,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** `resolveProductCalculation(tx,actor,stored:StoredProductCalculation):Promise<{stored:StoredProductCalculation,snapshot:PricingSnapshotDTO|null}>`; leitura V2 retorna snapshot privado; gravação nunca aceita JSON arbitrário de resultado. `recordProductCalculationRevision(tx,actor,oldProduct):Promise<void>` arquiva versão anterior apenas se mudar calculation.
 
-- [ ] Escrever `readsLegacyWithoutWriting`, `priceDoesNotFollowNewCost`, `convertsLegacyOnlyAfterReview`, `rejectsZeroSuggestedPublication`, `inactiveHistoricalReferencesRemainReadable`, `archivesOldCalculationOnce`. Assert: versão/id/JSON V1 sem mudança em GET; preço comercial inalterado ao aplicar custo; snapshot correto reaberto; preço zero gera erro ao aplicar como preço final, sem criar produto inválido.
-- [ ] Rodar `npx vitest run tests/integration/product-pricing.test.ts tests/unit/product-pricing-ui.test.tsx`; esperado FAIL.
-- [ ] Adaptar schemas e DTOs privados à união. Na conversão, mostrar pendências retornadas por buildV2Draft; após preenchimento, criar snapshot e aplicar ao rascunho. Gravar arquivo histórico e update de produto na mesma transação/version guard. Remover pressuposto de um material nos consumidores V2; manter compatibilidade V1 e projections públicas explícitas.
-- [ ] Testar GET catálogo/consulta de preços e JSON-LD sem snapshot, tarifas ou custos; repetir testes de produto/galeria/formulário existentes afetados. Todos PASS. Commit `feat: preserve product pricing versions and history`.
+- [x] Escrever `readsLegacyWithoutWriting`, `priceDoesNotFollowNewCost`, `convertsLegacyOnlyAfterReview`, `rejectsZeroSuggestedPublication`, `inactiveHistoricalReferencesRemainReadable`, `archivesOldCalculationOnce`. Assert: versão/id/JSON V1 sem mudança em GET; preço comercial inalterado ao aplicar custo; snapshot correto reaberto; preço zero gera erro ao aplicar como preço final, sem criar produto inválido.
+- [x] Rodar `npx vitest run tests/integration/product-pricing.test.ts tests/unit/product-pricing-ui.test.tsx`; esperado FAIL.
+- [x] Adaptar schemas e DTOs privados à união. Na conversão, mostrar pendências retornadas por buildV2Draft; após preenchimento, criar snapshot e aplicar ao rascunho. Gravar arquivo histórico e update de produto na mesma transação/version guard. Remover pressuposto de um material nos consumidores V2; manter compatibilidade V1 e projections públicas explícitas.
+- [x] Testar GET catálogo/consulta de preços e JSON-LD sem snapshot, tarifas ou custos; repetir testes de produto/galeria/formulário existentes afetados. Todos PASS. Commit `feat: preserve product pricing versions and history`.
 
 ## Task 7 — identidade de linha e memória comercial privada
 
@@ -167,13 +167,13 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** DTOs privados ganham `costs:{revisionId:string,bindings:LineCostBinding[],snapshots:PricingSnapshotDTO[]}|null`. Save raw aceita `costBindings?:{lineId,snapshotId}[]` separado de `input`/`document` comercial. `saveDocumentCosts(tx,actor,owner:{quoteId:string}|{saleId:string},items:DocumentItemInput[],bindings:{lineId:string,snapshotId:string}[],previousRevisionId:string|null):Promise<string>` cria revisão sob o mesmo lock/version da gravação comercial. `freezeDocumentCosts(tx,revisionId:string|null):Promise<void>`; `copyQuoteCostsToSale(tx,quoteId:string,saleId:string):Promise<string|null>` copia congelado com origem.
 
-- [ ] Escrever `reorderKeepsCostsOnLine`, `duplicateGetsNewIdentity`, `quantityChangeMarksStale`, `priceChangeKeepsCost`, `issuedCostDoesNotFollowTariffs`, `reopenPreservesFrozenRevision`, `concurrentConvertCopiesOnce`. Fingerprint alterado no mesmo snapshot → STALE; não permitir que cliente troque fingerprint para forçar VALID.
-- [ ] Testar legado sem lineId: DTO deriva lineKey da linha correspondente por position, sem escrever em leitura; próximo save grava chave estável. Duplicação deve produzir UUID novo e exigir nova anexação de custo. Emitidos permanecem sem custo retroativo.
-- [ ] Rodar `npx vitest run tests/unit/document-costs.test.ts tests/integration/commerce-pricing.test.ts`; esperado FAIL.
-- [ ] Implementar lineKeys independentemente do id recriado das tabelas de itens. Rejeitar chaves duplicadas no mesmo documento; manter associação somente por lineId. Campos privados nunca entram em snapshot comercial; construir projeção explícita em createDocumentSnapshot, sem spread de objetos contendo custos.
-- [ ] Projetar explicitamente as colunas ao gravar QuoteItem/SaleItem: `lineId` do DTO vira `lineKey`, não é repassado por spread ao Prisma. Na conversão, manter as chaves de origem dentro do novo documento. Se um consumidor antigo omitir chaves em documento que já tenha bindings, rejeitar o salvamento com pedido de atualização em vez de tentar associar por posição. Testar esse envio e confirmar custo anterior preservado.
-- [ ] Ao emitir/confirmar, bloquear bindings STALE até recalcular ou remover explicitamente a estimativa; linhas sem estimativa continuam permitidas. Congelar a revisão corrente. Reabertura conserva revisão congelada e usa cópia editável na próxima alteração. Conversão copia custos na transação/idempotência existentes, sem executar cálculo atual ou criar nova cobrança adicional. Revisões pertencentes a outro documento são recusadas.
-- [ ] Reexecutar testes e casos de quotes/sales/finance-concurrency. Assert duas conversões simultâneas → uma venda, uma revisão de custo de destino, parcelas únicas e valores financeiros anteriores preservados. Commit `feat: attach immutable costs to commercial lines`.
+- [x] Escrever `reorderKeepsCostsOnLine`, `duplicateGetsNewIdentity`, `quantityChangeMarksStale`, `priceChangeKeepsCost`, `issuedCostDoesNotFollowTariffs`, `reopenPreservesFrozenRevision`, `concurrentConvertCopiesOnce`. Fingerprint alterado no mesmo snapshot → STALE; não permitir que cliente troque fingerprint para forçar VALID.
+- [x] Testar legado sem lineId: DTO deriva lineKey da linha correspondente por position, sem escrever em leitura; próximo save grava chave estável. Duplicação deve produzir UUID novo e exigir nova anexação de custo. Emitidos permanecem sem custo retroativo.
+- [x] Rodar `npx vitest run tests/unit/document-costs.test.ts tests/integration/commerce-pricing.test.ts`; esperado FAIL.
+- [x] Implementar lineKeys independentemente do id recriado das tabelas de itens. Rejeitar chaves duplicadas no mesmo documento; manter associação somente por lineId. Campos privados nunca entram em snapshot comercial; construir projeção explícita em createDocumentSnapshot, sem spread de objetos contendo custos.
+- [x] Projetar explicitamente as colunas ao gravar QuoteItem/SaleItem: `lineId` do DTO vira `lineKey`, não é repassado por spread ao Prisma. Na conversão, manter as chaves de origem dentro do novo documento. Se um consumidor antigo omitir chaves em documento que já tenha bindings, rejeitar o salvamento com pedido de atualização em vez de tentar associar por posição. Testar esse envio e confirmar custo anterior preservado.
+- [x] Ao emitir/confirmar, bloquear bindings STALE até recalcular ou remover explicitamente a estimativa; linhas sem estimativa continuam permitidas. Congelar a revisão corrente. Reabertura conserva revisão congelada e usa cópia editável na próxima alteração. Conversão copia custos na transação/idempotência existentes, sem executar cálculo atual ou criar nova cobrança adicional. Revisões pertencentes a outro documento são recusadas.
+- [x] Reexecutar testes e casos de quotes/sales/finance-concurrency. Assert duas conversões simultâneas → uma venda, uma revisão de custo de destino, parcelas únicas e valores financeiros anteriores preservados. Commit `feat: attach immutable costs to commercial lines`.
 
 ## Task 8 — anexar custo e comparar preço no fluxo comercial
 
@@ -181,10 +181,10 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 **Interfaces:** `LinePricingEditor({item,catalog,onAttach}:{item:DocumentItemInput,catalog:PricingCatalogDTO,onAttach:(snapshot:PricingSnapshotDTO)=>void})`; `LineCostSummary({item,snapshot,state})` usa compareLineCost. DocumentItems usa lineId como key e prop opcional para controles privados, preservando consumidor comercial sem custo.
 
-- [ ] Escrever `attachDoesNotChangeNegotiatedPrice`, `suggestionRequiresExplicitAction`, `discountHidesGlobalProfitClaim`, `staleCostBlocksIssueUntilRemovedOrRecalculated`, `printNeverReceivesPrivateCosts`, `networkFailureKeepsDraft`. Com desconto/frete > 0 exibir exatamente a ressalva da especificação; não somar lucro do pedido nem inferir custo zero em linha sem memória.
-- [ ] Rodar `npx vitest run tests/unit/commerce-pricing-ui.test.tsx tests/unit/quote-ui.test.tsx tests/unit/sales-ui.test.tsx`; esperado FAIL para casos novos.
-- [ ] Integrar editor compartilhado. Guardar bindings fora do objeto comercial, gerar lineId ao adicionar, preservar ao reordenar, novo UUID ao duplicar. Quantidade do editor corresponde ao item; confirmar vínculo de descrição/referência ao anexar. Recalcular usa parâmetros atuais com revisão explícita; somente leitura histórica não exige referência ativa.
-- [ ] Garantir limites de corpo por rota definidos acima, mantendo limite do produto multipart e proteções atuais. Nenhum aumento irrestrito de endpoint. Repetir testes HTTP de emissão/conversão e impressão; revisar DOM de impressão e HTML público sem strings de tarifas/custos. Commit `feat: expose private cost comparison in quote and sale flows`.
+- [x] Escrever `attachDoesNotChangeNegotiatedPrice`, `suggestionRequiresExplicitAction`, `discountHidesGlobalProfitClaim`, `staleCostBlocksIssueUntilRemovedOrRecalculated`, `printNeverReceivesPrivateCosts`, `networkFailureKeepsDraft`. Com desconto/frete > 0 exibir exatamente a ressalva da especificação; não somar lucro do pedido nem inferir custo zero em linha sem memória.
+- [x] Rodar `npx vitest run tests/unit/commerce-pricing-ui.test.tsx tests/unit/quote-ui.test.tsx tests/unit/sales-ui.test.tsx`; esperado FAIL para casos novos.
+- [x] Integrar editor compartilhado. Guardar bindings fora do objeto comercial, gerar lineId ao adicionar, preservar ao reordenar, novo UUID ao duplicar. Quantidade do editor corresponde ao item; confirmar vínculo de descrição/referência ao anexar. Recalcular usa parâmetros atuais com revisão explícita; somente leitura histórica não exige referência ativa.
+- [x] Garantir limites de corpo por rota definidos acima, mantendo limite do produto multipart e proteções atuais. Nenhum aumento irrestrito de endpoint. Repetir testes HTTP de emissão/conversão e impressão; revisar DOM de impressão e HTML público sem strings de tarifas/custos. Commit `feat: expose private cost comparison in quote and sale flows`.
 
 ## Task 9 — validação integrada e preparação da entrega
 
@@ -214,4 +214,4 @@ expect(calculateScenarios(lotFixture,[20])[0].result).toMatchObject({
 
 Dependência recomendada: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9. Cada commit inclui somente arquivos da tarefa, após testes respectivos. Não usar git add indiscriminado sobre arquivos de outros trabalhos.
 
-Revisão interna do plano: contratos de cálculo, resolução autoritativa, memória imutável, privacidade e compatibilidade estão conectados às tarefas e testes. Não há testes executados nem implementação nesta etapa de planejamento. Próximo passo: revisão do plano pelo usuário, mantendo execução direta.
+Execução: tarefas 1–8 implementadas e verificadas. Evidências de aceitação e resultados reais em docs/VALIDACAO.md. A tarefa 9 concentra a revisão independente final e verificações de entrega.

@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { CalculatorData } from "@/domain/calculation/types";
 import type { PricingCatalogDTO } from "@/domain/pricing/types";
@@ -15,6 +16,7 @@ export function CalculatorWorkspace({
   role: "ADMIN" | "OPERATOR";
   catalog: PricingCatalogDTO;
 }) {
+  const router = useRouter();
   const [mode, setMode] = useState<"legacy" | "batch">("legacy");
   const operation = useRef<{ body: string; key: string } | null>(null);
   return (
@@ -49,7 +51,7 @@ export function CalculatorWorkspace({
               request,
               operation.current!.key,
             );
-            window.location.assign(
+            router.push(
               `/produtos?pricingSnapshot=${encodeURIComponent(snapshot.id)}`,
             );
           }}

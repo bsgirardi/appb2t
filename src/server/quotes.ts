@@ -118,7 +118,7 @@ export async function saveQuote(
     );
     if (input.items)
       input.items = prepareLineItems(input.items, !!previous?.bindings.length);
-    else if (previous?.bindings.length)
+    else if (previous?.bindings.length && costBindings?.length !== 0)
       throw new AppError(
         "CONFLICT",
         "Atualize o documento para preservar os itens e suas estimativas.",

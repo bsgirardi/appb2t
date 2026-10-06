@@ -252,3 +252,19 @@ A lista de orçamento usa cartões com a capa atual de cada produto, etapas de r
 A interface usa componentes locais shadcn/ui em `src/components/ui`, tokens B2T em `src/app/design.css` e densidade administrativa em `src/app/admin.css`, sem Preflight global. Use Input, NativeSelect, Checkbox, Textarea, Field/Notice, Button, Card e Table nos novos consumidores. Preserve os contratos nativos de formulário e use as exceções de impressão documentadas.
 
 Cobertura, adaptações do registro e evidências: [revisão shadcn](docs/identidade/REVISAO-SHADCN.md).
+
+## Precificação por lote (V2)
+
+A calculadora mantém o **Cálculo original** e oferece **Cálculo por lote**, com múltiplos materiais, tempos fixos e por peça, preparação/acabamento, complementos, taxas do canal e três modalidades de preço. FDM usa gramas por kg; resina usa ml por litro. Cenários de quantidade conservam as premissas de lote; ocupação da placa e fatiamento precisam ser revisados pela equipe.
+
+Em **Configurações → Configurar precificação por lote**, ADMIN cadastra tarifas, markup/margem padrão, canais e complementos. Não há valores presumidos: informe zero explicitamente quando um custo não existir. OPERATOR pode simular e aplicar estimativas, mas não alterar tarifas. Mudanças de cadastros exigem revisão de referências antes de um novo cálculo.
+
+**Aplicar estimativa** preserva a ficha de custo e mantém o preço comercial. **Usar preço sugerido** é uma ação separada; preço zero pode ser simulado, mas não publicado como preço comercial. Produtos V1 continuam disponíveis; a conversão é explícita e arquiva a ficha anterior na mesma transação do salvamento.
+
+Orçamentos e vendas em rascunho podem receber uma estimativa por item. Reordenar preserva a associação; duplicar cria uma nova identidade sem copiar o vínculo de custo. Alterações de quantidade, descrição ou produto deixam o vínculo desatualizado: recalcule ou remova a estimativa antes de emitir/confirmar. Um item sem estimativa permanece identificado como sem custo. Emissão e confirmação congelam a memória; reabertura e nova edição conservam revisões anteriores. Conversão copia a memória e sua origem sem recalcular tarifas ou duplicar recebíveis.
+
+A contribuição por item é anterior a descontos e frete. Quando existem, a tela informa **resultado global não apurado nesta etapa**. Trabalho representa custo da atividade; depreciação é apresentada separadamente. Estimativas não geram estoque ou movimentos financeiros. Catálogo público e impressão comercial não recebem fichas privadas.
+
+### Implantação e recuperação V2
+
+A migração `202610050001_pricing_v2` é aditiva, sem tarifas iniciais nem regravação de documentos legados. Antes de produção: obter backup recuperável, ensaiar sua restauração numa base isolada e aplicar as migrações com uma versão da aplicação compatível com V2. Após gravar dados V2, não fazer downgrade cego para uma aplicação que só lê V1. Recuperar por correção para frente ou restauração coordenada de aplicação e banco; não apagar tabelas em uso. Esta entrega de desenvolvimento não executa a implantação em produção.

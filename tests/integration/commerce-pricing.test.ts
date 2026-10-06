@@ -226,3 +226,16 @@ it("direct sales freeze costs and reject foreign previous revisions", async () =
     ).frozenAt,
   ).not.toBeNull();
 });
+it("explicitly removing all items and costs leaves a valid partial draft", async () => {
+  const f = await fixture();
+  const q = await saveQuote(f.actor, undefined, {
+    ...f.input,
+    costBindings: f.costBindings,
+  });
+  const cleared = await saveQuote(f.actor, q.id, {
+    expectedVersion: q.version,
+    costBindings: [],
+  });
+  expect(cleared.input.items).toBeUndefined();
+  expect(cleared.costs?.bindings).toEqual([]);
+});
