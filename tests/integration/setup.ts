@@ -11,6 +11,9 @@ export function setupDatabase() {
     )
       throw new Error("Tests require local b2t_test database");
     await db.$executeRawUnsafe(
+      'TRUNCATE "DocumentCostRevision", "ProductCalculationRevision", "PricingSnapshot", "PricingExtra", "PricingChannel", "PricingSettings" CASCADE',
+    );
+    await db.$executeRawUnsafe(
       'TRUNCATE "FinanceCommand", "FinancialAuditEvent", "CashMovement", "Settlement", "FinancialTransfer", "FinancialAccount", "FinancialCategory", "CommercialOperation", "FinancialEntry", "Sale", "CommerceEvent", "DocumentLogo", "Quote", "Customer", "CompanyAppearance", "Collection", "ProductImage", "Product", "Session", "CalculationSettings", "LoginAttempt", "Material", "Printer", "User" CASCADE',
     );
     await db.financialCategory.create({

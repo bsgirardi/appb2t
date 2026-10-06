@@ -189,6 +189,7 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ costRevisionId String?
  sale Sale?
  id String @id @default(cuid())
  sequence Int @unique @default(autoincrement())
@@ -208,6 +209,7 @@ model Quote {
  @@index([status,createdAt])
 }
 model QuoteItem {
+ lineKey String?
  id String @id @default(cuid())
  quoteId String
  quote Quote @relation(fields:[quoteId],references:[id],onDelete:Cascade)
@@ -217,6 +219,7 @@ model QuoteItem {
  quantity Int
  unitPrice Decimal @db.Decimal(18,2)
  @@unique([quoteId,position])
+ @@unique([quoteId,lineKey])
 }
 model CommerceEvent {
  saleId String?
@@ -253,6 +256,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ costRevisionId String?
  id String @id @default(cuid())
  sequence Int @unique @default(autoincrement())
  quoteId String? @unique
@@ -275,6 +279,7 @@ model Sale {
  @@index([status,createdAt])
 }
 model SaleItem {
+ lineKey String?
  id String @id @default(cuid())
  saleId String
  sale Sale @relation(fields:[saleId],references:[id],onDelete:Cascade)
@@ -284,6 +289,7 @@ model SaleItem {
  quantity Int
  unitPrice Decimal @db.Decimal(18,2)
  @@unique([saleId,position])
+ @@unique([saleId,lineKey])
 }
 model SaleInstallment {
  id String @id @default(cuid())
@@ -451,4 +457,64 @@ model ProductImage {
   bytes Bytes
   mimeType String
   @@unique([productId, position])
+}
+
+model PricingSettings {
+  id Int @id @default(1)
+  values Json
+  version Int @default(1)
+  updatedAt DateTime @updatedAt
+  updatedById String
+}
+model PricingChannel {
+  id String @id @default(cuid())
+  name String
+  fees Json
+  fixedCost Decimal @db.Decimal(18,6)
+  active Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model PricingExtra {
+  id String @id @default(cuid())
+  name String
+  unitCost Decimal @db.Decimal(18,6)
+  active Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model PricingSnapshot {
+  id String @id @default(cuid())
+  input Json
+  result Json
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  operationKey String
+  requestHash String
+  @@unique([actorId,operationKey])
+}
+model ProductCalculationRevision {
+  id String @id @default(cuid())
+  productId String
+  productVersion Int
+  calculation Json
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  @@unique([productId,productVersion])
+}
+model DocumentCostRevision {
+  id String @id @default(cuid())
+  quoteId String?
+  saleId String?
+  revision Int
+  bindings Json
+  frozenAt DateTime?
+  sourceRevisionId String?
+  createdAt DateTime @default(now())
+  @@unique([quoteId,revision])
+  @@unique([saleId,revision])
 }
