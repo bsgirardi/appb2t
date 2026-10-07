@@ -223,6 +223,11 @@ export async function updateEntry(
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
     const old = await entryRow(tx, id);
+    if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
+      throw new AppError(
+        "CONFLICT",
+        "Altere esta obrigação pelo recebimento de compra de origem.",
+      );
     if (old.version !== expectedVersion || old.canceledAt) throw conflict();
     if (old.saleInstallmentId)
       throw new AppError(
@@ -284,6 +289,11 @@ export async function cancelEntry(
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
     const old = await entryRow(tx, id);
+    if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
+      throw new AppError(
+        "CONFLICT",
+        "Altere esta obrigação pelo recebimento de compra de origem.",
+      );
     if (old.version !== expectedVersion || old.canceledAt) throw conflict();
     if (paidFor(old) !== "0.00")
       throw new AppError("CONFLICT", "Estorne as baixas antes de cancelar.");
@@ -418,4 +428,32 @@ export async function getSaleReceiptSummary(
       )
       .toFixed(2),
   };
+}
+export async function createPurchasePayables(
+  tx: Prisma.TransactionClient,
+  actor: Actor,
+  receiptId: string,
+  raw: unknown,
+  rows: InstallmentInput[],
+): Promise<string[]> {
+  assertAdmin(actor);
+  const input = entrySchema.parse(raw);
+  if (input.kind !== "PAYABLE")
+    throw new AppError("VALIDATION", "Compra exige conta a pagar.");
+  await validateReferences(tx, input);
+  const valid = validateInstallments(input.amount, rows),
+    groupId = randomUUID(),
+    ids = [];
+  for (const row of valid) {
+    const created = await insertEntry(
+      tx,
+      actor,
+      { ...input, amount: row.amount, dueDate: row.dueDate },
+      groupId,
+    );
+    ids.push(created.id);
+  }
+  for (const entryId of ids)
+    await tx.receiptFinancialLink.create({ data: { receiptId, entryId } });
+  return ids;
 }

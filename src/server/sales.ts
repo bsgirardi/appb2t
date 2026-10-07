@@ -1,4 +1,8 @@
 import {
+  releaseSaleReservations,
+  assertSaleReservationsResolved,
+} from "./stock/reservations";
+import {
   readDocumentCosts,
   readLineItems,
   prepareLineItems,
@@ -405,6 +409,7 @@ export async function cancelSale(
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
     assertSaleTransition(sale.status, "CANCELADA");
+    await releaseSaleReservations(tx, actor, id);
     const entries = await tx.financialEntry.findMany({
       where: { saleInstallment: { saleId: id } },
       select: { id: true },
@@ -455,6 +460,7 @@ export async function transitionSale(
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
     assertSaleTransition(sale.status, status);
+    if (status === "ENTREGUE") await assertSaleReservationsResolved(tx, id);
     await tx.sale.update({
       where: { id },
       data: { status, version: { increment: 1 } },

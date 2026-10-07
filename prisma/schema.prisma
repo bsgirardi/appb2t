@@ -41,6 +41,7 @@ model LoginAttempt {
   windowStart DateTime @default(now())
 }
 model Material {
+ stockItem StockItem?
   products Product[]
   id String @id @default(cuid())
   name String
@@ -256,6 +257,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ stockReservations StockReservation[]
  costRevisionId String?
  id String @id @default(cuid())
  sequence Int @unique @default(autoincrement())
@@ -302,6 +304,7 @@ model SaleInstallment {
  @@unique([saleId,number])
 }
 model FinancialEntry {
+ receiptLink ReceiptFinancialLink?
  categoryId String?
  category FinancialCategory? @relation(fields:[categoryId],references:[id],onDelete:Restrict)
  groupId String?
@@ -477,6 +480,7 @@ model PricingChannel {
   updatedAt DateTime @updatedAt
 }
 model PricingExtra {
+ stockItem StockItem?
   id String @id @default(cuid())
   name String
   unitCost Decimal @db.Decimal(18,6)
@@ -518,3 +522,177 @@ model DocumentCostRevision {
   @@unique([quoteId,revision])
   @@unique([saleId,revision])
 }
+
+model StockItem {
+  id             String                   @id @default(cuid())
+  name           String
+  unit           String
+  materialId     String?                  @unique
+  material       Material?                @relation(fields: [materialId], references: [id], onDelete: Restrict)
+  extraId        String?                  @unique
+  extra          PricingExtra?            @relation(fields: [extraId], references: [id], onDelete: Restrict)
+  method         String
+  manualUnitCost Decimal?                 @db.Decimal(24, 6)
+  inventoriedAt  DateTime?
+  active         Boolean                  @default(true)
+  version        Int                      @default(1)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  identities     StockIdentity[]
+  movements      StockMovement[]
+  reservations   StockReservation[]
+  receipts       PurchaseReceiptLine[]
+  valuations     StockValuationRevision[]
+}
+
+model StockIdentity {
+  id          String                    @id @default(cuid())
+  itemId      String
+  item        StockItem                 @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  label       String
+  createdAt   DateTime                  @default(now())
+  allocations StockMovementAllocation[]
+
+  @@unique([itemId, label])
+  @@unique([id, itemId])
+}
+
+model StockMovement {
+  id             String                    @id @default(cuid())
+  sequence       Int                       @unique @default(autoincrement())
+  itemId         String
+  item           StockItem                 @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  kind           String
+  quantity       Decimal                   @db.Decimal(24, 6)
+  method         String
+  manualUnitCost Decimal?                  @db.Decimal(24, 6)
+  confirmedValue Decimal?                  @db.Decimal(24, 6)
+  sourceId       String?
+  source         StockMovement?            @relation("StockCorrection", fields: [sourceId], references: [id], onDelete: Restrict)
+  corrections    StockMovement[]           @relation("StockCorrection")
+  actorId        String
+  reason         String                    @default("")
+  effectiveDate  DateTime                  @db.Date
+  createdAt      DateTime                  @default(now())
+  receiptLineId  String?                   @unique
+  receiptLine    PurchaseReceiptLine?      @relation(fields: [receiptLineId], references: [id], onDelete: Restrict)
+  allocations    StockMovementAllocation[]
+
+  @@unique([id, itemId])
+  @@index([itemId, sequence])
+}
+
+model StockMovementAllocation {
+  id         String         @id @default(cuid())
+  movementId String
+  movement   StockMovement  @relation(fields: [movementId], references: [id], onDelete: Restrict)
+  identityId String?
+  identity   StockIdentity? @relation(fields: [identityId], references: [id], onDelete: Restrict)
+  quantity   Decimal        @db.Decimal(24, 6)
+
+  @@index([movementId])
+}
+
+model StockReservation {
+  id        String                  @id @default(cuid())
+  itemId    String
+  item      StockItem               @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  saleId    String
+  sale      Sale                    @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  lineKey   String
+  version   Int                     @default(1)
+  createdAt DateTime                @default(now())
+  events    StockReservationEvent[]
+
+  @@index([saleId, lineKey])
+}
+
+model StockReservationEvent {
+  id            String           @id @default(cuid())
+  reservationId String
+  reservation   StockReservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  kind          String
+  quantity      Decimal          @db.Decimal(24, 6)
+  movementId    String?
+  actorId       String
+  reason        String           @default("")
+  createdAt     DateTime         @default(now())
+
+  @@index([reservationId])
+}
+
+model StockValuationRevision {
+  id          String                     @id @default(cuid())
+  itemId      String
+  item        StockItem                  @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  factsHash   String
+  result      Json
+  createdAt   DateTime                   @default(now())
+  allocations StockValuationAllocation[]
+
+  @@unique([itemId, factsHash])
+}
+
+model StockValuationAllocation {
+  id          String                 @id @default(cuid())
+  revisionId  String
+  revision    StockValuationRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  sourceId    String
+  targetId    String
+  quantity    Decimal                @db.Decimal(24, 6)
+  value       Decimal?               @db.Decimal(24, 6)
+  provisional Boolean
+
+  @@index([revisionId])
+}
+
+model PurchaseReceipt {
+  id            String                 @id @default(cuid())
+  supplier      String
+  document      String                 @default("")
+  status        String                 @default("PENDING")
+  actorId       String
+  confirmedById String?
+  confirmedAt   DateTime?
+  canceledAt    DateTime?
+  effectiveDate DateTime               @db.Date
+  total         Decimal?               @db.Decimal(18, 2)
+  version       Int                    @default(1)
+  createdAt     DateTime               @default(now())
+  lines         PurchaseReceiptLine[]
+  entries       ReceiptFinancialLink[]
+}
+
+model PurchaseReceiptLine {
+  id             String          @id @default(cuid())
+  receiptId      String
+  receipt        PurchaseReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  itemId         String
+  item           StockItem       @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  quantity       Decimal         @db.Decimal(24, 6)
+  confirmedValue Decimal?        @db.Decimal(18, 2)
+  movement       StockMovement?
+
+  @@index([receiptId])
+}
+
+model ReceiptFinancialLink {
+  id        String          @id @default(cuid())
+  receiptId String
+  receipt   PurchaseReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  entryId   String          @unique
+  entry     FinancialEntry  @relation(fields: [entryId], references: [id], onDelete: Restrict)
+  createdAt DateTime        @default(now())
+
+  @@index([receiptId])
+}
+
+model StockCommand {
+  key         String   @id
+  type        String
+  payloadHash String
+  result      Json
+  actorId     String
+  createdAt   DateTime @default(now())
+}
+
