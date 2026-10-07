@@ -113,8 +113,13 @@ export async function confirmReceiptFinance(actor: Actor, raw: unknown) {
         version: { increment: 1 },
       },
     });
-    for (const itemId of new Set(receipt.lines.map((l) => l.itemId)))
+    for (const itemId of new Set(receipt.lines.map((l) => l.itemId))) {
+      await tx.stockItem.update({
+        where: { id: itemId },
+        data: { version: { increment: 1 } },
+      });
       await revalueItem(tx, itemId);
+    }
     return {
       id: receipt.id,
       status: "CONFIRMED",

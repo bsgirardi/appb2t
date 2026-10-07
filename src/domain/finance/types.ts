@@ -34,6 +34,7 @@ export interface TransferDTO {
   movements: MovementDTO[];
 }
 export interface EntryDTO extends FinancialEntryDTO {
+  receiptId?: string | null;
   categoryId: string | null;
   groupId: string | null;
   paidAmount: string;

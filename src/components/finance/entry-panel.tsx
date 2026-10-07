@@ -130,6 +130,16 @@ export function EntryPanel({
               {money(detail.paidAmount)} · Restante:{" "}
               <strong>{money(detail.remainingAmount)}</strong>
             </p>
+            {detail.receiptId && (
+              <p>
+                Origem:{" "}
+                <Link
+                  href={`/estoque?view=receipts&receiptId=${detail.receiptId}#receipt-${detail.receiptId}`}
+                >
+                  Recebimento de compra
+                </Link>
+              </p>
+            )}
             {detail.saleId && (
               <p>
                 Origem:{" "}
@@ -153,7 +163,7 @@ export function EntryPanel({
                   Registrar baixa
                 </Button>
               )}
-              {!detail.saleId && !detail.canceledAt && (
+              {!detail.saleId && !detail.receiptId && !detail.canceledAt && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -166,21 +176,23 @@ export function EntryPanel({
                   Editar lançamento
                 </Button>
               )}
-              {!detail.canceledAt && detail.paidAmount === "0.00" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className=""
-                  onClick={() => {
-                    setMode("cancel");
-                    setReversal(null);
-                  }}
-                >
-                  {detail.saleId
-                    ? "Cancelar venda de origem"
-                    : "Cancelar lançamento"}
-                </Button>
-              )}
+              {!detail.receiptId &&
+                !detail.canceledAt &&
+                detail.paidAmount === "0.00" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=""
+                    onClick={() => {
+                      setMode("cancel");
+                      setReversal(null);
+                    }}
+                  >
+                    {detail.saleId
+                      ? "Cancelar venda de origem"
+                      : "Cancelar lançamento"}
+                  </Button>
+                )}
             </div>
             <h3>Baixas registradas</h3>
             {!detail.settlements.length && <p>Nenhuma baixa registrada.</p>}

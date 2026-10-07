@@ -1,3 +1,4 @@
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
@@ -18,7 +19,7 @@ it("persists valuation once for unchanged facts and keeps prior revisions", asyn
     itemId: item.id,
     quantity: "1000",
     value: "100",
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
     reason: "Contagem",
     operationKey: randomUUID(),
     expectedVersion: 1,

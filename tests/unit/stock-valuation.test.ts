@@ -157,3 +157,44 @@ it("keeps a return dependent on unconfirmed purchase cost until replay", () => {
   expect(r.knownValue).toBe("7.2");
   expect(r.provisional).toBe(false);
 });
+it("changes method only prospectively with an explicit reference", () => {
+  const r = valueLedger([
+    e("a", 1, "RECEIPT", "100", "10"),
+    e("b", 2, "CONSUMPTION", "20", null),
+    e("c", 3, "REVALUE", "0", null, {
+      method: "MANUAL",
+      manualUnitCost: "0.2",
+    }),
+    e("d", 4, "CONSUMPTION", "10", null, {
+      method: "MANUAL",
+      manualUnitCost: "0.2",
+    }),
+  ]);
+  expect(r.allocations.find((a) => a.targetId === "b")?.value).toBe("2");
+  expect(r.allocations.find((a) => a.targetId === "d")?.value).toBe("2");
+  expect(r.physical).toBe("70");
+  expect(r.knownValue).toBe("14");
+});
+it("rejects valuation outside persisted decimal limits", () => {
+  expect(() =>
+    valueLedger([
+      e("a", 1, "OPENING", "999999999999999999", "1", {
+        method: "MANUAL",
+        manualUnitCost: "999999999999999999",
+      }),
+    ]),
+  ).toThrow();
+});
+it("closes rounded cost allocations without losing the final micro-unit", () => {
+  const r = valueLedger([
+    e("a", 1, "RECEIPT", "3", "1"),
+    e("b", 2, "CONSUMPTION", "1", null),
+    e("c", 3, "CONSUMPTION", "1", null),
+    e("d", 4, "CONSUMPTION", "1", null),
+  ]);
+  expect(r.allocations.map((a) => a.value)).toEqual([
+    "0.333333",
+    "0.333334",
+    "0.333333",
+  ]);
+});

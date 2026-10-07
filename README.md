@@ -268,3 +268,26 @@ A contribuição por item é anterior a descontos e frete. Quando existem, a tel
 ### Implantação e recuperação V2
 
 A migração `202610050001_pricing_v2` é aditiva, sem tarifas iniciais nem regravação de documentos legados. Antes de produção: obter backup recuperável, ensaiar sua restauração numa base isolada e aplicar as migrações com uma versão da aplicação compatível com V2. Após gravar dados V2, não fazer downgrade cego para uma aplicação que só lê V1. Recuperar por correção para frente ou restauração coordenada de aplicação e banco; não apagar tabelas em uso. Esta entrega de desenvolvimento não executa a implantação em produção.
+
+## Estoque integrado U2
+
+A área **Estoque** controla materiais e insumos, sem alterar os preços comerciais automaticamente. Habilite o item e registre a contagem inicial (inclusive zero); “Não inventariado” significa que o saldo ainda é desconhecido. FDM usa gramas, resina usa mililitros e insumos podem usar unidades. Formulários convertem kg→g e litro→ml explicitamente.
+
+- **Materiais:** físico, reservado, disponível, identificações opcionais de rolo/frasco/lote e razão imutável. Negativos exigem justificativa, inclusive por identificação.
+- **Recebimentos:** administrador e operador registram a chegada física. O administrador confere valores por linha e gera parcelas a pagar ou vincula um grupo completo existente, inclusive já pago. A conferência não repete a entrada nem realiza pagamento.
+- **Reservas:** na venda confirmada/em produção, consulte materiais e reserve quantidades por linha. Consumir libera a reserva correspondente. Cancelar a venda libera o restante; a entrega exige consumir ou liberar reservas abertas.
+- **Reposição:** lista itens com falta disponível, sem somar novamente reserva e consumo.
+
+O administrador escolhe média ponderada ou referência manual. Compras sem custo conferido mantêm a valorização provisória. Entradas posteriores cobrem déficits por ordem de lançamento; revisões de custo preservam os eventos. A mudança de método exige ausência de pendências, motivo e referência de abertura. **Aplicar referência à calculadora** é uma ação explícita, com valor anterior/novo; não altera produtos ou documentos históricos.
+
+Devolução de consumo referencia a saída. Devolução ao fornecedor referencia a compra e deixa uma pendência financeira: o administrador mantém a dívida justificadamente ou reduz/cancela o principal sem baixa vigente. Pagamentos precisam ser estornados pelo financeiro antes da redução. Cancelar integralmente um recebimento é permitido somente sem movimentos posteriores dependentes, reservas comprometidas ou baixas vigentes.
+
+Em erro de conexão, mantenha o formulário e tente novamente: a chave da operação evita duplicidade. Em conflito de versão, use **Atualizar dados sem apagar rascunho**, revise saldos/valores e reenvie. Para dividir recebimento entre identificações, adicione linhas do mesmo material.
+
+### Publicação e recuperação do estoque
+
+Migrações aditivas: `202610060001_stock` e `202610060002_stock_constraints`. Não criam saldos iniciais nem transformam todos os complementos em insumos. Faça backup PostgreSQL antes de publicar, restaure-o em banco isolado e compare produtos/imagens/documentos/financeiro antes e depois da migração. Preserve tabelas `StockCommand` e revisões de valorização: contêm idempotência e decisões financeiras das devoluções, não são cache descartável.
+
+Após gravações U2, restauração de backup anterior remove essas gravações. Para reverter código, prefira manter o esquema aditivo e os dados, sem executar migrações destrutivas. Restaurar um backup operacional exige definir explicitamente o ponto de recuperação. Testes usam exclusivamente `b2t_test`; nunca use a URL operacional na suíte.
+
+Limites desta entrega: uma localização, sem estoque de produtos acabados, ordens de produção/compra, emissão fiscal ou rentabilidade consolidada por pedido. O custo de consumo não gera despesa duplicada no financeiro.

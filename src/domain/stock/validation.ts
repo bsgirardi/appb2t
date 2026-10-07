@@ -49,6 +49,13 @@ export const openingSchema = z
   .strict();
 export type ItemInput = z.infer<typeof itemSchema>;
 export type OpeningInput = z.infer<typeof openingSchema>;
+export const identitySchema = z
+  .object({
+    ...commandMeta,
+    itemId: z.string(),
+    label: z.string().trim().min(1).max(160),
+  })
+  .strict();
 export const allocationSchema = z
   .object({ identityId: z.string().nullable(), quantity: stockQuantity })
   .strict();
@@ -105,6 +112,14 @@ export const consumeSchema = z
     effectiveDate: civilDateSchema,
   })
   .strict();
+export const releaseSchema = z
+  .object({
+    ...commandMeta,
+    reservationId: z.string(),
+    quantity: stockQuantity,
+    reason: z.string().trim().min(3).max(2000),
+  })
+  .strict();
 import {
   moneySchema,
   positiveMoneySchema,
@@ -137,3 +152,28 @@ export const confirmReceiptSchema = z.discriminatedUnion("mode", [
     .strict(),
 ]);
 export type ConfirmReceiptInput = z.infer<typeof confirmReceiptSchema>;
+export const correctionSchema = z
+  .object({
+    ...commandMeta,
+    sourceId: z.string(),
+    kind: z.enum(["RETURN_CONSUMPTION", "RETURN_SUPPLIER"]),
+    quantity: stockQuantity,
+    allocations: z.array(allocationSchema).max(100).optional(),
+    effectiveDate: civilDateSchema,
+    reason: z.string().trim().min(3).max(2000),
+  })
+  .strict();
+export const stockFilterSchema = z
+  .object({
+    query: z.string().trim().max(160).default(""),
+    negative: z
+      .union([
+        z.boolean(),
+        z.enum(["true", "false"]).transform((v) => v === "true"),
+      ])
+      .default(false),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
+export type StockFilter = z.input<typeof stockFilterSchema>;

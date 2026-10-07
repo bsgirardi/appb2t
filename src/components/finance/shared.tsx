@@ -46,6 +46,7 @@ export function Select({
   );
 }
 export function ActionForm({
+  revision,
   title,
   children,
   submit = "Salvar",
@@ -53,6 +54,7 @@ export function ActionForm({
   onDone,
   onCancel,
 }: {
+  revision?: string | number;
   title: string;
   children: ReactNode;
   submit?: string;
@@ -68,7 +70,7 @@ export function ActionForm({
     e.preventDefault();
     if (pending.current) return;
     const data = new FormData(e.currentTarget),
-      payload = JSON.stringify([...data.entries()]);
+      payload = JSON.stringify([revision, [...data.entries()]]);
     if (intent.current?.payload !== payload)
       intent.current = { payload, key: crypto.randomUUID() };
     pending.current = true;

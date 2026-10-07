@@ -251,3 +251,17 @@ Pendência menor de auditoria: a estimativa conserva os valores resolvidos de to
 8. Os limites locais existentes de 256 KiB para orçamentos/vendas foram mantidos. Consequência: crescimento futuro de payload exige nova revisão explícita.
 9. Edge isolado/Playwright substituiu o controle integrado de navegador que não iniciou. Consequência: particularidades exclusivas do navegador incorporado não foram validadas.
 10. A revisão independente foi tratada como um gate separado após a aceitação da tarefa 9, evitando duas revisões equivalentes. Consequência: seus ajustes reabriram testes e foram verificados na única rodada de correções prevista.
+
+## Estoque integrado U2 — validação de 07/10/2026
+
+Implementação em checkout isolado. A primeira suíte completa com as telas passou com 338 testes em 95 arquivos. Depois foram adicionados os testes de aceite integrado, duplicidade de vínculo de material, limites/resíduos de valorização, compra já paga e preservação de imagens/financeiro na migração. A contagem final é registrada abaixo após a execução integral.
+
+O aceite integrado reproduz 1.000 g → reserva de 1.200 g → consumo de 300 g → recebimento de 500 g, com físico 1.200/reservado 900/disponível 300. A conferência gera três parcelas sem caixa; somente a baixa parcial cria movimento financeiro. Cancelamento pago é recusado e cancelar venda libera reservas sem devolver consumo.
+
+Navegador Edge headless em base isolada: ADMIN/OPERATOR, 1.440/390 px, claro/escuro, sem erros de página ou overflow. Cadastro, contagem inicial e recebimento por operador executados pela interface; operador não recebe campos de custo. Evidências em `test-results/stock-u2` (inclui screenshots e `browser.json`). Build Next de produção aprovado. Atualização pontual de `source-map-js` 1.2.1→1.2.2 corrige seu advisory; permanecem cinco avisos encadeados do mesmo problema de `braces` em globbing do ESLint de desenvolvimento, sem versão corrigida publicada. Não foi aplicado downgrade incompatível do Next.
+
+Decisões técnicas: locks de catálogo antes dos itens evitam corrida com alteração de tecnologia; consulta de custo reprocessa fatos atuais; cancelamento conserva entrada e compensação e exclui ambas da valorização ativa; bloqueio conservador de movimentos posteriores exige devolução/ajuste; resoluções financeiras de devolução permanecem em comandos imutáveis. Resíduo de arredondamento é carregado cumulativamente entre alocações, fechando o total arredondado sem reescrever alocações anteriores quando uma nova é anexada.
+
+Produção permanece na versão anterior até backup novo, ensaio restaurável, revisão independente e migração/publicação explicitamente autorizadas nesta conversa.
+
+Validação antes da revisão independente: **344/344 testes em 96 arquivos**, TypeScript e ESLint sem erros, `git diff --check` aprovado e build de produção aprovado. Ensaio em PostgreSQL temporário a partir de backup operacional: restauração + duas migrações aplicadas; conteúdo integral de **36 tabelas preexistentes** comparado por contagem/hash, sem alterações. Produção ainda sem as migrações U2.

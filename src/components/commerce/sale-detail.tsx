@@ -1,4 +1,5 @@
 "use client";
+import { SaleStock } from "@/components/stock/reservation-form";
 import {
   DocumentCostSummary,
   currentBindingState,
@@ -178,6 +179,7 @@ export function SaleDetail({
           }
         />
       )}
+      <SaleStock sale={sale} />
       <DocumentCostSummary
         items={sale.document.items}
         costs={sale.costs}

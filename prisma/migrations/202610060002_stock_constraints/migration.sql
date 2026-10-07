@@ -1,0 +1,11 @@
+ALTER TABLE "StockItem" ADD CONSTRAINT "StockItem_unit_check" CHECK (unit IN ('G','ML','UNIT'));
+ALTER TABLE "StockItem" ADD CONSTRAINT "StockItem_method_check" CHECK (method IN ('WEIGHTED_AVERAGE','MANUAL'));
+ALTER TABLE "StockItem" ADD CONSTRAINT "StockItem_reference_check" CHECK ("materialId" IS NULL OR "extraId" IS NULL);
+ALTER TABLE "StockItem" ADD CONSTRAINT "StockItem_manual_check" CHECK ((method <> 'MANUAL' OR "manualUnitCost" IS NOT NULL) AND ("manualUnitCost" IS NULL OR "manualUnitCost">=0));
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_method_check" CHECK (method IN ('WEIGHTED_AVERAGE','MANUAL'));
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_value_check" CHECK ("confirmedValue" IS NULL OR "confirmedValue">=0);
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_kind_check" CHECK ((kind IN ('OPENING','RECEIPT','RETURN_CONSUMPTION','ADJUSTMENT_IN','COMPENSATION_IN') AND quantity>=0) OR (kind IN ('CONSUMPTION','LOSS','RETURN_SUPPLIER','ADJUSTMENT_OUT','COMPENSATION_OUT') AND quantity<0) OR (kind='REVALUE' AND quantity=0));
+ALTER TABLE "StockReservationEvent" ADD CONSTRAINT "StockReservationEvent_quantity_check" CHECK (quantity>0 AND kind IN ('RESERVE','CONSUME','RELEASE'));
+ALTER TABLE "PurchaseReceiptLine" ADD CONSTRAINT "PurchaseReceiptLine_quantity_check" CHECK (quantity>0 AND ("confirmedValue" IS NULL OR "confirmedValue">=0));
+ALTER TABLE "PurchaseReceipt" ADD CONSTRAINT "PurchaseReceipt_status_check" CHECK (status IN ('PENDING','CONFIRMED','CANCELED'));
+ALTER TABLE "StockValuationAllocation" ADD CONSTRAINT "StockValuationAllocation_quantity_check" CHECK (quantity>0);

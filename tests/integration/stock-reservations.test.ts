@@ -1,13 +1,23 @@
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { setupDatabase, seedUser } from "./setup";
 import { saveStockItem, openInventory } from "@/server/stock/catalog";
-import { reserveStock, consumeStock } from "@/server/stock/reservations";
+import {
+  reserveStock,
+  consumeStock,
+  releaseReservation,
+} from "@/server/stock/reservations";
 import { balance } from "@/server/stock/movements";
 import { receivePurchase } from "@/server/stock/receipts";
 import { saveCustomer } from "@/server/customers";
-import { saveSaleDraft, confirmSale, cancelSale } from "@/server/sales";
+import {
+  saveSaleDraft,
+  confirmSale,
+  cancelSale,
+  transitionSale,
+} from "@/server/sales";
 setupDatabase();
 it("consuming a reservation does not deduct available stock twice and cancellation releases remainder", async () => {
   const actor = await seedUser();
@@ -22,7 +32,7 @@ it("consuming a reservation does not deduct available stock twice and cancellati
   await openInventory(actor, {
     itemId: item.id,
     quantity: "1000",
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
     reason: "Contagem",
     expectedVersion: 1,
     operationKey: randomUUID(),
@@ -45,7 +55,7 @@ it("consuming a reservation does not deduct available stock twice and cancellati
     actor,
     draft.id,
     draft.version,
-    [{ number: 1, amount: "100", dueDate: "2026-10-06" }],
+    [{ number: 1, amount: "100", dueDate: todaySaoPaulo(new Date()) }],
     randomUUID(),
   );
   const reservation = await reserveStock(actor, {
@@ -56,17 +66,32 @@ it("consuming a reservation does not deduct available stock twice and cancellati
     expectedVersion: 2,
     reason: "Material em compra",
     operationKey: randomUUID(),
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
   });
   expect((await db.$transaction((tx) => balance(tx, item.id))).available).toBe(
     "-200",
   );
+  const production = await transitionSale(
+    actor,
+    sale.id,
+    sale.version,
+    "EM_PRODUCAO",
+  );
+  const ready = await transitionSale(
+    actor,
+    sale.id,
+    production.version,
+    "PRONTA",
+  );
+  await expect(
+    transitionSale(actor, sale.id, ready.version, "ENTREGUE"),
+  ).rejects.toThrow(/reservas/);
   await consumeStock(actor, {
     reservationId: reservation.id,
     quantity: "300",
     expectedVersion: 1,
     operationKey: randomUUID(),
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
   });
   expect(await db.$transaction((tx) => balance(tx, item.id))).toMatchObject({
     physical: "700",
@@ -78,12 +103,32 @@ it("consuming a reservation does not deduct available stock twice and cancellati
     lines: [{ itemId: item.id, quantity: "500" }],
     expectedVersion: 0,
     operationKey: randomUUID(),
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
   });
   expect((await db.$transaction((tx) => balance(tx, item.id))).available).toBe(
     "300",
   );
-  await cancelSale(actor, sale.id, sale.version, "Cliente desistiu");
+  const release = {
+    reservationId: reservation.id,
+    quantity: "100",
+    expectedVersion: 2,
+    operationKey: randomUUID(),
+    reason: "Sobra da reserva",
+  };
+  await releaseReservation(actor, release);
+  await releaseReservation(actor, release);
+  expect((await db.$transaction((tx) => balance(tx, item.id))).reserved).toBe(
+    "800",
+  );
+  await expect(
+    releaseReservation(actor, {
+      ...release,
+      quantity: "900",
+      expectedVersion: 3,
+      operationKey: randomUUID(),
+    }),
+  ).rejects.toThrow();
+  await cancelSale(actor, sale.id, ready.version, "Cliente desistiu");
   expect(await db.$transaction((tx) => balance(tx, item.id))).toMatchObject({
     physical: "1200",
     reserved: "0",

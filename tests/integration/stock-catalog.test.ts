@@ -1,3 +1,4 @@
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { randomUUID } from "node:crypto";
 import { expect, it } from "vitest";
 import { setupDatabase, seedUser } from "./setup";
@@ -19,7 +20,7 @@ it("enables without inventing counted zero and opens only explicitly", async () 
   const opened = await openInventory(actor, {
     itemId: stock.id,
     quantity: "0",
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
     reason: "Contagem inicial",
     operationKey: randomUUID(),
     expectedVersion: stock.version,
@@ -60,7 +61,7 @@ it("requires opening value for positive weighted inventory and never opens twice
   const input = {
     itemId: stock.id,
     quantity: "1000",
-    effectiveDate: "2026-10-06",
+    effectiveDate: todaySaoPaulo(new Date()),
     reason: "Contagem inicial",
     expectedVersion: stock.version,
     operationKey: randomUUID(),
@@ -76,4 +77,63 @@ it("requires opening value for positive weighted inventory and never opens twice
     }),
   ).rejects.toThrow();
   expect(await db.stockMovement.count()).toBe(1);
+});
+
+it("records a reviewed method change and preserves quantity", async () => {
+  const actor = await seedUser();
+  const stock = await saveStockItem(actor, item());
+  await openInventory(actor, {
+    itemId: stock.id,
+    quantity: "100",
+    effectiveDate: todaySaoPaulo(new Date()),
+    reason: "Contagem",
+    expectedVersion: 1,
+    operationKey: randomUUID(),
+  });
+  const changed = await saveStockItem(actor, {
+    ...item(),
+    id: stock.id,
+    method: "WEIGHTED_AVERAGE",
+    manualUnitCost: "0.2",
+    expectedVersion: 2,
+    reason: "Adotar custo médio",
+  });
+  expect(changed.method).toBe("WEIGHTED_AVERAGE");
+  expect(
+    (
+      await db.stockMovement.aggregate({ _sum: { quantity: true } })
+    )._sum.quantity?.toFixed(),
+  ).toBe("100");
+  expect(await db.stockMovement.count({ where: { kind: "REVALUE" } })).toBe(1);
+});
+import { saveMaterial } from "@/server/catalog-inputs";
+it("prevents changing material technology after stock is linked", async () => {
+  const actor = await seedUser();
+  const m = await saveMaterial(actor, {
+    name: "PLA real",
+    technology: "FDM",
+    price: "100",
+    active: true,
+  });
+  await saveStockItem(actor, { ...item(), materialId: m.id });
+  await expect(
+    saveMaterial(actor, {
+      id: m.id,
+      name: m.name,
+      price: "100",
+      active: true,
+      technology: "RESIN",
+      expectedVersion: m.version,
+    }),
+  ).rejects.toThrow();
+});
+it("rejects duplicate material bindings with a clear validation error", async () => {
+  const actor = await seedUser();
+  const material = await db.material.create({
+    data: { name: "PLA", technology: "FDM", price: "100" },
+  });
+  await saveStockItem(actor, { ...item(), materialId: material.id });
+  await expect(
+    saveStockItem(actor, { ...item(), materialId: material.id }),
+  ).rejects.toMatchObject({ code: "VALIDATION" });
 });

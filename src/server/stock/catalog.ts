@@ -1,11 +1,17 @@
+import { readValuation, revalueItem } from "./valuation";
 import { Prisma, type StockItem } from "@prisma/client";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { assertAdmin } from "@/server/auth/authorization";
-import { itemSchema, openingSchema } from "@/domain/stock/validation";
+import {
+  itemSchema,
+  openingSchema,
+  identitySchema,
+} from "@/domain/stock/validation";
 import { StockDecimal as D, toBaseQuantity } from "@/domain/stock/quantities";
 import { civilDateToDb, todaySaoPaulo } from "@/domain/commerce/dates";
 import { runStockCommand, lockStockItems } from "./commands";
+import { lockOperation } from "../commerce/locks";
 const invalid = (message: string): never => {
   throw new AppError("VALIDATION", message);
 };
@@ -24,14 +30,51 @@ export async function requireStockItem(
   if (!row) throw new AppError("NOT_FOUND", "Item de estoque não encontrado.");
   return row;
 }
+export async function saveStockIdentity(actor: Actor, raw: unknown) {
+  const v = identitySchema.parse(raw);
+  return runStockCommand(actor, "IDENTITY", v, async (tx) => {
+    await lockStockItems(tx, [v.itemId]);
+    const item = await requireStockItem(tx, v.itemId);
+    if (item.version !== v.expectedVersion) throw conflict();
+    if (!item.active) invalid("Item inativo.");
+    if (
+      await tx.stockIdentity.findFirst({
+        where: { itemId: item.id, label: v.label },
+      })
+    )
+      invalid("Já existe uma identificação com esse nome.");
+    const identity = await tx.stockIdentity.create({
+      data: { itemId: item.id, label: v.label },
+    });
+    await tx.stockItem.update({
+      where: { id: item.id },
+      data: { version: { increment: 1 } },
+    });
+    return { id: identity.id, itemId: identity.itemId, label: identity.label };
+  });
+}
 export async function saveStockItem(actor: Actor, raw: unknown) {
   assertAdmin(actor);
   const v = itemSchema.parse(raw);
   return runStockCommand(actor, "ITEM", v, async (tx) => {
+    await lockOperation(tx, "stock:catalog");
     if (v.id) await lockStockItems(tx, [v.id]);
     const old = v.id ? await requireStockItem(tx, v.id) : null;
     if (old ? old.version !== v.expectedVersion : v.expectedVersion !== 0)
       throw conflict();
+    if (
+      (v.materialId || v.extraId) &&
+      (await tx.stockItem.findFirst({
+        where: {
+          id: { not: v.id ?? "" },
+          OR: [
+            ...(v.materialId ? [{ materialId: v.materialId }] : []),
+            ...(v.extraId ? [{ extraId: v.extraId }] : []),
+          ],
+        },
+      }))
+    )
+      invalid("Este material ou complemento já possui controle de estoque.");
     if (v.materialId) {
       const m = await tx.material.findUnique({ where: { id: v.materialId } });
       if (!m?.active || v.unit !== (m.technology === "FDM" ? "G" : "ML"))
@@ -51,8 +94,33 @@ export async function saveStockItem(actor: Actor, raw: unknown) {
         old.extraId !== (v.extraId ?? null))
     )
       invalid("Unidade e vínculo não podem mudar após inventário.");
-    if (old?.inventoriedAt && old.method !== v.method)
-      invalid("Troca de método exige conferência da valorização.");
+    if (
+      old?.inventoriedAt &&
+      (old.method !== v.method ||
+        (v.method === "MANUAL" &&
+          old.manualUnitCost?.toFixed() !== v.manualUnitCost))
+    ) {
+      const current = await readValuation(tx, old.id);
+      if (new D(current.physical).lt(0) || current.provisional)
+        invalid(
+          "Regularize déficits e custos pendentes antes de mudar a referência.",
+        );
+      if (!v.reason || v.manualUnitCost == null)
+        invalid("Informe motivo e custo unitário de abertura.");
+      await tx.stockMovement.create({
+        data: {
+          itemId: old.id,
+          kind: "REVALUE",
+          quantity: "0",
+          method: v.method,
+          manualUnitCost: v.manualUnitCost,
+          actorId: actor.id,
+          reason: v.reason!,
+          effectiveDate: civilDateToDb(todaySaoPaulo(new Date())),
+        },
+      });
+      await revalueItem(tx, old.id);
+    }
     const { id, operationKey, expectedVersion, reason, ...data } = v;
     void operationKey;
     void expectedVersion;

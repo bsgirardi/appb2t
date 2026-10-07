@@ -48,6 +48,7 @@ export async function postMovement(
   v: Omit<MovementInput, "kind"> & {
     kind: string;
     receiptLineId?: string;
+    sourceId?: string;
     referenceAvailable?: string;
   },
 ) {
@@ -64,7 +65,11 @@ export async function postMovement(
     ),
   );
   if (!q.gt(0)) invalid("Informe quantidade positiva.");
-  const sign = ["RECEIPT", "ADJUSTMENT_IN"].includes(v.kind) ? 1 : -1;
+  const sign = ["RECEIPT", "ADJUSTMENT_IN", "RETURN_CONSUMPTION"].includes(
+    v.kind,
+  )
+    ? 1
+    : -1;
   const current = await balance(tx, item.id),
     signed = q.times(sign),
     next = new D(current.available).plus(signed);
@@ -116,6 +121,7 @@ export async function postMovement(
       manualUnitCost: item.manualUnitCost,
       confirmedValue: sign > 0 ? (v.value ?? null) : null,
       receiptLineId: v.receiptLineId,
+      sourceId: v.sourceId,
       actorId: actor.id,
       reason: v.reason ?? "",
       effectiveDate: civilDateToDb(v.effectiveDate),

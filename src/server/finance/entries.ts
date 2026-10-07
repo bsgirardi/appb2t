@@ -35,6 +35,7 @@ import {
   type FinanceFilter,
 } from "@/domain/finance/validation";
 const include = {
+  receiptLink: true,
   saleInstallment: {
     include: { sale: { select: { id: true, sequence: true, version: true } } },
   },
@@ -50,6 +51,7 @@ function paidFor(row: EntryRow) {
 export function entryDTO(row: EntryRow): EntryDTO {
   return {
     id: row.id,
+    receiptId: row.receiptLink?.receiptId ?? null,
     kind: row.kind,
     amount: row.amount.toFixed(2),
     dueDate: civilDateFromDb(row.dueDate),

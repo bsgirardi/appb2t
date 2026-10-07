@@ -3,7 +3,11 @@ import { db } from "@/lib/db";
 import { conflict, AppError } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { lockCommerce } from "@/server/commerce/locks";
-import { reserveSchema, consumeSchema } from "@/domain/stock/validation";
+import {
+  reserveSchema,
+  consumeSchema,
+  releaseSchema,
+} from "@/domain/stock/validation";
 import { StockDecimal as D, toBaseQuantity } from "@/domain/stock/quantities";
 import { runStockCommand, lockStockItems } from "./commands";
 import { requireStockItem } from "./catalog";
@@ -18,9 +22,18 @@ async function remaining(tx: Prisma.TransactionClient, id: string) {
     new D(0),
   );
 }
-async function reservable(tx: Prisma.TransactionClient, id: string) {
+async function reservable(
+  tx: Prisma.TransactionClient,
+  id: string,
+  consumption = false,
+) {
   const sale = await tx.sale.findUnique({ where: { id } });
-  if (!sale || !["CONFIRMADA", "EM_PRODUCAO"].includes(sale.status))
+  if (
+    !sale ||
+    !["CONFIRMADA", "EM_PRODUCAO", ...(consumption ? ["PRONTA"] : [])].includes(
+      sale.status,
+    )
+  )
     invalid("Venda não permite novas reservas ou consumo.");
   return sale;
 }
@@ -90,7 +103,7 @@ export async function consumeStock(actor: Actor, raw: unknown) {
   if (!pre) throw new AppError("NOT_FOUND", "Reserva não encontrada.");
   return runStockCommand(actor, "CONSUME", v, async (tx) => {
     await lockCommerce(tx, { saleId: pre.saleId });
-    await reservable(tx, pre.saleId);
+    await reservable(tx, pre.saleId, true);
     await lockStockItems(tx, [pre.itemId]);
     const reservation = await tx.stockReservation.findUniqueOrThrow({
       where: { id: pre.id },
@@ -175,4 +188,54 @@ export async function assertSaleReservationsResolved(
   for (const r of rows)
     if ((await remaining(tx, r.id)).gt(0))
       invalid("Consuma ou libere as reservas antes de concluir a entrega.");
+}
+export async function releaseReservation(actor: Actor, raw: unknown) {
+  const v = releaseSchema.parse(raw);
+  const pre = await db.stockReservation.findUnique({
+    where: { id: v.reservationId },
+  });
+  if (!pre) throw new AppError("NOT_FOUND", "Reserva não encontrada.");
+  return runStockCommand(actor, "RELEASE", v, async (tx) => {
+    await lockCommerce(tx, { saleId: pre.saleId });
+    await lockStockItems(tx, [pre.itemId]);
+    const row = await tx.stockReservation.findUniqueOrThrow({
+      where: { id: pre.id },
+    });
+    if (row.version !== v.expectedVersion) throw conflict();
+    const open = await remaining(tx, row.id),
+      q = new D(v.quantity);
+    if (!q.gt(0) || q.gt(open))
+      invalid("Liberação excede a reserva disponível.");
+    const item = await requireStockItem(tx, row.itemId);
+    toBaseQuantity(
+      v.quantity,
+      item.unit as "G" | "ML" | "UNIT",
+      item.unit as "G" | "ML" | "UNIT",
+    );
+    await tx.stockReservationEvent.create({
+      data: {
+        reservationId: row.id,
+        kind: "RELEASE",
+        quantity: v.quantity,
+        actorId: actor.id,
+        reason: v.reason,
+      },
+    });
+    await tx.stockReservation.update({
+      where: { id: row.id },
+      data: { version: { increment: 1 } },
+    });
+    await tx.stockItem.update({
+      where: { id: row.itemId },
+      data: { version: { increment: 1 } },
+    });
+    return {
+      id: row.id,
+      version: row.version + 1,
+      itemId: row.itemId,
+      saleId: row.saleId,
+      lineKey: row.lineKey,
+      remaining: open.minus(q).toFixed(),
+    };
+  });
 }

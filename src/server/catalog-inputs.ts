@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { conflict } from "@/lib/errors";
+import { AppError, conflict } from "@/lib/errors";
+import { lockOperation } from "./commerce/locks";
 import {
   decimalSchema,
   printerValuesSchema,
@@ -29,7 +30,10 @@ export async function saveMaterial(
   assertAdmin(actor);
   const { id, expectedVersion, ...data } = materialSchema.parse(input);
   const row = await db.$transaction(async (tx) => {
+    await lockOperation(tx,"stock:catalog");
     if (!id) return tx.material.create({ data });
+    const stock=await tx.stockItem.findUnique({where:{materialId:id}});
+    if(stock && stock.unit !== (data.technology === "FDM" ? "G" : "ML")) throw new AppError("VALIDATION","A tecnologia não pode mudar enquanto houver estoque vinculado.");
     if (!expectedVersion) throw conflict();
     const updated = await tx.material.updateMany({
       where: { id, version: expectedVersion },

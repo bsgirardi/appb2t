@@ -126,7 +126,7 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
     ids.add(e.id);
     seqs.add(e.sequence);
     const q = new D(quantity(e.quantity));
-    if (q.isZero() && e.kind !== "OPENING")
+    if (q.isZero() && !["OPENING", "REVALUE"].includes(e.kind))
       bad("Informe uma quantidade positiva.");
     if (e.confirmedValue !== null) quantity(e.confirmedValue);
     if (e.manualUnitCost !== null) quantity(e.manualUnitCost);
@@ -141,7 +141,17 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
       lastUnit = fixed(e.manualUnitCost);
     }
     method = e.method;
-    if (incoming.has(e.kind)) {
+    if (e.kind === "REVALUE") {
+      if (
+        !q.isZero() ||
+        physical.lt(0) ||
+        pool().provisional ||
+        !e.manualUnitCost
+      )
+        bad("Referência ou saldo inválido para revalorização.");
+      pool = scale(fixed(e.manualUnitCost), physical);
+      lastUnit = fixed(e.manualUnitCost);
+    } else if (incoming.has(e.kind)) {
       const unit =
         e.method === "MANUAL"
           ? fixed(e.manualUnitCost)
@@ -255,17 +265,27 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
       });
     }
   }
+  let exactAllocated = new D(0),
+    roundedAllocated = new D(0);
   const result = allocations.map((a) => {
     const c = a.cost();
+    let rounded: string | null = null;
+    if (c.value !== null) {
+      exactAllocated = exactAllocated.plus(c.value);
+      const next = exactAllocated.toDecimalPlaces(6);
+      rounded = quantity(next.minus(roundedAllocated).toFixed());
+      roundedAllocated = next;
+    }
     return {
       sourceId: a.sourceId,
       targetId: a.targetId,
       quantity: a.q.toFixed(),
-      value: c.value?.toDecimalPlaces(6).toFixed() ?? null,
+      value: rounded,
       provisional: c.provisional,
     };
   });
   const cost = pool();
+  if (cost.value !== null) quantity(cost.value.toDecimalPlaces(6).toFixed());
   const provisional = cost.provisional || result.some((a) => a.provisional);
   return {
     physical: quantity(physical.toFixed(), true),
