@@ -101,3 +101,69 @@ it("keeps draft while refreshing version and creates a new submission key", asyn
   await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
   expect(send.mock.calls[0][1]).not.toBe(send.mock.calls[1][1]);
 });
+import { ReceiptFinance } from "@/components/stock/receipt-finance";
+import * as clientApi from "@/lib/client-api";
+import type { StockReceiptDTO } from "@/server/stock/queries";
+it("retains all selected payable installments across pages", async () => {
+  const receipt = {
+    id: "r",
+    supplier: "Fornecedor",
+    total:null,
+    entryIds:[],
+    document: "",
+    status: "PENDING",
+    version: 1,
+    effectiveDate: "2026-10-07",
+    lines: [{ id: "l", itemId: "i", name: "PLA", unit: "G", quantity: "100",confirmedValue:null }],
+    pendingReturns: [],
+  } as StockReceiptDTO;
+  const request = vi
+    .spyOn(clientApi, "api")
+    .mockImplementation(async (url, body) => {
+      if (body) return {};
+      const second = url.includes("page=2&");
+      return {
+        total: 101,
+        items: [
+          {
+            id: second ? "entry2" : "entry1",
+            description: second ? "Parcela dois" : "Parcela um",
+            amount: second ? "20.00" : "10.00",
+            dueDate: "2026-10-07",
+            state: "ABERTO",
+            canceledAt: null,
+            receiptId: null,
+          },
+        ],
+      };
+    });
+  render(
+    <ReceiptFinance
+      receipt={receipt}
+      categories={[]}
+      onDone={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Destino financeiro"), {
+    target: { value: "LINK" },
+  });
+  fireEvent.click(await screen.findByLabelText(/Parcela um/));
+  fireEvent.click(screen.getByRole("button", { name: "Próximas" }));
+  fireEvent.click(await screen.findByLabelText(/Parcela dois/));
+  fireEvent.change(screen.getByLabelText(/PLA.*valor total/), {
+    target: { value: "30" },
+  });
+  fireEvent.change(screen.getByLabelText("Total da compra (R$)"), {
+    target: { value: "30" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+  await vi.waitFor(() =>
+    expect(request.mock.calls.some((c) => c[0] === "/api/stock/commands")).toBe(
+      true,
+    ),
+  );
+  expect(
+    request.mock.calls.find((c) => c[0] === "/api/stock/commands")?.[1],
+  ).toMatchObject({ payload: { entryIds: ["entry1", "entry2"] } });
+});

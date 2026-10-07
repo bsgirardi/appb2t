@@ -39,8 +39,8 @@ async function reservable(
 }
 export async function reserveStock(actor: Actor, raw: unknown) {
   const v = reserveSchema.parse(raw);
-  checkDate(v.effectiveDate, v.reason);
   return runStockCommand(actor, "RESERVE", v, async (tx) => {
+    checkDate(v.effectiveDate, v.reason);
     await lockCommerce(tx, { saleId: v.saleId });
     await reservable(tx, v.saleId);
     await lockStockItems(tx, [v.itemId]);
@@ -96,12 +96,12 @@ export async function reserveStock(actor: Actor, raw: unknown) {
 }
 export async function consumeStock(actor: Actor, raw: unknown) {
   const v = consumeSchema.parse(raw);
-  checkDate(v.effectiveDate, v.reason);
   const pre = await db.stockReservation.findUnique({
     where: { id: v.reservationId },
   });
   if (!pre) throw new AppError("NOT_FOUND", "Reserva não encontrada.");
   return runStockCommand(actor, "CONSUME", v, async (tx) => {
+    checkDate(v.effectiveDate, v.reason);
     await lockCommerce(tx, { saleId: pre.saleId });
     await reservable(tx, pre.saleId, true);
     await lockStockItems(tx, [pre.itemId]);

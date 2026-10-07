@@ -10,6 +10,7 @@ import { api } from "@/lib/client-api";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { splitInstallments } from "@/domain/commerce/installments";
 import { text } from "./shared";
+import { StockDecimal as D } from "@/domain/stock/quantities";
 export function ReceiptFinance({
   receipt,
   categories,
@@ -26,6 +27,7 @@ export function ReceiptFinance({
     [error, setError] = useState(""),
     [page, setPage] = useState(1),
     [total, setTotal] = useState(0);
+  const [selected, setSelected] = useState<Record<string, string>>({});
   async function load(next = 1) {
     try {
       const r = await api<{ items: EntryDTO[]; total: number }>(
@@ -65,7 +67,7 @@ export function ReceiptFinance({
                   text(f, "dueDate"),
                 ),
               }
-            : { entryIds: f.getAll("entryId").map(String) }),
+            : { entryIds: Object.keys(selected) }),
         });
       }}
     >
@@ -135,6 +137,19 @@ export function ReceiptFinance({
         </>
       ) : (
         <>
+          <input
+            type="hidden"
+            name="selectedEntries"
+            value={Object.keys(selected).sort().join(",")}
+          />
+          <p>
+            {Object.keys(selected).length} parcelas selecionadas ·{" "}
+            {money(
+              Object.values(selected)
+                .reduce((sum, value) => sum.plus(value), new D(0))
+                .toFixed(2),
+            )}
+          </p>
           <p>
             Selecione todas as parcelas do grupo. Valores e fornecedor devem
             corresponder à compra.
@@ -144,7 +159,20 @@ export function ReceiptFinance({
             .filter((e) => !e.canceledAt && !e.receiptId)
             .map((e) => (
               <label key={e.id} className="flex gap-2 rounded border p-2">
-                <input type="checkbox" name="entryId" value={e.id} />
+                <input
+                  type="checkbox"
+                  name="entryId"
+                  value={e.id}
+                  checked={e.id in selected}
+                  onChange={(event) =>
+                    setSelected((old) => {
+                      const next = { ...old };
+                      if (event.target.checked) next[e.id] = e.amount;
+                      else delete next[e.id];
+                      return next;
+                    })
+                  }
+                />
                 <span>
                   {e.description} · {e.dueDate} · {money(e.amount)} · {e.state}
                 </span>

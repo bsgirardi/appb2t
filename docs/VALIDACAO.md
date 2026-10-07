@@ -265,3 +265,11 @@ Decisões técnicas: locks de catálogo antes dos itens evitam corrida com alter
 Produção permanece na versão anterior até backup novo, ensaio restaurável, revisão independente e migração/publicação explicitamente autorizadas nesta conversa.
 
 Validação antes da revisão independente: **344/344 testes em 96 arquivos**, TypeScript e ESLint sem erros, `git diff --check` aprovado e build de produção aprovado. Ensaio em PostgreSQL temporário a partir de backup operacional: restauração + duas migrações aplicadas; conteúdo integral de **36 tabelas preexistentes** comparado por contagem/hash, sem alterações. Produção ainda sem as migrações U2.
+
+### Revisão independente U2 e passagem de correção
+
+Revisor independente gpt-6-astra, modo somente leitura, faixa `6f304b2..c00a56f`. A execução foi interrompida por créditos e retomada pelo mesmo revisor após “Continue”. Nenhum achado crítico; quatro importantes reproduzidos e corrigidos: custo manual inflado ao devolver consumo negativo; crescimento exponencial do cálculo com devoluções; perda de parcelas selecionadas na paginação do vínculo; ajuste positivo ponderado sem custo que não poderia ser conferido depois. O caso de 22 ciclos levava 27,7 segundos antes da correção; a regressão agora passa abaixo do limite de 5 segundos.
+
+O retry após mudança de dia, inicialmente classificado como menor, foi elevado a importante porque a recusa de uma operação já concluída pode induzir reenvio duplicado. A recuperação idempotente agora antecede a validação temporal para recebimentos/reservas/consumos. As cinco correções tiveram teste falhando antes e passando depois. Sem comportamentos descartados pelo revisor e sem nova rodada de revisão; validação final pela suíte. Acrescentados testes de devoluções manuais sucessivas e cancelamento de venda concorrente com reserva/consumo.
+
+Fechamento após correções: **352/352 testes em 96 arquivos**, TypeScript, ESLint e `git diff --check` aprovados. Imagens Docker runtime/tools reconstruídas com as correções. Verificação da imagem no banco restaurado: `/api/health` 200, `/` 200, `/api/stock/items` 401 anônimo, `/estoque` 307 para login. Nenhum achado da revisão ficou pendente.

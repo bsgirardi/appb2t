@@ -6,10 +6,10 @@ import { requireStockItem } from "./catalog";
 import { postMovement, checkDate, invalid } from "./movements";
 export async function receivePurchase(actor: Actor, raw: unknown) {
   const v = receiveSchema.parse(raw);
-  checkDate(v.effectiveDate, v.reason);
   if (v.expectedVersion !== 0)
     invalid("Recebimento já existente deve ser conferido.");
   return runStockCommand(actor, "RECEIPT", v, async (tx) => {
+    checkDate(v.effectiveDate, v.reason);
     await lockStockItems(
       tx,
       v.lines.map((l) => l.itemId),

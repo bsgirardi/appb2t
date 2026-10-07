@@ -201,3 +201,52 @@ it("rejects future and unexplained past postings", async () => {
     reason: "Registro retroativo",
   });
 });
+it("rejects unpriced weighted adjustment rather than creating an unresolvable cost", async () => {
+  const { actor } = await fixture();
+  const item = await saveStockItem(actor, {
+    name: "Resina",
+    unit: "ML",
+    method: "WEIGHTED_AVERAGE",
+    expectedVersion: 0,
+    operationKey: randomUUID(),
+  });
+  await openInventory(actor, {
+    itemId: item.id,
+    quantity: "0",
+    effectiveDate: todaySaoPaulo(new Date()),
+    expectedVersion: 1,
+    operationKey: randomUUID(),
+  });
+  await expect(
+    recordMovement(actor, {
+      itemId: item.id,
+      kind: "ADJUSTMENT_IN",
+      quantity: "10",
+      reason: "Contagem corrigida",
+      effectiveDate: todaySaoPaulo(new Date()),
+      expectedVersion: 2,
+      operationKey: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: "VALIDATION" });
+  expect(await db.stockMovement.count({ where: { itemId: item.id } })).toBe(1);
+});
+import { vi } from "vitest";
+it("replays a completed receipt after midnight before checking its effective date", async () => {
+  const { actor, item } = await fixture();
+  const current = new Date();
+  const input = {
+    supplier: "Fornecedor",
+    effectiveDate: todaySaoPaulo(current),
+    expectedVersion: 0,
+    operationKey: randomUUID(),
+    lines: [{ itemId: item.id, quantity: "10" }],
+  };
+  const first = await receivePurchase(actor, input);
+  try {
+    vi.setSystemTime(new Date(current.getTime() + 86400000));
+    expect((await receivePurchase(actor, input)).id).toBe(first.id);
+  } finally {
+    vi.useRealTimers();
+  }
+  expect(await db.purchaseReceipt.count()).toBe(1);
+});

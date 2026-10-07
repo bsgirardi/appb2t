@@ -27,6 +27,10 @@ export type ValuationResult = {
 };
 type Cost = { value: InstanceType<typeof D> | null; provisional: boolean };
 type Expr = () => Cost;
+const memo = (read: Expr): Expr => {
+  let cached: Cost | undefined;
+  return () => (cached ??= read());
+};
 const zero: Expr = () => ({ value: new D(0), provisional: false });
 const fixed =
   (value: string | null, provisional = false): Expr =>
@@ -34,9 +38,8 @@ const fixed =
     value: value === null ? null : new D(value),
     provisional: provisional || value === null,
   });
-const add =
-  (a: Expr, b: Expr): Expr =>
-  () => {
+const add = (a: Expr, b: Expr): Expr =>
+  memo(() => {
     const x = a(),
       y = b();
     return {
@@ -44,13 +47,12 @@ const add =
         x.value === null || y.value === null ? null : x.value.plus(y.value),
       provisional: x.provisional || y.provisional,
     };
-  };
-const scale =
-  (a: Expr, n: InstanceType<typeof D>): Expr =>
-  () => {
+  });
+const scale = (a: Expr, n: InstanceType<typeof D>): Expr =>
+  memo(() => {
     const x = a();
     return { ...x, value: x.value?.times(n) ?? null };
-  };
+  });
 const bad = (message: string): never => {
   throw new AppError("VALIDATION", message);
 };
@@ -88,6 +90,7 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
       canceled: InstanceType<typeof D>;
       cost: Expr;
       kind: string;
+      manual: boolean;
     }
   >();
   const deficits: {
@@ -165,6 +168,7 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
         canceled: new D(0),
         cost: scale(unit, q),
         kind: e.kind,
+        manual: e.method === "MANUAL",
       });
     } else if (e.kind === "RETURN_CONSUMPTION") {
       const source = sources.get(e.sourceId ?? "");
@@ -187,7 +191,12 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
         addIncoming(
           e.id,
           rest,
-          scale(source!.cost, new D(1).div(source!.q.minus(source!.canceled))),
+          scale(
+            source!.cost,
+            new D(1).div(
+              source!.manual ? source!.q : source!.q.minus(source!.canceled),
+            ),
+          ),
         );
       source!.returned = source!.returned.plus(q);
     } else if (outgoing.has(e.kind)) {
@@ -248,6 +257,7 @@ export function valueLedger(events: ValuationEvent[]): ValuationResult {
         canceled: new D(0),
         cost,
         kind: e.kind,
+        manual: e.method === "MANUAL",
       });
     } else bad("Tipo de movimento inválido.");
   }

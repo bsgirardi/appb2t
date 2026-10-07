@@ -135,3 +135,78 @@ it("consuming a reservation does not deduct available stock twice and cancellati
     available: "1200",
   });
 });
+it.each(["reserve", "consume"] as const)(
+  "serializes sale cancellation against concurrent %s",
+  async (kind) => {
+    const actor = await seedUser(),
+      date = todaySaoPaulo(new Date());
+    const item = await saveStockItem(actor, {
+      name: "PLA corrida",
+      unit: "G",
+      method: "MANUAL",
+      manualUnitCost: "1",
+      expectedVersion: 0,
+      operationKey: randomUUID(),
+    });
+    await openInventory(actor, {
+      itemId: item.id,
+      quantity: "100",
+      effectiveDate: date,
+      expectedVersion: 1,
+      operationKey: randomUUID(),
+    });
+    const customer = await saveCustomer(actor, undefined, {
+        name: "Cliente corrida",
+        type: "PERSON",
+        active: true,
+      }),
+      lineId = randomUUID();
+    const draft = await saveSaleDraft(actor, undefined, {
+      customerId: customer.id,
+      items: [{ lineId, description: "Peça", quantity: 1, unitPrice: "100" }],
+      discount: "0",
+      shipping: "0",
+      paymentTerms: "Pix",
+      internalNotes: "",
+    });
+    const sale = await confirmSale(
+      actor,
+      draft.id,
+      draft.version,
+      [{ number: 1, amount: "100", dueDate: date }],
+      randomUUID(),
+    );
+    const reserve = {
+      itemId: item.id,
+      saleId: sale.id,
+      lineKey: lineId,
+      quantity: "20",
+      effectiveDate: date,
+      expectedVersion: 2,
+      operationKey: randomUUID(),
+    };
+    const reservation =
+      kind === "consume" ? await reserveStock(actor, reserve) : null;
+    const action =
+      kind === "reserve"
+        ? reserveStock(actor, reserve)
+        : consumeStock(actor, {
+            reservationId: reservation!.id,
+            quantity: "10",
+            expectedVersion: 1,
+            effectiveDate: date,
+            operationKey: randomUUID(),
+          });
+    const results = await Promise.allSettled([
+      action,
+      cancelSale(actor, sale.id, sale.version, "Cliente desistiu"),
+    ]);
+    expect(results[1].status).toBe("fulfilled");
+    const state = await db.$transaction((tx) => balance(tx, item.id));
+    expect(state.reserved).toBe("0");
+    expect(state.physical).toBe(
+      kind === "consume" && results[0].status === "fulfilled" ? "90" : "100",
+    );
+    expect(await db.cashMovement.count()).toBe(0);
+  },
+);

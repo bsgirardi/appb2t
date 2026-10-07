@@ -56,6 +56,14 @@ export async function postMovement(
   if (!item.active || !item.inventoriedAt)
     invalid("Item inativo ou não inventariado.");
   if (item.version !== v.expectedVersion) throw conflict();
+  if (
+    v.kind === "ADJUSTMENT_IN" &&
+    item.method === "WEIGHTED_AVERAGE" &&
+    v.value === undefined
+  )
+    invalid(
+      "Informe o valor do ajuste, inclusive zero para material sem custo.",
+    );
   checkDate(v.effectiveDate, v.reason);
   const q = new D(
     toBaseQuantity(

@@ -198,3 +198,43 @@ it("closes rounded cost allocations without losing the final micro-unit", () => 
     "0.333333",
   ]);
 });
+it("manual return cancels deficit without doubling the remaining stock value", () => {
+  const manual = { method: "MANUAL" as const, manualUnitCost: "1" };
+  const result = valueLedger([
+    e("a", 1, "OPENING", "50", "50", manual),
+    e("b", 2, "CONSUMPTION", "100", null, manual),
+    e("c", 3, "RETURN_CONSUMPTION", "100", null, { ...manual, sourceId: "b" }),
+  ]);
+  expect(result).toMatchObject({
+    physical: "50",
+    knownValue: "50",
+    unitCost: "1",
+    provisional: false,
+  });
+});
+it("replays repeated consumption returns in bounded time", () => {
+  const events = [e("opening", 1, "OPENING", "100", "100")];
+  for (let n = 0; n < 22; n++) {
+    const id = `consume-${n}`;
+    events.push(e(id, events.length + 1, "CONSUMPTION", "1", null));
+    events.push(
+      e(`return-${n}`, events.length + 1, "RETURN_CONSUMPTION", "1", null, {
+        sourceId: id,
+      }),
+    );
+  }
+  const start = performance.now();
+  const result = valueLedger(events);
+  expect(result.knownValue).toBe("100");
+  expect(performance.now() - start).toBeLessThan(5000);
+}, 45000);
+it("returns a manual negative consumption in successive parts at its original reference", () => {
+  const manual = { method: "MANUAL" as const, manualUnitCost: "1" };
+  const r = valueLedger([
+    e("a", 1, "OPENING", "50", "50", manual),
+    e("b", 2, "CONSUMPTION", "100", null, manual),
+    e("c", 3, "RETURN_CONSUMPTION", "25", null, { ...manual, sourceId: "b" }),
+    e("d", 4, "RETURN_CONSUMPTION", "75", null, { ...manual, sourceId: "b" }),
+  ]);
+  expect(r).toMatchObject({ physical: "50", knownValue: "50", unitCost: "1" });
+});
