@@ -165,4 +165,8 @@ Spec §§1–4: tarefas1,2,4,8,9; §5:5; §6:3,7; §7:4,6,7; §8:2,8,9; §9:1,10
 
 Sequência: 1→2→3→4→5→6→7→8→9→10. Valorização e confirmação financeira compartilham contratos; executar sequencialmente evita divergência de interfaces. Recomendação: execução direta nesta conversa, com revisão independente final, preservando o método usado na entrega anterior.
 
-Auto-revisão: cobertura conferida contra a especificação aprovada; separados recebimento/valorização/pagamento; definidos locks, limites, projeções, cancelamentos e reconciliação. Nenhuma tarefa executada neste documento. Aguardar revisão do plano antes de implementação.
+Auto-revisão original: cobertura conferida contra a especificação aprovada; separados recebimento/valorização/pagamento; definidos locks, limites, projeções, cancelamentos e reconciliação.
+
+## Fechamento — 07/10/2026
+
+Implementação concluída e integrada em `76eb2ec`, com testes agrupados por fluxo em vez de reproduzir exatamente cada arquivo proposto. Os checklists acima conservam o planejamento original; o histórico de execução e as decisões estão em `test-results/stock-u2-execution/progress.md`. Suíte final: 352 testes em 96 arquivos; TypeScript, ESLint e build aprovados. Revisão independente concluída, cinco achados corrigidos com regressões, nenhum pendente. Produção publicada e ambas as migrações aplicadas, com backup final e preservação integral das 36 tabelas anteriores. Evidências e limites detalhados em `docs/VALIDACAO.md`.
