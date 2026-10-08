@@ -23,6 +23,12 @@ export async function correctStock(actor: Actor, raw: unknown) {
       where: { id: pre.id },
     });
     if (
+      await tx.productionMaterialLink.findFirst({
+        where: { movementId: source.id },
+      })
+    )
+      invalid("Corrija este consumo pela ordem de produção vinculada.");
+    if (
       source.kind !==
       (v.kind === "RETURN_CONSUMPTION" ? "CONSUMPTION" : "RECEIPT")
     )

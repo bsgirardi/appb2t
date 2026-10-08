@@ -1,3 +1,4 @@
+import { allocatedTotal } from "@/server/production/reservations";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { conflict, AppError } from "@/lib/errors";
@@ -112,6 +113,8 @@ export async function consumeStock(actor: Actor, raw: unknown) {
       where: { id: pre.id },
     });
     if (reservation.version !== v.expectedVersion) throw conflict();
+    if ((await allocatedTotal(tx, pre.id)).gt(0))
+      invalid("Consuma as reservas alocadas pela ordem de produção.");
     const open = await remaining(tx, pre.id),
       q = new D(v.quantity);
     if (!q.gt(0)) invalid("Quantidade deve ser positiva.");
@@ -207,6 +210,8 @@ export async function releaseReservation(actor: Actor, raw: unknown) {
       where: { id: pre.id },
     });
     if (row.version !== v.expectedVersion) throw conflict();
+    if ((await allocatedTotal(tx, row.id)).gt(0))
+      invalid("Libere as reservas alocadas pela ordem de produção.");
     const open = await remaining(tx, row.id),
       q = new D(v.quantity);
     if (!q.gt(0) || q.gt(open))
