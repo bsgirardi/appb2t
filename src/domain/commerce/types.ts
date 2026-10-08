@@ -83,6 +83,7 @@ export interface ReceiptSummary {
   overdue: string;
 }
 export interface SaleDTO {
+  fulfillmentMode?: "LEGACY" | "U3";
   costs?: DocumentCostsDTO | null;
   id: string;
   number: string;

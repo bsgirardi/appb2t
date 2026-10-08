@@ -1,3 +1,4 @@
+import { prepareSaleProductionCancellation } from "./production/lifecycle";
 import {
   releaseSaleReservations,
   assertSaleReservationsResolved,
@@ -78,6 +79,7 @@ async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
     number: `VEN-${String(s.sequence).padStart(6, "0")}`,
     quoteId: s.quoteId,
     status: s.status,
+    fulfillmentMode: s.fulfillmentMode as "LEGACY" | "U3",
     version: s.version,
     document: {
       ...(s.document as unknown as DocumentInput),
@@ -283,6 +285,7 @@ export async function confirmSale(
         where: { id },
         data: {
           status: "CONFIRMADA",
+          fulfillmentMode: "U3",
           version: { increment: 1 },
           snapshot: snapshot as unknown as Prisma.InputJsonValue,
           totals: { ...totals },
@@ -351,6 +354,7 @@ export async function convertQuote(
           document: document as unknown as Prisma.InputJsonValue,
           totals: { ...totals },
           status: "CONFIRMADA",
+          fulfillmentMode: "U3",
         },
       });
       const frozen = {
@@ -409,6 +413,7 @@ export async function cancelSale(
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
     assertSaleTransition(sale.status, "CANCELADA");
+    await prepareSaleProductionCancellation(tx, actor, id);
     await releaseSaleReservations(tx, actor, id);
     const entries = await tx.financialEntry.findMany({
       where: { saleInstallment: { saleId: id } },
@@ -459,6 +464,11 @@ export async function transitionSale(
     await lockCommerce(tx, { saleId: id });
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
+    if (sale.fulfillmentMode === "U3")
+      throw new AppError(
+        "VALIDATION",
+        "Use produção e entregas para atualizar esta venda.",
+      );
     assertSaleTransition(sale.status, status);
     if (status === "ENTREGUE") await assertSaleReservationsResolved(tx, id);
     await tx.sale.update({

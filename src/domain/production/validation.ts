@@ -179,3 +179,69 @@ export const deliveryCorrectionSchema = z
     reason,
   })
   .strict();
+export const cancelRemainderSchema = z
+  .object({
+    ...commandMeta,
+    orderId: id,
+    lines: z
+      .array(
+        z
+          .object({
+            lineId: id,
+            unitsToCancel: unitCount,
+            dispositions: z
+              .array(
+                z
+                  .object({
+                    originId: id,
+                    units: positiveUnits,
+                    action: z.enum(["KEEP_SALE", "RELEASE_STOCK", "LOSS"]),
+                  })
+                  .strict(),
+              )
+              .max(100),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(100),
+    reason,
+  })
+  .strict();
+export const adoptSchema = z
+  .object({
+    ...commandMeta,
+    saleId: id,
+    lines: z
+      .array(
+        z
+          .object({
+            saleItemId: id,
+            lineKey: id.optional(),
+            recognizedReadyUnits: unitCount,
+            recognizedDeliveredUnits: unitCount,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(100),
+    reason,
+  })
+  .strict();
+export const productionCorrectionSchema = z
+  .object({
+    ...commandMeta,
+    sourceEventId: id,
+    goodUnitsToReverse: unitCount,
+    failedUnitsToReverse: unitCount,
+    machineMinutes: stockQuantity.nullable(),
+    setupMinutes: stockQuantity.nullable(),
+    finishingMinutes: stockQuantity.nullable(),
+    returns: z
+      .array(z.object({ linkId: id, quantity: stockQuantity }).strict())
+      .max(100),
+    declaration: z.enum(["ENTRY_ERROR", "PHYSICAL_MATERIAL_RETURN"]),
+    effectiveDate: civilDateSchema,
+    reason,
+  })
+  .strict();

@@ -73,6 +73,20 @@ it("allows an operator to manage the full sales workflow without admin configura
   expect(confirmed.status).toBe(200);
   sale = (await confirmed.json()).data;
   expect(sale.receiptSummary.received).toBe("0.00");
+  expect(sale.fulfillmentMode).toBe("U3");
+  expect(
+    (
+      await transition(
+        request({ expectedVersion: sale.version, status: "EM_PRODUCAO" }),
+        ctx,
+      )
+    ).status,
+  ).toBe(422);
+  // Retain coverage of the manual operational workflow for historical sales.
+  await db.sale.update({
+    where: { id: sale.id },
+    data: { fulfillmentMode: "LEGACY" },
+  });
   for (const status of ["EM_PRODUCAO", "PRONTA", "ENTREGUE"]) {
     const response = await transition(
       request({ expectedVersion: sale.version, status }),

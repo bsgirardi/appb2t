@@ -19,7 +19,7 @@ import {
   transitionSale,
 } from "@/server/sales";
 setupDatabase();
-it("consuming a reservation does not deduct available stock twice and cancellation releases remainder", async () => {
+it("legacy sale consumption does not deduct available stock twice and cancellation releases remainder", async () => {
   const actor = await seedUser();
   const item = await saveStockItem(actor, {
     name: "PLA",
@@ -58,6 +58,11 @@ it("consuming a reservation does not deduct available stock twice and cancellati
     [{ number: 1, amount: "100", dueDate: todaySaoPaulo(new Date()) }],
     randomUUID(),
   );
+  // This case exercises the pre-U3 manual status flow, retained for historical sales.
+  await db.sale.update({
+    where: { id: sale.id },
+    data: { fulfillmentMode: "LEGACY" },
+  });
   const reservation = await reserveStock(actor, {
     itemId: item.id,
     saleId: sale.id,
