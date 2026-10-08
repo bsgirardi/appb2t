@@ -81,6 +81,8 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  finishedStock FinishedStock?
+  productionLines ProductionLine[]
   sku String? @unique
   shortDescription String @default("")
   specifications String @default("")
@@ -257,6 +259,11 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ fulfillmentMode String @default("LEGACY")
+ productionOrders ProductionOrder[]
+ finishedStocks FinishedStock[]
+ finishedCommitments FinishedCommitment[]
+ productionDeliveries ProductionDelivery[]
  stockReservations StockReservation[]
  costRevisionId String?
  id String @id @default(cuid())
@@ -558,6 +565,7 @@ model StockIdentity {
 }
 
 model StockMovement {
+  productionLinks ProductionMaterialLink[]
   id             String                    @id @default(cuid())
   sequence       Int                       @unique @default(autoincrement())
   itemId         String
@@ -597,9 +605,12 @@ model StockReservation {
   id        String                  @id @default(cuid())
   itemId    String
   item      StockItem               @relation(fields: [itemId], references: [id], onDelete: Restrict)
-  saleId    String
-  sale      Sale                    @relation(fields: [saleId], references: [id], onDelete: Restrict)
-  lineKey   String
+  saleId    String?
+  sale      Sale?                    @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  lineKey   String?
+  productionLineId String?
+  productionLine ProductionLine? @relation(fields:[productionLineId],references:[id],onDelete:Restrict)
+  productionAllocations ProductionReservationAllocation[]
   version   Int                     @default(1)
   createdAt DateTime                @default(now())
   events    StockReservationEvent[]
@@ -696,3 +707,210 @@ model StockCommand {
   createdAt   DateTime @default(now())
 }
 
+
+model ProductionOrder {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ origin String
+ saleId String?
+ sale Sale? @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ status String @default("RASCUNHO")
+ responsibleId String?
+ dueDate DateTime? @db.Date
+ notes String @default("")
+ version Int @default(1)
+ premises Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ lines ProductionLine[]
+ @@index([status,dueDate])
+}
+model ProductionLine {
+ id String @id @default(cuid())
+ orderId String
+ order ProductionOrder @relation(fields:[orderId],references:[id],onDelete:Restrict)
+ saleLineKey String?
+ productId String?
+ product Product? @relation(fields:[productId],references:[id],onDelete:Restrict)
+ description String
+ technology Technology
+ targetUnits Int
+ plannedPrinterId String?
+ events ProductionEvent[]
+ reservations StockReservation[]
+ reservationAllocations ProductionReservationAllocation[]
+ origins FinishedOrigin[]
+ costRevisions ProductionCostRevision[]
+ @@index([orderId,saleLineKey])
+}
+model ProductionEvent {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ lineId String
+ line ProductionLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ kind String
+ sourceId String?
+ source ProductionEvent? @relation("ProductionCorrection",fields:[sourceId],references:[id],onDelete:Restrict)
+ corrections ProductionEvent[] @relation("ProductionCorrection")
+ reprintOf String?
+ goodUnits Int @default(0)
+ failedUnits Int @default(0)
+ canceledUnits Int @default(0)
+ machineMinutes Decimal? @db.Decimal(24,6)
+ setupMinutes Decimal? @db.Decimal(24,6)
+ finishingMinutes Decimal? @db.Decimal(24,6)
+ materialComplete Boolean @default(false)
+ timeComplete Boolean @default(false)
+ printerId String?
+ executorId String?
+ actorId String
+ premises Json?
+ reason String @default("")
+ effectiveDate DateTime @db.Date
+ createdAt DateTime @default(now())
+ materialLinks ProductionMaterialLink[]
+ origin FinishedOrigin?
+ @@index([lineId,sequence])
+}
+model ProductionMaterialLink {
+ id String @id @default(cuid())
+ eventId String
+ event ProductionEvent @relation(fields:[eventId],references:[id],onDelete:Restrict)
+ movementId String
+ movement StockMovement @relation(fields:[movementId],references:[id],onDelete:Restrict)
+ quantity Decimal @db.Decimal(24,6)
+ @@unique([eventId,movementId])
+ @@index([movementId])
+}
+model ProductionReservationAllocation {
+ id String @id @default(cuid())
+ lineId String
+ line ProductionLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ reservationId String
+ reservation StockReservation @relation(fields:[reservationId],references:[id],onDelete:Restrict)
+ events ProductionReservationEvent[]
+ @@unique([lineId,reservationId])
+}
+model ProductionReservationEvent {
+ id String @id @default(cuid())
+ allocationId String
+ allocation ProductionReservationAllocation @relation(fields:[allocationId],references:[id],onDelete:Restrict)
+ kind String
+ quantity Decimal @db.Decimal(24,6)
+ actorId String
+ reason String @default("")
+ createdAt DateTime @default(now())
+ @@index([allocationId])
+}
+model FinishedStock {
+ id String @id @default(cuid())
+ productId String? @unique
+ product Product? @relation(fields:[productId],references:[id],onDelete:Restrict)
+ ownerSaleId String?
+ ownerSale Sale? @relation(fields:[ownerSaleId],references:[id],onDelete:Restrict)
+ lineKey String?
+ inventoriedAt DateTime?
+ active Boolean @default(true)
+ version Int @default(1)
+ origins FinishedOrigin[]
+ @@unique([ownerSaleId,lineKey])
+}
+model FinishedOrigin {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ stockId String
+ stock FinishedStock @relation(fields:[stockId],references:[id],onDelete:Restrict)
+ kind String
+ lineId String?
+ line ProductionLine? @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ eventId String? @unique
+ event ProductionEvent? @relation(fields:[eventId],references:[id],onDelete:Restrict)
+ initialValue Decimal? @db.Decimal(24,6)
+ createdAt DateTime @default(now())
+ movements FinishedMovement[]
+ commitments FinishedCommitment[]
+ @@index([stockId,sequence])
+}
+model FinishedMovement {
+ id String @id @default(cuid())
+ originId String
+ origin FinishedOrigin @relation(fields:[originId],references:[id],onDelete:Restrict)
+ kind String
+ units Int
+ sourceId String?
+ source FinishedMovement? @relation("FinishedCorrection",fields:[sourceId],references:[id],onDelete:Restrict)
+ corrections FinishedMovement[] @relation("FinishedCorrection")
+ actorId String
+ reason String @default("")
+ effectiveDate DateTime @db.Date
+ createdAt DateTime @default(now())
+ deliveryLine ProductionDeliveryLine?
+ @@index([originId])
+}
+model FinishedCommitment {
+ id String @id @default(cuid())
+ saleId String
+ sale Sale @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ lineKey String
+ originId String
+ origin FinishedOrigin @relation(fields:[originId],references:[id],onDelete:Restrict)
+ events FinishedCommitmentEvent[]
+ deliveryLines ProductionDeliveryLine[]
+ @@unique([saleId,lineKey,originId])
+}
+model FinishedCommitmentEvent {
+ id String @id @default(cuid())
+ commitmentId String
+ commitment FinishedCommitment @relation(fields:[commitmentId],references:[id],onDelete:Restrict)
+ kind String
+ units Int
+ actorId String
+ reason String @default("")
+ createdAt DateTime @default(now())
+ @@index([commitmentId])
+}
+model ProductionDelivery {
+ id String @id @default(cuid())
+ saleId String
+ sale Sale @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ version Int @default(1)
+ actorId String
+ effectiveDate DateTime @db.Date
+ notes String @default("")
+ sourceId String?
+ source ProductionDelivery? @relation("DeliveryCorrection",fields:[sourceId],references:[id],onDelete:Restrict)
+ corrections ProductionDelivery[] @relation("DeliveryCorrection")
+ createdAt DateTime @default(now())
+ lines ProductionDeliveryLine[]
+ @@index([saleId,createdAt])
+}
+model ProductionDeliveryLine {
+ id String @id @default(cuid())
+ deliveryId String
+ delivery ProductionDelivery @relation(fields:[deliveryId],references:[id],onDelete:Restrict)
+ lineKey String
+ commitmentId String
+ commitment FinishedCommitment @relation(fields:[commitmentId],references:[id],onDelete:Restrict)
+ units Int
+ movementId String @unique
+ movement FinishedMovement @relation(fields:[movementId],references:[id],onDelete:Restrict)
+ sourceLineId String?
+ @@index([deliveryId])
+}
+model ProductionCostRevision {
+ id String @id @default(cuid())
+ lineId String
+ line ProductionLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ factsHash String
+ result Json
+ createdAt DateTime @default(now())
+ @@unique([lineId,factsHash])
+}
+model ProductionCommand {
+ key String @id
+ type String
+ payloadHash String
+ result Json
+ actorId String
+ createdAt DateTime @default(now())
+}

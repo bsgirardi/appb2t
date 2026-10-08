@@ -11,6 +11,9 @@ export function setupDatabase() {
     )
       throw new Error("Tests require local b2t_test database");
     await db.$executeRawUnsafe(
+      'TRUNCATE "ProductionCommand", "ProductionOrder", "FinishedStock", "ProductionDelivery" CASCADE',
+    );
+    await db.$executeRawUnsafe(
       'TRUNCATE "StockCommand", "StockItem", "PurchaseReceipt" CASCADE',
     );
     await db.$executeRawUnsafe(

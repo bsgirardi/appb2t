@@ -244,8 +244,10 @@ export async function listReservations(_actor: Actor, raw: unknown = {}) {
             name: r.item.name,
             unit: r.item.unit,
             saleId: r.saleId,
-            saleNumber: `VEN-${String(r.sale.sequence).padStart(6, "0")}`,
-            saleStatus: r.sale.status,
+            saleNumber: r.sale
+              ? `VEN-${String(r.sale.sequence).padStart(6, "0")}`
+              : "Produção para estoque",
+            saleStatus: r.sale?.status ?? null,
             lineKey: r.lineKey,
             version: r.version,
             reserved: sum("RESERVE").toFixed(),

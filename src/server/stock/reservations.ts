@@ -100,10 +100,13 @@ export async function consumeStock(actor: Actor, raw: unknown) {
     where: { id: v.reservationId },
   });
   if (!pre) throw new AppError("NOT_FOUND", "Reserva não encontrada.");
+  if (!pre.saleId)
+    invalid("Use o apontamento da ordem para consumir esta reserva.");
+  const saleId = pre.saleId ?? invalid("Reserva sem venda.");
   return runStockCommand(actor, "CONSUME", v, async (tx) => {
     checkDate(v.effectiveDate, v.reason);
-    await lockCommerce(tx, { saleId: pre.saleId });
-    await reservable(tx, pre.saleId, true);
+    await lockCommerce(tx, { saleId });
+    await reservable(tx, saleId, true);
     await lockStockItems(tx, [pre.itemId]);
     const reservation = await tx.stockReservation.findUniqueOrThrow({
       where: { id: pre.id },
@@ -195,8 +198,10 @@ export async function releaseReservation(actor: Actor, raw: unknown) {
     where: { id: v.reservationId },
   });
   if (!pre) throw new AppError("NOT_FOUND", "Reserva não encontrada.");
+  if (!pre.saleId) invalid("Libere esta reserva pela ordem de produção.");
+  const saleId = pre.saleId ?? invalid("Reserva sem venda.");
   return runStockCommand(actor, "RELEASE", v, async (tx) => {
-    await lockCommerce(tx, { saleId: pre.saleId });
+    await lockCommerce(tx, { saleId });
     await lockStockItems(tx, [pre.itemId]);
     const row = await tx.stockReservation.findUniqueOrThrow({
       where: { id: pre.id },
