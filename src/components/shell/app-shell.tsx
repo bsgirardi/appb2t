@@ -62,6 +62,7 @@ export function AppShell({
         ["/clientes", "Clientes"],
         ["/orcamentos", "Orçamentos"],
         ["/vendas", "Vendas"],
+        ["/producao", "Produção"],
         ["/estoque", "Estoque"],
       ].map(([href, label]) => (
         <Button
@@ -300,23 +301,27 @@ export function AppShell({
           <span>
             Gestão <span className="slash">/</span>{" "}
             <strong>
-              {path.startsWith("/financeiro")
-                ? "Financeiro"
-                : path.startsWith("/clientes")
-                  ? "Clientes"
-                  : path.startsWith("/orcamentos")
-                    ? "Orçamentos"
-                    : path.startsWith("/vendas")
-                      ? "Vendas"
-                      : path.startsWith("/colecoes")
-                        ? "Coleções"
-                        : path.startsWith("/configuracoes")
-                          ? "Configurações"
-                          : path.startsWith("/produtos")
-                            ? "Produtos"
-                            : path === "/conta"
-                              ? "Minha conta"
-                              : "Calculadora de custos"}
+              {path.startsWith("/producao")
+                ? "Produção e entrega"
+                : path.startsWith("/estoque")
+                  ? "Estoque"
+                  : path.startsWith("/financeiro")
+                    ? "Financeiro"
+                    : path.startsWith("/clientes")
+                      ? "Clientes"
+                      : path.startsWith("/orcamentos")
+                        ? "Orçamentos"
+                        : path.startsWith("/vendas")
+                          ? "Vendas"
+                          : path.startsWith("/colecoes")
+                            ? "Coleções"
+                            : path.startsWith("/configuracoes")
+                              ? "Configurações"
+                              : path.startsWith("/produtos")
+                                ? "Produtos"
+                                : path === "/conta"
+                                  ? "Minha conta"
+                                  : "Calculadora de custos"}
             </strong>
           </span>
           <span className="internal-chip">

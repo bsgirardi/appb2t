@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { assertAdmin } from "@/server/auth/authorization";
@@ -7,7 +6,7 @@ import { StockDecimal as D } from "@/domain/stock/quantities";
 import { civilDateToDb } from "@/domain/commerce/dates";
 import { checkDate, invalid, postMovement } from "@/server/stock/movements";
 import { runProductionCommand } from "./commands";
-import { lineContext, orderDTO } from "./orders";
+import { lineContext, orderDTO, demand } from "./orders";
 import { lockProduction } from "./locks";
 import { originBalance } from "./finished-stock";
 import { projectSale } from "./fulfillment";
@@ -51,7 +50,7 @@ export async function correctProduction(actor: Actor, raw: unknown) {
           previous.reduce((n, e) => n.plus(e[key]?.toString() ?? 0), new D(0)),
         );
       if (q.gt(net)) invalid("Correção excede o tempo registrado.");
-      return v[key] === null ? null : q.negated().toFixed();
+      return q.negated().toFixed();
     };
     if (v.goodUnitsToReverse) {
       if (
@@ -142,6 +141,36 @@ export async function correctProduction(actor: Actor, raw: unknown) {
       const item = await tx.stockItem.findUniqueOrThrow({
         where: { id: link!.movement.itemId },
       });
+      const sourceAllocations = await tx.stockMovementAllocation.findMany({
+        where: { movementId: link!.movementId },
+        orderBy: { id: "asc" },
+      });
+      const returnAllocations = await tx.stockMovementAllocation.findMany({
+        where: {
+          movement: { sourceId: link!.movementId, kind: "RETURN_CONSUMPTION" },
+        },
+      });
+      let left = q;
+      const allocations: { identityId: string | null; quantity: string }[] = [];
+      for (const original of sourceAllocations) {
+        const already = returnAllocations
+          .filter((a) => a.identityId === original.identityId)
+          .reduce((n, a) => n.plus(a.quantity.toString()), new D(0));
+        const available = new D(original.quantity.abs().toString()).minus(
+          already,
+        );
+        const quantity = D.min(left, D.max(0, available));
+        if (quantity.gt(0)) {
+          allocations.push({
+            identityId: original.identityId,
+            quantity: quantity.toFixed(),
+          });
+          left = left.minus(quantity);
+        }
+        if (left.isZero()) break;
+      }
+      if (left.gt(0))
+        invalid("Devolução excede as identificações do consumo original.");
       await postMovement(tx, actor, {
         operationKey: v.operationKey,
         expectedVersion: item.version,
@@ -149,6 +178,7 @@ export async function correctProduction(actor: Actor, raw: unknown) {
         kind: "RETURN_CONSUMPTION",
         sourceId: link!.movementId,
         quantity: r.quantity,
+        allocations,
         effectiveDate: v.effectiveDate,
         reason: `${v.declaration}: ${v.reason}`,
       });
@@ -169,7 +199,11 @@ export async function correctProduction(actor: Actor, raw: unknown) {
       where: { id: o.id },
       data: { status: "EM_EXECUCAO", version: { increment: 1 } },
     });
-    if (o.saleId) await projectSale(tx, o.saleId);
+    if (o.saleId) {
+      for (const key of new Set(o.lines.map((line) => line.saleLineKey!)))
+        await demand(tx, o.saleId, key);
+      await projectSale(tx, o.saleId);
+    }
     return orderDTO(tx, o.id);
   });
 }

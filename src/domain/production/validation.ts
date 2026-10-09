@@ -63,6 +63,20 @@ export const orderSaveSchema = z
 export const orderActionSchema = z
   .object({ ...commandMeta, orderId: id })
   .strict();
+export const orderPlanningSchema = z
+  .object({
+    ...commandMeta,
+    orderId: id,
+    responsibleId: id.nullable(),
+    dueDate: civilDateSchema.nullable(),
+    notes: z.string().max(2000),
+    reason,
+    lines: z
+      .array(z.object({ lineId: id, plannedPrinterId: id.nullable() }).strict())
+      .min(1)
+      .max(100),
+  })
+  .strict();
 export const orderReserveSchema = z
   .object({
     ...commandMeta,

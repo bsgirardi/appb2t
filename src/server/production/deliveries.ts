@@ -24,7 +24,7 @@ export async function deliveryDTO(tx: Prisma.TransactionClient, id: string) {
     createdAt: d.createdAt.toISOString(),
   };
 }
-async function assertFinalDelivery(
+export async function assertFinalDelivery(
   tx: Prisma.TransactionClient,
   saleId: string,
 ) {

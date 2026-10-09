@@ -7,8 +7,16 @@ import { civilDateSchema } from "@/domain/commerce/validation";
 import { requireProductionActor } from "./commands";
 import { orderDTO } from "./orders";
 import { refreshProductionCosts } from "./costs";
-import { finishedDTO, originBalance } from "./finished-stock";
-import { allocationRemaining } from "./reservations";
+import {
+  finishedDTO,
+  originBalance,
+  restrictedOriginSale,
+} from "./finished-stock";
+import {
+  allocationRemaining,
+  reservationRemaining,
+  allocatedTotal,
+} from "./reservations";
 import { commitmentRemaining } from "./fulfillment";
 export const productionFilterSchema = z
   .object({
@@ -88,8 +96,44 @@ export async function getOrder(actor: Actor, id: string) {
       where: { line: { orderId: id } },
       include: { commitments: true },
     });
+    const saleReservations = dto.saleId
+      ? await tx.stockReservation.findMany({
+          where: { saleId: dto.saleId },
+          include: {
+            item: { select: { name: true, unit: true } },
+            events: { where: { kind: "CONSUME" } },
+          },
+        })
+      : [];
     return {
       ...dto,
+      saleReservations: await Promise.all(
+        saleReservations.map(async (r) => ({
+          id: r.id,
+          version: r.version,
+          lineKey: r.lineKey,
+          itemId: r.itemId,
+          name: r.item.name,
+          unit: r.item.unit,
+          available: (await reservationRemaining(tx, r.id))
+            .minus(await allocatedTotal(tx, r.id))
+            .toFixed(),
+        })),
+      ),
+      previousConsumptions: saleReservations.flatMap((r) =>
+        r.events.flatMap((e) =>
+          e.movementId
+            ? [
+                {
+                  id: e.movementId,
+                  lineKey: r.lineKey,
+                  name: r.item.name,
+                  quantity: e.quantity.toFixed(),
+                },
+              ]
+            : [],
+        ),
+      ),
       events: events.map((e) => ({
         id: e.id,
         lineId: e.lineId,
@@ -154,6 +198,20 @@ export async function listFinished(actor: Actor, raw: unknown = {}) {
   const where: Prisma.FinishedStockWhereInput = f.query
     ? { product: { name: { contains: f.query, mode: "insensitive" } } }
     : {};
+  if (f.saleId) {
+    const items = await db.saleItem.findMany({
+      where: { saleId: f.saleId },
+      select: { productId: true },
+    });
+    where.OR = [
+      {
+        productId: {
+          in: items.flatMap((i) => (i.productId ? [i.productId] : [])),
+        },
+      },
+      { ownerSaleId: f.saleId },
+    ];
+  }
   return db.$transaction(async (tx) => {
     const rows = await tx.finishedStock.findMany({
       where,
@@ -162,8 +220,8 @@ export async function listFinished(actor: Actor, raw: unknown = {}) {
         origins: { orderBy: { sequence: "asc" } },
       },
       orderBy: { id: "asc" },
-      skip: (f.page - 1) * f.pageSize,
-      take: f.pageSize,
+      skip: f.saleId ? undefined : (f.page - 1) * f.pageSize,
+      take: f.saleId ? undefined : f.pageSize,
     });
     return {
       items: await Promise.all(
@@ -176,6 +234,7 @@ export async function listFinished(actor: Actor, raw: unknown = {}) {
             s.origins.map(async (o) => ({
               id: o.id,
               kind: o.kind,
+              restrictedSaleId: await restrictedOriginSale(tx, o.id),
               lineId: o.lineId,
               ...(await originBalance(tx, o.id)),
             })),
@@ -229,7 +288,12 @@ export async function productionOptions(actor: Actor) {
     }),
     db.stockItem.findMany({
       where: { active: true, inventoriedAt: { not: null } },
-      select: { id: true, name: true, unit: true },
+      select: {
+        id: true,
+        name: true,
+        unit: true,
+        identities: { select: { id: true, label: true } },
+      },
       orderBy: { name: "asc" },
     }),
     db.sale.findMany({
@@ -265,8 +329,31 @@ export async function saleProduction(actor: Actor, saleId: string) {
       where: { saleId },
       include: { origin: { include: { stock: true } } },
     });
+    const deliveries = await tx.productionDelivery.findMany({
+      where: { saleId },
+      include: { lines: true },
+      orderBy: { createdAt: "desc" },
+    });
     return {
       id: sale.id,
+      deliveries: deliveries.map((d) => ({
+        id: d.id,
+        version: d.version,
+        sourceId: d.sourceId,
+        effectiveDate: d.effectiveDate.toISOString().slice(0, 10),
+        notes: d.notes,
+        lines: d.lines.map((l) => ({
+          id: l.id,
+          lineKey: l.lineKey,
+          units: l.units,
+          remaining:
+            l.units +
+            deliveries
+              .flatMap((x) => x.lines)
+              .filter((x) => x.sourceLineId === l.id)
+              .reduce((n, x) => n + x.units, 0),
+        })),
+      })),
       version: sale.version,
       fulfillmentMode: sale.fulfillmentMode,
       lines: await Promise.all(

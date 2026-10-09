@@ -101,6 +101,10 @@ export async function cancelOrderRemainder(actor: Actor, raw: unknown) {
           )
             invalid("Informe a destinação de todas as peças restantes.");
           if (!d) continue;
+          if (d.units > Number(state.physical))
+            invalid(
+              "A destinação excede as peças ainda existentes nesta origem.",
+            );
           if (d.action === "KEEP_SALE") {
             if (!o.saleId || Number(state.reserved) !== d.units)
               invalid(
@@ -110,7 +114,10 @@ export async function cancelOrderRemainder(actor: Actor, raw: unknown) {
           }
           if (d.action === "RELEASE_STOCK" && !origin.stock.productId)
             invalid("Peça avulsa não pode virar estoque de produto.");
-          for (const c of origin.commitments) {
+          const commitments = await tx.finishedCommitment.findMany({
+            where: { originId: origin.id },
+          });
+          for (const c of commitments) {
             const q = await commitmentRemaining(tx, c.id);
             if (q) {
               if (c.saleId !== o.saleId)
@@ -151,6 +158,7 @@ export async function cancelOrderRemainder(actor: Actor, raw: unknown) {
           data: {
             lineId: l!.id,
             kind: "CLOSE_REMAINDER",
+            premises: { dispositions: input.dispositions },
             canceledUnits: input.unitsToCancel,
             actorId: actor.id,
             reason: v.reason,

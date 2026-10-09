@@ -7,6 +7,8 @@ import { invalid } from "@/server/stock/movements";
 import { runProductionCommand } from "./commands";
 import { lockProduction } from "./locks";
 import { projectSale } from "./fulfillment";
+import { originBalance, restrictedOriginSale } from "./finished-stock";
+import { assertFinalDelivery } from "./deliveries";
 export async function adoptSaleProduction(actor: Actor, raw: unknown) {
   assertAdmin(actor);
   const v = adoptSchema.parse(raw);
@@ -63,7 +65,50 @@ export async function adoptSaleProduction(actor: Actor, raw: unknown) {
           create: { ownerSaleId: sale.id, lineKey, inventoriedAt: new Date() },
           update: {},
         });
-      const total = input.recognizedReadyUnits + input.recognizedDeliveredUnits;
+      if (item!.productId && input.recognizedReadyUnits) {
+        let remaining = input.recognizedReadyUnits;
+        const origins = await tx.finishedOrigin.findMany({
+          where: { stockId: stock!.id },
+          orderBy: { sequence: "asc" },
+        });
+        for (const origin of origins) {
+          const restricted = await restrictedOriginSale(tx, origin.id);
+          if (restricted && restricted !== sale.id) continue;
+          const units = Math.min(
+            remaining,
+            Number((await originBalance(tx, origin.id)).available),
+          );
+          if (!units) continue;
+          await tx.finishedCommitment.create({
+            data: {
+              saleId: sale.id,
+              lineKey,
+              originId: origin.id,
+              events: {
+                create: {
+                  kind: "RESERVE",
+                  units,
+                  actorId: actor.id,
+                  reason: v.reason,
+                },
+              },
+            },
+          });
+          remaining -= units;
+          if (!remaining) break;
+        }
+        if (remaining)
+          invalid(
+            "As peças prontas reconhecidas excedem o estoque disponível. Concilie o inventário antes da adesão.",
+          );
+        await tx.finishedStock.update({
+          where: { id: stock!.id },
+          data: { version: { increment: 1 } },
+        });
+      }
+      const total =
+        (item!.productId ? 0 : input.recognizedReadyUnits) +
+        input.recognizedDeliveredUnits;
       if (!total) continue;
       const origin = await tx.finishedOrigin.create({
         data: {
@@ -141,6 +186,7 @@ export async function adoptSaleProduction(actor: Actor, raw: unknown) {
       where: { id: sale.id },
       data: { fulfillmentMode: "U3" },
     });
+    await assertFinalDelivery(tx, sale.id);
     await projectSale(tx, sale.id);
     await tx.commerceEvent.create({
       data: {

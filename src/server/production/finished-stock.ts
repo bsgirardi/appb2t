@@ -19,6 +19,32 @@ export async function finishedRow(tx: Prisma.TransactionClient, id: string) {
   if (!s) throw new AppError("NOT_FOUND", "Estoque de peças não encontrado.");
   return s;
 }
+export async function restrictedOriginSale(
+  tx: Prisma.TransactionClient,
+  originId: string,
+): Promise<string | null> {
+  const origin = await tx.finishedOrigin.findUniqueOrThrow({
+    where: { id: originId },
+    include: {
+      line: {
+        include: {
+          order: true,
+          events: { where: { kind: "CLOSE_REMAINDER" } },
+        },
+      },
+    },
+  });
+  if (!origin.line?.order.saleId) return null;
+  const released = origin.line.events.some((e) => {
+    const p = e.premises as {
+      dispositions?: { originId: string; action: string }[];
+    } | null;
+    return p?.dispositions?.some(
+      (d) => d.originId === originId && d.action === "RELEASE_STOCK",
+    );
+  });
+  return released ? null : origin.line.order.saleId;
+}
 export async function originBalance(
   tx: Prisma.TransactionClient,
   originId: string,

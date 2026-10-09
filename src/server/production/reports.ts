@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { projectSale } from "./fulfillment";
 import { conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { reportSchema } from "@/domain/production/validation";
@@ -80,6 +80,10 @@ export async function recordProduction(actor: Actor, raw: unknown) {
     });
     if (!current.active || !current.inventoriedAt)
       invalid("Estoque de peças indisponível.");
+    const planned = (
+      o.premises as { plannedPrinters?: Record<string, { id: string }> } | null
+    )?.plannedPrinters?.[l.id];
+    const printerPremises = planned?.id === printer?.id ? planned : printer;
     const event = await tx.productionEvent.create({
       data: {
         lineId: l.id,
@@ -100,7 +104,9 @@ export async function recordProduction(actor: Actor, raw: unknown) {
         premises: {
           settings: o.premises,
           manualStage: v.manualStage,
-          printer: printer ? JSON.parse(JSON.stringify(printer)) : null,
+          printer: printerPremises
+            ? JSON.parse(JSON.stringify(printerPremises))
+            : null,
         },
       },
     });
@@ -213,6 +219,7 @@ export async function recordProduction(actor: Actor, raw: unknown) {
       where: { id: o.id },
       data: { status: "EM_EXECUCAO", version: { increment: 1 } },
     });
+    if (o.saleId) await projectSale(tx, o.saleId);
     return orderDTO(tx, o.id);
   });
 }

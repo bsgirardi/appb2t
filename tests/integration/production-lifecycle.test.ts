@@ -82,3 +82,65 @@ it("closes only fulfilled goals and keeps consumed execution when canceling rema
     transitionSale(a, s.id, current.version, "EM_PRODUCAO"),
   ).rejects.toThrow();
 });
+
+it("cannot record a loss against an origin already fully delivered", async () => {
+  const { recordDelivery } = await import("@/server/production/deliveries");
+  const a = await seedUser(),
+    s = await sale(undefined, 1);
+  let o = await saveOrder(a, {
+    ...meta(),
+    origin: "SALE",
+    saleId: s.id,
+    lines: [
+      {
+        saleLineKey: "line1",
+        description: "Peça",
+        technology: "FDM",
+        targetUnits: 1,
+      },
+    ],
+  });
+  o = await releaseOrder(a, { ...meta(o.version), orderId: o.id });
+  o = await recordProduction(a, {
+    ...meta(o.version),
+    lineId: o.lines[0].id,
+    executorId: a.id,
+    manualStage: true,
+    goodUnits: 1,
+    failedUnits: 0,
+    machineMinutes: null,
+    setupMinutes: "0",
+    finishingMinutes: "0",
+    timeComplete: true,
+    materialComplete: true,
+    materials: [],
+    effectiveDate: date(),
+  });
+  const c = await db.finishedCommitment.findFirstOrThrow(),
+    current = await db.sale.findUniqueOrThrow({ where: { id: s.id } });
+  await recordDelivery(a, {
+    ...meta(current.version),
+    saleId: s.id,
+    lines: [
+      { lineKey: "line1", allocations: [{ commitmentId: c.id, units: 1 }] },
+    ],
+    effectiveDate: date(),
+  });
+  await expect(
+    cancelOrderRemainder(a, {
+      ...meta(o.version),
+      orderId: o.id,
+      lines: [
+        {
+          lineId: o.lines[0].id,
+          unitsToCancel: 0,
+          dispositions: [{ originId: c.originId, units: 1, action: "LOSS" }],
+        },
+      ],
+      reason: "Perda indevida",
+    }),
+  ).rejects.toThrow();
+  expect(
+    (await db.finishedMovement.aggregate({ _sum: { units: true } }))._sum.units,
+  ).toBe(0);
+});

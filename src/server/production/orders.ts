@@ -6,12 +6,14 @@ import type { OrderDTO } from "@/domain/production/types";
 import {
   orderSaveSchema,
   orderActionSchema,
+  orderPlanningSchema,
 } from "@/domain/production/validation";
 import { demandRemaining } from "@/domain/production/quantities";
 import { civilDateToDb } from "@/domain/commerce/dates";
 import { invalid } from "@/server/stock/movements";
 import { lockProduction } from "./locks";
 import { runProductionCommand } from "./commands";
+import { projectSale } from "./fulfillment";
 export async function orderRow(tx: Prisma.TransactionClient, id: string) {
   const o = await tx.productionOrder.findUnique({
     where: { id },
@@ -275,16 +277,29 @@ export async function releaseOrder(
       }
     }
     const settings = await tx.pricingSettings.findUnique({ where: { id: 1 } });
+    const plannedPrinters: Prisma.JsonObject = {};
+    for (const line of o.lines)
+      if (line.plannedPrinterId)
+        plannedPrinters[line.id] = JSON.parse(
+          JSON.stringify(
+            await tx.printer.findUniqueOrThrow({
+              where: { id: line.plannedPrinterId },
+            }),
+          ),
+        );
     await tx.productionOrder.update({
       where: { id: o.id },
       data: {
         status: "LIBERADA",
         version: { increment: 1 },
-        premises: settings
-          ? { version: settings.version, values: settings.values }
-          : Prisma.JsonNull,
+        premises: {
+          version: settings?.version ?? null,
+          values: settings?.values ?? null,
+          plannedPrinters,
+        },
       },
     });
+    if (o.saleId) await projectSale(tx, o.saleId);
     return orderDTO(tx, o.id);
   });
 }
@@ -292,4 +307,90 @@ export async function findOrderId(lineId: string) {
   const l = await db.productionLine.findUnique({ where: { id: lineId } });
   if (!l) throw new AppError("NOT_FOUND", "Linha não encontrada.");
   return l.orderId;
+}
+export async function updateOrderPlanning(
+  actor: Actor,
+  raw: unknown,
+): Promise<OrderDTO> {
+  const v = orderPlanningSchema.parse(raw);
+  return runProductionCommand(actor, "ORDER_PLAN", v, async (tx) => {
+    const o = await lockOrder(tx, v.orderId);
+    if (o.version !== v.expectedVersion) throw conflict();
+    executable(o.status);
+    if (
+      v.lines.length !== o.lines.length ||
+      new Set(v.lines.map((l) => l.lineId)).size !== o.lines.length ||
+      v.lines.some((l) => !o.lines.some((x) => x.id === l.lineId))
+    )
+      invalid("Informe todas as linhas da ordem uma única vez.");
+    await validatePeople(
+      tx,
+      v.responsibleId,
+      v.lines.map((l) => ({
+        ...l,
+        technology: o.lines.find((x) => x.id === l.lineId)!.technology,
+      })),
+    );
+    const premises = (
+      o.premises && typeof o.premises === "object" && !Array.isArray(o.premises)
+        ? o.premises
+        : {}
+    ) as Prisma.JsonObject;
+    const plannedPrinters = {
+      ...((premises.plannedPrinters ?? {}) as Prisma.JsonObject),
+    };
+    for (const line of v.lines) {
+      const old = o.lines.find((l) => l.id === line.lineId)!;
+      if (old.plannedPrinterId !== line.plannedPrinterId)
+        plannedPrinters[line.lineId] = line.plannedPrinterId
+          ? JSON.parse(
+              JSON.stringify(
+                await tx.printer.findUniqueOrThrow({
+                  where: { id: line.plannedPrinterId },
+                }),
+              ),
+            )
+          : null;
+      await tx.productionLine.update({
+        where: { id: line.lineId },
+        data: { plannedPrinterId: line.plannedPrinterId },
+      });
+      await tx.productionEvent.create({
+        data: {
+          lineId: line.lineId,
+          kind: "UPDATE",
+          actorId: actor.id,
+          reason: v.reason,
+          effectiveDate: new Date(),
+          premises: {
+            planning: {
+              before: {
+                responsibleId: o.responsibleId,
+                dueDate: o.dueDate?.toISOString() ?? null,
+                notes: o.notes,
+                plannedPrinterId: old.plannedPrinterId,
+              },
+              after: {
+                responsibleId: v.responsibleId,
+                dueDate: v.dueDate,
+                notes: v.notes,
+                plannedPrinterId: line.plannedPrinterId,
+              },
+            },
+          },
+        },
+      });
+    }
+    await tx.productionOrder.update({
+      where: { id: o.id },
+      data: {
+        responsibleId: v.responsibleId,
+        dueDate: v.dueDate ? civilDateToDb(v.dueDate) : null,
+        notes: v.notes,
+        premises: { ...premises, plannedPrinters },
+        version: { increment: 1 },
+      },
+    });
+    return orderDTO(tx, o.id);
+  });
 }

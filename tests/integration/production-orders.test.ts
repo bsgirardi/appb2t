@@ -12,12 +12,12 @@ it("allocates sale targets under lock without reserving drafts", async () => {
   const a = await seedUser(),
     p = await product(),
     s = await sale(p.id);
-  let stock = await saveFinishedStock(a, {
+  const stock = await saveFinishedStock(a, {
     ...meta(),
     productId: p.id,
     active: true,
   });
-  stock = await openFinishedStock(a, {
+  await openFinishedStock(a, {
     ...meta(stock.version),
     stockId: stock.id,
     units: 0,

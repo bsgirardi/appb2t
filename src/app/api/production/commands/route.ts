@@ -2,7 +2,11 @@ import { z } from "zod";
 import { ok } from "@/lib/http";
 import { requireActor } from "@/server/auth/guards";
 import { productionBody, productionEndpoint } from "@/server/production/http";
-import { saveOrder, releaseOrder } from "@/server/production/orders";
+import {
+  saveOrder,
+  releaseOrder,
+  updateOrderPlanning,
+} from "@/server/production/orders";
 import {
   saveFinishedStock,
   openFinishedStock,
@@ -32,6 +36,7 @@ import { adoptSaleProduction } from "@/server/production/legacy";
 const actions = {
   ORDER_SAVE: saveOrder,
   ORDER_RELEASE: releaseOrder,
+  ORDER_PLAN: updateOrderPlanning,
   FINISHED_SAVE: saveFinishedStock,
   FINISHED_OPEN: openFinishedStock,
   FINISHED_ADJUST: adjustFinishedStock,

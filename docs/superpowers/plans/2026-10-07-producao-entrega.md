@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-07-producao-entrega-design.md`, aprovada em 07/10/2026.
 
-**Status:** plano para revisão; implementação não iniciada. Base: `4faf429`, U2 em `76eb2ec`.
+**Status:** aprovado pelo usuário e executado na branch `codex/producao-u3`, a partir de `540f242`. Fechamento e decisões: [versão candidata U3](../2026-10-09-u3-entrega.md). Integração/publicação pendentes.
 
 ## Global Constraints
 
@@ -181,4 +181,8 @@ FKs restritivas para fatos; índices de origem, venda/linha, ordem/status/prazo,
 
 Spec1–3: tarefas1–3; spec4:3–4; spec5:2/4/5; spec6:6; spec7:5/7; spec8:4/5/7; spec9:2/8/9; spec10: testes distribuídos e tarefa10. Os cinco riscos de Review Focus possuem testes nas tarefas indicadas. Nenhuma expansão U4/U5/U6 incluída.
 
-Revisão interna: ordem dos locks inclui peças avulsas; proteção de correções genéricas U2 definida; custo é atualizado por revisão em leitura ADMIN sem inverter locks de compras; modo legado e conversão de orçamento contemplados; zero desconhecido, parcelas e snapshots preservados. Especificação aprovada; plano aguardando revisão do usuário antes de código. Método direto com revisão independente final preservado, sem solicitar escolha novamente.
+Revisão interna: ordem dos locks inclui peças avulsas; proteção de correções genéricas U2 definida; custo é atualizado por revisão em leitura ADMIN sem inverter locks de compras; modo legado e conversão de orçamento contemplados; zero desconhecido, parcelas e snapshots preservados. Especificação e plano aprovados pelo usuário antes da implementação. Método direto com revisão independente final preservado, sem solicitar escolha novamente.
+
+## Fechamento em 09/10/2026
+
+As tarefas 1–10 foram implementadas e verificadas como conjunto. As listas acima conservam o roteiro original; o relatório de entrega e docs/VALIDACAO.md registram a evidência efetivamente executada e as adaptações, sem tratar cada comando proposto como execução literal. Revisão independente concluída após regressões dos achados. A etapa de publicação U3 permanece separada.

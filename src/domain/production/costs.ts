@@ -104,4 +104,33 @@ export function calculateProductionCost(v: ProductionCostInput) {
 export type LineCostDTO = ReturnType<typeof calculateProductionCost> & {
   revisionId?: string;
   lineId?: string;
+  origins?: {
+    originId: string;
+    units: number;
+    value: string | null;
+    allocations: {
+      kind: string;
+      id: string;
+      units: number;
+      value: string | null;
+    }[];
+  }[];
 };
+export function apportionProductionCost(
+  total: string | null,
+  units: number[],
+): (string | null)[] {
+  const count = units.reduce((n, x) => n + x, 0);
+  let allocated = new D(0);
+  const last = units.findLastIndex((n) => n > 0);
+  return units.map((n, i) => {
+    if (total === null) return null;
+    if (!count) return "0";
+    const value =
+      i === last
+        ? new D(total).minus(allocated)
+        : new D(total).times(n).div(count).toDecimalPlaces(6);
+    allocated = allocated.plus(value);
+    return value.toFixed();
+  });
+}

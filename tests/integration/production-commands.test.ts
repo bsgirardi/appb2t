@@ -36,3 +36,53 @@ it("retries opening once and rejects payload changes and inactive actors", async
     code: "FORBIDDEN",
   });
 });
+
+it("uses current permissions for replay and never returns costs to an operator", async () => {
+  const { sale } = await import("../fixtures/production");
+  const { saveOrder, releaseOrder } =
+    await import("@/server/production/orders");
+  const { getOrder } = await import("@/server/production/queries");
+  const a = await seedUser(),
+    s = await sale();
+  const payload = {
+    ...meta(),
+    origin: "SALE",
+    saleId: s.id,
+    lines: [
+      {
+        saleLineKey: "line1",
+        description: "Peça",
+        technology: "FDM",
+        targetUnits: 1,
+      },
+    ],
+  };
+  const draft = await saveOrder(a, payload);
+  await releaseOrder(a, { ...meta(draft.version), orderId: draft.id });
+  const p = await product(),
+    stock = await saveFinishedStock(a, { ...meta(), productId: p.id });
+  const opening = {
+    ...meta(stock.version),
+    stockId: stock.id,
+    units: 1,
+    value: "99",
+    effectiveDate: date(),
+  };
+  await openFinishedStock(a, opening);
+  const op = await db.user.update({
+    where: { id: a.id },
+    data: { role: "OPERATOR" },
+  });
+  const detail = await getOrder(op, draft.id),
+    replay = await saveOrder(op, payload);
+  for (const response of [detail, replay])
+    expect(JSON.stringify(response)).not.toMatch(
+      /"(?:cost|premises|unitCost|initialValue|total|knownTotal|manualUnitCost)"/,
+    );
+  await expect(openFinishedStock(op, opening)).rejects.toMatchObject({
+    code: "FORBIDDEN",
+  });
+  await expect(getOrder(a, draft.id)).rejects.toMatchObject({
+    code: "FORBIDDEN",
+  });
+});

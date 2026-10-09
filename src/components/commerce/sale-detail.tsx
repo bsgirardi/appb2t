@@ -125,7 +125,14 @@ export function SaleDetail({
             Editar rascunho
           </Button>
         )}
-        {next[sale.status] && (
+        {sale.status !== "RASCUNHO" && sale.status !== "CANCELADA" && (
+          <Button asChild variant="outline">
+            <Link href={`/producao?saleId=${sale.id}`}>
+              Produção e entregas
+            </Link>
+          </Button>
+        )}
+        {sale.fulfillmentMode !== "U3" && next[sale.status] && (
           <Button
             variant="default"
             size="sm"

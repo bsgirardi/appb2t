@@ -73,6 +73,9 @@ export default async function StockPage({
         </div>
       </div>
       <nav aria-label="Visões de estoque" className="flex flex-wrap gap-2">
+        <Button asChild variant="outline">
+          <Link href="/producao?view=finished">Peças prontas</Link>
+        </Button>
         {[
           ["items", "Materiais"],
           ["receipts", "Recebimentos"],

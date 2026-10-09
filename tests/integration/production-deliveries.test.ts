@@ -29,7 +29,7 @@ it("delivers partial pieces without negative stock or additional financial event
     effectiveDate: date(),
   });
   const origin = await db.finishedOrigin.findFirstOrThrow();
-  stock = await reserveFinished(a, {
+  await reserveFinished(a, {
     ...meta(stock.version),
     saleVersion: s.version,
     saleId: s.id,

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { db } from "@/lib/db";
 import { setupDatabase, seedUser } from "./setup";
-import { product, meta, date } from "../fixtures/production";
+import { product, meta, date, sale } from "../fixtures/production";
 import {
   saveFinishedStock,
   openFinishedStock,
@@ -78,6 +78,41 @@ it("reconciles late purchase value through new cost revisions without new physic
     where: { id: o.id },
     data: { status: "CONCLUIDA" },
   });
+  const { reserveFinished } = await import("@/server/production/fulfillment");
+  const { recordDelivery } = await import("@/server/production/deliveries");
+  const customerSale = await sale(p.id, 2);
+  const produced = await db.finishedOrigin.findFirstOrThrow({
+    where: { lineId: o.lines[0].id },
+  });
+  const physical = await db.finishedStock.findUniqueOrThrow({
+    where: { id: st.id },
+  });
+  await reserveFinished(a, {
+    ...meta(physical.version),
+    saleVersion: customerSale.version,
+    saleId: customerSale.id,
+    lineKey: "line1",
+    stockId: physical.id,
+    units: 2,
+    originAllocations: [{ originId: produced.id, units: 2 }],
+  });
+  const committed = await db.finishedCommitment.findFirstOrThrow({
+    where: { saleId: customerSale.id },
+  });
+  const currentSale = await db.sale.findUniqueOrThrow({
+    where: { id: customerSale.id },
+  });
+  await recordDelivery(a, {
+    ...meta(currentSale.version),
+    saleId: customerSale.id,
+    lines: [
+      {
+        lineKey: "line1",
+        allocations: [{ commitmentId: committed.id, units: 1 }],
+      },
+    ],
+    effectiveDate: date(),
+  });
   const before = await refreshProductionCosts(a, o.id);
   expect(before[0]).toMatchObject({ total: null, provisional: true });
   const cat = await db.financialCategory.create({
@@ -99,10 +134,44 @@ it("reconciles late purchase value through new cost revisions without new physic
     provisional: false,
   });
   expect(after[0].revisionId).not.toBe(before[0].revisionId);
+  expect(after[0].origins).toEqual([
+    expect.objectContaining({
+      units: 2,
+      value: "10",
+      allocations: [
+        expect.objectContaining({ kind: "DELIVERED", units: 1, value: "5" }),
+        expect.objectContaining({ kind: "RESERVED", units: 1, value: "5" }),
+      ],
+    }),
+  ]);
   await refreshProductionCosts(a, o.id);
   expect(await db.productionCostRevision.count()).toBe(2);
   expect(await db.stockMovement.count()).toBe(3);
   expect(await db.cashMovement.count()).toBe(0);
+  const { releaseFinished } = await import("@/server/production/fulfillment");
+  const { adjustFinishedStock } =
+    await import("@/server/production/finished-stock");
+  const live = await db.finishedStock.findUniqueOrThrow({
+    where: { id: st.id },
+  });
+  const released = await releaseFinished(a, {
+    ...meta(live.version),
+    commitmentId: committed.id,
+    units: 1,
+    reason: "Conferência física",
+  });
+  await adjustFinishedStock(a, {
+    ...meta(released.version),
+    stockId: st.id,
+    deltaUnits: -1,
+    effectiveDate: date(),
+    reason: "Peça faltante",
+  });
+  const revised = (await refreshProductionCosts(a, o.id))[0];
+  expect(revised.origins?.[0].allocations).toEqual([
+    expect.objectContaining({ kind: "DELIVERED", value: "5" }),
+    expect.objectContaining({ kind: "ADJUSTMENT_OUT", value: "5" }),
+  ]);
   const op = await seedUser("OPERATOR", "op@example.test");
   await expect(refreshProductionCosts(op, o.id)).rejects.toMatchObject({
     code: "FORBIDDEN",

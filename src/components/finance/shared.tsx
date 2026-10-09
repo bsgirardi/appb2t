@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRef, useState, type ReactNode, type FormEvent } from "react";
-import { api } from "@/lib/client-api";
+import { api, ApiError } from "@/lib/client-api";
 import { Notice } from "@/components/ui/field";
 import type { Page } from "@/domain/shared/pagination";
 export function money(value: string | null) {
@@ -46,6 +46,7 @@ export function Select({
   );
 }
 export function ActionForm({
+  preserveAmbiguous = false,
   revision,
   title,
   children,
@@ -54,6 +55,7 @@ export function ActionForm({
   onDone,
   onCancel,
 }: {
+  preserveAmbiguous?: boolean;
   revision?: string | number;
   title: string;
   children: ReactNode;
@@ -63,24 +65,50 @@ export function ActionForm({
   onCancel?: () => void;
 }) {
   const [error, setError] = useState(""),
+    [uncertain, setUncertain] = useState(false),
     [busy, setBusy] = useState(false),
     pending = useRef(false),
-    intent = useRef<{ payload: string; key: string } | null>(null);
+    intent = useRef<{
+      payload: string;
+      key: string;
+      data: FormData;
+      submit: typeof onSubmit;
+      uncertain: boolean;
+    } | null>(null);
   async function send(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (pending.current) return;
     const data = new FormData(e.currentTarget),
       payload = JSON.stringify([revision, [...data.entries()]]);
-    if (intent.current?.payload !== payload)
-      intent.current = { payload, key: crypto.randomUUID() };
+    if (
+      !intent.current ||
+      (!intent.current.uncertain && intent.current.payload !== payload)
+    )
+      intent.current = {
+        payload,
+        key: crypto.randomUUID(),
+        data,
+        submit: onSubmit,
+        uncertain: false,
+      };
     pending.current = true;
     setBusy(true);
     setError("");
     try {
-      await onSubmit(data, intent.current.key);
+      await intent.current.submit(intent.current.data, intent.current.key);
+      intent.current = null;
+      setUncertain(false);
       onDone();
     } catch (err) {
+      if (intent.current)
+        intent.current.uncertain =
+          preserveAmbiguous &&
+          ((err instanceof ApiError &&
+            ["NETWORK", "INTERNAL"].includes(err.code)) ||
+            err instanceof TypeError ||
+            err instanceof SyntaxError);
       setError((err as Error).message);
+      setUncertain(intent.current?.uncertain ?? false);
     } finally {
       pending.current = false;
       setBusy(false);
@@ -91,6 +119,12 @@ export function ActionForm({
       <form className="commerce-form" onSubmit={send}>
         <h2>{title}</h2>
         {error && <Notice>{error}</Notice>}
+        {uncertain && (
+          <Notice kind="info">
+            A resposta não foi confirmada. Ao tentar novamente, recuperaremos a
+            mesma operação, mesmo após atualizar os saldos.
+          </Notice>
+        )}
         <fieldset disabled={busy}>
           {children}
           <div className="finance-actions">

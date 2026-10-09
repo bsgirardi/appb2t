@@ -291,3 +291,21 @@ Migrações aditivas: `202610060001_stock` e `202610060002_stock_constraints`. N
 Após gravações U2, restauração de backup anterior remove essas gravações. Para reverter código, prefira manter o esquema aditivo e os dados, sem executar migrações destrutivas. Restaurar um backup operacional exige definir explicitamente o ponto de recuperação. Testes usam exclusivamente `b2t_test`; nunca use a URL operacional na suíte.
 
 Limites desta entrega: uma localização, sem estoque de produtos acabados, ordens de produção/compra, emissão fiscal ou rentabilidade consolidada por pedido. O custo de consumo não gera despesa duplicada no financeiro.
+
+## Produção e entrega U3
+
+A área **Produção** reúne ordens para venda e para estoque. Cadastre e inventarie produtos acabados como ADMIN, inclusive com contagem zero. Salvar uma ordem cria rascunho; liberar confirma a meta de peças boas. Responsável, máquina planejada e prazo podem ser ajustados com histórico.
+
+Registre em cada execução somente as peças boas, falhas, tempos e materiais efetivamente usados naquela tentativa. Falhas não atendem à venda e não recebem novamente o percentual estimado da calculadora. Campos de tempo vazios significam não medidos; zero deve ser explícito. Reservas anteriores podem ser repartidas entre ordens sem duplicar o total. Consumo U2 comprovado pode ser associado por ADMIN, sem nova saída de material.
+
+**Peças prontas nunca ficam negativas.** As peças boas de uma ordem para venda ficam separadas para ela. Liberar essa separação para corrigir uma contagem não torna peças personalizadas disponíveis para outra venda: a destinação para estoque exige ação administrativa explícita. Falta de peças permanece demanda produtiva; o saldo negativo de materiais U2 continua exigindo justificativa.
+
+Na venda, use **Produção e entregas** para separar peças existentes e registrar entregas parciais. Entrega final exige resolver metas e reservas de material. Produção e entrega não criam cobrança, recebimento ou pagamento. Vendas novas confirmadas usam U3; vendas antigas mantêm fluxo legado até conciliação ADMIN. Produtos já inventariados usam as peças existentes nessa conciliação, sem contagem duplicada.
+
+ADMIN corrige por compensação com motivo e referência ao registro original. Correção de entrega vale apenas para erro de lançamento: devolução física de cliente requer tratamento comercial próprio. Cancelamento de produção conserva consumo e perdas e exige destino das peças restantes. O custo por origem é revisionado e pode permanecer provisório; confirmação tardia da compra revisa valores, inclusive das peças entregues, sem mudar os fatos físicos ou o preço comercial. OPERATOR recebe apenas dados operacionais.
+
+### Implantação U3
+
+Migração aditiva: `202610070001_production`. Antes de publicar, faça novo backup verificável e restaure-o em ambiente isolado; compare registros, documentos e imagens. Preserve comandos idempotentes, eventos e revisões. O ensaio de desenvolvimento não substitui o backup imediatamente anterior à publicação. Recuperação exige coordenar versão da aplicação e banco; não apagar tabelas nem o volume operacional. Esta versão candidata não foi implantada em produção.
+
+Continuam fora de U3: planejamento automático de capacidade, fiscal, devolução comercial/financeira e rentabilidade consolidada por pedido.

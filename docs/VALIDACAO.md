@@ -281,3 +281,17 @@ Código `76eb2ec` integrado em `feat/calculadora` e publicado no Docker operacio
 Backup final feito com a aplicação parada: `backups/stock-u2-20261007/final.dump`, SHA256 `6F65878D7A2B302B6D8ACBE6B9393E4D1D46595DBBC60BC2DFFA8485099E14AF`; catálogo do arquivo validado. O ensaio anterior restaurou o backup operacional e aplicou as migrações. Na atualização real, contagem e hash de todas as linhas das 36 tabelas preexistentes permaneceram iguais. Imagem anterior preservada em `previous-runtime.tar` e tag `b2t-before-stock:20261007` para retorno da aplicação, sem apagar o banco.
 
 Três testes de integração adicionais passaram no checkout integrado. Evidências da publicação em `test-results/stock-u2-deploy`; navegador em `test-results/stock-u2`; histórico completo das decisões e verificações em `test-results/stock-u2-execution/progress.md`. Os registros anteriores desta seção descrevem os gates antes da publicação; este registro os sucede. Estoque inicial não é presumido: o administrador deve habilitar os itens e registrar a contagem inicial.
+
+## U3 — validação de produção e entrega (08/10/2026)
+
+Implementação isolada em `codex/producao-u3`, worktree `producao-u3`. Serviços, rotas privadas e telas cobrem ordens para venda/estoque, execução real, reservas U2, peças prontas, entregas parciais, conciliação legada, correções compensadas e custos revisionados.
+
+- Fluxo integrado: venda10 → ordens6+4 → 5 boas/1 falha → entrega3 → reimpressão1 → conclusão → entrega7; documentos, valores e parcelas preservados.
+- Concorrência: disputa por última peça; reserva durante cancelamento; correção que reabriria demanda já alocada; rollback sem saldo negativo.
+- Custos: confirmação tardia de compra após entrega parcial; ajuste físico com custo próprio; resíduo decimal na última alocação; premissas planejadas congeladas; desconhecido não tratado como zero.
+- Permissões: visitante, OPERATOR, ADMIN, usuário inativo, mudança de papel em replay; respostas operacionais sem campos financeiros. Corpo/origem/filtros inválidos recusados.
+- Interface: inspeção real no navegador em 390×844 e 1440×1000, ADMIN/OPERATOR; sem transbordamento horizontal ou erros de JavaScript na página inspecionada; rascunho preservado ao atualizar. Retry ambíguo após atualização coberto por teste. Tema claro nativo; não se afirma validação de um seletor escuro inexistente.
+- Migração: backup atual restaurado em `b2t-production-u3-rehearsal-db`, aplicação da migração apenas nessa cópia; 48 tabelas anteriores idênticas em contagem e hash de conteúdo, inclusive imagens e documentos. Backup SHA256 `9EC4456AC84283F5C30263679028FA14D60F397C611D337D1BC0DA6F9E3FCA9E` mantido localmente em `backups/production-u3/current.dump` (ignorado pelo Git).
+- Revisão independente: encontrou corrida no cancelamento, demanda reaberta, custo de ajuste omitido, retry duplicável, exclusividade de peças, reserva legada pendente, premissas de máquina e condição de botão. Cada achado recebeu regressão e correção; detalhes/evidências no ledger ignorado `test-results/production-u3-execution/progress.md`.
+
+Resultado final em 09/10/2026: 404 testes aprovados em 120 arquivos; verificação de tipos, lint e build aprovados; git diff --check sem erros. Sem implantação, push ou alteração do volume operacional.

@@ -11,7 +11,12 @@ import { invalid } from "@/server/stock/movements";
 import { runProductionCommand, requireProductionActor } from "./commands";
 import { lockProduction } from "./locks";
 import { activeSale, demand } from "./orders";
-import { finishedDTO, finishedRow, originBalance } from "./finished-stock";
+import {
+  finishedDTO,
+  finishedRow,
+  originBalance,
+  restrictedOriginSale,
+} from "./finished-stock";
 export async function commitmentRemaining(
   tx: Prisma.TransactionClient,
   id: string,
@@ -99,6 +104,11 @@ export async function reserveFinished(actor: Actor, raw: unknown) {
         where: { id: a.originId },
       });
       if (origin?.stockId !== s.id) invalid("Origem incompatível.");
+      const restricted = await restrictedOriginSale(tx, a.originId);
+      if (restricted && restricted !== v.saleId)
+        invalid(
+          "Peças exclusivas de outra venda. Um administrador deve registrar a destinação para estoque antes de realocar.",
+        );
       if (a.units > Number((await originBalance(tx, a.originId)).available))
         invalid("Peças disponíveis insuficientes.");
       const c = await tx.finishedCommitment.upsert({
@@ -184,6 +194,8 @@ export async function suggestFinished(
     let left = units;
     const result = [];
     for (const o of origins) {
+      const restricted = await restrictedOriginSale(tx, o.id);
+      if (restricted && restricted !== saleId) continue;
       const q = Math.min(
         left,
         Number((await originBalance(tx, o.id)).available),
