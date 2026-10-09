@@ -2,7 +2,7 @@
 
 Data: 09/10/2026. Base de código examinada: `edd0afc`.
 
-Status: especificação para revisão. Escopo de abertura aprovado em 09/10/2026; esta especificação ainda não foi aprovada. Próxima etapa: plano de implementação após revisão deste documento.
+Status: especificação aprovada pelo usuário em 09/10/2026, após aprovação do escopo de abertura na mesma data. Plano de implementação: `../plans/2026-10-09-rentabilidade-u4.md`, sujeito à revisão própria.
 
 ## 1. Objetivo e limites
 
