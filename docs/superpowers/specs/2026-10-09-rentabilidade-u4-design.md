@@ -2,7 +2,7 @@
 
 Data: 09/10/2026. Base de código examinada: `edd0afc`.
 
-Status: especificação aprovada pelo usuário em 09/10/2026, após aprovação do escopo de abertura na mesma data. Plano de implementação: `../plans/2026-10-09-rentabilidade-u4.md`, sujeito à revisão própria.
+Status: especificação aprovada pelo usuário em 09/10/2026, após aprovação do escopo de abertura na mesma data. Plano de implementação: `../plans/2026-10-09-rentabilidade-u4.md`, aprovado e executado; aceite visual pendente, conforme `../2026-10-09-u4-entrega.md`.
 
 ## 1. Objetivo e limites
 
@@ -164,4 +164,4 @@ Antes de código, ler os guias relevantes de `node_modules/next/dist/docs/`, con
 
 Executar testes de regras e integrações acima, regressões pertinentes U1/U2/U3/financeiro, tipos, lint, build e inspeção de interface. Migração deve ser ensaiada em cópia restaurada, comparando conteúdo das tabelas preexistentes. Publicação requer backup corrente verificável e recuperação coordenada da aplicação/banco, preservando novas revisões se já existirem.
 
-Esta etapa produziu documentação e inspeção estática. Não houve teste novo de aplicação, alteração de código, migração ou implantação.
+A implementação está na branch `codex/rentabilidade-u4`; testes, migração isolada e pendências de aceite estão registrados em `../2026-10-09-u4-entrega.md`. Não houve implantação operacional.

@@ -301,3 +301,11 @@ Resultado final em 09/10/2026: 404 testes aprovados em 120 arquivos; verificaç�
 Commit 6029dfe integrado e publicado no Docker operacional em http://localhost:3000. Imagem executada: sha256:3c6d2e1e7d325409299a73cee9bf2eefeb8479d379861ac98b2c94a332fa5e1a. Build Docker aprovado; aplicação saudável; migração 202610070001_production aplicada, sem pendências. Saúde e início HTTP 200, API de produção anônima 401 e página de produção sem sessão 307.
 
 Backup final com aplicação parada: backups/production-u3-deploy-20261009/final.dump, SHA256 C8F288EF64B8EC56D9E76A7CC441E924C20266A11BCFF13006FD4D50B97E4B55. Restaurado em banco isolado u3_final_restore_20261009; contagens e hashes das 48 tabelas anteriores coincidiram com a origem. Após migração operacional, as mesmas 48 tabelas permaneceram idênticas. Imagem anterior preservada na tag b2t-before-production-u3:20261009 e previous-runtime.tar. Evidências em test-results/production-u3-deploy. A suíte do checkout integrado passou 404 testes em 120 arquivos antes da publicação. Domínio e proxy não alterados.
+
+## U4 — Rentabilidade, candidata (09/10/2026)
+
+Implementação isolada em `codex/rentabilidade-u4`; código validado `f17314d`. **442 testes em 135 arquivos aprovados**, tipos/lint/build aprovados e `git diff --check` limpo. Regressões cobrem orçamento→venda→produção parcial/falha→entrega→valorização tardia, apurações reproduzíveis, revisões concorrentes, fonte de custo somente leitura, permissões, rascunhos e resposta incerta. Revisão independente e correções documentadas em `docs/superpowers/2026-10-09-u4-entrega.md`.
+
+Ensaio em cópia restaurada: **63 tabelas anteriores idênticas em contagem/hash**, quatro tabelas U4 adicionadas. Backup SHA256 `33C15414010FC34E8CB66BDF9BB9905671E9CC63FC390BD2DB44C6CB1CDD9A43`; evidências ignoradas em `test-results/profitability-u4/`.
+
+**Aceite visual pendente:** navegador expirou na inicialização e revisão automática de aprovação rejeitou iniciar a aplicação local de demonstração, informando apenas `blocked by policy`. Sem evidência de inspeção real a 390/1440px ou teclado. Um ajuste menor de rótulo de linha OPENING permanece adiado. Sem publicação, merge ou migração no banco operacional.
