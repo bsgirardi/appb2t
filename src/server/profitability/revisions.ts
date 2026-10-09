@@ -9,6 +9,7 @@ import { civilDateToDb, civilDateFromDb } from "@/domain/commerce/dates";
 import type { Actor } from "@/server/auth/session";
 import { lockCommerce } from "@/server/commerce/locks";
 import { runProfitabilityCommand } from "./commands";
+import { StockDecimal as D } from "@/domain/stock/quantities";
 export const revisionDTO = (r: ProfitabilityRevision): RevisionDTO => ({
   ...r,
   payload: r.payload as unknown as AdministrativePayload,
@@ -51,6 +52,48 @@ export async function saveProfitabilityRevision(
       });
       if (!c || c.version !== v.payload.channel.version) throw conflict();
       v.payload.channel = { id: c.id, version: c.version, name: c.name };
+    }
+    if (v.payload.confirmations.length || v.payload.lineReviews.length) {
+      const { readSaleSources } = await import("./sources");
+      const [source] = await readSaleSources(tx, [v.saleId]);
+      const portions = new Map<string, InstanceType<typeof D>>();
+      const complements = new Set<string>();
+      for (const review of v.payload.lineReviews) {
+        if (
+          review.complete &&
+          source.lines.find((l) => l.key === review.lineKey)?.sourceHash !==
+            review.sourceHash
+        )
+          throw conflict();
+      }
+      for (const c of v.payload.confirmations) {
+        const line = source.lines.find((l) => l.key === c.lineKey)!;
+        if (!line.expected?.extras.some((e) => e.key === c.extraKey))
+          throw new AppError(
+            "VALIDATION",
+            "Extra não pertence à memória desta linha.",
+          );
+        if (c.kind === "U3_SOURCE") {
+          const used = (portions.get(c.sourceId) ?? new D(0)).plus(c.value);
+          const available = line.actual.sources.find(
+            (s) => s.id === c.sourceId && s.kind === "DELIVERED",
+          )?.value;
+          if (available == null || used.gt(available))
+            throw new AppError(
+              "VALIDATION",
+              "A parcela excede o custo produtivo da fonte.",
+            );
+          portions.set(c.sourceId, used);
+        }
+        if (c.kind === "COMPLEMENT") {
+          if (complements.has(c.complementId))
+            throw new AppError(
+              "VALIDATION",
+              "Complemento já utilizado em outra conferência.",
+            );
+          complements.add(c.complementId);
+        }
+      }
     }
     for (const c of v.payload.confirmations) {
       if (

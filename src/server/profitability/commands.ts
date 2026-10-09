@@ -8,7 +8,7 @@ import { canonical } from "@/server/production/commands";
 import { requireProfitabilityAdmin } from "./authorization";
 export const factsHash = (v: unknown) =>
   createHash("sha256")
-    .update(JSON.stringify(canonical(v)))
+    .update(JSON.stringify(canonical(JSON.parse(JSON.stringify(v)))))
     .digest("hex");
 export async function runProfitabilityCommand<T>(
   actor: Actor,
