@@ -295,3 +295,9 @@ Implementação isolada em `codex/producao-u3`, worktree `producao-u3`. Serviço
 - Revisão independente: encontrou corrida no cancelamento, demanda reaberta, custo de ajuste omitido, retry duplicável, exclusividade de peças, reserva legada pendente, premissas de máquina e condição de botão. Cada achado recebeu regressão e correção; detalhes/evidências no ledger ignorado `test-results/production-u3-execution/progress.md`.
 
 Resultado final em 09/10/2026: 404 testes aprovados em 120 arquivos; verificação de tipos, lint e build aprovados; git diff --check sem erros. Sem implantação, push ou alteração do volume operacional.
+
+## U3 — publicação autorizada (09/10/2026)
+
+Commit 6029dfe integrado e publicado no Docker operacional em http://localhost:3000. Imagem executada: sha256:3c6d2e1e7d325409299a73cee9bf2eefeb8479d379861ac98b2c94a332fa5e1a. Build Docker aprovado; aplicação saudável; migração 202610070001_production aplicada, sem pendências. Saúde e início HTTP 200, API de produção anônima 401 e página de produção sem sessão 307.
+
+Backup final com aplicação parada: backups/production-u3-deploy-20261009/final.dump, SHA256 C8F288EF64B8EC56D9E76A7CC441E924C20266A11BCFF13006FD4D50B97E4B55. Restaurado em banco isolado u3_final_restore_20261009; contagens e hashes das 48 tabelas anteriores coincidiram com a origem. Após migração operacional, as mesmas 48 tabelas permaneceram idênticas. Imagem anterior preservada na tag b2t-before-production-u3:20261009 e previous-runtime.tar. Evidências em test-results/production-u3-deploy. A suíte do checkout integrado passou 404 testes em 120 arquivos antes da publicação. Domínio e proxy não alterados.
