@@ -44,6 +44,9 @@ export function AppShell({
   async function exit() {
     try {
       await api("/api/auth/logout", {});
+      for (const key of Object.keys(sessionStorage))
+        if (key.startsWith("b2t:profitability:"))
+          sessionStorage.removeItem(key);
       router.replace("/login");
       router.refresh();
     } catch (e) {
@@ -82,6 +85,27 @@ export function AppShell({
           </Link>
         </Button>
       ))}
+      {actor.role === "ADMIN" && (
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+        >
+          <Link
+            href="/rentabilidade"
+            aria-current={
+              path.startsWith("/rentabilidade") ? "page" : undefined
+            }
+            className={
+              path.startsWith("/rentabilidade") ? "nav-item active" : "nav-item"
+            }
+          >
+            <Box size={19} />
+            Rentabilidade
+          </Link>
+        </Button>
+      )}
       {actor.role === "ADMIN" && (
         <Button
           asChild

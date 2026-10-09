@@ -61,7 +61,12 @@ it("preserves operator navigation restrictions", () => {
       <h1>Conteúdo</h1>
     </AppShell>,
   );
-  for (const name of ["Financeiro", "Aparência", "Configurações"])
+  for (const name of [
+    "Financeiro",
+    "Rentabilidade",
+    "Aparência",
+    "Configurações",
+  ])
     expect(screen.queryByRole("link", { name })).toBeNull();
   expect(screen.getByRole("link", { name: "Calculadora" })).toBeTruthy();
   expect(
