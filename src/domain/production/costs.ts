@@ -1,4 +1,5 @@
 import { StockDecimal as D, quantity } from "@/domain/stock/quantities";
+import { allocate } from "@/domain/profitability/allocation";
 export type CostStage = {
   machineMinutes: string | null;
   setupMinutes: string | null;
@@ -123,7 +124,7 @@ export function apportionProductionCost(
   const count = units.reduce((n, x) => n + x, 0);
   let allocated = new D(0);
   const last = units.findLastIndex((n) => n > 0);
-  return units.map((n, i) => {
+  const values = units.map((n, i) => {
     if (total === null) return null;
     if (!count) return "0";
     const value =
@@ -133,4 +134,16 @@ export function apportionProductionCost(
     allocated = allocated.plus(value);
     return value.toFixed();
   });
+  // Preserve historic rounding unless its residual would create negative cost.
+  if (total !== null && values.some((v) => v !== null && new D(v).lt(0)))
+    return allocate(
+      total,
+      units.map((n, position) => ({
+        key: String(position),
+        position,
+        weight: String(n),
+      })),
+      6,
+    ).map((v) => new D(v.value).toFixed());
+  return values;
 }

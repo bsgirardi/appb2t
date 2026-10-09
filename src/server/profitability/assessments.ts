@@ -12,6 +12,7 @@ import type {
 import { requireProfitabilityAdmin } from "./authorization";
 import { runProfitabilityCommand } from "./commands";
 import { readSaleSources } from "./sources";
+import { lockOperation } from "@/server/commerce/locks";
 const dto = (r: ProfitabilityAssessment): AssessmentDTO => ({
   ...r,
   input: r.input as unknown as SaleProfitabilityInput,
@@ -26,6 +27,9 @@ export async function recordAssessment(
   await requireProfitabilityAdmin(actor);
   // Capture a consistent, read-only view before serializing the idempotent write.
   return runProfitabilityCommand(actor, "ASSESSMENT", v, async (tx) => {
+    // Different command keys can observe the same fingerprint. Serialize only
+    // U4 assessment writes for this sale, without locking operational sources.
+    await lockOperation(tx, `profitability-assessment:${v.saleId}`);
     const [input] = await db.$transaction(
       (readTx) => readSaleSources(readTx, [v.saleId]),
       { isolationLevel: "RepeatableRead", timeout: 30000 },

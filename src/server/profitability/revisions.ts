@@ -35,6 +35,7 @@ export async function saveProfitabilityRevision(
       );
     const previous = await tx.profitabilityState.findUnique({
       where: { saleId: v.saleId },
+      include: { currentRevision: true },
     });
     if ((previous?.version ?? 0) !== v.expectedVersion) throw conflict();
     const keys = new Set(sale.items.map((i) => i.lineKey ?? `legacy:${i.id}`));
@@ -47,11 +48,22 @@ export async function saveProfitabilityRevision(
     )
       throw new AppError("VALIDATION", "A linha não pertence à venda.");
     if (v.payload.channel) {
-      const c = await tx.pricingChannel.findUnique({
-        where: { id: v.payload.channel.id },
-      });
-      if (!c || c.version !== v.payload.channel.version) throw conflict();
-      v.payload.channel = { id: c.id, version: c.version, name: c.name };
+      const historical = (
+        previous?.currentRevision.payload as unknown as
+          AdministrativePayload | undefined
+      )?.channel;
+      if (
+        historical?.id === v.payload.channel.id &&
+        historical.version === v.payload.channel.version
+      ) {
+        v.payload.channel = historical;
+      } else {
+        const c = await tx.pricingChannel.findUnique({
+          where: { id: v.payload.channel.id },
+        });
+        if (!c || c.version !== v.payload.channel.version) throw conflict();
+        v.payload.channel = { id: c.id, version: c.version, name: c.name };
+      }
     }
     if (v.payload.confirmations.length || v.payload.lineReviews.length) {
       const { readSaleSources } = await import("./sources");

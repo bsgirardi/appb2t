@@ -84,3 +84,70 @@ it("recovers original request after timeout and preserves edits across remount",
   });
   expect(requests[2].operationKey).not.toBe(requests[0].operationKey);
 });
+it("rebases unrelated concurrent changes and requires a choice for conflicting values", async () => {
+  const liveInput = completeInput();
+  liveInput.administrative!.shipping = { state: "DECLARED", value: "45" };
+  liveInput.administrative!.fees = { state: "DECLARED", value: "12" };
+  const live = calculateSale(liveInput);
+  live.revision = {
+    id: "r2",
+    saleId: "sale",
+    version: 2,
+    predecessorId: null,
+    actorId: "other",
+    createdAt: "",
+    effectiveDate: "",
+    reason: "",
+    payload: liveInput.administrative!,
+  };
+  const requests: Record<string, unknown>[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (_url: string, init: RequestInit) => {
+      if (init.method === "GET")
+        return new Response(JSON.stringify({ data: live }));
+      requests.push(JSON.parse(String(init.body)));
+      return new Response(JSON.stringify({ data: { version: 3 } }));
+    }),
+  );
+  render(
+    <RevisionForm
+      value={calculateSale(completeInput())}
+      actorId="admin"
+      channels={[]}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Encargos efetivos (R$)"), {
+    target: { value: "15" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Atualizar versão sem perder edições" }),
+  );
+  await screen.findByText(/alterações conflitantes/i);
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Salvar conferência",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Manter minhas alterações nos conflitos",
+    }),
+  );
+  expect(
+    (screen.getByLabelText("Frete efetivo (R$)") as HTMLInputElement).value,
+  ).toBe("45");
+  fireEvent.submit(
+    screen.getByRole("button", { name: "Salvar conferência" }).closest("form")!,
+  );
+  await waitFor(() => expect(requests).toHaveLength(1));
+  expect(requests[0]).toMatchObject({
+    expectedVersion: 2,
+    payload: {
+      shipping: { state: "DECLARED", value: "45" },
+      fees: { state: "DECLARED", value: "15" },
+    },
+  });
+});

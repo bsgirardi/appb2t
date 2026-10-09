@@ -1,7 +1,7 @@
 import { StockDecimal as D } from "@/domain/stock/quantities";
 import { AppError } from "@/lib/errors";
 import { allocate } from "./allocation";
-import { metric } from "./coverage";
+import { metric, resolveCoverage } from "./coverage";
 import type {
   Metric,
   Scenario,
@@ -21,7 +21,11 @@ function computed(value: string, deps: Metric[]): Metric {
         missing.length ? missing : ["Dados ainda provisórios"],
         provisional,
       ),
-      coverage: missing.length ? "PARTIAL" : "PROVISIONAL",
+      coverage: resolveCoverage({
+        hasKnown: deps.some((d) => d.coverage !== "UNAVAILABLE"),
+        missing,
+        provisional,
+      }),
       knownValue: "0",
     };
   return metric(value);
@@ -69,12 +73,18 @@ function scenario(
 }
 function combined(ms: Metric[]): Metric {
   const known = sum(ms.map((m) => m.knownValue));
-  return metric(
+  const result = metric(
     ms.every((m) => m.value !== null) ? sum(ms.map((m) => m.value!)) : null,
     ms.flatMap((m) => m.reasons),
     ms.some((m) => m.coverage === "PROVISIONAL"),
     known,
   );
+  result.coverage = resolveCoverage({
+    hasKnown: ms.some((m) => m.coverage !== "UNAVAILABLE"),
+    missing: result.reasons,
+    provisional: ms.some((m) => m.coverage === "PROVISIONAL"),
+  });
+  return result;
 }
 export function combineScenarios(revenue: string, ss: Scenario[]): Scenario {
   return scenario(

@@ -109,3 +109,17 @@ it("saves reproducible assessments without modifying commercial facts", async ()
     }),
   ).toEqual(before);
 });
+it("deduplicates concurrent assessments using different command keys", async () => {
+  const actor = await seedUser("ADMIN"),
+    s = await profitabilitySale(actor.id);
+  const results = await Promise.all(
+    [0, 1].map(() =>
+      recordAssessment(actor, {
+        saleId: s.saleId,
+        operationKey: crypto.randomUUID(),
+      }),
+    ),
+  );
+  expect(results[0].id).toBe(results[1].id);
+  expect(await db.profitabilityAssessment.count()).toBe(1);
+});

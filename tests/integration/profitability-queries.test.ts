@@ -55,3 +55,20 @@ it("separates undated/canceled sales and refuses non-admin detail", async () => 
     code: "FORBIDDEN",
   });
 });
+it("filters unavailable contribution when an order has no cost sources", async () => {
+  const a = await seedUser("ADMIN");
+  const { sale } = await import("../fixtures/production");
+  const s = await sale();
+  await db.sale.update({
+    where: { id: s.id },
+    data: {
+      totals: { subtotal: "100", discount: "0", shipping: "0", total: "100" },
+    },
+  });
+  const report = await getProfitabilityReport(a, {
+    undated: "true",
+    coverage: "UNAVAILABLE",
+  });
+  expect(report.items.map((x) => x.saleId)).toContain(s.id);
+  expect(report.items[0].actual.contribution.coverage).toBe("UNAVAILABLE");
+});

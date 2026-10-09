@@ -91,3 +91,32 @@ it("refuses duplicate complements and foreign production sources", async () => {
     }),
   ).rejects.toThrow();
 });
+it("preserves the historical channel when unrelated administrative values change", async () => {
+  const a = await seedUser("ADMIN"),
+    s = await sale();
+  const channel = await db.pricingChannel.create({
+    data: { name: "Direto", fees: [], fixedCost: "0" },
+  });
+  const input = {
+    ...meta(),
+    saleId: s.id,
+    effectiveDate: date(),
+    reason: "Conferência",
+    payload: {
+      ...adminPayload(),
+      channel: { id: channel.id, version: channel.version, name: channel.name },
+    },
+  };
+  const first = await saveProfitabilityRevision(a, input);
+  await db.pricingChannel.update({
+    where: { id: channel.id },
+    data: { version: 2, name: "Direto novo" },
+  });
+  const next = await saveProfitabilityRevision(a, {
+    ...input,
+    ...meta(1),
+    payload: { ...first.payload, shipping: { state: "DECLARED", value: "25" } },
+  });
+  expect(next.payload.channel).toEqual(first.payload.channel);
+  expect(next.payload.shipping).toEqual({ state: "DECLARED", value: "25.00" });
+});

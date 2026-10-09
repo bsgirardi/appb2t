@@ -41,7 +41,53 @@ type Draft = {
   reason: string;
   effectiveDate: string;
 };
-type Saved = { draft: Draft; pending: RevisionInput | null; expires: number };
+type Saved = {
+  draft: Draft;
+  pending: RevisionInput | null;
+  expires: number;
+  base?: AdministrativePayload;
+};
+const fieldNames: Record<keyof AdministrativePayload, string> = {
+  channel: "Canal",
+  expectedShipping: "Frete previsto",
+  fees: "Encargos",
+  shipping: "Frete efetivo",
+  extras: "Complementos",
+  confirmations: "Conferências de extras",
+  lineReviews: "Conferências de linhas",
+  commercialPending: "Pendência comercial",
+  commercialReason: "Motivo da pendência",
+};
+function describe(value: unknown): string {
+  if (value == null) return "não informado";
+  if (typeof value === "boolean") return value ? "sim" : "não";
+  if (Array.isArray(value))
+    return value.length ? value.map(describe).join("; ") : "nenhum";
+  if (typeof value === "object") {
+    const v = value as Record<string, unknown>;
+    if (v.state)
+      return v.state === "UNKNOWN" ? "desconhecido" : `R$ ${v.value}`;
+    if (v.name) return String(v.name);
+    return [
+      v.description,
+      v.reference,
+      v.value != null ? `R$ ${v.value}` : null,
+      v.reason,
+      v.lineKey ? `linha ${v.lineKey}` : null,
+      v.complete != null ? (v.complete ? "conferida" : "não conferida") : null,
+      v.kind === "COMPLEMENT"
+        ? "vinculado a complemento"
+        : v.kind === "U3_SOURCE"
+          ? "vinculado à produção"
+          : v.kind === "NOT_OCCURRED"
+            ? "não ocorreu"
+            : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  }
+  return String(value) || "vazio";
+}
 const subscribe = () => () => {};
 const blank = (): AdministrativePayload => ({
   channel: null,
@@ -108,6 +154,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
         effectiveDate: todaySaoPaulo(new Date()),
       },
       pending: null,
+      base: value.administrative ?? blank(),
       expires: Date.now() + 7200000,
     };
   });
@@ -119,6 +166,13 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
   const sending = useRef(false);
+  const base = useRef(initial.base);
+  const [rebase, setRebase] = useState<{
+    live: AdministrativePayload;
+    merged: AdministrativePayload;
+    version: number;
+    conflicts: (keyof AdministrativePayload)[];
+  } | null>(null);
   const persist = useCallback(
     (d: Draft) => {
       current.current = d;
@@ -129,6 +183,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
           JSON.stringify({
             draft: d,
             pending: pending.current,
+            base: base.current,
             expires: Date.now() + 7200000,
           }),
         );
@@ -146,7 +201,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
   }
   async function send(e: FormEvent) {
     e.preventDefault();
-    if (sending.current) return;
+    if (sending.current || rebase) return;
     sending.current = true;
     setBusy(true);
     setError("");
@@ -166,6 +221,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
         "/api/profitability/revisions",
         pending.current,
       );
+      base.current = saved.payload ?? pending.current.payload;
       pending.current = null;
       setUncertain(false);
       persist({ ...current.current, version: saved.version });
@@ -191,12 +247,51 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
       const live = await api<SaleProfitabilityDTO>(
         `/api/profitability/sales/${value.saleId}`,
       );
-      persist({ ...current.current, version: live.revision?.version ?? 0 });
-      setError("Versão atualizada. Confira suas alterações antes de salvar.");
+      const remote = live.administrative ?? blank();
+      const merged = { ...remote };
+      const conflicts: (keyof AdministrativePayload)[] = [];
+      const equal = (a: unknown, b: unknown) =>
+        JSON.stringify(a) === JSON.stringify(b);
+      for (const key of Object.keys(
+        remote,
+      ) as (keyof AdministrativePayload)[]) {
+        const local = current.current.payload[key];
+        if (!base.current || !equal(local, base.current[key])) {
+          if (
+            (!base.current || !equal(remote[key], base.current[key])) &&
+            !equal(local, remote[key])
+          )
+            conflicts.push(key);
+          Object.assign(merged, { [key]: local });
+        }
+      }
+      const version = live.revision?.version ?? 0;
+      if (conflicts.length)
+        setRebase({ live: remote, merged, version, conflicts });
+      else {
+        base.current = remote;
+        persist({ ...current.current, payload: merged, version });
+      }
+      setError(
+        conflicts.length
+          ? "Há alterações conflitantes. Escolha quais valores preservar antes de salvar."
+          : "Versão atualizada. Alterações de outros administradores foram preservadas. Confira antes de salvar.",
+      );
       onDone?.();
     } catch (e) {
       setError((e as Error).message);
     }
+  }
+  function resolveRebase(useLocal: boolean) {
+    if (!rebase) return;
+    const payload = { ...rebase.merged };
+    if (!useLocal)
+      for (const key of rebase.conflicts)
+        Object.assign(payload, { [key]: rebase.live[key] });
+    base.current = rebase.live;
+    persist({ ...current.current, payload, version: rebase.version });
+    setRebase(null);
+    setError("Conflitos resolvidos. Confira os valores antes de salvar.");
   }
   function confirmation(lineKey: string, extraKey: string, selection: string) {
     const next = draft.payload.confirmations.filter(
@@ -235,13 +330,38 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
         <form onSubmit={send} className="flex flex-col gap-4">
           {error ? <Notice>{error}</Notice> : null}
           {success ? <Notice kind="success">{success}</Notice> : null}
+          {rebase ? (
+            <Notice>
+              {rebase.conflicts.map((key) => (
+                <p key={key}>
+                  {fieldNames[key]}: sua edição {describe(rebase.merged[key])};
+                  versão atual {describe(rebase.live[key])}.
+                </p>
+              ))}
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={() => resolveRebase(true)}>
+                  Manter minhas alterações nos conflitos
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => resolveRebase(false)}
+                >
+                  Usar valores atuais nos conflitos
+                </Button>
+              </div>
+            </Notice>
+          ) : null}
           {uncertain ? (
             <Notice kind="info">
               A resposta não foi confirmada. Recuperaremos a tentativa original
               antes de enviar as edições posteriores.
             </Notice>
           ) : null}
-          <fieldset disabled={busy} className="flex min-w-0 flex-col gap-4">
+          <fieldset
+            disabled={busy || !!rebase}
+            className="flex min-w-0 flex-col gap-4"
+          >
             <legend>Valores e canal efetivo</legend>
             <Label className="field">
               Canal efetivo
@@ -513,7 +633,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
               onChange={(e) => persist({ ...draft, reason: e.target.value })}
             />
             <div className="flex flex-wrap gap-2">
-              <Button disabled={busy}>
+              <Button disabled={busy || !!rebase}>
                 {busy
                   ? "Salvando…"
                   : uncertain
