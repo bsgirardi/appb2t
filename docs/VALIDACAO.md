@@ -308,4 +308,4 @@ Implementação isolada em `codex/rentabilidade-u4`; código validado `f17314d`.
 
 Ensaio em cópia restaurada: **63 tabelas anteriores idênticas em contagem/hash**, quatro tabelas U4 adicionadas. Backup SHA256 `33C15414010FC34E8CB66BDF9BB9905671E9CC63FC390BD2DB44C6CB1CDD9A43`; evidências ignoradas em `test-results/profitability-u4/`.
 
-**Aceite visual pendente:** navegador expirou na inicialização e revisão automática de aprovação rejeitou iniciar a aplicação local de demonstração, informando apenas `blocked by policy`. Sem evidência de inspeção real a 390/1440px ou teclado. Um ajuste menor de rótulo de linha OPENING permanece adiado. Sem publicação, merge ou migração no banco operacional.
+**Aceite visual pendente:** navegador expirou na inicialização e revisão automática de aprovação rejeitou iniciar a aplicação local de demonstração, informando apenas `blocked by policy`. Sem evidência de inspeção real a 390/1440px ou teclado. Rótulo de linha OPENING corrigido na retomada, com regressão RED→GREEN, 11 testes afetados e tipos aprovados. Sem publicação, merge ou migração no banco operacional.

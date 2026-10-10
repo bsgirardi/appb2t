@@ -25,8 +25,8 @@ it("shows missing costs without partial profit and labels opening composition", 
   i.lines[0].actual.components = null;
   view.rerender(<ProfitabilityDetail value={calculateSale(i)} />);
   expect(
-    screen.getByText("Resultado após custo total — composição indisponível"),
-  ).toBeTruthy();
+    screen.getAllByText("Resultado após custo total — composição indisponível"),
+  ).toHaveLength(2);
 });
 it("recovers original request after timeout and preserves edits across remount", async () => {
   const requests: Record<string, unknown>[] = [];

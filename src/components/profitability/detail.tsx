@@ -195,6 +195,9 @@ export function ProfitabilityDetail({
             <Comparison
               expected={l.expectedScenario}
               actual={l.actualScenario}
+              compositionMissing={
+                l.actual.total !== null && l.actual.components === null
+              }
             />
             <p>
               Reservado, ainda não entregue: {moneyText(l.actual.reservedTotal)}
