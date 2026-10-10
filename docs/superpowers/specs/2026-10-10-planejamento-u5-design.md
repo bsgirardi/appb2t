@@ -2,7 +2,7 @@
 
 Data: 10/10/2026, America/Sao_Paulo.
 
-Estado: desenho operacional aprovado na conversa. Esta especificação consolida esse desenho e apresenta regras complementares para revisão. A aprovação do desenho autorizou escrever este documento; a especificação escrita ainda aguarda aprovação antes do plano de implementação. Não há autorização de implementação ou publicação U5.
+Estado: especificação escrita aprovada pelo usuário em 10/10/2026 (“Aprovado”), após apresentação do documento registrado em 4c85427. Próxima etapa autorizada: elaborar e apresentar o plano de implementação. Não há autorização de implementação ou publicação U5.
 
 ## 1. Objetivo e limites
 
