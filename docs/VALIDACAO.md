@@ -309,3 +309,9 @@ Implementação isolada em `codex/rentabilidade-u4`; código validado `f17314d`.
 Ensaio em cópia restaurada: **63 tabelas anteriores idênticas em contagem/hash**, quatro tabelas U4 adicionadas. Backup SHA256 `33C15414010FC34E8CB66BDF9BB9905671E9CC63FC390BD2DB44C6CB1CDD9A43`; evidências ignoradas em `test-results/profitability-u4/`.
 
 **Aceite visual pendente:** navegador expirou na inicialização e revisão automática de aprovação rejeitou iniciar a aplicação local de demonstração, informando apenas `blocked by policy`. Sem evidência de inspeção real a 390/1440px ou teclado. Rótulo de linha OPENING corrigido na retomada, com regressão RED→GREEN, 11 testes afetados e tipos aprovados. Sem publicação, merge ou migração no banco operacional.
+
+## U4 — publicação autorizada (10/10/2026)
+
+Código `1902c8b` integrado em `feat/calculadora` e publicado no Docker operacional. 442/442 testes em 135 arquivos no checkout integrado e build Docker aprovados. Imagem executada `sha256:a292d062da072937b7fefd76b3bd688fbd819d52c587448240e2a9b13f26f076`, saudável. Migração U4 aplicada, nenhuma pendente; 63 tabelas anteriores idênticas em contagem/hash. Saúde/início 200, API U4 anônima 401, página sem sessão 307 para login.
+
+Backup final com aplicação parada restaurado e conferido: `backups/profitability-u4-deploy-20261010/final.dump`, SHA256 `66A9E4DD1BD0AADE7FE4647163D99A7F0567B80EB89B95680B4FC580D06304BC`. Imagem anterior preservada. Inspeção visual completa permanece pendente, conforme informado antes da autorização. Registro detalhado: `docs/superpowers/2026-10-10-u4-publicacao.md`.
