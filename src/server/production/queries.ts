@@ -107,6 +107,32 @@ export async function getOrder(actor: Actor, id: string) {
       : [];
     return {
       ...dto,
+      planningParticipations: (
+        await tx.planningParticipation.findMany({
+          where: {
+            line: { orderId: id },
+            batch: {
+              state: {
+                in: ["PREPARING", "PRINTING", "AWAITING_REMOVAL", "CLOSED"],
+              },
+            },
+          },
+          select: {
+            id: true,
+            lineId: true,
+            units: true,
+            settledUnits: true,
+            batch: { select: { sequence: true, printerId: true } },
+          },
+        })
+      ).map((p) => ({
+        id: p.id,
+        lineId: p.lineId,
+        units: p.units,
+        settledUnits: p.settledUnits,
+        batchSequence: p.batch.sequence,
+        printerId: p.batch.printerId,
+      })),
       saleReservations: await Promise.all(
         saleReservations.map(async (r) => ({
           id: r.id,

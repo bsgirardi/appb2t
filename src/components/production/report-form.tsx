@@ -37,6 +37,7 @@ export function ReportForm({
           operationKey,
           expectedVersion: order.version,
           lineId: text(f, "lineId"),
+          planningParticipationId: optional(f, "planningParticipationId"),
           executorId: text(f, "executorId"),
           printerId: optional(f, "printerId"),
           manualStage: f.get("manualStage") === "on",
@@ -102,6 +103,22 @@ export function ReportForm({
         />
       </div>
       <Toggle name="manualStage" label="Etapa manual" />
+      <Select
+        key={`lot:${lineId}`}
+        label="Lote de planejamento desta execução"
+        name="planningParticipationId"
+        required={false}
+        options={order.planningParticipations
+          .filter((p) => p.lineId === lineId && p.settledUnits < p.units)
+          .map((p) => ({
+            value: p.id,
+            label: `Lote ${p.batchSequence} · ${p.units - p.settledUnits} peças a conciliar`,
+          }))}
+      />
+      <p>
+        Se estas peças pertencem a um lote, selecione-o. Informe apenas os
+        tempos desta linha; não repita o tempo integral do lote em cada item.
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Peças boas neste apontamento"

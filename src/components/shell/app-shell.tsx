@@ -66,6 +66,7 @@ export function AppShell({
         ["/orcamentos", "Orçamentos"],
         ["/vendas", "Vendas"],
         ["/producao", "Produção"],
+        ["/planejamento", "Planejamento"],
         ["/estoque", "Estoque"],
       ].map(([href, label]) => (
         <Button

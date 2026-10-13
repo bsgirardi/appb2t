@@ -10,6 +10,7 @@ import { suggestBatches } from "@/domain/planning/suggestions";
 import { allocationRemaining } from "@/server/production/reservations";
 import { batchDTO, unclaimed } from "./batch-read";
 import type { Prisma } from "@prisma/client";
+import { planningTimeSummary } from "./time-summary";
 
 async function authorize(tx: Prisma.TransactionClient, actor: Actor) {
   const user = await tx.user.findUnique({ where: { id: actor.id } });
@@ -186,6 +187,46 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
         printers,
         lines,
         allocations,
+        timeSummaries: await Promise.all(
+          all
+            .filter((b) => !["DRAFT", "PENDING", "SCHEDULED"].includes(b.state))
+            .map(async (b) => ({
+              batchId: b.id,
+              ...(await planningTimeSummary(tx, b.id)),
+            })),
+        ),
+        reports: (
+          await tx.productionEvent.findMany({
+            where: {
+              kind: "REPORT",
+              lineId: {
+                in: all.flatMap((b) => b.participants.map((p) => p.lineId)),
+              },
+            },
+            select: {
+              id: true,
+              sequence: true,
+              lineId: true,
+              printerId: true,
+              goodUnits: true,
+              failedUnits: true,
+              effectiveDate: true,
+              corrections: { select: { goodUnits: true, failedUnits: true } },
+            },
+            orderBy: { sequence: "desc" },
+          })
+        ).map((e) => ({
+          id: e.id,
+          sequence: e.sequence,
+          lineId: e.lineId,
+          printerId: e.printerId,
+          goodUnits:
+            e.goodUnits + e.corrections.reduce((n, c) => n + c.goodUnits, 0),
+          failedUnits:
+            e.failedUnits +
+            e.corrections.reduce((n, c) => n + c.failedUnits, 0),
+          date: e.effectiveDate.toISOString().slice(0, 10),
+        })),
         materials: materials.map((m) => ({
           id: m.id,
           name: m.name,

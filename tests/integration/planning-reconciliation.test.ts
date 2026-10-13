@@ -11,6 +11,7 @@ import { recordMilestone } from "@/server/planning/milestones";
 import { recordProduction } from "@/server/production/reports";
 import { correctProduction } from "@/server/production/corrections";
 import { reconcileBatch } from "@/server/planning/reconciliation";
+import { planningTimeSummary } from "@/server/planning/time-summary";
 setupDatabase();
 it("links explicit per-line results without copying batch time or creating a second report", async () => {
   const f = await planningFixture();
@@ -57,6 +58,10 @@ it("links explicit per-line results without copying batch time or creating a sec
     where: { lineId: report.lineId, kind: "REPORT" },
   });
   expect(event.machineMinutes?.toFixed()).toBe("40");
+  const times = await db.$transaction(tx => planningTimeSummary(tx, b.id));
+  expect(times.reportedMachineMinutes).toBe("40");
+  expect(times.complete).toBe(false);
+  expect(times.differenceMinutes).not.toBe("0");
   const current = await db.planningBatch.findUniqueOrThrow({
     where: { id: b.id },
   });

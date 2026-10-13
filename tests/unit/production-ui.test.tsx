@@ -43,6 +43,7 @@ const order: OrderDetail = {
     },
   ],
   events: [],
+  planningParticipations: [],
   allocations: [],
   origins: [],
   saleReservations: [],

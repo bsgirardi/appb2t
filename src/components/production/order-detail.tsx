@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Select, money } from "@/components/finance/shared";
 import { ActionForm } from "./shared";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,9 @@ export function OrderDetail({
       <Button variant="outline" onClick={onBack}>
         Voltar às ordens
       </Button>
+      <h2>
+        <Link href="/planejamento">Planejamento das máquinas</Link>
+      </h2>
       <h2>
         OP-{String(order.sequence).padStart(6, "0")} · {names[order.status]}
       </h2>

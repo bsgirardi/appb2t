@@ -53,6 +53,9 @@ export default async function ProductionPage({
         </div>
       </div>
       <nav aria-label="Visões de produção" className="flex flex-wrap gap-2">
+        <Button asChild variant="outline">
+          <Link href="/planejamento">Planejamento das máquinas</Link>
+        </Button>
         <Button asChild variant={view === "orders" ? "default" : "outline"}>
           <Link href="/producao">Ordens</Link>
         </Button>
