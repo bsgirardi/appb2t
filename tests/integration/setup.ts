@@ -11,6 +11,9 @@ export function setupDatabase() {
     )
       throw new Error("Tests require local b2t_test database");
     await db.$executeRawUnsafe(
+      'TRUNCATE "PlanningCommand", "PlanningAudit", "PlanningState", "PlanningCalendar", "PlanningMachineSettings", "PlanningBatch" CASCADE',
+    );
+    await db.$executeRawUnsafe(
       'TRUNCATE "ProfitabilityCommand", "ProfitabilityState", "ProfitabilityRevision", "ProfitabilityAssessment" CASCADE',
     );
     await db.$executeRawUnsafe(

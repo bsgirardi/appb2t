@@ -56,6 +56,9 @@ model Material {
   updatedAt DateTime @updatedAt
 }
 model Printer {
+  planningCalendars PlanningCalendar[]
+  planningSettings PlanningMachineSettings?
+  planningBatches PlanningBatch[]
   products Product[]
   id String @id @default(cuid())
   name String
@@ -537,6 +540,7 @@ model DocumentCostRevision {
 }
 
 model StockItem {
+  planningBatches PlanningBatch[]
   id             String                   @id @default(cuid())
   name           String
   unit           String
@@ -732,6 +736,7 @@ model ProductionOrder {
  @@index([status,dueDate])
 }
 model ProductionLine {
+ planningParticipations PlanningParticipation[]
  id String @id @default(cuid())
  orderId String
  order ProductionOrder @relation(fields:[orderId],references:[id],onDelete:Restrict)
@@ -750,6 +755,7 @@ model ProductionLine {
  @@index([orderId,saleLineKey])
 }
 model ProductionEvent {
+ planningReports PlanningReportLink[]
  id String @id @default(cuid())
  sequence Int @unique @default(autoincrement())
  lineId String
@@ -789,6 +795,7 @@ model ProductionMaterialLink {
  @@index([movementId])
 }
 model ProductionReservationAllocation {
+ planningCoverage PlanningMaterialCoverage[]
  id String @id @default(cuid())
  lineId String
  line ProductionLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
@@ -970,4 +977,129 @@ model ProfitabilityAssessment {
  createdAt DateTime @default(now())
  @@unique([saleId,engineVersion,factsHash])
  @@index([saleId,createdAt])
+}
+
+enum PlanningBatchState {
+ DRAFT
+ PENDING
+ SCHEDULED
+ PREPARING
+ PRINTING
+ AWAITING_REMOVAL
+ CLOSED
+ CANCELED
+}
+model PlanningState {
+ id Int @id
+ revision Int @default(0)
+}
+model PlanningCalendar {
+ id String @id
+ resource String
+ printerId String? @unique
+ printer Printer? @relation(fields:[printerId], references:[id], onDelete:Restrict)
+ version Int @default(1)
+ weekly Json
+ exceptions Json
+}
+model PlanningMachineSettings {
+ printerId String @id
+ printer Printer @relation(fields:[printerId], references:[id], onDelete:Restrict)
+ version Int @default(1)
+ prepareMinutes Decimal @db.Decimal(24,6)
+ removeMinutes Decimal @db.Decimal(24,6)
+}
+model PlanningBatch {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ printerId String
+ printer Printer @relation(fields:[printerId], references:[id], onDelete:Restrict)
+ state PlanningBatchState @default(DRAFT)
+ position Int @default(0)
+ version Int @default(1)
+ materialItemId String
+ material StockItem @relation(fields:[materialItemId], references:[id], onDelete:Restrict)
+ colorKey String
+ colorLabel String
+ profileConfirmed Boolean @default(false)
+ fitConfirmed Boolean @default(false)
+ colorAvailabilityConfirmed Boolean @default(false)
+ durationMinutes Decimal? @db.Decimal(24,6)
+ durationConfirmedAt DateTime?
+ estimateReference Json?
+ prepareMinutes Decimal @db.Decimal(24,6)
+ removeMinutes Decimal @db.Decimal(24,6)
+ remainingMinutes Decimal? @db.Decimal(24,6)
+ remainingAsOf DateTime?
+ createdAt DateTime @default(now())
+ participants PlanningParticipation[]
+ milestones PlanningMilestone[]
+ @@index([printerId,state,position])
+}
+model PlanningParticipation {
+ id String @id @default(cuid())
+ batchId String
+ batch PlanningBatch @relation(fields:[batchId], references:[id], onDelete:Restrict)
+ lineId String
+ line ProductionLine @relation(fields:[lineId], references:[id], onDelete:Restrict)
+ units Int
+ settledUnits Int @default(0)
+ needQuantity Decimal @default(0) @db.Decimal(24,6)
+ coverage PlanningMaterialCoverage[]
+ reports PlanningReportLink[]
+ @@unique([batchId,lineId])
+ @@index([lineId])
+}
+model PlanningMaterialCoverage {
+ id String @id @default(cuid())
+ participationId String
+ participation PlanningParticipation @relation(fields:[participationId], references:[id], onDelete:Restrict)
+ allocationId String
+ allocation ProductionReservationAllocation @relation(fields:[allocationId], references:[id], onDelete:Restrict)
+ quantity Decimal @db.Decimal(24,6)
+ @@unique([participationId,allocationId])
+ @@index([allocationId])
+}
+model PlanningMilestone {
+ id String @id @default(cuid())
+ batchId String
+ batch PlanningBatch @relation(fields:[batchId], references:[id], onDelete:Restrict)
+ kind String
+ instant DateTime
+ actorId String
+ reason String @default("")
+ sourceId String? @unique
+ source PlanningMilestone? @relation("PlanningCorrection", fields:[sourceId], references:[id], onDelete:Restrict)
+ correction PlanningMilestone? @relation("PlanningCorrection")
+ @@index([batchId,instant])
+}
+model PlanningReportLink {
+ id String @id @default(cuid())
+ participationId String
+ participation PlanningParticipation @relation(fields:[participationId], references:[id], onDelete:Restrict)
+ eventId String
+ event ProductionEvent @relation(fields:[eventId], references:[id], onDelete:Restrict)
+ goodUnits Int
+ failedUnits Int
+ @@unique([participationId,eventId])
+ @@index([eventId])
+}
+model PlanningAudit {
+ id String @id @default(cuid())
+ revision Int
+ action String
+ actorId String
+ createdAt DateTime @default(now())
+ entityId String?
+ before Json?
+ after Json
+ @@index([revision])
+}
+model PlanningCommand {
+ key String @id
+ payloadHash String
+ type String
+ result Json
+ actorId String
+ createdAt DateTime @default(now())
 }
