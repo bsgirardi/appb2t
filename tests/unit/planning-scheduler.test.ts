@@ -18,6 +18,7 @@ const calendar = (start = 0, end = 1440): CalendarDTO => ({
 const instant = (time: string) => `2026-10-12T${time}:00-03:00`;
 function batch(id: string, overrides: Partial<BatchDTO> = {}): BatchDTO {
   return {
+    estimates: [],
     id,
     version: 1,
     sequence: 1,

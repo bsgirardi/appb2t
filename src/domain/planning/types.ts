@@ -27,6 +27,13 @@ export type BatchState =
   | "CLOSED"
   | "CANCELED";
 export type BatchDTO = {
+  estimates: {
+    lineId: string;
+    snapshotId: string;
+    sourceQuantity: number;
+    units: number;
+    minutes: string;
+  }[];
   id: string;
   version: number;
   sequence: number;
