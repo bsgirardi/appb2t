@@ -15,6 +15,7 @@ import { runProductionCommand } from "./commands";
 import { lineContext, executable, orderDTO, activeSale } from "./orders";
 import { lockProduction } from "./locks";
 import { allocationRemaining } from "./reservations";
+import { linkReportTx } from "@/server/planning/invariants";
 export async function recordProduction(actor: Actor, raw: unknown) {
   const v = reportSchema.parse(raw);
   return runProductionCommand(actor, "PRODUCTION_REPORT", v, async (tx) => {
@@ -219,6 +220,13 @@ export async function recordProduction(actor: Actor, raw: unknown) {
       where: { id: o.id },
       data: { status: "EM_EXECUCAO", version: { increment: 1 } },
     });
+    if (v.planningParticipationId && (v.goodUnits || v.failedUnits))
+      await linkReportTx(tx, {
+        participationId: v.planningParticipationId,
+        eventId: event.id,
+        goodUnits: v.goodUnits,
+        failedUnits: v.failedUnits,
+      });
     if (o.saleId) await projectSale(tx, o.saleId);
     return orderDTO(tx, o.id);
   });

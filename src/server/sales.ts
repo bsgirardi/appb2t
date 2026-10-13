@@ -44,6 +44,8 @@ import {
 } from "@/domain/commerce/states";
 import { paginationSchema, type Page } from "@/domain/shared/pagination";
 import { lockCommerce, lockOperation } from "./commerce/locks";
+import { lockPlanning } from "./planning/coordination";
+import { reconcilePlanningTx } from "./planning/invariants";
 import { createDocumentSnapshot } from "./commerce/snapshots";
 import {
   createSaleReceivables,
@@ -409,6 +411,7 @@ export async function cancelSale(
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
   return db.$transaction(async (tx) => {
+    await lockPlanning(tx);
     await lockCommerce(tx, { saleId: id });
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
@@ -445,6 +448,11 @@ export async function cancelSale(
       data: { status: "CANCELADA", version: { increment: 1 } },
     });
     await event(tx, actor, id, "CANCEL", why);
+    await reconcilePlanningTx(tx);
+    await tx.planningState.update({
+      where: { id: 1 },
+      data: { revision: { increment: 1 } },
+    });
     return dto(tx, id);
   });
 }

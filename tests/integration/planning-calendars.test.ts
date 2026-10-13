@@ -33,7 +33,7 @@ it("authorizes calendar changes, preserves cost parameters and detects concurren
   ).toEqual(before);
   expect(
     (await db.planningState.findUniqueOrThrow({ where: { id: 1 } })).revision,
-  ).toBe(2);
+  ).toBe(input.expectedRevision + 2);
   expect(await db.planningAudit.count()).toBe(2);
   await db.user.update({ where: { id: actor.id }, data: { active: false } });
   await expect(saveCalendar(actor, input)).rejects.toThrow();

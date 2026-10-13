@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { lockOperation } from "@/server/commerce/locks";
+import { lockPlanning } from "@/server/planning/coordination";
+import { reconcilePlanningTx } from "@/server/planning/invariants";
 function canonical(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(canonical);
   if (v && typeof v === "object")
@@ -34,6 +36,7 @@ export async function runStockCommand<T>(
   return db.$transaction(
     async (tx) => {
       await lockOperation(tx, key);
+      await lockPlanning(tx);
       const old = await tx.stockCommand.findUnique({ where: { key } });
       if (old) {
         if (old.type !== type || old.payloadHash !== payloadHash)
@@ -41,6 +44,11 @@ export async function runStockCommand<T>(
         return old.result as T;
       }
       const result = JSON.parse(JSON.stringify(await action(tx)));
+      await reconcilePlanningTx(tx);
+      await tx.planningState.update({
+        where: { id: 1 },
+        data: { revision: { increment: 1 } },
+      });
       await tx.stockCommand.create({
         data: { key, type, payloadHash, result, actorId: actor.id },
       });

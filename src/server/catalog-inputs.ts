@@ -2,6 +2,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import { lockOperation } from "./commerce/locks";
+import { lockPlanning } from "./planning/coordination";
+import { reconcilePlanningTx } from "./planning/invariants";
 import {
   decimalSchema,
   printerValuesSchema,
@@ -30,10 +32,14 @@ export async function saveMaterial(
   assertAdmin(actor);
   const { id, expectedVersion, ...data } = materialSchema.parse(input);
   const row = await db.$transaction(async (tx) => {
-    await lockOperation(tx,"stock:catalog");
+    await lockOperation(tx, "stock:catalog");
     if (!id) return tx.material.create({ data });
-    const stock=await tx.stockItem.findUnique({where:{materialId:id}});
-    if(stock && stock.unit !== (data.technology === "FDM" ? "G" : "ML")) throw new AppError("VALIDATION","A tecnologia não pode mudar enquanto houver estoque vinculado.");
+    const stock = await tx.stockItem.findUnique({ where: { materialId: id } });
+    if (stock && stock.unit !== (data.technology === "FDM" ? "G" : "ML"))
+      throw new AppError(
+        "VALIDATION",
+        "A tecnologia não pode mudar enquanto houver estoque vinculado.",
+      );
     if (!expectedVersion) throw conflict();
     const updated = await tx.material.updateMany({
       where: { id, version: expectedVersion },
@@ -51,6 +57,7 @@ export async function savePrinter(
   assertAdmin(actor);
   const { id, expectedVersion, ...data } = printerSchema.parse(input);
   const row = await db.$transaction(async (tx) => {
+    await lockPlanning(tx);
     if (!id) return tx.printer.create({ data });
     if (!expectedVersion) throw conflict();
     const updated = await tx.printer.updateMany({
@@ -58,6 +65,11 @@ export async function savePrinter(
       data: { ...data, version: { increment: 1 } },
     });
     if (!updated.count) throw conflict();
+    await reconcilePlanningTx(tx);
+    await tx.planningState.update({
+      where: { id: 1 },
+      data: { revision: { increment: 1 } },
+    });
     return tx.printer.findUniqueOrThrow({ where: { id } });
   });
   return printerDTO(row);

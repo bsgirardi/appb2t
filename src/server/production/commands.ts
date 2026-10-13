@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
 import { lockOperation } from "@/server/commerce/locks";
+import { lockPlanning } from "@/server/planning/coordination";
+import { reconcilePlanningTx } from "@/server/planning/invariants";
 import type { Meta } from "@/domain/production/types";
 export function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);
@@ -35,6 +37,7 @@ export async function runProductionCommand<T>(
   return db.$transaction(
     async (tx) => {
       await lockOperation(tx, key);
+      await lockPlanning(tx);
       const old = await tx.productionCommand.findUnique({ where: { key } });
       if (old) {
         if (old.type !== type || old.payloadHash !== payloadHash)
@@ -42,6 +45,11 @@ export async function runProductionCommand<T>(
         return old.result as T;
       }
       const result = JSON.parse(JSON.stringify(await action(tx)));
+      await reconcilePlanningTx(tx);
+      await tx.planningState.update({
+        where: { id: 1 },
+        data: { revision: { increment: 1 } },
+      });
       await tx.productionCommand.create({
         data: { key, type, payloadHash, result, actorId: actor.id },
       });

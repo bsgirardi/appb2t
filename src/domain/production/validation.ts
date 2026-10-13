@@ -100,6 +100,7 @@ export const releaseAllocationSchema = z
   .strict();
 export const reportSchema = z
   .object({
+    planningParticipationId: id.optional(),
     ...commandMeta,
     lineId: id,
     executorId: id,
