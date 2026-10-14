@@ -315,3 +315,11 @@ Ensaio em cópia restaurada: **63 tabelas anteriores idênticas em contagem/hash
 Código `1902c8b` integrado em `feat/calculadora` e publicado no Docker operacional. 442/442 testes em 135 arquivos no checkout integrado e build Docker aprovados. Imagem executada `sha256:a292d062da072937b7fefd76b3bd688fbd819d52c587448240e2a9b13f26f076`, saudável. Migração U4 aplicada, nenhuma pendente; 63 tabelas anteriores idênticas em contagem/hash. Saúde/início 200, API U4 anônima 401, página sem sessão 307 para login.
 
 Backup final com aplicação parada restaurado e conferido: `backups/profitability-u4-deploy-20261010/final.dump`, SHA256 `66A9E4DD1BD0AADE7FE4647163D99A7F0567B80EB89B95680B4FC580D06304BC`. Imagem anterior preservada. Inspeção visual completa permanece pendente, conforme informado antes da autorização. Registro detalhado: `docs/superpowers/2026-10-10-u4-publicacao.md`.
+
+## U5 — Planejamento, candidata técnica (13/10/2026)
+
+Código `38ca7ed`, branch isolada `codex/planejamento-u5`. **485/485 testes em 150 arquivos**, tipos, lint sem avisos e build aprovados; `git diff --check` limpo. Revisão independente concluída, sete achados corrigidos com regressões: demanda após correções, cobertura de material, sucessor da retirada, marcos efetivos, retirada extraordinária, alertas durante execução e complementos de tempo.
+
+Backup atual obtido por leitura consistente, SHA256 `B6E1080BA2E89C5F5FAC95658B0EBBF4AAEAEF23C4108F684F6A0F4138B91498`, restaurado em PostgreSQL 17 isolado. Aplicadas somente na cópia as migrações `202610100001_planning` e `202610130001_planning_reconciliation`: **67 tabelas anteriores idênticas em contagem/hash**, dez novas. Evidências locais no worktree em `test-results/planning-u5/`; backup em `backups/planning-u5/current.dump`.
+
+**Aceite visual U5 pendente:** não foi atestada inspeção real a 390/1440 px ou por teclado. O bloqueio anterior da revisão automática ao iniciar demonstração (`blocked by policy`) foi respeitado, sem contorno. Testes semânticos não substituem esse aceite. A pendência U4 permanece separada. Sem merge, push, publicação ou migração operacional. Entrega e decisões: `docs/superpowers/2026-10-10-u5-entrega.md`.
