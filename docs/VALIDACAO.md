@@ -323,3 +323,9 @@ Código `38ca7ed`, branch isolada `codex/planejamento-u5`. **485/485 testes em 1
 Backup atual obtido por leitura consistente, SHA256 `B6E1080BA2E89C5F5FAC95658B0EBBF4AAEAEF23C4108F684F6A0F4138B91498`, restaurado em PostgreSQL 17 isolado. Aplicadas somente na cópia as migrações `202610100001_planning` e `202610130001_planning_reconciliation`: **67 tabelas anteriores idênticas em contagem/hash**, dez novas. Evidências locais no worktree em `test-results/planning-u5/`; backup em `backups/planning-u5/current.dump`.
 
 **Aceite visual U5 pendente:** não foi atestada inspeção real a 390/1440 px ou por teclado. O bloqueio anterior da revisão automática ao iniciar demonstração (`blocked by policy`) foi respeitado, sem contorno. Testes semânticos não substituem esse aceite. A pendência U4 permanece separada. Sem merge, push, publicação ou migração operacional. Entrega e decisões: `docs/superpowers/2026-10-10-u5-entrega.md`.
+
+## U5 — publicação autorizada (14/10/2026)
+
+Candidata `31d0b5e` (implementação `38ca7ed`) integrada em `feat/calculadora` e publicada pelo Docker Compose. **485 testes em 150 arquivos aprovados dentro da imagem candidata**, 267,05 segundos. Build Docker aprovado; imagem operacional `sha256:b15b35d4a8e2ffb80c60b0d93aec544a2a8c1820d05c53ada1baa08b4b43002a`, saudável. Ambas as migrações U5 aplicadas, nenhuma pendente. As 67 tabelas anteriores permaneceram idênticas em contagem/hash; dez tabelas novas.
+
+Backup final com aplicação parada restaurado e conferido: `backups/planning-u5-deploy-20261014/final.dump`, SHA256 `6AC1CCEF4A794D957179AB4AB4BF3FD32B582397003D20D6C5C502F5A24EFE9A`. Imagem anterior preservada. Saúde/início HTTP 200; API de Planejamento anônima 401; página sem sessão 307 para login; leitura administrativa aprovada sem criar dados. Aceite visual permanece pendente, conforme informado antes da autorização. Detalhes: `docs/superpowers/2026-10-14-u5-publicacao.md`.
