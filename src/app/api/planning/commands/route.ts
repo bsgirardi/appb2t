@@ -15,7 +15,10 @@ import {
   reorderQueue,
   cancelBatch,
 } from "@/server/planning/milestones";
-import { reconcileBatch } from "@/server/planning/reconciliation";
+import {
+  reconcileBatch,
+  releaseBatchRemainder,
+} from "@/server/planning/reconciliation";
 const actions = {
   CALENDAR_SAVE: saveCalendar,
   MACHINE_SETTINGS: saveMachineSettings,
@@ -28,6 +31,7 @@ const actions = {
   QUEUE_REORDER: reorderQueue,
   BATCH_CANCEL: cancelBatch,
   BATCH_RECONCILE: reconcileBatch,
+  BATCH_RELEASE_REMAINDER: releaseBatchRemainder,
 };
 const schema = z
   .object({

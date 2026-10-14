@@ -57,6 +57,7 @@ export type BatchDTO = {
     lineId: string;
     units: number;
     settledUnits: number;
+    releasedUnits: number;
     needQuantity: string;
     dueDate: CivilDate | null;
     responsibleId: string | null;
@@ -68,12 +69,15 @@ export type BatchDTO = {
     participationId: string;
     allocationId: string;
     quantity: string;
+    releasedQuantity: string;
+    outstandingQuantity: string;
   }[];
   milestones: {
     id: string;
     kind: string;
     instant: Instant;
     sourceId: string | null;
+    reason?: string;
   }[];
   blockers: string[];
 };

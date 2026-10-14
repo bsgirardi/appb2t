@@ -109,10 +109,10 @@ export function ReportForm({
         name="planningParticipationId"
         required={false}
         options={order.planningParticipations
-          .filter((p) => p.lineId === lineId && p.settledUnits < p.units)
+          .filter((p) => p.lineId === lineId)
           .map((p) => ({
             value: p.id,
-            label: `Lote ${p.batchSequence} · ${p.units - p.settledUnits} peças a conciliar`,
+            label: `Lote ${p.batchSequence} · ${p.units - p.settledUnits} peças a conciliar ou complementar tempos`,
           }))}
       />
       <p>

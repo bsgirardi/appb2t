@@ -8,6 +8,7 @@ import type { Actor } from "@/server/auth/session";
 import { allocationRemaining } from "@/server/production/reservations";
 import { batchRow, batchDTO } from "./batch-read";
 import { runPlanningCommand } from "./commands";
+import { coveredTotal } from "./coverage";
 const schema = z
   .object({
     ...planningMeta,
@@ -71,18 +72,10 @@ export async function setBatchCoverage(actor: Actor, raw: unknown) {
         !new Decimal(c.quantity).gt(0)
       )
         invalid("Parcela de reserva incompatível.");
-      const used = await tx.planningMaterialCoverage.aggregate({
-        where: {
-          allocationId: c.allocationId,
-          participation: {
-            batch: { state: { notIn: ["CANCELED", "CLOSED", "DRAFT"] } },
-          },
-        },
-        _sum: { quantity: true },
-      });
+      const used = await coveredTotal(tx, c.allocationId);
       if (
         (await allocationRemaining(tx, c.allocationId))
-          .minus(used._sum.quantity?.toString() ?? 0)
+          .minus(used)
           .lt(c.quantity)
       )
         invalid("Parcela já coberta por outro lote ou insuficiente.");

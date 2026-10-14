@@ -40,7 +40,7 @@ export async function planningTimeSummary(
       : null;
   return summarizeTimes(
     actual,
-    b.participants.every((p) => p.units === p.settledUnits),
+    b.participants.every((p) => p.units === p.settledUnits + p.releasedUnits),
     b.participants.flatMap((p) =>
       p.reports.map((l) => ({
         eventId: l.eventId,

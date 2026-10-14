@@ -4,11 +4,12 @@ import type { Prisma, PlanningBatchState } from "@prisma/client";
 import { z } from "zod";
 import { planningMeta } from "@/domain/planning/validation";
 import { stockQuantity } from "@/domain/stock/validation";
-import { conflict } from "@/lib/errors";
+import { AppError, conflict } from "@/lib/errors";
 import { invalid } from "@/server/stock/movements";
 import { batchDTO, batchRow } from "./batch-read";
 import { admin, runPlanningCommand } from "./commands";
 import { batchAction } from "./batches";
+import { outstandingCoverage } from "./coverage";
 import {
   durationMs,
   expandCalendar,
@@ -128,7 +129,11 @@ export async function recordMilestone(
     const time = new Date(v.instant);
     if (time.getTime() > Date.now())
       invalid("Marco efetivo não pode ser futuro.");
-    if (b.milestones.some((m) => Date.parse(m.instant) > time.getTime()))
+    if (
+      effective(b.milestones).some(
+        (m) => Date.parse(m.instant) > time.getTime(),
+      )
+    )
       invalid(
         "Marco anterior ao último registro; use correção administrativa.",
       );
@@ -166,7 +171,16 @@ export async function recordMilestone(
           last.some((m) => m.kind === "REMOVE_START")
         )
           invalid("Retirada indisponível.");
-        await checkStartCalendar(tx, b, v.instant, true);
+        try {
+          await checkStartCalendar(tx, b, v.instant, true);
+        } catch (error) {
+          if (
+            !(error instanceof AppError) ||
+            error.code !== "VALIDATION" ||
+            !v.reason
+          )
+            throw error;
+        }
         break;
       case "REMOVE_END":
         if (
@@ -253,9 +267,16 @@ export async function cancelBatch(
       admin(actor);
       if (
         b.state !== "CLOSED" ||
-        b.participants.some((p) => p.settledUnits !== p.units)
+        b.participants.some((p) => p.settledUnits + p.releasedUnits !== p.units)
       )
         invalid("Retire as peças e concilie a execução antes de cancelar.");
+      for (const c of b.participants.flatMap((p) => p.coverage))
+        if (
+          (await outstandingCoverage(tx, c.allocationId)).some(
+            (x) => x.batchId === b.id && Number(x.quantity) > 0,
+          )
+        )
+          invalid("Concilie o material antes de cancelar o lote encerrado.");
     }
     await tx.planningBatch.update({
       where: { id: b.id },

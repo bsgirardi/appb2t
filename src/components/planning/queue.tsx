@@ -151,15 +151,18 @@ export function Queue({
                             {instantLabel(f.waitingRemoval.end)}
                           </p>
                         )}
-                        {["PENDING", "SCHEDULED", "DRAFT"].includes(b.state) &&
+                        {!["CANCELED", "CLOSED"].includes(b.state) &&
                           b.blockers.map((x) => <p key={x}>{x}</p>)}
                         {b.state === "CLOSED" &&
-                          b.participants.some(
-                            (p) => p.settledUnits < p.units,
-                          ) && (
+                          (b.participants.some(
+                            (p) => p.settledUnits + p.releasedUnits < p.units,
+                          ) ||
+                            b.coverage.some(
+                              (c) => Number(c.outstandingQuantity) > 0,
+                            )) && (
                             <Notice kind="info">
-                              Conciliação pendente: registre ou vincule as peças
-                              em Produção.
+                              Conciliação pendente: confira peças e material do
+                              lote.
                             </Notice>
                           )}
                         {index >= 0 && (

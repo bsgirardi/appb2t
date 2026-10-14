@@ -11,10 +11,11 @@ export function summarizeTimes(
   const unique = [...new Map(reports.map((e) => [e.eventId, e])).values()];
   const known =
     unique.length > 0 &&
-    unique.every((e) => e.exclusive && e.machineMinutes !== null);
+    unique.every((e) => e.exclusive) &&
+    unique.some((e) => e.machineMinutes !== null);
   const reportedMachineMinutes = known
     ? unique
-        .reduce((n, e) => n.plus(e.machineMinutes!), new Decimal(0))
+        .reduce((n, e) => n.plus(e.machineMinutes ?? 0), new Decimal(0))
         .toFixed()
     : null;
   const differenceMinutes =

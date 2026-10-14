@@ -220,7 +220,7 @@ export async function recordProduction(actor: Actor, raw: unknown) {
       where: { id: o.id },
       data: { status: "EM_EXECUCAO", version: { increment: 1 } },
     });
-    if (v.planningParticipationId && (v.goodUnits || v.failedUnits))
+    if (v.planningParticipationId)
       await linkReportTx(tx, {
         participationId: v.planningParticipationId,
         eventId: event.id,

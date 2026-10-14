@@ -1044,6 +1044,7 @@ model PlanningParticipation {
  line ProductionLine @relation(fields:[lineId], references:[id], onDelete:Restrict)
  units Int
  settledUnits Int @default(0)
+ releasedUnits Int @default(0)
  needQuantity Decimal @default(0) @db.Decimal(24,6)
  coverage PlanningMaterialCoverage[]
  reports PlanningReportLink[]
@@ -1057,6 +1058,7 @@ model PlanningMaterialCoverage {
  allocationId String
  allocation ProductionReservationAllocation @relation(fields:[allocationId], references:[id], onDelete:Restrict)
  quantity Decimal @db.Decimal(24,6)
+ releasedQuantity Decimal @default(0) @db.Decimal(24,6)
  @@unique([participationId,allocationId])
  @@index([allocationId])
 }

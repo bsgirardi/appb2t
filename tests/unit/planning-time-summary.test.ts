@@ -16,3 +16,11 @@ it("counts an exclusive report once and marks discrepancies incomplete", () => {
   });
   expect(summarizeTimes("30", true, [event])).toMatchObject({ complete: true });
 });
+it("compares a supplemental measurement when the original report omitted time", () => {
+  expect(
+    summarizeTimes("60", true, [
+      { eventId: "pieces", machineMinutes: null, exclusive: true },
+      { eventId: "time", machineMinutes: "60", exclusive: true },
+    ]),
+  ).toMatchObject({ reportedMachineMinutes: "60", complete: true });
+});

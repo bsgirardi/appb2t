@@ -1,6 +1,29 @@
 import type { Prisma } from "@prisma/client";
 import { invalid } from "@/server/stock/movements";
 import { batchDTO, unclaimed } from "./batch-read";
+export async function effectiveLinkUnits(
+  tx: Prisma.TransactionClient,
+  link: { id: string; eventId: string; goodUnits: number; failedUnits: number },
+) {
+  const event = await tx.productionEvent.findUniqueOrThrow({
+    where: { id: link.eventId },
+    include: { corrections: true },
+  });
+  const prior = await tx.planningReportLink.findMany({
+    where: { eventId: link.eventId, id: { lt: link.id } },
+  });
+  const net = (key: "goodUnits" | "failedUnits") =>
+    Math.max(
+      0,
+      Math.min(
+        link[key],
+        event[key] +
+          event.corrections.reduce((n, e) => n + e[key], 0) -
+          prior.reduce((n, p) => n + p[key], 0),
+      ),
+    );
+  return { goodUnits: net("goodUnits"), failedUnits: net("failedUnits") };
+}
 export async function linkReportTx(
   tx: Prisma.TransactionClient,
   input: {
@@ -27,8 +50,6 @@ export async function linkReportTx(
     event.printerId !== p.batch.printerId
   )
     invalid("Apontamento incompatível com a participação executada.");
-  if (input.goodUnits + input.failedUnits <= 0)
-    invalid("Informe unidades efetivas para conciliar.");
   const other = await tx.planningReportLink.findMany({
     where: { eventId: event.id, participationId: { not: p.id } },
   });
@@ -37,19 +58,27 @@ export async function linkReportTx(
     netFailed =
       event.failedUnits +
       event.corrections.reduce((n, e) => n + e.failedUnits, 0);
+  const effectiveOther = await Promise.all(
+    other.map((l) => effectiveLinkUnits(tx, l)),
+  );
   if (
-    input.goodUnits + other.reduce((n, x) => n + x.goodUnits, 0) > netGood ||
-    input.failedUnits + other.reduce((n, x) => n + x.failedUnits, 0) > netFailed
+    input.goodUnits + effectiveOther.reduce((n, x) => n + x.goodUnits, 0) >
+      netGood ||
+    input.failedUnits + effectiveOther.reduce((n, x) => n + x.failedUnits, 0) >
+      netFailed
   )
     invalid("Unidades excedem o apontamento líquido disponível.");
   const previous = await tx.planningReportLink.findMany({
     where: { participationId: p.id, eventId: { not: event.id } },
   });
+  const effectivePrevious = await Promise.all(
+    previous.map((l) => effectiveLinkUnits(tx, l)),
+  );
   if (
     input.goodUnits +
       input.failedUnits +
-      previous.reduce((n, x) => n + x.goodUnits + x.failedUnits, 0) >
-    p.units
+      effectivePrevious.reduce((n, x) => n + x.goodUnits + x.failedUnits, 0) >
+    p.units - p.releasedUnits
   )
     invalid("Unidades excedem a participação no lote.");
   await tx.planningReportLink.upsert({
@@ -62,7 +91,6 @@ export async function linkReportTx(
 }
 export async function reconcilePlanningTx(
   tx: Prisma.TransactionClient,
-  _context?: { lineIds: string[]; reservationIds: string[] },
 ): Promise<void> {
   const batches = await tx.planningBatch.findMany({
     where: { state: { notIn: ["DRAFT", "CANCELED"] } },

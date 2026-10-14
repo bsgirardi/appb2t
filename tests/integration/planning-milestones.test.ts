@@ -12,7 +12,53 @@ import {
   cancelBatch,
   correctMilestone,
 } from "@/server/planning/milestones";
+import { saveCalendar } from "@/server/planning/calendars";
 setupDatabase();
+it("accepts an end after the corrected effective start, and justified real removal after hours", async () => {
+  const f = await planningFixture();
+  let b = await scheduledBatch(f);
+  const day = "2026-10-10";
+  const mark = async (kind: string, clock: string, reason?: string) => {
+    b = await recordMilestone(f.actor, {
+      ...(await planningMeta(b.version)),
+      batchId: b.id,
+      kind,
+      instant: `${day}T${clock}:00-03:00`,
+      reason,
+    });
+  };
+  await mark("PREPARE_START", "08:55");
+  await mark("PRINT_START", "10:00");
+  b = await correctMilestone(f.actor, {
+    ...(await planningMeta(b.version)),
+    sourceId: b.milestones.find((m) => m.kind === "PRINT_START")!.id,
+    instant: `${day}T09:00:00-03:00`,
+    reason: "Horário anotado incorretamente",
+  });
+  await mark("PRINT_END", "09:30");
+  const team = await db.planningCalendar.findUniqueOrThrow({
+    where: { id: "TEAM" },
+  });
+  await saveCalendar(f.actor, {
+    ...(await planningMeta(team.version)),
+    resource: "TEAM",
+    printerId: null,
+    weekly: Array.from({ length: 7 }, (_, i) => ({
+      weekday: i + 1,
+      startMinute: 480,
+      endMinute: 1080,
+    })),
+    exceptions: [],
+  });
+  await expect(mark("REMOVE_START", "18:05")).rejects.toThrow();
+  await mark(
+    "REMOVE_START",
+    "18:05",
+    "Retirada extraordinária após expediente",
+  );
+  await mark("REMOVE_END", "18:15", "Retirada extraordinária concluída");
+  expect(b.state).toBe("CLOSED");
+});
 it("keeps machine occupied until removal and never posts production automatically", async () => {
   const f = await planningFixture();
   let a = await scheduledBatch(f);

@@ -52,6 +52,44 @@ function input(batches: BatchDTO[], asOf = instant("08:00")): PlanningInput {
     machines: [{ id: "p", calendar: calendar(), batches }],
   };
 }
+it("considers the successor of an ongoing removal before advancing to another machine's evening window", () => {
+  const active = batch("active", {
+    state: "AWAITING_REMOVAL",
+    milestones: [
+      {
+        id: "start",
+        kind: "PRINT_START",
+        instant: instant("07:00"),
+        sourceId: null,
+      },
+      {
+        id: "end",
+        kind: "PRINT_END",
+        instant: instant("08:00"),
+        sourceId: null,
+      },
+      {
+        id: "remove",
+        kind: "REMOVE_START",
+        instant: instant("08:00"),
+        sourceId: null,
+      },
+    ],
+  });
+  const data = input(
+    [active, batch("next", { position: 2, prepareMinutes: "5" })],
+    instant("08:05"),
+  );
+  data.team = calendar();
+  data.machines.push({
+    id: "q",
+    calendar: calendar(1080, 1440),
+    batches: [batch("evening", { printerId: "q", prepareMinutes: "10" })],
+  });
+  expect(
+    forecast(data).batches.find((b) => b.batchId === "next")?.prepare?.start,
+  ).toBe("2026-10-12T11:10:00.000Z");
+});
 it("waits for team in the morning after an unattended night", () => {
   const result = forecast(
     input(

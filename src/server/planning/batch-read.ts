@@ -4,6 +4,7 @@ import { AppError } from "@/lib/errors";
 import { allocationRemaining } from "@/server/production/reservations";
 import { balance } from "@/server/stock/movements";
 import Decimal from "decimal.js";
+import { coveredTotal, outstandingCoverage } from "./coverage";
 export async function batchRow(tx: Prisma.TransactionClient, id: string) {
   const row = await tx.planningBatch.findUnique({
     where: { id },
@@ -54,20 +55,8 @@ export async function batchDTO(
     if (!p.needQuantity.gt(0) || covered.lt(p.needQuantity.toString()))
       blockers.push("Reserva insuficiente para o lote");
     for (const c of p.coverage) {
-      const used = await tx.planningMaterialCoverage.aggregate({
-        where: {
-          allocationId: c.allocationId,
-          participation: {
-            batch: { state: { notIn: ["DRAFT", "CANCELED", "CLOSED"] } },
-          },
-        },
-        _sum: { quantity: true },
-      });
-      if (
-        (await allocationRemaining(tx, c.allocationId)).lt(
-          used._sum.quantity?.toString() ?? 0,
-        )
-      )
+      const used = await coveredTotal(tx, c.allocationId);
+      if ((await allocationRemaining(tx, c.allocationId)).lt(used))
         blockers.push("Reserva alterada; revise a cobertura");
     }
   }
@@ -96,25 +85,34 @@ export async function batchDTO(
       lineId: p.lineId,
       units: p.units,
       settledUnits: p.settledUnits,
+      releasedUnits: p.releasedUnits,
       needQuantity: p.needQuantity.toFixed(),
       dueDate: p.line.order.dueDate?.toISOString().slice(0, 10) ?? null,
       responsibleId: p.line.order.responsibleId,
       description: p.line.description,
       orderSequence: p.line.order.sequence,
     })),
-    coverage: b.participants.flatMap((p) =>
-      p.coverage.map((c) => ({
-        id: c.id,
-        participationId: p.id,
-        allocationId: c.allocationId,
-        quantity: c.quantity.toFixed(),
-      })),
+    coverage: await Promise.all(
+      b.participants.flatMap((p) =>
+        p.coverage.map(async (c) => ({
+          id: c.id,
+          participationId: p.id,
+          allocationId: c.allocationId,
+          quantity: c.quantity.toFixed(),
+          releasedQuantity: c.releasedQuantity.toFixed(),
+          outstandingQuantity:
+            (await outstandingCoverage(tx, c.allocationId)).find(
+              (x) => x.id === c.id,
+            )?.quantity ?? "0",
+        })),
+      ),
     ),
     milestones: b.milestones.map((m) => ({
       id: m.id,
       kind: m.kind,
       instant: m.instant.toISOString(),
       sourceId: m.sourceId,
+      reason: m.reason,
     })),
     blockers: [...new Set(blockers)],
   };
@@ -138,6 +136,6 @@ export async function unclaimed(
   return (
     line.targetUnits -
     line.events.reduce((n, e) => n + e.goodUnits + e.canceledUnits, 0) -
-    claims.reduce((n, p) => n + p.units - p.settledUnits, 0)
+    claims.reduce((n, p) => n + p.units - p.settledUnits - p.releasedUnits, 0)
   );
 }

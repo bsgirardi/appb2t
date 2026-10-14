@@ -146,7 +146,7 @@ it("reads dependencies after locking when a sale reserves during cancellation", 
     for (let i = 0; i < 100; i++) {
       const rows = await db.$queryRaw<
         { n: bigint }[]
-      >`SELECT count(*) AS n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE '%FinishedStock%'`;
+      >`SELECT count(*) AS n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND (query LIKE '%FinishedStock%' OR query LIKE '%PlanningState%')`;
       if (Number(rows[0].n) >= n) return;
       await new Promise((r) => setTimeout(r, 20));
     }

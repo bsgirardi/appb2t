@@ -194,13 +194,12 @@ export function forecast(input: PlanningInput): Forecast {
   while ([...queues.values()].some((q) => q.length)) {
     const candidates: { job: Job; printerId: string; slot: Interval }[] = [];
     for (const [printerId, queue] of queues) {
+      while (queue[0]?.actualService) {
+        machineReady.set(printerId, queue[0].ready);
+        queue.shift();
+      }
       const job = queue[0];
       if (!job) continue;
-      if (job.actualService) {
-        machineReady.set(printerId, job.ready);
-        queue.shift();
-        continue;
-      }
       const available = windows.get(printerId)!;
       const after = Math.max(
         job.ready,
@@ -283,6 +282,16 @@ export function forecast(input: PlanningInput): Forecast {
         ) / 60000
       : 0;
   for (const out of result.batches) {
+    if (out.removal) {
+      out.late =
+        !!out.dueDate &&
+        Date.parse(out.removal.end) > civilInstant(out.dueDate, 1440);
+      if (out.print && !out.waitingRemoval)
+        out.waitingRemoval = interval(
+          Date.parse(out.print.end),
+          Date.parse(out.removal.start),
+        );
+    }
     const total = result.totals.find((t) => t.printerId === out.printerId)!;
     total.printMinutes += length(out.print);
     total.serviceMinutes += length(out.prepare) + length(out.removal);

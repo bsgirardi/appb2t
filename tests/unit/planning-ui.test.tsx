@@ -104,3 +104,23 @@ it("shows blocked forecasts, pending reconciliation and keyboard-accessible queu
       .getAttribute("disabled"),
   ).toBeNull();
 });
+it("keeps material warnings visible while a machine is physically occupied", () => {
+  const batch = {
+    id: "a",
+    printerId: "p",
+    sequence: 1,
+    state: "PRINTING",
+    colorLabel: "Azul",
+    blockers: ["Reserva alterada; revise a cobertura"],
+    participants: [],
+  } as unknown as BatchDTO;
+  render(
+    <Queue
+      data={data}
+      batches={[batch]}
+      onSelect={() => {}}
+      onDone={() => {}}
+    />,
+  );
+  expect(screen.getByText("Reserva alterada; revise a cobertura")).toBeTruthy();
+});

@@ -11,6 +11,7 @@ import { allocationRemaining } from "@/server/production/reservations";
 import { batchDTO, unclaimed } from "./batch-read";
 import type { Prisma } from "@prisma/client";
 import { planningTimeSummary } from "./time-summary";
+import { outstandingCoverage } from "./coverage";
 
 async function authorize(tx: Prisma.TransactionClient, actor: Actor) {
   const user = await tx.user.findUnique({ where: { id: actor.id } });
@@ -130,17 +131,7 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
           lineId: a.lineId,
           itemId: a.reservation.itemId,
           remaining: (await allocationRemaining(tx, a.id)).toFixed(),
-          claimed: a.planningCoverage
-            .filter(
-              (c) =>
-                !["DRAFT", "CANCELED", "CLOSED"].includes(
-                  c.participation.batch.state,
-                ),
-            )
-            .map((c) => ({
-              batchId: c.participation.batchId,
-              quantity: c.quantity.toFixed(),
-            })),
+          claimed: await outstandingCoverage(tx, a.id),
         })),
       );
       // Only explicit, unambiguous prior declarations qualify for suggestions.

@@ -117,14 +117,16 @@ export function BatchDetail({
         {b.participants.map((p) => (
           <li key={p.id}>
             OP {p.orderSequence} · {p.description}: {p.settledUnits}/{p.units}{" "}
-            peças conciliadas. Prazo {p.dueDate ?? "não informado"}.{" "}
+            peças conciliadas; {p.releasedUnits} liberadas sem execução. Prazo{" "}
+            {p.dueDate ?? "não informado"}.{" "}
             <Link href={`/producao?query=${encodeURIComponent(p.description)}`}>
               Abrir produção para apontar peças e tempos
             </Link>
           </li>
         ))}
       </ul>
-      {future && b.blockers.map((x) => <Notice key={x}>{x}</Notice>)}
+      {b.state !== "CANCELED" &&
+        b.blockers.map((x) => <Notice key={x}>{x}</Notice>)}
       {b.state === "DRAFT" && (
         <ActionForm
           title="Confirmar composição"
@@ -281,6 +283,7 @@ export function BatchDetail({
                 {markers[m.kind] ?? m.kind} · {instantLabel(m.instant)}
                 {m.sourceId ? " · correção" : ""}
                 {milestones.some((x) => x.id === m.id) ? "" : " · substituído"}
+                {m.reason ? ` · ${m.reason}` : ""}
               </li>
             ))}
           </ul>
@@ -393,6 +396,69 @@ export function BatchDetail({
             name="reason"
             required
             minLength={3}
+          />
+        </ActionForm>
+      )}
+      {b.state === "CLOSED" && (
+        <ActionForm
+          title="Conferir sobras do lote encerrado"
+          submit="Liberar sobras conferidas"
+          revision={`${data.revision}:${b.version}`}
+          onDone={onDone}
+          onSubmit={(f, key) =>
+            command("BATCH_RELEASE_REMAINDER", key, {
+              reason: text(f, "reason"),
+              releases: b.participants
+                .map((p) => ({
+                  participationId: p.id,
+                  units: count(f, `release:${p.id}`),
+                }))
+                .filter((r) => r.units > 0),
+              materialReleases: b.coverage
+                .map((c) => ({
+                  coverageId: c.id,
+                  quantity: text(f, `releaseMaterial:${c.id}`).replace(
+                    ",",
+                    ".",
+                  ),
+                }))
+                .filter((r) => Number(r.quantity) > 0),
+            })
+          }
+        >
+          <Notice kind="info">
+            Após conferência física, libere apenas peças não executadas e
+            material remanescente. Registre o consumo real em Produção antes
+            desta liberação. Esta ação mantém os apontamentos e não movimenta
+            estoque.
+          </Notice>
+          {b.participants.map((p) => (
+            <Field
+              key={p.id}
+              label={`Peças não executadas — OP ${p.orderSequence}`}
+              name={`release:${p.id}`}
+              type="number"
+              min={0}
+              max={p.units - p.settledUnits - p.releasedUnits}
+              step={1}
+              defaultValue={0}
+            />
+          ))}
+          {b.coverage.map((c, i) => (
+            <Field
+              key={c.id}
+              label={`Material remanescente — parcela ${i + 1} (${material?.unit})`}
+              name={`releaseMaterial:${c.id}`}
+              inputMode="decimal"
+              defaultValue="0"
+              hint={`${c.outstandingQuantity} ${material?.unit} ainda vinculados a este lote.`}
+            />
+          ))}
+          <Field
+            label="Motivo e resultado da conferência"
+            name="reason"
+            minLength={3}
+            required
           />
         </ActionForm>
       )}
