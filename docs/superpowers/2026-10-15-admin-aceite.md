@@ -1,5 +1,7 @@
 # Aceite administrativo — 15/10/2026
 
+Complemento posterior: [Roboto administrativo](2026-10-15-admin-roboto.md) registra a primeira etapa do preset, a repetição do aceite na candidata e a verificação HTTP do favicon concluída via ambiente Docker isolado. Ambas as alterações continuam sem publicação.
+
 ## Estado atual
 
 U4 e U5 já publicados, respectivamente em 10 e 14/10. Paletas independentes publicadas em 14/10 e registradas no commit `bcd171e` em 15/10. A inspeção de navegador descrita aqui sucede as limitações históricas de demonstração registradas nas entregas anteriores. Não houve nova publicação nem push nesta rodada.

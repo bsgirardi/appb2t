@@ -14,7 +14,7 @@ export default async function Login({
   const identity = await getPublicAppearance();
   return (
     <div
-      className="login-page admin-theme"
+      className="login-page admin-theme font-admin"
       style={themeVariables(identity) as CSSProperties}
     >
       <section className="login-story">

@@ -262,7 +262,7 @@ export function AppShell({
   );
   return (
     <div
-      className="app-shell admin-ui admin-theme font-store text-sm"
+      className="app-shell admin-ui admin-theme font-admin text-sm"
       style={paletteStyle}
     >
       <a href="#admin-content" className="store-skip">
@@ -284,7 +284,7 @@ export function AppShell({
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="admin-ui admin-theme font-store"
+            className="admin-ui admin-theme font-admin"
             style={paletteStyle}
           >
             <SheetTitle>Menu principal</SheetTitle>

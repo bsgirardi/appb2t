@@ -2,6 +2,8 @@
 
 Estado: proposta para revisão, não aplicada. Pedido preservado: apresentar plano e diff concreto antes de alterar o preset; administrativo primeiro, catálogo depois.
 
+Atualização posterior em 15/10: o usuário pediu continuidade após a apresentação. A primeira etapa Roboto foi implementada e validada, incluindo correção de herança nas abas. Consulte `2026-10-15-admin-roboto.md`. O patch abaixo fica como registro da proposta original; as demais etapas continuam propostas e não foram aplicadas. Não houve publicação.
+
 ## Diagnóstico confirmado
 
 CLI oficial consultada em 15/10/2026: `shadcn preset decode b37ZhrOVs` retorna Nova, baseColor neutral, tema/chart indigo, Lucide, Roboto, título herdado, radius default, menuAccent subtle e menuColor default. Referência: https://ui.shadcn.com/create?preset=b37ZhrOVs.

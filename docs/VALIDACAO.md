@@ -1,5 +1,7 @@
 # Verificação da primeira versão
 
+> Continuidade de 15/10: [Roboto administrativo validado](superpowers/2026-10-15-admin-roboto.md), site preservado em Poppins e favicon HTTP 200 na candidata Docker isolada. Alterações ainda não publicadas; produção permanece na imagem das paletas de 14/10.
+
 > Estado em 15/10/2026: U4, U5 e paletas independentes publicados. Aceite de navegador U4/U5 concluído para cenários representativos em claro/escuro, 390/1440px e teclado. Favicon corrigido no checkout, ainda não publicado. Consulte [o registro atual](superpowers/2026-10-15-admin-aceite.md) para evidências e limites. As seções datadas abaixo preservam o histórico; menções antigas a candidata ou inspeção pendente descrevem aquela data.
 
 
