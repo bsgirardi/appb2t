@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { themeVariables } from "@/domain/appearance/theme";
 import { AuthForm } from "@/components/auth-form";
 import { Notice } from "@/components/ui/field";
 import { Brand } from "@/components/shell/brand";
@@ -11,7 +13,10 @@ export default async function Login({
   const { changed } = await searchParams;
   const identity = await getPublicAppearance();
   return (
-    <div className="login-page">
+    <div
+      className="login-page admin-theme"
+      style={themeVariables(identity) as CSSProperties}
+    >
       <section className="login-story">
         <Brand identity={identity} />
         <div className="story-main">

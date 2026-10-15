@@ -152,6 +152,11 @@ model CompanyAppearance {
  phone String
  address String
  footer String
+ // Existing fields remain the administrative palette.
+ siteLightPrimary String @default("#0066cc")
+ siteLightAccent String @default("#ff7a00")
+ siteDarkPrimary String @default("#79b8ff")
+ siteDarkAccent String @default("#ff7a00")
  lightPrimary String
  lightAccent String
  darkPrimary String

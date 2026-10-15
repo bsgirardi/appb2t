@@ -3,7 +3,7 @@ import { Alert } from "@/components/ui/alert";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import {
   Box,
   Calculator,
@@ -26,17 +26,24 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Brand } from "./brand";
-import type { CompanyIdentityDTO } from "@/domain/appearance/types";
+import { themeVariables } from "@/domain/appearance/theme";
+import type {
+  AppearancePalette,
+  CompanyIdentityDTO,
+} from "@/domain/appearance/types";
 import { defaultAppearance } from "@/domain/appearance/validation";
 export function AppShell({
   actor,
   identity = { ...defaultAppearance, logoUrl: null },
+  palette = defaultAppearance,
   children,
 }: {
   actor: Actor;
   identity?: CompanyIdentityDTO;
+  palette?: AppearancePalette;
   children: ReactNode;
 }) {
+  const paletteStyle = themeVariables(palette) as CSSProperties;
   const router = useRouter(),
     path = usePathname(),
     [error, setError] = useState("");
@@ -254,7 +261,10 @@ export function AppShell({
     </nav>
   );
   return (
-    <div className="app-shell admin-ui font-store text-sm">
+    <div
+      className="app-shell admin-ui admin-theme font-store text-sm"
+      style={paletteStyle}
+    >
       <a href="#admin-content" className="store-skip">
         Pular para o conteúdo
       </a>
@@ -272,7 +282,11 @@ export function AppShell({
               <Menu aria-hidden="true" /> Menu
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="admin-ui font-store">
+          <SheetContent
+            side="left"
+            className="admin-ui admin-theme font-store"
+            style={paletteStyle}
+          >
             <SheetTitle>Menu principal</SheetTitle>
             <SheetDescription>
               Navegação da equipe {identity.name}

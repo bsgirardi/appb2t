@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getPublicAppearance } from "@/server/appearance";
 import "./design.css";
-import { themeVariables } from "@/domain/appearance/theme";
-import type { CSSProperties } from "react";
 export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const identity = await getPublicAppearance();
@@ -18,10 +16,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="pt-BR"
-      style={themeVariables(await getPublicAppearance()) as CSSProperties}
-    >
+    <html lang="pt-BR">
       <body>{children}</body>
     </html>
   );

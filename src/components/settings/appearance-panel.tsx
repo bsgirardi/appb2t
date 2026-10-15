@@ -3,19 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type CSSProperties,
-} from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Field, Notice } from "@/components/ui/field";
 import { Brand } from "@/components/shell/brand";
 import type { AppearanceDTO } from "@/domain/appearance/types";
 import { appearanceSchema } from "@/domain/appearance/validation";
-import { readableText } from "@/domain/appearance/colors";
+import { AppearanceColors, AppearanceColorPreviews } from "./appearance-colors";
+import { defaultSiteColors } from "@/domain/appearance/site-colors";
 import { StorefrontEditor } from "./storefront-editor";
 import {
   defaultStorefront,
@@ -31,12 +26,6 @@ const texts = [
   ["address", "Endereço público", 500],
   ["footer", "Texto do rodapé", 300],
 ] as const;
-const colors = [
-  ["lightPrimary", "Cor principal · tema claro"],
-  ["lightAccent", "Cor de destaque · tema claro"],
-  ["darkPrimary", "Cor principal · tema escuro"],
-  ["darkAccent", "Cor de destaque · tema escuro"],
-] as const;
 export function AppearancePanel({
   initial,
   collections = [],
@@ -44,7 +33,7 @@ export function AppearancePanel({
   initial: AppearanceDTO;
   collections?: CollectionDTO[];
 }) {
-  const [draft, setDraft] = useState(initial),
+  const [draft, setDraft] = useState({ ...defaultSiteColors, ...initial }),
     [photo, setPhoto] = useState<File>(),
     [preview, setPreview] = useState<string>(),
     [removeLogo, setRemoveLogo] = useState(false),
@@ -93,7 +82,7 @@ export function AppearancePanel({
       setPhoto(undefined);
       setPreview(undefined);
       setRemoveLogo(false);
-      setMessage("Aparência e catálogo atualizados.");
+      setMessage("Aparência do site e do administrativo atualizada.");
       router.refresh();
     } catch (e) {
       setError((e as Error).message);
@@ -168,23 +157,10 @@ export function AppearancePanel({
                 />{" "}
                 Remover logo
               </Label>
-              <h2>Cores dos temas</h2>
-              <p className="muted">
-                O tema acompanha automaticamente a preferência do dispositivo.
-              </p>
-              <div className="form-grid">
-                {colors.map(([key, label]) => (
-                  <Field
-                    key={key}
-                    label={label}
-                    type="color"
-                    value={draft[key]}
-                    onChange={(e) =>
-                      setDraft({ ...draft, [key]: e.target.value })
-                    }
-                  />
-                ))}
-              </div>
+              <AppearanceColors
+                value={draft}
+                onChange={(next) => setDraft({ ...defaultSiteColors, ...next })}
+              />
               <StorefrontEditor
                 value={draft.storefront ?? defaultStorefront}
                 collections={collections}
@@ -205,29 +181,7 @@ export function AppearancePanel({
             {draft.email && <p>{draft.email}</p>}
             {draft.phone && <p>{draft.phone}</p>}
             {draft.address && <p>{draft.address}</p>}
-            <div className="preview-swatches">
-              {colors.map(([key, label]) => {
-                let color = "#111827";
-                try {
-                  color = readableText(draft[key]);
-                } catch {}
-                return (
-                  <div
-                    key={key}
-                    style={
-                      {
-                        background: draft[key],
-                        color,
-                        padding: 16,
-                        borderRadius: 10,
-                      } as CSSProperties
-                    }
-                  >
-                    {label}
-                  </div>
-                );
-              })}
-            </div>
+            <AppearanceColorPreviews value={draft} />
             <small>{draft.footer}</small>
             <h2>Estrutura do catálogo</h2>
             <ol className="store-structure-preview">

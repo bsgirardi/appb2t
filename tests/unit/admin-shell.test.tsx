@@ -73,3 +73,29 @@ it("preserves operator navigation restrictions", () => {
     screen.getByRole("link", { name: "Abrir loja" }).getAttribute("href"),
   ).toBe("/");
 });
+
+it("carries the administrative palette into the mobile portal", () => {
+  const { container } = render(
+    <AppShell
+      actor={actor}
+      palette={{
+        lightPrimary: "#224455",
+        lightAccent: "#b68b39",
+        darkPrimary: "#6cdbc0",
+        darkAccent: "#eac473",
+      }}
+    >
+      <h1>Conteúdo</h1>
+    </AppShell>,
+  );
+  expect(
+    (
+      container.querySelector(".app-shell") as HTMLElement
+    ).style.getPropertyValue("--light-primary"),
+  ).toBe("#224455");
+  fireEvent.click(screen.getByRole("button", { name: "Menu" }));
+  expect(
+    screen.getByRole("dialog").style.getPropertyValue("--light-primary"),
+  ).toBe("#224455");
+  expect(screen.getByRole("dialog").className).toContain("admin-theme");
+});

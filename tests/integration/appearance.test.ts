@@ -64,3 +64,62 @@ it("changes the logo URL after replacing bytes so open pages refresh the image",
   expect(second.logoUrl).not.toBe(first.logoUrl);
   expect((await getPublicAppearance()).logoUrl).toBe(second.logoUrl);
 });
+
+it("persists site and admin palettes independently and protects concurrent edits", async () => {
+  const admin = await seedUser();
+  const first = await saveAppearance(admin, {
+    ...defaultAppearance,
+    expectedVersion: 0,
+    lightPrimary: "#224455",
+    siteLightPrimary: "#663399",
+  });
+  expect(first).toMatchObject({
+    lightPrimary: "#224455",
+    siteLightPrimary: "#663399",
+  });
+  const { logoUrl, version, ...fields } = first;
+  void logoUrl;
+  await saveAppearance(admin, {
+    ...fields,
+    expectedVersion: version,
+    siteDarkAccent: "#ffffff",
+  });
+  const saved = await getAppearance(admin);
+  expect(saved).toMatchObject({
+    lightPrimary: "#224455",
+    siteLightPrimary: "#663399",
+    siteDarkAccent: "#ffffff",
+  });
+  await expect(
+    saveAppearance(admin, {
+      ...fields,
+      expectedVersion: version,
+      lightPrimary: "#ffffff",
+    }),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+  expect((await getAppearance(admin)).lightPrimary).toBe("#224455");
+});
+it("old clients cannot reset previously saved site colors", async () => {
+  const admin = await seedUser();
+  await saveAppearance(admin, {
+    ...defaultAppearance,
+    expectedVersion: 0,
+    siteLightPrimary: "#663399",
+  });
+  const {
+    siteLightPrimary,
+    siteLightAccent,
+    siteDarkPrimary,
+    siteDarkAccent,
+    ...legacy
+  } = defaultAppearance;
+  void [siteLightPrimary, siteLightAccent, siteDarkPrimary, siteDarkAccent];
+  const saved = await saveAppearance(admin, {
+    ...legacy,
+    lightPrimary: "#224455",
+    expectedVersion: 1,
+  });
+  expect(saved.siteLightPrimary).toBe("#663399");
+  expect((await getPublicAppearance()).siteLightPrimary).toBe("#663399");
+  expect(saved.lightPrimary).toBe("#224455");
+});

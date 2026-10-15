@@ -14,8 +14,9 @@ export default async function PrivateLayout({
       redirect("/login");
     throw e;
   });
+  const appearance = await getPublicAppearance();
   return (
-    <AppShell actor={actor} identity={await getPublicAppearance()}>
+    <AppShell actor={actor} identity={appearance} palette={appearance}>
       {children}
     </AppShell>
   );

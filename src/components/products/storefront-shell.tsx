@@ -3,13 +3,15 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, MessageCircle, ArrowUpRight } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type {
   CompanyIdentityDTO,
   PublicAppearanceDTO,
 } from "@/domain/appearance/types";
 import { whatsappLink } from "@/domain/products/storefront";
 import { Button } from "@/components/ui/button";
+import { siteThemeVariables } from "@/domain/appearance/theme";
+import type { SiteColors } from "@/domain/appearance/site-colors";
 import { InquiryLink } from "./inquiry-link";
 
 export function StorefrontShell({
@@ -19,7 +21,9 @@ export function StorefrontShell({
   collection = "",
   order = "nome",
 }: {
-  identity: CompanyIdentityDTO & Pick<PublicAppearanceDTO, "storefront">;
+  identity: CompanyIdentityDTO &
+    Pick<PublicAppearanceDTO, "storefront"> &
+    Partial<SiteColors>;
   children: ReactNode;
   search?: string;
   collection?: string;
@@ -30,7 +34,10 @@ export function StorefrontShell({
     `Olá! Gostaria de saber mais sobre os produtos da ${identity.name}.`,
   );
   return (
-    <div className="storefront min-h-screen">
+    <div
+      className="storefront min-h-screen"
+      style={siteThemeVariables(identity) as CSSProperties}
+    >
       <a className="store-skip" href="#catalog-content">
         Pular para o conteúdo
       </a>
@@ -173,8 +180,8 @@ export function StorefrontShell({
           </div>
         </div>
         <div aria-hidden="true" className="grid h-2 grid-cols-3">
-          <span className="bg-b2t-blue" />
-          <span className="bg-b2t-orange" />
+          <span className="bg-primary" />
+          <span className="bg-secondary" />
           <span className="bg-b2t-green" />
         </div>
       </footer>

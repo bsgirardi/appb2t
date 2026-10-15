@@ -43,10 +43,10 @@
   .storefront {
     --background: #f8fafc;
     --foreground: #0d2b52;
-    --primary: #0066cc;
-    --primary-foreground: #fff;
-    --secondary: #ff7a00;
-    --secondary-foreground: #0d2b52;
+    --primary: var(--site-light-primary, #0066cc);
+    --primary-foreground: var(--site-light-on-primary, #fff);
+    --secondary: var(--site-light-accent, #ff7a00);
+    --secondary-foreground: var(--site-light-on-accent, #0d2b52);
     --store-accent: #eaf3ff;
     --store-muted: #eef2f6;
     --muted-foreground: #526174;
@@ -58,6 +58,8 @@
     --line: var(--border);
     --brand: var(--primary);
     --on-brand: var(--primary-foreground);
+    --accent: var(--secondary);
+    --on-accent: var(--secondary-foreground);
     color-scheme: light;
     color: var(--foreground);
     background: var(--background);
@@ -158,8 +160,10 @@
     .storefront {
       --background: #101c2d;
       --foreground: #edf4ff;
-      --primary: #79b8ff;
-      --primary-foreground: #0d2b52;
+      --primary: var(--site-dark-primary, #79b8ff);
+      --primary-foreground: var(--site-dark-on-primary, #0d2b52);
+      --secondary: var(--site-dark-accent, #ff7a00);
+      --secondary-foreground: var(--site-dark-on-accent, #0d2b52);
       --paper: #172941;
       --store-accent: #203957;
       --store-muted: #203957;
@@ -393,5 +397,52 @@
     [data-slot="sheet-content"] {
       display: none !important;
     }
+  }
+}
+
+/* Administrative and login palettes stay local, including mobile portals. */
+@layer components {
+  .admin-theme {
+    --brand: var(--light-primary, #176b59);
+    --on-brand: var(--light-on-primary, #ffffff);
+    --accent: var(--light-accent, #b68b39);
+    --on-accent: var(--light-on-accent, #111827);
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --primary: var(--brand);
+    --primary-foreground: var(--on-brand);
+    --ring: var(--brand);
+    --sidebar-primary: var(--brand);
+    --sidebar-primary-foreground: var(--on-brand);
+    --sidebar-ring: var(--brand);
+  }
+  @media (prefers-color-scheme: dark) {
+    .admin-theme {
+      --brand: var(--dark-primary, #6cdbc0);
+      --on-brand: var(--dark-on-primary, #111827);
+      --accent: var(--dark-accent, #eac473);
+      --on-accent: var(--dark-on-accent, #111827);
+    }
+  }
+}
+
+@layer components {
+  .admin-theme.admin-ui {
+    --secondary: var(--accent);
+    --secondary-foreground: var(--on-accent);
+  }
+  .appearance-palette {
+    display: grid;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .appearance-palette legend {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 0 0 8px;
+  }
+  .appearance-swatch {
+    padding: 16px;
+    border-radius: 10px;
   }
 }

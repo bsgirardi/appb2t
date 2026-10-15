@@ -22,6 +22,10 @@ const publicSelect = {
   phone: true,
   address: true,
   footer: true,
+  siteLightPrimary: true,
+  siteLightAccent: true,
+  siteDarkPrimary: true,
+  siteDarkAccent: true,
   lightPrimary: true,
   lightAccent: true,
   darkPrimary: true,
@@ -97,6 +101,10 @@ export async function saveAppearance(
     });
     return {
       ...data,
+      siteLightPrimary: row.siteLightPrimary,
+      siteLightAccent: row.siteLightAccent,
+      siteDarkPrimary: row.siteDarkPrimary,
+      siteDarkAccent: row.siteDarkAccent,
       storefront: storefrontSchema.parse(row.storefront),
       version: row.version,
       logoUrl: savedLogo

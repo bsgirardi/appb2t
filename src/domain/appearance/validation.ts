@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { readableText } from "./colors";
 import { storefrontSchema, defaultStorefront } from "./storefront";
+import { defaultSiteColors } from "./site-colors";
 export const defaultAppearance = {
+  ...defaultSiteColors,
   storefront: defaultStorefront,
   name: "B2T Print Studio",
   shortName: "B2T",
@@ -40,6 +42,11 @@ export const appearanceSchema = z
     lightAccent: color,
     darkPrimary: color,
     darkAccent: color,
+    // Optional on write: older clients must not reset the site palette.
+    siteLightPrimary: color.optional(),
+    siteLightAccent: color.optional(),
+    siteDarkPrimary: color.optional(),
+    siteDarkAccent: color.optional(),
     expectedVersion: z.number().int().min(0),
     removeLogo: z.boolean().optional(),
   })

@@ -52,3 +52,20 @@ it("makes the catalog photograph a product link without nested gallery buttons",
   );
   expect(photoLink.querySelector("button")).toBeNull();
 });
+
+it("scopes saved site colors to the storefront without copying admin colors", () => {
+  const identity = {
+    ...defaultAppearance,
+    siteLightPrimary: "#224455",
+    lightPrimary: "#663399",
+    logoUrl: null,
+  };
+  const { container } = render(
+    <StorefrontShell identity={identity}>
+      <p>Catálogo</p>
+    </StorefrontShell>,
+  );
+  const shell = container.querySelector(".storefront") as HTMLElement;
+  expect(shell.style.getPropertyValue("--site-light-primary")).toBe("#224455");
+  expect(shell.style.getPropertyValue("--light-primary")).toBe("");
+});
