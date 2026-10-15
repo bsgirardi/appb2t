@@ -1,4 +1,4 @@
-name: b2t-calculadora-test
+name: appb2t-test
 services:
   db:
     image: postgres:17-alpine

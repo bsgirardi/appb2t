@@ -1,4 +1,6 @@
-# B2T · Calculadora de impressão 3D
+# appb2t · Gestão e calculadora de impressão 3D
+
+Para preparar o build em outro servidor, siga [PRODUCAO.md](PRODUCAO.md). Pendências resumidas em [PENDENCIAS.md](PENDENCIAS.md). O nome técnico do projeto é `appb2t`; a identidade comercial configurada no banco permanece B2T.
 
 Ferramenta de precificação de filamento e resina com catálogo público de produtos, PostgreSQL centralizado, contas individuais e configurações exclusivas de administradores. Interface responsiva em português, valores em reais e motor decimal compartilhado entre calculadora e catálogo.
 

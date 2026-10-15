@@ -10,3 +10,8 @@ backups
 test-results
 playwright-report
 *.tsbuildinfo
+work
+docs/identidade
+docs/superpowers
+AGENTS.md
+CLAUDE.md
