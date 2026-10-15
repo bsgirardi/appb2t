@@ -1,5 +1,8 @@
 # Plano Diretor de Upgrade B2T — gestão interna integrada
 
+> Atualização em 15/10/2026: este é o plano diretor original. U4 e U5 já foram publicados; o aceite administrativo de navegador foi concluído nos cenários representativos. Estado e próximas pendências em [aceite administrativo](../2026-10-15-admin-aceite.md) e [proposta incremental do preset](../2026-10-15-preset-proposta.md).
+
+
 Data: 05/10/2026.
 
 Status: plano diretor aprovado pelo usuário em 05/10/2026, autorizando o detalhamento da primeira entrega. A implementação depende da especificação e do plano de execução da entrega; este documento não os substitui.

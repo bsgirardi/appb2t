@@ -1,5 +1,8 @@
 # Publicação — Cores independentes do site e administrativo
 
+> Estado em 15/10/2026: U4, U5 e paletas independentes publicados. Aceite de navegador U4/U5 concluído para cenários representativos em claro/escuro, 390/1440px e teclado. Favicon corrigido no checkout, ainda não publicado. Consulte [o registro atual](2026-10-15-admin-aceite.md) para evidências e limites. As seções datadas abaixo preservam o histórico; menções antigas a candidata ou inspeção pendente descrevem aquela data.
+
+
 Publicação autorizada e concluída em 14/10/2026, aproximadamente 17:55 (America/Sao_Paulo), na instalação Docker existente, http://localhost:3000.
 
 ## Versão e validação

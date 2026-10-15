@@ -1,5 +1,8 @@
 # Verificação da primeira versão
 
+> Estado em 15/10/2026: U4, U5 e paletas independentes publicados. Aceite de navegador U4/U5 concluído para cenários representativos em claro/escuro, 390/1440px e teclado. Favicon corrigido no checkout, ainda não publicado. Consulte [o registro atual](superpowers/2026-10-15-admin-aceite.md) para evidências e limites. As seções datadas abaixo preservam o histórico; menções antigas a candidata ou inspeção pendente descrevem aquela data.
+
+
 Data: 28/09/2026.
 
 ## Resultados

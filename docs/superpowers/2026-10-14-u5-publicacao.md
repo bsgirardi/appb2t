@@ -1,5 +1,8 @@
 # Publicação U5 — Planejamento das máquinas
 
+> Estado em 15/10/2026: U4, U5 e paletas independentes publicados. Aceite de navegador U4/U5 concluído para cenários representativos em claro/escuro, 390/1440px e teclado. Favicon corrigido no checkout, ainda não publicado. Consulte [o registro atual](2026-10-15-admin-aceite.md) para evidências e limites. As seções datadas abaixo preservam o histórico; menções antigas a candidata ou inspeção pendente descrevem aquela data.
+
+
 Data: 14/10/2026 (America/Sao_Paulo). Publicação explicitamente autorizada pelo usuário, com a pendência visual previamente informada.
 
 Código candidato `38ca7ed`, documentação `31d0b5e`, integrado por fast-forward em `feat/calculadora`. Imagens runtime/tools construídas com Docker Compose. Imagem operacional: `sha256:b15b35d4a8e2ffb80c60b0d93aec544a2a8c1820d05c53ada1baa08b4b43002a`.

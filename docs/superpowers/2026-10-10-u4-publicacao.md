@@ -1,5 +1,8 @@
 # Publicação U4 — Rentabilidade
 
+> Estado em 15/10/2026: U4, U5 e paletas independentes publicados. Aceite de navegador U4/U5 concluído para cenários representativos em claro/escuro, 390/1440px e teclado. Favicon corrigido no checkout, ainda não publicado. Consulte [o registro atual](2026-10-15-admin-aceite.md) para evidências e limites. As seções datadas abaixo preservam o histórico; menções antigas a candidata ou inspeção pendente descrevem aquela data.
+
+
 Data: 10/10/2026 (America/Sao_Paulo). Publicação explicitamente autorizada pelo usuário nesta conversa.
 
 Código `1902c8b`, integrado por fast-forward em `feat/calculadora`. Imagens runtime/tools geradas pelo Docker Compose. Imagem operacional: `sha256:a292d062da072937b7fefd76b3bd688fbd819d52c587448240e2a9b13f26f076`.
