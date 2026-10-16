@@ -2,6 +2,8 @@
 
 Estado: proposta para revisão, não aplicada. Pedido preservado: apresentar plano e diff concreto antes de alterar o preset; administrativo primeiro, catálogo depois.
 
+Atualização de continuidade: após aprovação da direção visual, Button/Input/NativeSelect/Card/Badge e catálogo receberam adaptação local. Consulte `2026-10-15-nova-catalogo.md` para o estado vigente, evidências e limites. A configuração do preset completo continua sem aplicação; as etapas abaixo registram a proposta original.
+
 Atualização posterior em 15/10: o usuário pediu continuidade após a apresentação. A primeira etapa Roboto foi implementada e validada, incluindo correção de herança nas abas. Consulte `2026-10-15-admin-roboto.md`. O patch abaixo fica como registro da proposta original; as demais etapas continuam propostas e não foram aplicadas. Não houve publicação.
 
 ## Diagnóstico confirmado

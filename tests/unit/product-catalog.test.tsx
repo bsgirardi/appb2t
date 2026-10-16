@@ -28,3 +28,27 @@ it("shows an honest empty state", () => {
   render(<ProductCatalog products={[]} />);
   expect(screen.getByText(/Nenhum produto publicado/)).toBeTruthy();
 });
+it("distinguishes an empty search from an unpublished catalog and offers recovery", () => {
+  render(
+    <ProductCatalog
+      products={[]}
+      context={{ collection: "c1", search: "vaso", order: "nome", page: 1 }}
+    />,
+  );
+  expect(screen.getByText("Nenhum produto encontrado.")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: "Ver todos os produtos" })
+      .getAttribute("href"),
+  ).toBe("/#all-products");
+  expect(screen.queryByText(/Nenhum produto publicado/)).toBeNull();
+});
+it("describes an empty collection without claiming the entire catalog is empty", () => {
+  render(
+    <ProductCatalog
+      products={[]}
+      context={{ collection: "c1", search: "", order: "nome", page: 1 }}
+    />,
+  );
+  expect(screen.getByText("Esta coleção está sendo preparada.")).toBeTruthy();
+});

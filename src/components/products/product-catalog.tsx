@@ -10,6 +10,7 @@ import { formatBRL } from "@/domain/calculation/calculate";
 import type { PublicProductDTO } from "@/domain/products/types";
 import { availabilityLabels } from "@/domain/products/commercial";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export function ProductCatalog({
   products,
@@ -22,11 +23,25 @@ export function ProductCatalog({
     return (
       <div className="store-empty">
         <Box size={36} aria-hidden="true" />
-        <h2>Nenhum produto publicado ainda.</h2>
+        <h2>
+          {context?.search
+            ? "Nenhum produto encontrado."
+            : context?.collection
+              ? "Esta coleção está sendo preparada."
+              : "Nenhum produto publicado ainda."}
+        </h2>
         <p>
-          Estamos preparando novas peças. Volte em breve para conhecer nossa
-          coleção.
+          {context?.search
+            ? "Tente outro termo ou remova os filtros para explorar o catálogo."
+            : context?.collection
+              ? "Explore outras coleções para conhecer as peças disponíveis."
+              : "Estamos preparando novas peças. Volte em breve para conhecer nossa coleção."}
         </p>
+        {(context?.search || context?.collection) && (
+          <Button asChild variant="outline">
+            <Link href="/#all-products">Ver todos os produtos</Link>
+          </Button>
+        )}
       </div>
     );
   return (
@@ -46,7 +61,7 @@ export function ProductCatalog({
                   width={800}
                   height={800}
                   unoptimized
-                  className="h-full w-full object-contain transition-transform duration-300 motion-safe:group-hover:scale-105"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <span className="flex h-full items-center justify-center text-b2t-navy">
@@ -56,9 +71,9 @@ export function ProductCatalog({
               )}
             </Link>
             <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
-              <span className="text-xs font-semibold text-muted-foreground">
+              <Badge variant="outline">
                 {availabilityLabels[product.availability ?? "CONSULT"]}
-              </span>
+              </Badge>
               <h2 className="text-base leading-snug font-semibold break-words">
                 <Link
                   href={productBrowsePath(product, context)}
@@ -67,7 +82,7 @@ export function ProductCatalog({
                   {product.name}
                 </Link>
               </h2>
-              <p className="line-clamp-2 text-xs leading-5 text-muted-foreground">
+              <p className="line-clamp-2 text-xs leading-5 break-words text-muted-foreground">
                 {product.shortDescription || product.description}
               </p>
               <div className="mt-auto pt-2">

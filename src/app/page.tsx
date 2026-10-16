@@ -99,8 +99,15 @@ export default async function PortfolioPage({ searchParams }: Props) {
           <input type="hidden" name="colecao" value={f.collection} />
         )}
         {f.search && <input type="hidden" name="busca" value={f.search} />}
-        <Label htmlFor="catalog-order">Ordenar por</Label>
-        <NativeSelect id="catalog-order" name="ordem" defaultValue={f.order}>
+        <Label htmlFor="catalog-order" className="shrink-0">
+          Ordenar por
+        </Label>
+        <NativeSelect
+          id="catalog-order"
+          name="ordem"
+          defaultValue={f.order}
+          className="sm:w-auto sm:min-w-48"
+        >
           <option value="nome">Nome</option>
           <option value="recentes">Mais recentes</option>
           <option value="menor-preco">Menor preço</option>
@@ -110,19 +117,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
           Aplicar
         </Button>
       </form>
-      {data.total ? (
-        <ProductCatalog products={data.products} context={f} />
-      ) : (
-        <div className="store-empty">
-          <h2>
-            {f.search
-              ? "Nenhum produto encontrado."
-              : "Esta coleção está sendo preparada."}
-          </h2>
-          <p>Explore outras categorias ou fale com nossa equipe.</p>
-          <Link href="/">Ver todos os produtos →</Link>
-        </div>
-      )}
+      <ProductCatalog products={data.products} context={f} />
       {data.pages > 1 && (
         <Pagination
           className="store-pagination"

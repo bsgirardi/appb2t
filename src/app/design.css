@@ -14,6 +14,13 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "../";
 
+/* Public actions keep their touch target above responsive size utilities. */
+@layer utilities {
+  .storefront [data-slot="button"] {
+    min-height: 44px;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -136,8 +143,18 @@
     background: var(--store-accent);
   }
   .storefront .store-sort select {
-    border-radius: 12px;
+    border-radius: 8px;
     min-height: 44px;
+  }
+  .storefront .store-sort {
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .storefront .store-search {
+    border-radius: 8px;
   }
   .storefront .store-banner {
     border-radius: 24px;
@@ -251,6 +268,13 @@
   [data-slot="card"],
   [data-slot="alert"] {
     border-width: 1px;
+  }
+  [data-slot="badge"][data-variant="outline"],
+  [data-slot="card-footer"] {
+    border-width: 1px;
+  }
+  [data-slot="card-footer"] {
+    border-width: 1px 0 0;
   }
   [data-slot="button"] {
     font-family: inherit;

@@ -110,10 +110,12 @@ export function ActiveCatalogFilters({
         <Link
           aria-label={`Remover coleção ${collectionName ?? "selecionada"}`}
           href={catalogPath("", context.search, context.order)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-4 py-2"
+          className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-accent px-4 py-2"
         >
-          {collectionName ?? "Coleção selecionada"}
-          <X size={14} aria-hidden="true" />
+          <span className="min-w-0 break-words">
+            {collectionName ?? "Coleção selecionada"}
+          </span>
+          <X size={14} className="shrink-0" aria-hidden="true" />
         </Link>
       )}
       {context.search && (
@@ -122,7 +124,7 @@ export function ActiveCatalogFilters({
           href={catalogPath(context.collection, "", context.order)}
           className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-accent px-4 py-2"
         >
-          <span className="break-words">“{context.search}”</span>
+          <span className="min-w-0 break-words">“{context.search}”</span>
           <X size={14} className="shrink-0" aria-hidden="true" />
         </Link>
       )}
