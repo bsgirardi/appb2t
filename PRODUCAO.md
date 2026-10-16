@@ -1,6 +1,6 @@
 # appb2t — build e instalação em outro servidor
 
-Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Roboto administrativo e favicon estão incluídos; a instalação local anterior não foi atualizada por esta preparação.
+Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.3.8 e adaptação Nova/catálogo. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
 
@@ -86,7 +86,7 @@ Para administrar a instalação antiga pelo código renomeado, especifique seu n
 docker compose -p b2t-calculadora ps
 ```
 
-Não renomeie nem apague volumes para realizar esta mudança. Não execute `docker compose down -v` sobre dados que deseja preservar. Esta entrega não altera os contêineres nem o volume da instalação antiga.
+Não renomeie nem apague volumes para realizar esta mudança. Não execute `docker compose down -v` sobre dados que deseja preservar. A publicação local de 16/10 preservou o projeto b2t-calculadora e seu volume original; o nome appb2t continua sendo o padrão para novas instalações.
 
 ## Manutenção
 

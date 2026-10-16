@@ -2,6 +2,10 @@
 
 Revisão de 15/10/2026.
 
+Complemento de validação em 16/10: build Docker com Next.js 16.3.8 aprovado na candidata visual; catálogo executado em ambiente isolado. Isso resolve o bloqueio de build descrito no histórico abaixo, sem publicação ou nova auditoria de dependências. Registro em `docs/superpowers/2026-10-16-catalogo-integrado.md`.
+
+Publicação posterior em 16/10: a mesma candidata foi instalada localmente em http://localhost:3000, com backup e restauração de teste aprovados. A instalação local agora executa Next.js 16.3.8. Registro em `docs/superpowers/2026-10-16-nova-publicacao.md`; os parágrafos de implantação abaixo descrevem o estado histórico anterior.
+
 ## Correção aplicada
 
 Next.js e eslint-config-next passaram de 16.3.6 para 16.3.8, com versões fixadas no package.json e no lockfile. A atualização permanece na mesma linha de manutenção. O npm audit anterior apontava seis avisos no pacote Next.js, incluindo SSRF no otimizador de imagens e problemas de cache; todos tinham correção indicada na versão 16.3.8.
