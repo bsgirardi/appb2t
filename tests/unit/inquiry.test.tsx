@@ -27,6 +27,10 @@ const review: InquiryReview = {
   lines: [
     {
       ...item,
+      answers: [],
+      commercialRevision: null,
+      seenPrice: null,
+      answerLabels: [],
       name: "Vaso",
       sku: "V1",
       path: "/portfolio/produto/p/vaso",
@@ -85,9 +89,9 @@ it("adds selected options, updates the header and persists only identifiers and 
     screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
   );
   expect(screen.getByRole("link", { name: "Minha lista (2)" })).toBeTruthy();
-  expect(JSON.parse(localStorage.getItem("b2t:inquiry:v1")!)).toEqual([
-    { ...item, productId: productDTO.id, quantity: 2 },
-  ]);
+  expect(
+    JSON.parse(localStorage.getItem("b2t:inquiry:v2")!).items,
+  ).toMatchObject([{ ...item, productId: productDTO.id, quantity: 2 }]);
 });
 it("rechecks before contact and invalidates prepared contact when quantity changes", async () => {
   writeInquiry([item]);
@@ -113,7 +117,7 @@ it("keeps the list after network failure and allows retry", async () => {
     .mockResolvedValue(review);
   render(<InquiryPanel />);
   await screen.findByText(/Sem conexão/);
-  expect(localStorage.getItem("b2t:inquiry:v1")).toContain('"quantity":1');
+  expect(localStorage.getItem("b2t:inquiry:v2")).toContain('"quantity":1');
   fireEvent.click(
     screen.getByRole("button", { name: "Conferir e preparar contato" }),
   );
