@@ -1,6 +1,6 @@
 # C1 — Catálogo, produto e configuração por item
 
-Data: 19/10/2026. Status: especificação proposta para revisão; ainda não aprovada.
+Data: 19/10/2026. Status: especificação aprovada pelo usuário neste chat em 19/10/2026. Aprovação autoriza a elaboração do plano técnico; execução será revisada separadamente.
 
 Origem: `2026-10-19-catalogo-avancado-abertura.md`, cuja direção foi aprovada. Esta especificação detalha somente C1. Não autoriza publicação nem migração no banco operacional.
 
