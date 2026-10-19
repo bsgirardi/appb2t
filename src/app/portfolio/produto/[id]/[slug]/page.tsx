@@ -139,7 +139,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
               entrega à parte.
             </p>
           )}
-          <strong className="store-price">{formatBRL(product.price)}</strong>
+          <strong className="store-price">{(product.price === null ? "Sob consulta" : formatBRL(product.price))}</strong>
           <p className="store-payment">{product.paymentTerms}</p>
           <ProductContact
             product={product}

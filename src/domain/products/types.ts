@@ -1,3 +1,4 @@
+import type { ProductConfiguration, PriceMode } from "./configuration";
 import type {
   StoredProductCalculation,
   PricingSnapshotDTO,
@@ -10,6 +11,8 @@ export interface ProductImageDTO {
   position: number;
 }
 export interface ProductInput extends CommercialFields {
+  configuration?: ProductConfiguration;
+  publicPriceMode?: PriceMode;
   seoTitle?: string;
   seoDescription?: string;
   collectionIds: string[];
@@ -24,6 +27,9 @@ export interface ProductInput extends CommercialFields {
   printerId?: string | null;
 }
 export interface PublicProductDTO extends CommercialFields {
+  configuration?: ProductConfiguration;
+  publicPriceMode?: PriceMode;
+  commercialRevision?: number;
   seoTitle?: string;
   seoDescription?: string;
   images: ProductImageDTO[];
@@ -31,11 +37,11 @@ export interface PublicProductDTO extends CommercialFields {
   name: string;
   description: string;
   paymentTerms: string;
-  price: string;
+  price: string | null;
   imageUrl: string;
 }
 export interface ProductDTO
-  extends PublicProductDTO, Omit<ProductInput, "images"> {
+  extends Omit<PublicProductDTO, "price">, Omit<ProductInput, "images"> {
   version: number;
   pricingSnapshot?: PricingSnapshotDTO;
 }

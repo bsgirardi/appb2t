@@ -30,7 +30,7 @@ export function ProductContact({
   const message = [
     unavailable
       ? `Olá! Gostaria de saber quando ${product.name} estará disponível novamente.`
-      : `Olá! Tenho interesse em ${product.name}, anunciado por ${formatBRL(product.price)}. Gostaria de confirmar disponibilidade, prazo e entrega.`,
+      : `Olá! Tenho interesse em ${product.name}, anunciado por ${(product.price === null ? "Sob consulta" : formatBRL(product.price))}. Gostaria de confirmar disponibilidade, prazo e entrega.`,
     product.sku && `Código: ${product.sku}`,
     color && `Cor: ${color}`,
     size && `Tamanho: ${size}`,

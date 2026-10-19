@@ -1,5 +1,12 @@
+import {
+  publicProductSelect as publicSelect,
+  toPublicProduct as publicDTO,
+} from "./product-public";
+import {
+  nextCommercialRevision,
+  productConfigurationForSave,
+} from "./product-commercial";
 import { Prisma, type Product } from "@prisma/client";
-import type { Availability } from "@/domain/products/commercial";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import {
@@ -24,67 +31,6 @@ import type { Actor } from "./auth/session";
 import type { NormalizedImage } from "./product-images";
 import { lockCatalog, setProductCollections } from "./catalog-memberships";
 const notFound = () => new AppError("NOT_FOUND", "Produto não encontrado.");
-const publicSelect = {
-  sku: true,
-  shortDescription: true,
-  specifications: true,
-  colors: true,
-  sizes: true,
-  availability: true,
-  leadTimeDays: true,
-  seoTitle: true,
-  seoDescription: true,
-  images: {
-    select: { id: true, position: true },
-    orderBy: { position: "asc" as const },
-  },
-  id: true,
-  name: true,
-  description: true,
-  paymentTerms: true,
-  price: true,
-} as const;
-function publicDTO(
-  row: Pick<
-    Product,
-    | "id"
-    | "name"
-    | "description"
-    | "paymentTerms"
-    | "price"
-    | "seoTitle"
-    | "seoDescription"
-    | "sku"
-    | "shortDescription"
-    | "specifications"
-    | "colors"
-    | "sizes"
-    | "availability"
-    | "leadTimeDays"
-  > & { images: { id: string; position: number }[] },
-): PublicProductDTO {
-  return {
-    id: row.id,
-    sku: row.sku ?? "",
-    shortDescription: row.shortDescription,
-    specifications: row.specifications,
-    colors: row.colors,
-    sizes: row.sizes,
-    availability: row.availability as Availability,
-    leadTimeDays: row.leadTimeDays,
-    name: row.name,
-    description: row.description,
-    paymentTerms: row.paymentTerms,
-    seoTitle: row.seoTitle,
-    seoDescription: row.seoDescription,
-    price: row.price.toFixed(2),
-    images: row.images.map((i) => ({
-      ...i,
-      url: `/api/products/${row.id}/images/${i.id}`,
-    })),
-    imageUrl: `/api/products/${row.id}/image`,
-  };
-}
 async function dto(
   row: Product & {
     images: { id: string; position: number }[];
@@ -95,6 +41,7 @@ async function dto(
   const calculation = storedCalculationSchema.parse(row.calculation);
   return {
     ...publicDTO(row),
+    price: row.price.toFixed(2),
     active: row.active,
     collectionIds: row.collections.map((c) => c.collectionId),
     version: row.version,
@@ -166,6 +113,7 @@ function dataFor(input: ProductInput) {
     ...(input.sku !== undefined ? { sku: input.sku || null } : {}),
     materialId: input.materialId ?? null,
     printerId: input.printerId ?? null,
+    configuration: input.configuration as unknown as Prisma.InputJsonValue,
     calculation: input.calculation as unknown as Prisma.InputJsonValue,
     price: input.price,
   };
@@ -236,6 +184,7 @@ export async function createProduct(
   return db.$transaction(async (tx) => {
     await lockCatalog(tx);
     await references(tx, input);
+    input.configuration = productConfigurationForSave(input, []);
     const data = dataFor(input);
     const row = await tx.product.create({
       data: {
@@ -272,6 +221,12 @@ export async function updateProduct(
       old.images.map((i) => i.id),
     );
     await references(tx, input, old);
+    input.configuration = productConfigurationForSave(
+      input,
+      old.images.map((i) => i.id),
+      old,
+    );
+    input.publicPriceMode ??= old.publicPriceMode as "REFERENCE" | "CONSULT";
     const data = dataFor(input);
     if (
       JSON.stringify(storedCalculationSchema.parse(old.calculation)) !==
@@ -280,7 +235,11 @@ export async function updateProduct(
       await recordProductCalculationRevision(tx, _actor, old);
     const updated = await tx.product.updateMany({
       where: { id, version: expectedVersion },
-      data: { ...data, version: { increment: 1 } },
+      data: {
+        ...data,
+        commercialRevision: nextCommercialRevision(old, input),
+        version: { increment: 1 },
+      },
     });
     if (!updated.count) throw conflict();
     await saveImages(tx, id, input.images, uploads);

@@ -87,7 +87,7 @@ export function ProductCatalog({
               </p>
               <div className="mt-auto pt-2">
                 <strong className="text-xl font-bold">
-                  {formatBRL(product.price)}
+                  {(product.price === null ? "Sob consulta" : formatBRL(product.price))}
                 </strong>
                 <p className="mt-1 text-xs leading-5 break-words text-muted-foreground">
                   {product.paymentTerms}
