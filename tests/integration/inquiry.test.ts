@@ -37,7 +37,14 @@ it("uses current prices, preserves variants and prepares one contact without cre
     { productId: product.id, color: "Azul", size: "P", quantity: 3 },
     { productId: product.id, color: "Branco", size: "P", quantity: 2 },
   ];
-  const first = await reviewInquiry({ items });
+  const firstReview = await reviewInquiry({ items });
+  expect(firstReview.ready).toBe(false);
+  const confirmed = firstReview.lines.map((l) => ({
+    ...items[firstReview.lines.indexOf(l)],
+    commercialRevision: l.currentRevision,
+    seenPrice: l.configuredPrice,
+  }));
+  const first = await reviewInquiry({ items: confirmed });
   expect(first).toMatchObject({
     total: "0.50",
     ready: true,

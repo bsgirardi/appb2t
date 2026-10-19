@@ -6,9 +6,20 @@ import { getPublicAppearance } from "./appearance";
 import {
   inquiryItemsSchema,
   type InquiryReview,
+  type InquiryLine,
 } from "@/domain/products/inquiry";
-import { productPath, whatsappLink } from "@/domain/products/storefront";
-import { formatBRL } from "@/domain/calculation/calculate";
+import { productPath } from "@/domain/products/storefront";
+import {
+  readProductConfiguration,
+  validateAnswers,
+  answerLabels,
+  priceModeSchema,
+} from "@/domain/products/configuration";
+import {
+  configuredPrice,
+  type ConfiguredPrice,
+} from "@/domain/products/configuration-price";
+import { buildInquiryMessage } from "@/domain/products/inquiry-message";
 const schema = z.object({ items: inquiryItemsSchema }).strict();
 export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
   const { items } = schema.parse(raw);
@@ -23,13 +34,16 @@ export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
         availability: true,
         colors: true,
         sizes: true,
+        configuration: true,
+        publicPriceMode: true,
+        commercialRevision: true,
       },
     }),
     getPublicAppearance(),
   ]);
-  const lines = items.map((item) => {
+  const lines: InquiryLine[] = items.map((item) => {
     const product = products.find((p) => p.id === item.productId);
-    const problem = !product
+    let problem = !product
       ? "Produto retirado do catálogo. Remova este item para continuar."
       : product.availability === "UNAVAILABLE"
         ? "Produto indisponível. Remova este item ou consulte a loja separadamente."
@@ -39,57 +53,75 @@ export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
             (product.sizes.length
               ? !product.sizes.includes(item.size)
               : !!item.size)
-          ? "As opções deste produto mudaram. Remova o item e escolha novamente na página do produto."
+          ? "As opções deste produto mudaram. Edite a configuração."
           : null;
+    let price: ConfiguredPrice | undefined;
+    let labels = item.answerLabels;
+    let answers = item.answers;
+    const fieldErrors: Record<string, string> = {};
+    if (product && !problem)
+      try {
+        const definition = readProductConfiguration(product.configuration);
+        answers = validateAnswers(definition, item.answers);
+        labels = answerLabels(definition, answers);
+        price = configuredPrice({
+          mode: priceModeSchema.parse(product.publicPriceMode),
+          basePrice:
+            product.publicPriceMode === "CONSULT"
+              ? null
+              : product.price.toFixed(2),
+          configuration: definition,
+          answers,
+          quantity: item.quantity,
+        });
+      } catch (error) {
+        problem = "A configuração mudou. Revise os campos indicados.";
+        if (error instanceof z.ZodError)
+          for (const issue of error.issues)
+            fieldErrors[String(issue.path[0])] = issue.message;
+        else problem = error instanceof Error ? error.message : problem;
+      }
+    const requiresConfirmation =
+      !!product &&
+      !problem &&
+      (item.commercialRevision !== product.commercialRevision ||
+        !item.seenPrice ||
+        item.seenPrice.kind !== price?.kind ||
+        item.seenPrice.unit !== price?.unit);
     return {
       ...item,
+      answers,
+      answerLabels: labels,
       name: product?.name ?? "Produto não disponível",
       sku: product?.sku ?? "",
       path: product ? productPath(product) : null,
       imageUrl: product ? `/api/products/${product.id}/image` : null,
-      price: product?.price.toFixed(2) ?? null,
-      subtotal:
-        product && !problem
-          ? new Decimal(product.price.toString())
-              .times(item.quantity)
-              .toFixed(2)
-          : null,
+      price: price?.unit ?? null,
+      subtotal: price?.subtotal ?? null,
       problem,
+      configuredPrice: price,
+      currentRevision: product?.commercialRevision,
+      requiresConfirmation,
+      fieldErrors,
     };
   });
-  const ready = lines.length > 0 && lines.every((line) => !line.problem);
-  const total = lines
-    .reduce((sum, line) => sum.plus(line.subtotal ?? 0), new Decimal(0))
+  const ready =
+    lines.length > 0 &&
+    lines.every((l) => !l.problem && !l.requiresConfirmation);
+  const known = lines.filter((l) => !l.problem && l.subtotal !== null);
+  const total = known
+    .reduce((sum, l) => sum.plus(l.subtotal!), new Decimal(0))
     .toFixed(2);
-  const message = ready
-    ? [
-        `Olá! Gostaria de solicitar um orçamento à ${identity.name}:`,
-        ...lines.map((line, index) =>
-          [
-            `${index + 1}. ${line.name}${line.sku ? ` (${line.sku})` : ""}`,
-            line.color && `Cor: ${line.color}`,
-            line.size && `Tamanho: ${line.size}`,
-            `Quantidade: ${line.quantity} · Unitário: ${formatBRL(line.price!)} · Subtotal: ${formatBRL(line.subtotal!)}`,
-            new URL(line.path!, appUrl()).href,
-          ]
-            .filter(Boolean)
-            .join("\n"),
-        ),
-        `Total de referência: ${formatBRL(total)} (sem frete).`,
-        "Por favor, confirme disponibilidade, prazo, entrega e condições de pagamento. Esta lista não confirma um pedido.",
-      ].join("\n\n")
-    : "";
-  const whatsapp = ready ? whatsappLink(identity.phone, message) : null;
-  return {
-    lines,
-    total,
-    ready,
-    message,
-    contact:
-      whatsapp ||
-      (ready && identity.email
-        ? `mailto:${identity.email}?subject=${encodeURIComponent("Solicitação de orçamento")}&body=${encodeURIComponent(message)}`
-        : null),
-    channel: whatsapp ? "whatsapp" : ready && identity.email ? "email" : null,
-  };
+  const knownTotal = known.length ? total : null;
+  const consultCount = lines.filter(
+    (l) => !l.problem && l.configuredPrice?.kind === "CONSULT",
+  ).length;
+  const contact = ready
+    ? buildInquiryMessage(
+        lines,
+        { knownTotal, consultCount },
+        { ...identity, origin: appUrl().href },
+      )
+    : { message: "", contact: null, channel: null, copyRequired: false };
+  return { lines, total, knownTotal, consultCount, ready, ...contact };
 }
