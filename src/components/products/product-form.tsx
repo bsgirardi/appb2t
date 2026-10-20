@@ -1,4 +1,7 @@
 "use client";
+import { ProductConfigurationEditor } from "./product-configuration-editor";
+import { emptyProductConfiguration } from "@/domain/products/configuration";
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,6 +96,8 @@ export function ProductForm({
     product
       ? {
           name: product.name,
+          configuration: product.configuration ?? emptyProductConfiguration,
+          publicPriceMode: product.publicPriceMode ?? "REFERENCE",
           sku: product.sku ?? "",
           shortDescription: product.shortDescription ?? "",
           specifications: product.specifications ?? "",
@@ -220,6 +225,9 @@ export function ProductForm({
     if (!parsed.success) {
       const commercialLabels: Record<string, string> = {
         sku: "Código do produto",
+        configuration:
+          "Personalização: revise rótulos, limites e valores dos campos",
+        publicPriceMode: "Preço no catálogo",
         shortDescription: "Descrição curta",
         specifications: "Especificações",
         colors: "Cores (até 30 opções únicas, com até 60 caracteres cada)",
@@ -413,6 +421,34 @@ export function ProductForm({
                 </Label>
               </section>
             </Card>
+            <div className="field">
+              <Label htmlFor="public-price-mode">Preço no catálogo</Label>
+              <NativeSelect
+                id="public-price-mode"
+                value={draft.publicPriceMode ?? "REFERENCE"}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    publicPriceMode: e.target.value as "REFERENCE" | "CONSULT",
+                  })
+                }
+              >
+                <option value="REFERENCE">Preço de referência</option>
+                <option value="CONSULT">Sob consulta</option>
+              </NativeSelect>
+              <p className="muted">
+                Sob consulta preserva o preço interno e o oculta na vitrine.
+              </p>
+            </div>
+            <ProductConfigurationEditor
+              value={draft.configuration ?? emptyProductConfiguration}
+              images={(product?.images ?? []).filter((image) =>
+                gallery.some((g) => g.id === image.id),
+              )}
+              onChange={(configuration) =>
+                setDraft({ ...draft, configuration })
+              }
+            />
             <ProductCommercialEditor
               value={draft}
               onChange={(commercial) => setDraft({ ...draft, ...commercial })}
