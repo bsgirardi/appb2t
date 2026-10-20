@@ -4,7 +4,7 @@ Atualização: 20/10/2026. Branch: `codex/catalogo-c1`. Base: `d1c204e`.
 
 ## Estado da entrega
 
-Implementação de C1 disponível em worktree isolada. T1–T7 implementadas. T8 já tem conferência real no navegador integrado no tema escuro, após o usuário iniciar manualmente a candidata. O tema claro e a preferência de movimento reduzido ainda não foram conferidos; não declarar aceite visual integral ou publicação.
+Implementação de C1 disponível em worktree isolada. T1–T7 implementadas. T8 já tem conferência real no navegador integrado nos temas escuro e claro, após o usuário iniciar manualmente a candidata. A preferência de movimento reduzido ainda não foi conferida; não declarar aceite visual integral ou publicação.
 
 Worktree: `C:\Users\117774\.codex\worktrees\catalogo-c1\b2t-calculadora`. O checkout original em `X:\code\b2t-calculadora` conserva o trabalho administrativo de outro chat. Não houve merge, push, atualização de ZIP, publicação ou migração operacional.
 
@@ -64,8 +64,9 @@ A referência de comparação da base foi preservada fora da raiz de código em 
 
 ### Evidências e limites restantes
 
-Capturas locais e `evidence-dark.json` em `test-results/catalog-c1/iab/`. A leitura inicial de imagens ainda não carregadas inclui imagens abaixo da dobra com lazy loading; isso não foi classificado como falha de imagem. Fotos visíveis foram inspecionadas nas capturas. Captura de página inteira não funcionou na API do navegador; foram usadas capturas de viewport.
+Capturas locais, `evidence-dark.json` e `evidence-light.json` em `test-results/catalog-c1/iab/`. A leitura inicial de imagens ainda não carregadas inclui imagens abaixo da dobra com lazy loading; isso não foi classificado como falha de imagem. Fotos visíveis foram inspecionadas nas capturas. Captura de página inteira não funcionou na API do navegador; foram usadas capturas de viewport.
 
 Ressalva menor: o link textual “Ver minha lista →” pode quebrar a seta em uma linha isolada na largura de 390 px. Sua ativação por teclado foi confirmada; o clique automático no centro do retângulo do link não navegou nessa quebra. Ajuste visual permanece listado, sem alteração da candidata durante o ensaio.
 
-O navegador integrado só anunciou controles de visibilidade e largura, sem emulação de tema ou preferência de movimento. Foi solicitada ao usuário a troca para tema claro. Para finalizar T8, conferir o tema claro e a preferência de movimento reduzido e registrar as limitações da recuperação de falha de rede/armazenamento (coberta nos testes automatizados, sem injeção de falha nesta rodada do navegador). Publicação e migração real continuam como etapa própria posterior.
+O navegador integrado só anunciou controles de visibilidade e largura, sem emulação de tema ou preferência de movimento. O usuário trocou para tema claro e confirmou “pronto”. Foram conferidos mais 18 estados: home, resultados, produto configurável, sob consulta, indisponível e lista preenchida nas larguras de 320/390/1440 px. Todos sem overflow horizontal, com fundo claro confirmado. Capturas representativas do produto móvel e lista desktop foram inspecionadas. A mensagem preparada preservou Ana/Bia e total de R$ 62; console sem erros/avisos. O estado vazio e erros de formulário não foram repetidos em claro. Para finalizar integralmente T8, conferir a preferência de movimento reduzido e registrar as limitações da recuperação de falha de rede/armazenamento (coberta nos testes automatizados, sem injeção de falha nesta rodada do navegador). Publicação e migração real continuam como etapa própria posterior.
+
