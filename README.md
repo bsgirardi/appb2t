@@ -32,13 +32,23 @@ Em **Aparência → Busca e compartilhamento do catálogo**, edite título (até
 
 O texto **Sobre a loja** ganha página própria em `/portfolio/sobre`. Em **Perguntas frequentes**, adicione até 12 perguntas com respostas, reorganize-as ou remova-as; a página `/portfolio/ajuda` oferece respostas expansíveis por mouse e teclado. Use informações reais da operação; nenhuma política comercial é preenchida automaticamente. Páginas sem conteúdo retornam 404 e não aparecem no rodapé nem no sitemap. Salvar conteúdo publica as páginas e seus links; esvaziá-lo retira as páginas. As configurações existentes recebem padrões vazios, sem nova migração. O orçamento do visitante continua sem indexação.
 
-### Lista de orçamento do visitante
+### Solicitação integrada do catálogo (C2)
+
+Depois de revisar a seleção, o visitante pode usar **Enviar solicitação**, informar nome e WhatsApp ou e-mail e receber um protocolo `SOL-…`. Não precisa criar conta. O recebimento preserva cada personalização e não confirma venda, preço final, pagamento ou reserva. A opção de preparar/copiar mensagem continua como canal complementar.
+
+Se a resposta do envio for interrompida, use **Verificar recebimento** ou **Tentar novamente** na mesma aba. A tentativa mantém a mesma chave para evitar duplicidade. A recuperação pendente usa sessionStorage e contém o contato informado; após confirmação, conserva apenas o recibo e a chave. Quando o armazenamento estiver bloqueado, o aviso explica a recuperação somente em memória. A seleção não é apagada automaticamente; **Limpar seleção enviada** preserva linhas novas ou alteradas.
+
+Na área interna, **Solicitações** permite a ADMIN e OPERATOR ativos consultar a seleção recebida, atribuir responsável, registrar notas e encerrar/reabrir o atendimento. A equipe escolhe ou cadastra conscientemente o cliente, revisa as descrições/valores e resolve itens sob consulta antes de **Preparar orçamento**. Essa ação cria um único rascunho vinculado, com a origem completa das personalizações preservada; emissão e demais etapas seguem o fluxo existente de orçamentos. Produtos posteriormente retirados exigem revisão explícita como itens avulsos.
+
+O protocolo sozinho não permite consultar dados do cliente. O envio tem limite de 20 linhas, 99 unidades por linha, 256 KiB e cotas de novas tentativas por navegador/instalação. Antes de publicar C2 em uma instalação existente, faça backup e aplique `202610200001_catalog_requests` pelo serviço de migração. Essa migração é aditiva; nunca use fixtures ou a suíte mutável no banco operacional.
+
+### Seleção e canal complementar
 
 Na página do produto, escolha as opções e a quantidade e use **Adicionar à lista de orçamento**. O link **Minha lista** permite ajustar quantidades, remover itens e conferir os valores. Combinações iguais são somadas; cores/tamanhos diferentes permanecem em linhas separadas. Limites: 20 combinações e 99 unidades por combinação.
 
-A lista é local ao navegador e guarda somente identificadores, opções e quantidades; preços vêm do servidor. Ao usar **Conferir e preparar contato**, a aplicação consulta novamente preços, publicação, disponibilidade e opções atuais. Produtos retirados, indisponíveis ou com opções alteradas são sinalizados e impedem preparar a mensagem até a revisão. O resumo usa cálculo decimal, informa total de referência sem frete e pode ser aberto no WhatsApp/e-mail ou copiado. O visitante confirma o envio no aplicativo de contato. Links muito longos podem depender dos limites do aplicativo; **Copiar lista** oferece alternativa.
+A lista é local ao navegador e guarda a seleção, as personalizações e referências para comparação; os valores atuais são conferidos no servidor. Ao usar **Conferir e preparar contato**, a aplicação consulta novamente preços, publicação, disponibilidade e opções atuais. Produtos retirados, indisponíveis ou com opções alteradas são sinalizados e impedem preparar a mensagem até a revisão. O resumo usa cálculo decimal, informa total de referência sem frete e pode ser aberto no WhatsApp/e-mail ou copiado. O visitante confirma o envio no aplicativo de contato. Links muito longos podem depender dos limites do aplicativo; **Copiar lista** oferece alternativa.
 
-Essa solicitação não cria cliente, orçamento interno, venda, reserva de estoque ou cobrança. A equipe registra o orçamento interno após o atendimento. A lista não é compartilhada entre dispositivos, pode ser perdida ao limpar dados do navegador e funciona somente em memória se o armazenamento estiver bloqueado. `/portfolio/orcamento` não é indexável nem incluído no sitemap. A consulta pública de valores tem limite de tamanho e não aceita preços enviados pelo visitante.
+Preparar a mensagem complementar não cria cliente, orçamento interno, venda, reserva de estoque ou cobrança. A equipe registra o orçamento interno após o atendimento. A lista não é compartilhada entre dispositivos, pode ser perdida ao limpar dados do navegador e funciona somente em memória se o armazenamento estiver bloqueado. `/portfolio/orcamento` não é indexável nem incluído no sitemap. A consulta pública de valores tem limite de tamanho e não aceita preços enviados pelo visitante.
 
 No editor, **Busca e compartilhamento** permite preencher título e descrição para buscadores; em branco, usa o conteúdo do produto. A prévia acompanha o rascunho sem publicar. As URLs contêm o identificador e o nome legível; nomes antigos redirecionam permanentemente para o endereço atual. Produtos inativos retornam 404 na página pública e saem do sitemap.
 
@@ -244,13 +254,12 @@ A camada visual pública usa Tailwind CSS 4 e o componente Button do shadcn/ui, 
 
 O contêiner de produção inclui a pasta `public`, necessária para logo e mascote. Banners e coleções configurados continuam disponíveis após a abertura institucional. Não há migração de banco nesta alteração. Para conferir entradas antigas, filtros, SEO e proteção administrativa: `node scripts/check-catalog-http.mjs` contra a aplicação local de validação.
 
-
 ### Descoberta e continuidade da navegação
 
 A home apresenta coleções ativas com capas existentes. Busca, coleção, ordenação e página acompanham os links dos produtos; “Voltar aos resultados” recupera a seleção. Trocar/remover um filtro reinicia a paginação, preservando os demais critérios. A busca mantém coleção e ordenação. URLs canônicas e links enviados no orçamento continuam limpos. Galerias com várias fotos oferecem miniaturas selecionáveis, além de teclado, setas e gestos.
 
+A lista de orçamento usa cartões com a capa atual de cada produto, etapas de revisão/preparação/contato e resumo destacado. O servidor fornece a URL da imagem apenas para produtos ativos; o armazenamento local mantém seleção, personalizações e referências para comparação. O contato depende de nova conferência e de ação explícita do visitante.
 
-A lista de orçamento usa cartões com a capa atual de cada produto, etapas de revisão/preparação/contato e resumo destacado. O servidor fornece a URL da imagem apenas para produtos ativos; o armazenamento local continua limitado a identificadores, opções e quantidades. O contato depende de nova conferência e de ação explícita do visitante.
 # Biblioteca visual
 
 A interface usa componentes locais shadcn/ui em `src/components/ui`, tokens B2T em `src/app/design.css` e densidade administrativa em `src/app/admin.css`, sem Preflight global. Use Input, NativeSelect, Checkbox, Textarea, Field/Notice, Button, Card e Table nos novos consumidores. Preserve os contratos nativos de formulário e use as exceções de impressão documentadas.
