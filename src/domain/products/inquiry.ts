@@ -22,6 +22,15 @@ export const inquiryItemSchema = z
     color: z.string().max(60).default(""),
     size: z.string().max(60).default(""),
     quantity: z.number().int().min(1).max(99),
+    catalogContext: z
+      .object({
+        collection: z.string().max(100),
+        search: z.string().max(100),
+        order: z.enum(["nome", "recentes", "menor-preco", "maior-preco"]),
+        page: z.number().int().min(1).max(99999),
+      })
+      .strict()
+      .optional(),
     lineId: z.string().min(1).max(100).optional(),
     answers: configurationAnswersSchema.default([]),
     commercialRevision: z.number().int().positive().nullable().default(null),

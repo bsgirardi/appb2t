@@ -123,3 +123,24 @@ it("keeps the list after network failure and allows retry", async () => {
   );
   await screen.findByRole("link", { name: "Abrir WhatsApp ↗" });
 });
+it("does not release contact from a review that arrived after an edit", async () => {
+  writeInquiry([item]);
+  let resolveOld!: (value: InquiryReview) => void;
+  const old = new Promise<InquiryReview>((resolve) => {
+    resolveOld = resolve;
+  });
+  vi.mocked(api)
+    .mockResolvedValueOnce(review)
+    .mockReturnValueOnce(old)
+    .mockResolvedValue(review);
+  render(<InquiryPanel />);
+  await screen.findByText("Vaso");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Conferir e preparar contato" }),
+  );
+  writeInquiry([{ ...item, quantity: 2 }]);
+  resolveOld(review);
+  await waitFor(() =>
+    expect(screen.queryByRole("link", { name: "Abrir WhatsApp ↗" })).toBeNull(),
+  );
+});

@@ -1,3 +1,4 @@
+import { productStructuredData } from "@/domain/products/product-structured-data";
 import { StoreBreadcrumb } from "@/components/products/store-breadcrumb";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -9,12 +10,9 @@ import {
 import { ProductCatalog } from "@/components/products/product-catalog";
 import { getPublicAppearance } from "@/server/appearance";
 import { StorefrontShell } from "@/components/products/storefront-shell";
-import { ProductCarousel } from "@/components/products/product-carousel";
 import { productPath, safeJsonLd } from "@/domain/products/storefront";
-import { formatBRL } from "@/domain/calculation/calculate";
 import { appUrl } from "@/lib/env";
-import { availabilityLabels } from "@/domain/products/commercial";
-import { ProductContact } from "@/components/products/product-contact";
+import { ProductExperience } from "@/components/products/product-experience";
 import {
   catalogFilters,
   catalogPath,
@@ -39,7 +37,10 @@ export async function generateMetadata({ params }: Props) {
 }
 export default async function ProductPage({ params, searchParams }: Props) {
   const { id, slug } = await params;
-  const context = catalogFilters((await searchParams) ?? {});
+  const query = (await searchParams) ?? {};
+  const editLineId =
+    typeof query.editar === "string" ? query.editar : undefined;
+  const context = catalogFilters(query);
   const [product, identity, collections] = await Promise.all([
     publicProduct(id),
     getPublicAppearance(),
@@ -68,26 +69,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
   const structured = {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Product",
-        name: product.name,
-        ...(product.sku ? { sku: product.sku } : {}),
-        description: product.description,
-        url,
-        image: product.images.map((i) => new URL(i.url, appUrl()).href),
-        offers: {
-          "@type": "Offer",
-          priceCurrency: "BRL",
-          price: product.price,
-          ...(product.availability === "AVAILABLE"
-            ? { availability: "https://schema.org/InStock" }
-            : product.availability === "UNAVAILABLE"
-              ? { availability: "https://schema.org/OutOfStock" }
-              : {}),
-          url,
-          seller: { "@type": "Organization", name: identity.name },
-        },
-      },
+      productStructuredData(product, identity.name, url),
       {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -115,54 +97,15 @@ export default async function ProductPage({ params, searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: safeJsonLd(structured) }}
       />
       <StoreBreadcrumb href={backHref} title={product.name} />
-      <article className="store-detail">
-        <ProductCarousel name={product.name} images={product.images} />
-        <div className="store-detail-info">
-          <span className="store-kicker">{identity.name}</span>
-          <h1>{product.name}</h1>
-          {product.sku && <p className="store-sku">Código: {product.sku}</p>}
-          {product.shortDescription && (
-            <p className="store-short-description">
-              {product.shortDescription}
-            </p>
-          )}
-          <p
-            className="store-availability"
-            data-availability={product.availability ?? "CONSULT"}
-          >
-            {availabilityLabels[product.availability ?? "CONSULT"]}
-          </p>
-          {product.leadTimeDays && (
-            <p className="store-lead-time">
-              Produção em até {product.leadTimeDays}{" "}
-              {product.leadTimeDays === 1 ? "dia útil" : "dias úteis"}. Prazo de
-              entrega à parte.
-            </p>
-          )}
-          <strong className="store-price">{(product.price === null ? "Sob consulta" : formatBRL(product.price))}</strong>
-          <p className="store-payment">{product.paymentTerms}</p>
-          <ProductContact
-            product={product}
-            phone={identity.phone}
-            email={identity.email}
-            url={url}
-          />
-          <p className="store-note">
-            Confirme disponibilidade, prazo e entrega com nossa equipe antes de
-            concluir o pedido.
-          </p>
-          <section className="store-description">
-            <h2>Sobre o produto</h2>
-            <p>{product.description}</p>
-          </section>
-          {product.specifications && (
-            <section className="store-description">
-              <h2>Especificações</h2>
-              <p>{product.specifications}</p>
-            </section>
-          )}
-        </div>
-      </article>
+      <ProductExperience
+        product={product}
+        phone={identity.phone}
+        email={identity.email}
+        url={url}
+        backHref={backHref}
+        editLineId={editLineId}
+      />
+
       {related.length > 0 && (
         <section
           className="store-featured"
