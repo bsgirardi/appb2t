@@ -4,7 +4,7 @@ Atualização: 20/10/2026. Branch: `codex/catalogo-c1`. Base: `d1c204e`.
 
 ## Estado da entrega
 
-Implementação de C1 disponível em worktree isolada. T1–T7 implementadas; T8 tem verificações automatizadas de código e banco, mas o aceite integrado no navegador ainda não foi executado. Não declarar C1 aceito visualmente ou publicado.
+Implementação de C1 disponível em worktree isolada. T1–T7 implementadas. T8 já tem conferência real no navegador integrado no tema escuro, após o usuário iniciar manualmente a candidata. O tema claro e a preferência de movimento reduzido ainda não foram conferidos; não declarar aceite visual integral ou publicação.
 
 Worktree: `C:\Users\117774\.codex\worktrees\catalogo-c1\b2t-calculadora`. O checkout original em `X:\code\b2t-calculadora` conserva o trabalho administrativo de outro chat. Não houve merge, push, atualização de ZIP, publicação ou migração operacional.
 
@@ -39,14 +39,33 @@ O revisor não avaliou visual/responsividade em navegador nem implantação oper
 
 Banco usado: PostgreSQL temporário `b2t_test`, exposto somente em `127.0.0.1:55431`, contêiner `b2t-catalog-c1-test-db`, dados em tmpfs, sem volume operacional. Os testes conferem host local e nome do banco antes de TRUNCATE; a fixture de navegador exige também a porta 55431. Nenhum dado, custo ou contato real foi usado.
 
-## Bloqueio do aceite visual
+## Inicialização da candidata e conferência no navegador integrado
 
 A revisão automática rejeitou duas tentativas de iniciar a candidata local em `127.0.0.1:3104` com `blocked by policy`, sem motivo adicional. A primeira usava o processo Next de teste; a segunda, inicialização oculta no Windows. Não foram feitas tentativas de contornar o bloqueio por outro serviço ou aplicação.
 
-Consequentemente, não há capturas ou confirmação de comportamento real em 320/390/1440 px, claro/escuro, teclado ou movimento reduzido. O código de estilo e os testes de componentes não substituem esse aceite.
+O usuário iniciou a candidata manualmente e confirmou “ready”. A conferência real foi feita no navegador integrado, conforme pedido explícito, com 21 estados no tema escuro: home, resultados, produto configurável, produto sob consulta, indisponível, lista preenchida e lista vazia, em 320/390/1440 px. Nenhum desses estados apresentou overflow horizontal; os botões públicos conferidos mantiveram altura mínima de 44 px. Capturas de viewport foram gravadas e amostras inspecionadas visualmente. As imagens são as demonstrações identificadas da fixture.
 
-Artefatos preparados: `tests/fixtures/catalog-c1.ts` (18 produtos fictícios; execução da fixture confirmada) e `scripts/check-catalog-c1-browser.cjs` (sintaxe conferida; fluxo de navegador ainda não executado). As imagens de logo/mascote são explicitamente de demonstração, não fotografias de ofertas comerciais. A fixture precisa ser recriada depois da suíte de integração, pois os testes limpam o banco descartável.
+Artefatos preparados: `tests/fixtures/catalog-c1.ts` (18 produtos fictícios; execução da fixture confirmada) e `scripts/check-catalog-c1-browser.cjs` (sintaxe conferida; substituído nesta rodada pela interação com o navegador integrado, não executado como runner). As imagens de logo/mascote são explicitamente de demonstração, não fotografias de ofertas comerciais. A fixture precisa ser recriada depois da suíte de integração, pois os testes limpam o banco descartável.
 
 A referência de comparação da base foi preservada fora da raiz de código em `C:\Users\117774\.codex\worktrees\catalogo-c1\base-d1c204e-reference`, para não entrar nas próximas descobertas de testes. Logs detalhados permanecem na pasta ignorada `.superpowers/sdd/2026-10-19-catalogo-c1/` da worktree.
 
-Para finalizar T8, iniciar a candidata de teste quando permitido, executar e inspecionar a matriz visual e os fluxos de edição/recarga/consulta/erro, corrigir eventuais problemas e atualizar este relatório. Publicação e migração real continuam como etapa própria posterior.
+### Fluxos observados no navegador integrado
+
+- Ana e Bia ficaram em linhas distintas; base de R$ 25 + adicional de R$ 5 resultou em R$ 30/unidade e R$ 60 para duas unidades.
+- Recarga preservou a lista. Editar Ana para Ana Maria preservou Bia.
+- Um terceiro item sob consulta gerou soma conhecida de R$ 60 e aviso de que não havia total fechado; não foi exibido zero fictício.
+- Campo obrigatório vazio recebeu foco e erro associado. Uma observação com 500 caracteres sem espaços não causou overflow.
+- Quantidade vazia e texto novo foram recuperados após recarga, com conclusão desabilitada até corrigir quantidade.
+- Remoção dos itens mostrou o estado vazio. A lista foi recomposta com dados fictícios ao final.
+- Cópia da mensagem incluiu as duas personalizações. Nenhum contato externo foi aberto ou enviado.
+- Acabamento Fosco selecionou foto 1; Especial selecionou foto 2 e mudou o valor para consulta. A galeria respondeu à seta do teclado.
+- Simulação exclusivamente no produto fictício do banco descartável alterou base de R$ 25 para R$ 26. A lista mostrou referência anterior R$ 30 e atual R$ 31, bloqueou o contato e só liberou a mensagem após confirmação das duas linhas; novo total R$ 62.
+- Nenhum erro/aviso foi retornado pelo console do navegador na rodada.
+
+### Evidências e limites restantes
+
+Capturas locais e `evidence-dark.json` em `test-results/catalog-c1/iab/`. A leitura inicial de imagens ainda não carregadas inclui imagens abaixo da dobra com lazy loading; isso não foi classificado como falha de imagem. Fotos visíveis foram inspecionadas nas capturas. Captura de página inteira não funcionou na API do navegador; foram usadas capturas de viewport.
+
+Ressalva menor: o link textual “Ver minha lista →” pode quebrar a seta em uma linha isolada na largura de 390 px. Sua ativação por teclado foi confirmada; o clique automático no centro do retângulo do link não navegou nessa quebra. Ajuste visual permanece listado, sem alteração da candidata durante o ensaio.
+
+O navegador integrado só anunciou controles de visibilidade e largura, sem emulação de tema ou preferência de movimento. Foi solicitada ao usuário a troca para tema claro. Para finalizar T8, conferir o tema claro e a preferência de movimento reduzido e registrar as limitações da recuperação de falha de rede/armazenamento (coberta nos testes automatizados, sem injeção de falha nesta rodada do navegador). Publicação e migração real continuam como etapa própria posterior.
