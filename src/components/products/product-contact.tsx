@@ -405,7 +405,10 @@ function ContactForm({
       )}
       {notice && (
         <p role="status">
-          {notice} <Link href="/portfolio/orcamento">Ver minha lista →</Link>
+          {notice}{" "}
+          <Link href="/portfolio/orcamento" className="inline-flex whitespace-nowrap">
+            Ver minha lista →
+          </Link>
         </p>
       )}
       {contact ? (

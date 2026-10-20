@@ -4,7 +4,7 @@ Atualização: 20/10/2026. Branch: `codex/catalogo-c1`. Base: `d1c204e`.
 
 ## Estado da entrega
 
-Implementação de C1 disponível em worktree isolada. T1–T7 implementadas. T8 já tem conferência real no navegador integrado nos temas escuro e claro, após o usuário iniciar manualmente a candidata. A preferência de movimento reduzido foi confirmada ativa no navegador e conferida em home/produto/lista; não declarar aceite visual integral ou publicação.
+Implementação de C1 concluída para revisão e integração, em worktree isolada. O usuário autorizou concluir a correção visual final com verificação automatizada. T1–T7 implementadas. T8 já tem conferência real no navegador integrado nos temas escuro e claro, após o usuário iniciar manualmente a candidata. A preferência de movimento reduzido foi confirmada ativa no navegador e conferida em home/produto/lista; as fronteiras de cobertura visual estão descritas abaixo; publicação permanece fora desta entrega.
 
 Worktree: `C:\Users\117774\.codex\worktrees\catalogo-c1\b2t-calculadora`. O checkout original em `X:\code\b2t-calculadora` conserva o trabalho administrativo de outro chat. Não houve merge, push, atualização de ZIP, publicação ou migração operacional.
 
@@ -66,6 +66,15 @@ A referência de comparação da base foi preservada fora da raiz de código em 
 
 Capturas locais, `evidence-dark.json` e `evidence-light.json` em `test-results/catalog-c1/iab/`. A leitura inicial de imagens ainda não carregadas inclui imagens abaixo da dobra com lazy loading; isso não foi classificado como falha de imagem. Fotos visíveis foram inspecionadas nas capturas. Captura de página inteira não funcionou na API do navegador; foram usadas capturas de viewport.
 
-Ressalva menor: o link textual “Ver minha lista →” pode quebrar a seta em uma linha isolada na largura de 390 px. Sua ativação por teclado foi confirmada; o clique automático no centro do retângulo do link não navegou nessa quebra. Ajuste visual permanece listado, sem alteração da candidata durante o ensaio.
+Correção final: a quebra da seta em “Ver minha lista →” foi eliminada no código com um link inline-flex sem quebra interna. A causa observada era um link inline que ocupava dois retângulos de linha; a seta podia ficar isolada e o centro usado pelo clique automático cair fora do texto. O usuário escolheu concluir esse ajuste com verificação automatizada, sem reiniciar a candidata. Portanto, as capturas anteriores não representam essa última alteração.
 
 O navegador integrado só anunciou controles de visibilidade e largura, sem emulação de tema ou preferência de movimento. O usuário trocou para tema claro e confirmou “pronto”. Foram conferidos mais 18 estados: home, resultados, produto configurável, sob consulta, indisponível e lista preenchida nas larguras de 320/390/1440 px. Todos sem overflow horizontal, com fundo claro confirmado. Capturas representativas do produto móvel e lista desktop foram inspecionadas. A mensagem preparada preservou Ana/Bia e total de R$ 62; console sem erros/avisos. O estado vazio e erros de formulário não foram repetidos em claro. Em rodada adicional autorizada pelo usuário, o navegador confirmou prefers-reduced-motion: reduce ativo. Home, produto e lista não apresentaram elementos com animação ou transição CSS e não tiveram overflow. A galeria alternou foto 2 para foto 1 por ArrowRight; a mensagem preservou Ana/Bia e R$ 62. Console sem erros/avisos. Evidências: evidence-reduced-motion.json, reduced-motion-gallery.jpg e reduced-motion-list.jpg. Falha de rede/armazenamento permanece coberta nos testes automatizados, sem injeção de falha nesta rodada do navegador; migração v1 e URL longa também não foram repetidas nesta rodada interativa. Publicação e migração real continuam como etapa própria posterior.
+
+## Fechamento autorizado em 20/10/2026
+
+- Suíte completa com o ajuste final: **537 testes aprovados em 163 arquivos**, duração de 293,15 s, início às 08:57 em São Paulo. A falha temporal histórica do planejamento não ocorreu nessa execução após as 8h.
+- Ambiente da suíte: DATABASE_URL exclusivamente no banco descartável e APP_URL=http://localhost:3000, conforme origem usada pelos testes. Uma tentativa anterior foi interrompida por usar incorretamente a porta 3104 da prévia; não representa regressão do produto.
+- ESLint aprovado. Compilação de produção e tipos aprovados por `node node_modules/next/dist/bin/next build`. O wrapper `npm run build` parou na regeneração Prisma com EPERM porque a prévia aberta mantinha a DLL em uso; o esquema não mudou no ajuste final e a compilação utilizou o cliente já gerado.
+- Os testes de rede, armazenamento indisponível, migração v1/v2 e mensagem longa fazem parte da suíte aprovada. Não se declara injeção dessas falhas pelo navegador integrado.
+- O usuário escolheu “Concluir com verificação automatizada” para a correção final do link, dispensando reinício/repetição visual dessa candidata. Nenhuma mensagem externa foi enviada.
+- Logs ignorados: suite-closeout-correct-env.log, lint-closeout.log, next-build-closeout.log. A emissão “Not implemented: navigation to another Document” pertence ao ambiente jsdom; a suíte terminou com código zero.
