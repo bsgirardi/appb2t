@@ -104,7 +104,9 @@ it("rechecks before contact and invalidates prepared contact when quantity chang
   );
   await screen.findByRole("link", { name: "Abrir WhatsApp ↗" });
   expect(api).toHaveBeenCalledTimes(2);
-  fireEvent.change(screen.getByRole("combobox"), { target: { value: "2" } });
+  fireEvent.change(screen.getByLabelText("Quantidade de Vaso, item 1"), {
+    target: { value: "2" },
+  });
   expect(screen.queryByRole("link", { name: "Abrir WhatsApp ↗" })).toBeNull();
   await waitFor(() => expect(api).toHaveBeenCalledTimes(3));
   fireEvent.click(screen.getByRole("button", { name: "Remover item 1" }));

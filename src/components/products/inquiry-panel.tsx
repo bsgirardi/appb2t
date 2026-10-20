@@ -6,12 +6,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { RequestSubmit } from "./request-submit";
+import { clearSubmittedLines } from "@/lib/catalog-request-attempt";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
 import {
   useInquiry,
+  readInquiry,
   writeInquiry,
   useInquiryStorageStatus,
   inquiryRecoveryText,
@@ -99,6 +102,7 @@ export function InquiryPanel() {
     if (busy) return;
     setBusy(true);
     setPrepared(undefined);
+    setResult(undefined);
     setNotice("");
     try {
       const fresh = await api<InquiryReview>("/api/portfolio/inquiry", {
@@ -171,6 +175,14 @@ export function InquiryPanel() {
         <Button asChild>
           <Link href="/#all-products">Explorar produtos</Link>
         </Button>
+        <RequestSubmit
+          items={items}
+          review={review}
+          onReviewRequired={prepare}
+          onClearSubmitted={(sent) =>
+            update(clearSubmittedLines(readInquiry(), sent))
+          }
+        />
       </section>
     );
   const knownTotal =
@@ -181,7 +193,7 @@ export function InquiryPanel() {
         <div>
           <h1>Minha lista</h1>
           <p>
-            Confira cada detalhe antes de preparar a mensagem para a equipe.
+            Confira cada detalhe antes de enviar sua solicitação para a equipe.
           </p>
         </div>
         <Button asChild variant="outline">
@@ -383,6 +395,14 @@ export function InquiryPanel() {
             Frete e condições finais a combinar. Esta lista não confirma um
             pedido.
           </p>
+          <RequestSubmit
+            items={items}
+            review={review}
+            onReviewRequired={prepare}
+            onClearSubmitted={(sent) =>
+              update(clearSubmittedLines(readInquiry(), sent))
+            }
+          />
           {review && !review.ready && (
             <Alert>
               Revise ou confirme os itens sinalizados para continuar.

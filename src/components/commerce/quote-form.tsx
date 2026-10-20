@@ -17,6 +17,7 @@ import { calculateDocumentTotals } from "@/domain/commerce/totals";
 import { api } from "@/lib/client-api";
 import { Notice, Field } from "@/components/ui/field";
 import { DocumentItems, type CommercialProduct } from "./document-items";
+import { CatalogOrigins } from "./catalog-origin";
 export function QuoteForm({
   quote,
   customers,
@@ -108,6 +109,7 @@ export function QuoteForm({
   return (
     <form onSubmit={save} className="commerce-form">
       <h2>{title ?? (quote ? "Editar orçamento" : "Novo orçamento")}</h2>
+      <CatalogOrigins items={draft.items ?? []} />
       {error && <Notice>{error}</Notice>}
       <Label>
         Cliente

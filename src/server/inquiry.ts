@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { appUrl } from "@/lib/env";
@@ -22,9 +23,15 @@ import {
 import { buildInquiryMessage } from "@/domain/products/inquiry-message";
 const schema = z.object({ items: inquiryItemsSchema }).strict();
 export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
+  return reviewInquiryWithClient(db, raw);
+}
+export async function reviewInquiryWithClient(
+  tx: Prisma.TransactionClient,
+  raw: unknown,
+): Promise<InquiryReview> {
   const { items } = schema.parse(raw);
   const [products, identity] = await Promise.all([
-    db.product.findMany({
+    tx.product.findMany({
       where: { id: { in: items.map((i) => i.productId) }, active: true },
       select: {
         id: true,
@@ -39,7 +46,7 @@ export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
         commercialRevision: true,
       },
     }),
-    getPublicAppearance(),
+    getPublicAppearance(tx),
   ]);
   const lines: InquiryLine[] = items.map((item) => {
     const product = products.find((p) => p.id === item.productId);

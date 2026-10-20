@@ -2,6 +2,24 @@
   background: var(--paper);
   min-height: 100vh;
 }
+.store-request,
+.store-request form,
+.store-request-fields,
+.store-request-receipt {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.store-request {
+  margin-block: 20px;
+  padding-block: 16px;
+  border-block: 1px solid var(--line);
+}
+.store-request :is(input, select) {
+  width: 100%;
+  min-width: 0;
+}
 .store-information {
   max-width: 860px;
   padding: 24px 0 40px;

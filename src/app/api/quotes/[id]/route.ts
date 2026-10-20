@@ -15,7 +15,9 @@ export async function PUT(request: Request, context: Context) {
       await saveQuote(
         actor,
         (await context.params).id,
-        await jsonBody(request, { maxBytes: 262144 }),
+        // Authenticated drafts may contain 100 lines with immutable received
+        // snapshots, including explicit duplicates. Keep the public intake at 256 KiB.
+        await jsonBody(request, { maxBytes: 16 * 1024 * 1024 }),
       ),
     );
   });

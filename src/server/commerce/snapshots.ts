@@ -32,6 +32,7 @@ export async function createDocumentSnapshot(
     if (item.productId && !p?.active)
       throw new AppError("VALIDATION", "Um produto não está mais ativo.");
     return {
+      ...(item.catalogOrigin ? { catalogOrigin: item.catalogOrigin } : {}),
       ...(item.productId ? { productId: item.productId } : {}),
       description: item.description,
       quantity: item.quantity,

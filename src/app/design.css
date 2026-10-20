@@ -19,6 +19,11 @@
   .storefront [data-slot="button"] {
     min-height: 44px;
   }
+  .storefront .store-request :is(input, select),
+  .admin-ui .request-detail :is(button, input:not([type="checkbox"]), select),
+  .admin-ui .request-page :is(button, input, select) {
+    min-height: 44px;
+  }
 }
 
 @theme inline {

@@ -70,6 +70,7 @@ export function AppShell({
     >
       {[
         ["/clientes", "Clientes"],
+        ["/solicitacoes", "Solicitações"],
         ["/orcamentos", "Orçamentos"],
         ["/vendas", "Vendas"],
         ["/producao", "Produção"],
@@ -348,19 +349,21 @@ export function AppShell({
                     ? "Financeiro"
                     : path.startsWith("/clientes")
                       ? "Clientes"
-                      : path.startsWith("/orcamentos")
-                        ? "Orçamentos"
-                        : path.startsWith("/vendas")
-                          ? "Vendas"
-                          : path.startsWith("/colecoes")
-                            ? "Coleções"
-                            : path.startsWith("/configuracoes")
-                              ? "Configurações"
-                              : path.startsWith("/produtos")
-                                ? "Produtos"
-                                : path === "/conta"
-                                  ? "Minha conta"
-                                  : "Calculadora de custos"}
+                      : path.startsWith("/solicitacoes")
+                        ? "Solicitações"
+                        : path.startsWith("/orcamentos")
+                          ? "Orçamentos"
+                          : path.startsWith("/vendas")
+                            ? "Vendas"
+                            : path.startsWith("/colecoes")
+                              ? "Coleções"
+                              : path.startsWith("/configuracoes")
+                                ? "Configurações"
+                                : path.startsWith("/produtos")
+                                  ? "Produtos"
+                                  : path === "/conta"
+                                    ? "Minha conta"
+                                    : "Calculadora de custos"}
             </strong>
           </span>
           <span className="internal-chip">

@@ -14,6 +14,7 @@ enum Technology {
   RESIN
 }
 model User {
+  catalogRequests CatalogRequest[]
   profitabilityRevisions ProfitabilityRevision[]
   profitabilityAssessments ProfitabilityAssessment[]
   profitabilityCommands ProfitabilityCommand[]
@@ -206,6 +207,7 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ catalogRequest CatalogRequest?
  costRevisionId String?
  sale Sale?
  id String @id @default(cuid())
@@ -1112,4 +1114,68 @@ model PlanningCommand {
  result Json
  actorId String
  createdAt DateTime @default(now())
+}
+
+enum CatalogRequestState {
+  RECEBIDA
+  EM_ATENDIMENTO
+  ORCAMENTO_PREPARADO
+  ENCERRADA
+}
+model CatalogRequest {
+  id String @id @default(cuid())
+  sequence Int @unique @default(autoincrement())
+  state CatalogRequestState @default(RECEBIDA)
+  version Int @default(1)
+  attemptHash String @unique
+  contentHash String
+  name String
+  preferredChannel String
+  contact Json
+  knownTotal Decimal? @db.Decimal(18,2)
+  consultCount Int
+  assigneeId String?
+  assignee User? @relation(fields: [assigneeId], references: [id], onDelete: Restrict)
+  quoteId String? @unique
+  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lines CatalogRequestLine[]
+  events CatalogRequestEvent[]
+  @@index([state, createdAt])
+  @@index([name])
+}
+model CatalogRequestLine {
+  id String @id @default(cuid())
+  requestId String
+  request CatalogRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  position Int
+  snapshot Json
+  quantity Int
+  priceKind String
+  unitPrice Decimal? @db.Decimal(18,2)
+  subtotal Decimal? @db.Decimal(18,2)
+  @@unique([requestId, position])
+}
+model CatalogRequestEvent {
+  id String @id @default(cuid())
+  requestId String
+  request CatalogRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  action String
+  note String @default("")
+  actorId String?
+  actorName String
+  createdAt DateTime @default(now())
+  @@index([requestId, createdAt])
+}
+model CatalogRequestBrowser {
+  id String @id
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+model CatalogRequestQuota {
+  key String @id
+  attempts Int @default(0)
+  expiresAt DateTime
+  @@index([expiresAt])
 }

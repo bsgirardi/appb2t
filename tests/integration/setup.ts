@@ -10,6 +10,7 @@ export function setupDatabase() {
       !["localhost", "127.0.0.1"].includes(url.hostname)
     )
       throw new Error("Tests require local b2t_test database");
+    await db.$executeRawUnsafe('TRUNCATE "CatalogRequest", "CatalogRequestBrowser", "CatalogRequestQuota" CASCADE');
     await db.$executeRawUnsafe(
       'TRUNCATE "PlanningCommand", "PlanningAudit", "PlanningState", "PlanningCalendar", "PlanningMachineSettings", "PlanningBatch" CASCADE',
     );

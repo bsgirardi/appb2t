@@ -1,5 +1,6 @@
 import type { DocumentCostsDTO } from "@/domain/pricing/types";
 import type { CompanyIdentityDTO } from "@/domain/appearance/types";
+import type { CatalogLineOrigin } from "@/domain/catalog-requests/types";
 export type QuoteStatus =
   "RASCUNHO" | "ENVIADO" | "APROVADO" | "REJEITADO" | "EXPIRADO" | "CONVERTIDO";
 export type SaleStatus =
@@ -10,6 +11,7 @@ export type SaleStatus =
   | "ENTREGUE"
   | "CANCELADA";
 export interface DocumentItemInput {
+  catalogOrigin?: CatalogLineOrigin;
   lineId?: string;
   productId?: string;
   description: string;

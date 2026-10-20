@@ -2,6 +2,7 @@ import Decimal from "decimal.js";
 import { z } from "zod";
 import { AppError } from "@/lib/errors";
 import { parseCivilDate } from "./dates";
+import { catalogLineOriginSchema } from "@/domain/catalog-requests/snapshot";
 export const MONEY_MAX = "9999999999999999.99";
 export function parseMoney(
   raw: string,
@@ -47,6 +48,7 @@ export const civilDateSchema = z.string().transform((value, ctx) => {
 });
 export const itemSchema = z
   .object({
+    catalogOrigin: catalogLineOriginSchema.optional(),
     lineId: z
       .string()
       .min(1)

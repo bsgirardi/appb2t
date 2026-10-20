@@ -1200,6 +1200,35 @@ small {
     animation: none;
   }
 }
+.request-inbox,
+.request-detail,
+.request-quote {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.request-inbox-item,
+.request-received-line {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-width: 0;
+}
+.request-inbox-item h2 a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.request-quote label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 8px;
+}
+.request-detail .form-actions {
+  flex-wrap: wrap;
+}
 
 /* Public portfolio and product workspace */
 .portfolio-page {
