@@ -117,6 +117,12 @@ export default async function PortfolioPage({ searchParams }: Props) {
           Aplicar
         </Button>
       </form>
+      {(f.order === "menor-preco" || f.order === "maior-preco") && (
+        <p className="store-note">
+          Ordenação pelo preço base. Adicionais dependem das escolhas; produtos
+          sob consulta aparecem ao final.
+        </p>
+      )}
       <ProductCatalog products={data.products} context={f} />
       {data.pages > 1 && (
         <Pagination
@@ -153,7 +159,15 @@ export default async function PortfolioPage({ searchParams }: Props) {
       collection={f.collection}
       order={f.order}
     >
-      {home && <StoreWelcome />}
+      {home &&
+        (config.banners.some(
+          (b) =>
+            !b.collectionId || collections.some((c) => c.id === b.collectionId),
+        ) ? (
+          <StoreBanners config={config} collections={collections} focal />
+        ) : (
+          <StoreWelcome />
+        ))}
       {home && <StoreCollections collections={collections} />}
       <CollectionNavigation collections={collections} context={f} />
       {home

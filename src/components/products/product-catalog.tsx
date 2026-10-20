@@ -85,10 +85,18 @@ export function ProductCatalog({
               <p className="line-clamp-2 text-xs leading-5 break-words text-muted-foreground">
                 {product.shortDescription || product.description}
               </p>
+              {!!product.configuration?.fields.length && (
+                <span className="store-personalizable">Personalizável</span>
+              )}
               <div className="mt-auto pt-2">
                 <strong className="text-xl font-bold">
-                  {(product.price === null ? "Sob consulta" : formatBRL(product.price))}
+                  {product.price === null
+                    ? "Sob consulta"
+                    : formatBRL(product.price)}
                 </strong>
+                {product.price !== null && (
+                  <p className="store-price-nature">Referência por unidade</p>
+                )}
                 <p className="mt-1 text-xs leading-5 break-words text-muted-foreground">
                   {product.paymentTerms}
                 </p>
