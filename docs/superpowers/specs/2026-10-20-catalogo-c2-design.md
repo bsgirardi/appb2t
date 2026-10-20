@@ -1,6 +1,6 @@
 # C2 — Solicitação integrada e atendimento
 
-Data: 20/10/2026. Estado: desenho em conversa aprovado; especificação escrita para revisão. Base funcional: C1 integrado na main em `0b6f934`. Esta etapa não implementa nem publica C2.
+Data: 20/10/2026. Estado: desenho e especificação escrita aprovados pelo usuário em 20/10/2026. Plano de implementação em preparação/revisão. Base funcional: C1 integrado na main em `0b6f934`. Esta etapa não implementa nem publica C2.
 
 ## 1. Objetivo e limites
 
