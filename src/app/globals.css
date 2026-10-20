@@ -1215,10 +1215,6 @@ small {
   border-radius: 12px;
   min-width: 0;
 }
-.request-detail :is(button, input:not([type="checkbox"]), select),
-.request-page :is(button, input, select) {
-  min-height: 44px;
-}
 .request-inbox-item h2 a {
   display: inline-flex;
   align-items: center;

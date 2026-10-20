@@ -28,7 +28,12 @@ const phone = z
   });
 export const catalogContactSchema = z
   .object({
-    name: z.string().trim().normalize("NFC").min(2).max(120),
+    name: z
+      .string()
+      .trim()
+      .normalize("NFC")
+      .min(2, "Informe seu nome com pelo menos 2 caracteres.")
+      .max(120, "Use até 120 caracteres no nome."),
     preferredChannel: z.enum(["whatsapp", "email"]),
     phone,
     email: z

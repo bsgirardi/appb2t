@@ -55,6 +55,9 @@ it("focuses the first contact error and requires a valid review", () => {
   );
   fireEvent.click(screen.getByRole("button", { name: "Enviar solicitação" }));
   expect(document.activeElement).toBe(screen.getByLabelText("Seu nome"));
+  expect(
+    screen.getByText("Informe seu nome com pelo menos 2 caracteres."),
+  ).toBeTruthy();
   expect(screen.getByLabelText("Seu nome").getAttribute("aria-invalid")).toBe(
     "true",
   );

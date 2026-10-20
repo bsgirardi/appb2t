@@ -17,7 +17,6 @@
   border-block: 1px solid var(--line);
 }
 .store-request :is(input, select) {
-  min-height: 44px;
   width: 100%;
   min-width: 0;
 }
