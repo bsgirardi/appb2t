@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { api, ApiError } from "@/lib/client-api";
@@ -13,10 +13,9 @@ import {
   confirmRequestAttempt,
   createRequestAttempt,
   discardRequestAttempt,
-  readRequestAttempt,
+  useRequestAttempt,
   writeRequestAttempt,
   type PendingAttempt,
-  type ConfirmedAttempt,
 } from "@/lib/catalog-request-attempt";
 import { RequestContactForm } from "./request-contact-form";
 import { RequestReceipt } from "./request-receipt";
@@ -35,35 +34,19 @@ export function RequestSubmit({
   review?: InquiryReview;
   onClearSubmitted: (submitted: InquiryItem[]) => void;
 }) {
-  const [attempt, setAttempt] = useState<
-    PendingAttempt | ConfirmedAttempt | null
-  >(null);
+  const recovery = useRequestAttempt();
+  const corrupt = recovery === "corrupt";
+  const attempt = corrupt ? null : recovery;
   const [contact, setContact] = useState(emptyContact);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState("");
   const [warning, setWarning] = useState("");
-  const [corrupt, setCorrupt] = useState(false);
   const [rejected, setRejected] = useState(false);
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState<InquiryItem[] | null>(null);
   const form = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    try {
-      const saved = readRequestAttempt();
-      setAttempt(saved);
-      if (saved?.kind === "pending") setContact(saved.payload.contact);
-    } catch (error) {
-      setNotice((error as Error).message);
-      setCorrupt(true);
-    }
-  }, []);
   function accepted(receipt: CatalogReceipt, pending: PendingAttempt) {
     confirmRequestAttempt(receipt);
-    setAttempt({
-      kind: "confirmed",
-      attemptKey: pending.payload.attemptKey,
-      receipt,
-    });
     setSubmitted(pending.payload.items);
     setContact(emptyContact);
     setNotice("");
@@ -81,6 +64,12 @@ export function RequestSubmit({
       );
       accepted(receipt, pending);
     } catch (error) {
+      if (error instanceof ApiError && error.code === "RATE_LIMIT") {
+        setNotice(
+          `${error.message} Sua tentativa foi mantida; você também pode verificar o recebimento.`,
+        );
+        return;
+      }
       if (
         error instanceof ApiError &&
         ["CONFLICT", "VALIDATION"].includes(error.code)
@@ -154,17 +143,17 @@ export function RequestSubmit({
         setWarning(
           "A recuperação está somente na memória. Fechar ou recarregar esta aba pode perder a confirmação pendente.",
         );
-      setAttempt(pending);
       await send(pending);
     } catch (error) {
       setNotice((error as Error).message);
     }
   }
   function startAgain() {
+    setContact(
+      attempt?.kind === "pending" ? attempt.payload.contact : emptyContact,
+    );
     discardRequestAttempt();
-    setAttempt(null);
     setNotice("");
-    setCorrupt(false);
     setRejected(false);
     setSubmitted(null);
   }
@@ -178,6 +167,11 @@ export function RequestSubmit({
       </p>
       {warning && <Alert>{warning}</Alert>}
       {notice && <Alert role="alert">{notice}</Alert>}
+      {corrupt && (
+        <Alert role="alert">
+          Não foi possível ler a recuperação desta aba. Não a substituímos.
+        </Alert>
+      )}
       {corrupt ? (
         <Button type="button" variant="outline" onClick={startAgain}>
           Descartar recuperação inválida desta aba

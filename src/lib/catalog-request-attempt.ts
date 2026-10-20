@@ -1,3 +1,5 @@
+"use client";
+import { useSyncExternalStore } from "react";
 import { z } from "zod";
 import {
   catalogSubmissionSchema,
@@ -21,6 +23,24 @@ export type ConfirmedAttempt = {
 };
 const key = "b2t:request:attempt:v1";
 let memory: PendingAttempt | ConfirmedAttempt | null | undefined;
+const listeners = new Set<() => void>();
+const publish = () => listeners.forEach((listener) => listener());
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+function snapshot() {
+  try {
+    return readRequestAttempt();
+  } catch {
+    return "corrupt" as const;
+  }
+}
+export function useRequestAttempt() {
+  return useSyncExternalStore(subscribe, snapshot, () => null);
+}
 const schema = z.discriminatedUnion("kind", [
   z
     .object({
@@ -87,6 +107,7 @@ function persist(attempt: PendingAttempt | ConfirmedAttempt): {
   memory = attempt;
   try {
     sessionStorage.setItem(key, JSON.stringify(attempt));
+    publish();
     return { storage: "session" };
   } catch {
     if (attempt.kind === "confirmed") {
@@ -96,6 +117,7 @@ function persist(attempt: PendingAttempt | ConfirmedAttempt): {
         /* Browser denied erasure too. */
       }
     }
+    publish();
     return { storage: "memory" };
   }
 }
@@ -128,6 +150,7 @@ export function discardRequestAttempt(): void {
   } catch {
     /* Current session continues in memory. */
   }
+  publish();
 }
 export function clearSubmittedLines(
   current: InquiryItem[],

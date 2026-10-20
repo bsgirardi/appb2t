@@ -60,13 +60,15 @@ it("preserves received metadata by line identity through reorder, edits and issu
   const first = await db.$transaction((tx) =>
     saveQuoteWithClient(tx, actor, undefined, input),
   );
-  const reversed = [...first.input.items!]
-    .reverse()
-    .map(({ catalogOrigin: _origin, ...item }) => ({
+  const reversed = [...first.input.items!].reverse().map((original) => {
+    const item = { ...original };
+    delete item.catalogOrigin;
+    return {
       ...item,
       unitPrice: "12.00",
       quantity: 2,
-    }));
+    };
+  });
   const saved = await saveQuote(actor, first.id, {
     ...first.input,
     items: reversed,

@@ -78,7 +78,11 @@ it("requires resolved consultation, chosen active customer and explicit standalo
   ).rejects.toMatchObject({ code: "VALIDATION" });
   const document = {
     ...f.input.document,
-    items: f.input.document.items.map(({ productId: _id, ...i }) => i),
+    items: f.input.document.items.map((original) => {
+      const item = { ...original };
+      delete item.productId;
+      return item;
+    }),
   };
   const prepared = await prepareRequestQuote(f.actor, f.request.id, {
     ...f.input,

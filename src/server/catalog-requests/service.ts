@@ -31,6 +31,7 @@ export async function changeCatalogRequest(
       );
     let state = row.state;
     let assigneeId = row.assigneeId;
+    let assigneeName = "";
     if ("assigneeId" in change) {
       const assignee = await tx.user.findFirst({
         where: { id: change.assigneeId, active: true },
@@ -38,6 +39,7 @@ export async function changeCatalogRequest(
       if (!assignee)
         throw new AppError("VALIDATION", "Escolha uma pessoa ativa da equipe.");
       assigneeId = assignee.id;
+      assigneeName = assignee.name;
       if (["START", "REOPEN"].includes(change.action)) state = "EM_ATENDIMENTO";
     }
     if (change.action === "CLOSE") state = "ENCERRADA";
@@ -50,7 +52,8 @@ export async function changeCatalogRequest(
         events: {
           create: {
             action: change.action,
-            note: "note" in change ? change.note : `Responsável: ${assigneeId}`,
+            note:
+              "note" in change ? change.note : `Responsável: ${assigneeName}`,
             actorId: actor.id,
             actorName: actor.name,
           },

@@ -121,3 +121,20 @@ it("retries with the same key and payload and cleans only after explicit action"
   );
   await waitFor(() => expect(clear).toHaveBeenCalledWith(items));
 });
+it("explains rate limiting without discarding the recoverable attempt", async () => {
+  vi.mocked(api)
+    .mockResolvedValueOnce({})
+    .mockRejectedValueOnce(
+      new ApiError(
+        "Muitas tentativas. Aguarde e tente novamente.",
+        "RATE_LIMIT",
+      ),
+    );
+  render(
+    <RequestSubmit items={items} review={review} onClearSubmitted={vi.fn()} />,
+  );
+  fill();
+  fireEvent.click(screen.getByRole("button", { name: "Enviar solicitação" }));
+  await screen.findByText(/Muitas tentativas. Aguarde/);
+  expect(readRequestAttempt()?.kind).toBe("pending");
+});
