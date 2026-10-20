@@ -105,3 +105,59 @@ it("orders consultation last across page boundaries in both price directions", a
     expect(rows.slice(15).every((p) => p.price === null)).toBe(true);
   }
 });
+it("clears a photo removed in the same save without changing the commercial revision", async () => {
+  const actor = await seedUser();
+  let p = await createProduct(
+    actor,
+    { ...productInput, images: [{ uploadKey: "a" }, { uploadKey: "b" }] },
+    { ...uploads, b: uploads.a },
+  );
+  const config = {
+    formatVersion: 1,
+    included: "",
+    leadTimeCondition: "",
+    fields: [
+      {
+        id: "finish",
+        label: "Acabamento",
+        help: "",
+        required: false,
+        type: "SINGLE_CHOICE",
+        options: [
+          {
+            id: "matte",
+            label: "Fosco",
+            effect: { kind: "NONE" },
+            imageId: p.images[1].id,
+          },
+        ],
+      },
+    ],
+  };
+  p = await updateProduct(actor, p.id, {
+    ...productInput,
+    configuration: config,
+    images: p.images.map((i) => ({ id: i.id })),
+    expectedVersion: p.version,
+  });
+  const revision = p.commercialRevision;
+  const saved = await updateProduct(actor, p.id, {
+    ...productInput,
+    configuration: p.configuration,
+    images: [{ id: p.images[0].id }],
+    expectedVersion: p.version,
+  });
+  expect(saved.configuration!.fields[0]).toHaveProperty(
+    "options.0.imageId",
+    null,
+  );
+  expect(saved.commercialRevision).toBe(revision);
+  await expect(
+    updateProduct(actor, p.id, {
+      ...productInput,
+      images: [{ id: p.images[0].id }],
+      expectedVersion: p.version,
+    }),
+  ).rejects.toThrow();
+  expect((await getProduct(actor, p.id)).version).toBe(saved.version);
+});

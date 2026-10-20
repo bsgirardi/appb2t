@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { PublicProductDTO } from "@/domain/products/types";
 import { whatsappLink } from "@/domain/products/storefront";
-import { addInquiry, readInquiry, writeInquiry } from "@/lib/inquiry-store";
+import {
+  addInquiry,
+  readInquiry,
+  writeInquiry,
+  useInquiryStorageStatus,
+} from "@/lib/inquiry-store";
 import { inquiryKey, type InquiryInput } from "@/domain/products/inquiry";
 import { replaceInquiryItem } from "@/domain/products/inquiry-draft";
 import {
@@ -62,6 +67,7 @@ function ContactForm({
   backHref,
   onOptionImage,
 }: Props) {
+  const storageStatus = useInquiryStorageStatus();
   const configuration = product.configuration ?? emptyProductConfiguration;
   const draftKey = `${product.id}:${editLineId ?? "new"}`;
   const [draft, setDraft] = useState<InquiryInput>(() => {
@@ -118,8 +124,12 @@ function ContactForm({
     });
   } catch {}
   const ready =
-    (!product.colors?.length || product.colors.includes(draft.color ?? "")) &&
-    (!product.sizes?.length || product.sizes.includes(draft.size ?? ""));
+    (product.colors?.length
+      ? product.colors.includes(draft.color ?? "")
+      : !draft.color) &&
+    (product.sizes?.length
+      ? product.sizes.includes(draft.size ?? "")
+      : !draft.size);
   function change(next: InquiryInput) {
     setDraft(next);
     setNotice("");
@@ -128,7 +138,9 @@ function ContactForm({
     try {
       setNotice(writeConfigurationDraft(draftKey, next));
     } catch {
-      /* Keep incomplete values in the form until valid. */
+      setNotice(
+        "Não foi possível guardar este rascunho. Os valores continuam nesta página; reduza os textos antes de sair.",
+      );
     }
   }
   function save(confirmMerge = false) {
@@ -207,7 +219,17 @@ function ContactForm({
       );
     }
   }
-  const contactMessage = `Olá! Gostaria de ${unavailable ? "consultar a reposição de" : "tirar uma dúvida sobre"} ${product.name}.\n${url}`;
+  const contactMessage = [
+    unavailable
+      ? `Olá! Gostaria de saber quando ${product.name} estará disponível novamente.`
+      : `Olá! Gostaria de tirar uma dúvida sobre ${product.name}.`,
+    product.sku && `Código: ${product.sku}`,
+    draft.color && `Cor: ${draft.color}`,
+    draft.size && `Tamanho: ${draft.size}`,
+    url,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const whatsapp = whatsappLink(phone, contactMessage);
   const contact =
     whatsapp ||
@@ -216,6 +238,7 @@ function ContactForm({
       : null);
   return (
     <div className="store-options">
+      {storageStatus && <p role="alert">{storageStatus}</p>}
       {unavailable ? (
         <p>Este produto está indisponível no momento.</p>
       ) : (
@@ -240,7 +263,7 @@ function ContactForm({
               label: "Tamanho",
             },
           ].map((o) =>
-            o.values?.length ? (
+            o.values?.length || o.value ? (
               <div className="field" key={o.field}>
                 <Label htmlFor={`order-${o.field}`}>{o.label}</Label>
                 <NativeSelect
@@ -250,8 +273,17 @@ function ContactForm({
                     change({ ...draft, [o.field]: e.target.value })
                   }
                 >
-                  <option value="">Selecione</option>
-                  {o.values.map((v) => (
+                  <option value="">
+                    {o.values?.length
+                      ? "Selecione"
+                      : "Não se aplica mais a este produto"}
+                  </option>
+                  {o.value && !o.values?.includes(o.value) && (
+                    <option disabled value={o.value}>
+                      {o.value} — opção retirada
+                    </option>
+                  )}
+                  {(o.values ?? []).map((v) => (
                     <option key={v} value={v}>
                       {v}
                     </option>

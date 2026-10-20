@@ -115,7 +115,27 @@ export function validateAnswers(
   raw: unknown,
 ): ConfigurationAnswer[] {
   const config = productConfigurationSchema.parse(definition);
-  const answers = configurationAnswersSchema.parse(raw);
+  const parsed = configurationAnswersSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new z.ZodError(
+      parsed.error.issues.map((issue) => {
+        const index = issue.path[0];
+        const value =
+          typeof index === "number" && Array.isArray(raw) ? raw[index] : null;
+        const fieldId =
+          value &&
+          typeof value === "object" &&
+          typeof value.fieldId === "string" &&
+          config.fields.some((f) => f.id === value.fieldId)
+            ? value.fieldId
+            : null;
+        return fieldId
+          ? { ...issue, path: [fieldId, ...issue.path.slice(1)] }
+          : issue;
+      }),
+    );
+  }
+  const answers = parsed.data;
   const issues: z.core.$ZodIssue[] = [];
   for (const a of answers)
     if (!config.fields.some((f) => f.id === a.fieldId))

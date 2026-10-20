@@ -18,3 +18,25 @@ it("keeps the latest session draft when quota blocks replacing an old value", ()
   expect(readConfigurationDraft(id)?.quantity).toBe(2);
   clearConfigurationDraft(id);
 });
+it("preserves unfinished text while quantity is empty, decimal or out of range", () => {
+  for (const quantity of [NaN, 0, 1.5, 100]) {
+    const id = `unfinished-${String(quantity)}`;
+    writeConfigurationDraft(id, {
+      productId: "p",
+      quantity: 1,
+      answers: [{ fieldId: "name", value: "Ana" }],
+    });
+    writeConfigurationDraft(id, {
+      productId: "p",
+      quantity,
+      answers: [{ fieldId: "name", value: "Bia" }],
+    });
+    expect(readConfigurationDraft(id)?.answers).toEqual([
+      { fieldId: "name", value: "Bia" },
+    ]);
+    if (Number.isNaN(quantity))
+      expect(Number.isNaN(readConfigurationDraft(id)?.quantity)).toBe(true);
+    else expect(readConfigurationDraft(id)?.quantity).toBe(quantity);
+    clearConfigurationDraft(id);
+  }
+});

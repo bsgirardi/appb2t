@@ -1,4 +1,6 @@
 "use client";
+import { replaceInquiryItem } from "@/domain/products/inquiry-draft";
+
 import { productBrowsePath } from "@/domain/products/catalog-navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -15,7 +17,11 @@ import {
   inquiryRecoveryText,
   resetInquiry,
 } from "@/lib/inquiry-store";
-import { inquiryKey, type InquiryReview } from "@/domain/products/inquiry";
+import {
+  inquiryKey,
+  type InquiryLine,
+  type InquiryReview,
+} from "@/domain/products/inquiry";
 import { api } from "@/lib/client-api";
 import { formatBRL } from "@/domain/calculation/calculate";
 export function InquiryPanel() {
@@ -31,6 +37,7 @@ export function InquiryPanel() {
     stamp: string;
     review: InquiryReview;
   }>();
+  const [mergeLine, setMergeLine] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [recovery, setRecovery] = useState("");
@@ -58,6 +65,32 @@ export function InquiryPanel() {
       writeInquiry(next);
       setPrepared(undefined);
       setNotice("");
+    } catch (error) {
+      setNotice((error as Error).message);
+    }
+  }
+  function confirmLine(line: InquiryLine, index: number, combine = false) {
+    const original = items[index];
+    if (!original?.lineId) return;
+    const replacement = {
+      ...original,
+      answers: line.answers,
+      answerLabels: line.answerLabels,
+      commercialRevision: line.currentRevision ?? null,
+      seenPrice: line.configuredPrice ?? null,
+    };
+    if (
+      !combine &&
+      items.some(
+        (row, i) => i !== index && inquiryKey(row) === inquiryKey(replacement),
+      )
+    ) {
+      setMergeLine(original.lineId);
+      return;
+    }
+    try {
+      update(replaceInquiryItem(items, original.lineId, replacement));
+      setMergeLine(null);
     } catch (error) {
       setNotice((error as Error).message);
     }
@@ -237,25 +270,32 @@ export function InquiryPanel() {
                     <Button
                       type="button"
                       disabled={busy}
-                      onClick={() =>
-                        update(
-                          items.map((row, i) =>
-                            i === index
-                              ? {
-                                  ...row,
-                                  answers: line.answers,
-                                  answerLabels: line.answerLabels,
-                                  commercialRevision:
-                                    line.currentRevision ?? null,
-                                  seenPrice: line.configuredPrice ?? null,
-                                }
-                              : row,
-                          ),
-                        )
-                      }
+                      onClick={() => confirmLine(line, index)}
                     >
                       Confirmar atualização do item {index + 1}
                     </Button>
+                    {mergeLine === item.lineId && (
+                      <>
+                        <p>
+                          A configuração atualizada coincide com outra linha.
+                          Deseja somar as quantidades?
+                        </p>
+                        <Button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => confirmLine(line, index, true)}
+                        >
+                          Confirmar atualização e combinar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setMergeLine(null)}
+                        >
+                          Cancelar combinação
+                        </Button>
+                      </>
+                    )}
                   </Alert>
                 )}
                 <div className="store-inquiry-line-actions">

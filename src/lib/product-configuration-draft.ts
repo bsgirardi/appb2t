@@ -1,9 +1,28 @@
 "use client";
+import { z } from "zod";
+import { configurationAnswerSchema } from "@/domain/products/configuration";
 import {
   inquiryItemSchema,
   type InquiryInput,
 } from "@/domain/products/inquiry";
 import { byteLength, INQUIRY_MAX_BYTES } from "@/domain/products/inquiry-draft";
+// Incomplete form state is recoverable; commercial validation happens on save.
+const draftSchema = inquiryItemSchema
+  .omit({ quantity: true, answers: true })
+  .extend({
+    quantity: z.number().finite().nullable(),
+    answers: z
+      .array(
+        z
+          .object({
+            fieldId: configurationAnswerSchema.shape.fieldId,
+            value: z.string(),
+          })
+          .strict(),
+      )
+      .max(8)
+      .default([]),
+  });
 const memory = new Map<string, string>();
 const memoryOnly = new Set<string>();
 const key = (id: string) => `b2t:configuration:v1:${id}`;
@@ -19,13 +38,19 @@ export function readConfigurationDraft(id: string) {
   if (!raw) return null;
   try {
     if (byteLength(raw) > INQUIRY_MAX_BYTES) return null;
-    return inquiryItemSchema.parse(JSON.parse(raw));
+    const draft = draftSchema.parse(JSON.parse(raw));
+    return { ...draft, quantity: draft.quantity ?? Number.NaN };
   } catch {
     return null;
   }
 }
 export function writeConfigurationDraft(id: string, draft: InquiryInput) {
-  const raw = JSON.stringify(inquiryItemSchema.parse(draft));
+  const raw = JSON.stringify(
+    draftSchema.parse({
+      ...draft,
+      quantity: Number.isFinite(draft.quantity) ? draft.quantity : null,
+    }),
+  );
   if (byteLength(raw) > INQUIRY_MAX_BYTES)
     throw new Error("Rascunho muito grande.");
   memory.set(id, raw);

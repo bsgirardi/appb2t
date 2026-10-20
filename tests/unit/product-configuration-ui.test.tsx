@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { it, expect, beforeEach, afterEach } from "vitest";
+import { it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ProductContact } from "@/components/products/product-contact";
 import { productDTO } from "../fixtures/product";
@@ -145,4 +145,87 @@ it("retains the catalog filters used to choose the item", () => {
     order: "menor-preco",
     page: 2,
   });
+});
+it("requires clearing a color removed from all current options before saving", () => {
+  writeInquiry([
+    {
+      lineId: "removed-color",
+      productId: productDTO.id,
+      color: "Azul",
+      quantity: 1,
+    },
+  ]);
+  render(
+    <ProductContact
+      product={{ ...productDTO, colors: [] }}
+      phone=""
+      email=""
+      url="http://localhost/p"
+      editLineId="removed-color"
+    />,
+  );
+  const button = screen.getByRole("button", {
+    name: "Salvar configuração",
+  }) as HTMLButtonElement;
+  expect(button.disabled).toBe(true);
+  fireEvent.change(screen.getByLabelText("Cor"), { target: { value: "" } });
+  expect(button.disabled).toBe(false);
+  fireEvent.click(button);
+  expect(readInquiry()[0].color).toBe("");
+});
+it("warns when adding a product can only save the list in memory", () => {
+  render(
+    <ProductContact
+      product={productDTO}
+      phone=""
+      email=""
+      url="http://localhost/p"
+    />,
+  );
+  const original = Storage.prototype.setItem;
+  const spy = vi
+    .spyOn(Storage.prototype, "setItem")
+    .mockImplementation(function (this: Storage, key: string, value: string) {
+      if (key === "b2t:inquiry:v2") throw Error("quota");
+      return original.call(this, key, value);
+    });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
+  );
+  expect(screen.getByText(/Sua lista está apenas na memória/)).toBeTruthy();
+  spy.mockRestore();
+});
+it("associates an excessive pasted response with its field and focuses it", () => {
+  render(
+    <ProductContact
+      product={{
+        ...productDTO,
+        configuration: {
+          ...emptyProductConfiguration,
+          fields: [
+            {
+              id: "paste",
+              label: "Frase",
+              help: "",
+              required: true,
+              type: "SHORT_TEXT",
+              maxLength: 120,
+              effect: { kind: "NONE" },
+            },
+          ],
+        },
+      }}
+      phone=""
+      email=""
+      url="http://localhost/p"
+    />,
+  );
+  const input = screen.getByLabelText(/Frase/);
+  fireEvent.change(input, { target: { value: "x".repeat(501) } });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
+  );
+  expect(document.activeElement).toBe(input);
+  expect(input.getAttribute("aria-invalid")).toBe("true");
+  expect(readInquiry()).toEqual([]);
 });
