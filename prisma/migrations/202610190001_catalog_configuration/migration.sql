@@ -1,0 +1,2 @@
+ALTER TABLE "Product" ADD COLUMN "publicPriceMode" TEXT NOT NULL DEFAULT 'REFERENCE', ADD COLUMN "commercialRevision" INTEGER NOT NULL DEFAULT 1, ADD COLUMN "configuration" JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE "Product" ADD CONSTRAINT "Product_publicPriceMode_check" CHECK ("publicPriceMode" IN ('REFERENCE','CONSULT')), ADD CONSTRAINT "Product_commercialRevision_check" CHECK ("commercialRevision" > 0);

@@ -7,16 +7,22 @@ import { ProductCatalog } from "./product-catalog";
 export function StoreBanners({
   config,
   collections,
+  focal = false,
 }: {
   config: StorefrontConfig;
+  focal?: boolean;
   collections: PublicCollectionDTO[];
 }) {
-  const banners = config.banners.filter(
+  const valid = config.banners.filter(
     (b) => !b.collectionId || collections.some((c) => c.id === b.collectionId),
   );
+  const banners = focal ? valid.slice(0, 1) : valid.slice(1);
   if (!banners.length) return null;
   return (
-    <section className="store-banners" aria-label="Destaques da loja">
+    <section
+      className={focal ? "store-banners store-banners-focal" : "store-banners"}
+      aria-label="Destaques da loja"
+    >
       {banners.map((banner, index) => {
         const collection = collections.find(
           (c) => c.id === banner.collectionId,
@@ -27,7 +33,7 @@ export function StoreBanners({
             key={index}
           >
             <div>
-              <h2>{banner.title}</h2>
+              {focal ? <h1>{banner.title}</h1> : <h2>{banner.title}</h2>}
               {banner.text && <p>{banner.text}</p>}
               <Link
                 href={

@@ -46,7 +46,7 @@ it("requires exactly one of each section and caps banners and features", () => {
     }).success,
   ).toBe(false);
 });
-it("waits for required options and includes them with SKU in the contact message", () => {
+it("requires options before adding to the list and keeps selected variants in questions", () => {
   render(
     <ProductContact
       product={{
@@ -60,9 +60,21 @@ it("waits for required options and includes them with SKU in the contact message
       url="https://example.com/product"
     />,
   );
-  expect(screen.queryByRole("link")).toBeNull();
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Adicionar à lista de orçamento",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
   fireEvent.change(screen.getByLabelText("Cor"), { target: { value: "Azul" } });
-  expect(screen.queryByRole("link")).toBeNull();
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Adicionar à lista de orçamento",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
   fireEvent.change(screen.getByLabelText("Tamanho"), {
     target: { value: "Grande" },
   });

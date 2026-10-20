@@ -1,3 +1,4 @@
+import { productConfigurationSchema, priceModeSchema } from "./configuration";
 import { z } from "zod";
 import Decimal from "decimal.js";
 import {
@@ -25,6 +26,8 @@ export function parseFinalPrice(raw: string): string {
 export const productSchema = z
   .object({
     ...commercialShape,
+    configuration: productConfigurationSchema.optional(),
+    publicPriceMode: priceModeSchema.optional(),
     seoTitle: z.string().trim().max(70).optional(),
     seoDescription: z.string().trim().max(170).optional(),
     collectionIds: z

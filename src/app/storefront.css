@@ -709,3 +709,311 @@
     font-size: 28px;
   }
 }
+
+/* C1: the product photo is the focal point; choices remain readable beside it. */
+.store-product-experience {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+  margin: 24px 0 64px;
+}
+.store-product-visual,
+.store-product-choices {
+  min-width: 0;
+}
+.store-product-visual .product-carousel {
+  background: var(--card);
+  border-radius: 24px;
+  padding: clamp(12px, 2vw, 24px);
+}
+.store-product-choices h1 {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.15;
+  margin: 12px 0 20px;
+  overflow-wrap: anywhere;
+}
+.store-product-brand {
+  color: var(--muted);
+  font-size: 13px;
+}
+.store-commercial-notes {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0;
+  padding: 16px 0;
+  border-block: 1px solid var(--line);
+  font-size: 14px;
+}
+.store-commercial-notes p {
+  margin: 0;
+}
+.store-image-caption {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 12px 0 32px;
+}
+.store-product-story {
+  max-width: 68ch;
+  line-height: 1.8;
+}
+.store-product-story p,
+.store-answer {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.store-product-story h2 {
+  font-size: 24px;
+}
+.store-product-story h3 {
+  font-size: 18px;
+  margin-top: 24px;
+}
+.store-config-heading h2 {
+  font-size: 21px;
+  margin: 0 0 8px;
+}
+.store-config-heading p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.storefront .store-options,
+.store-configuration-fields {
+  display: grid;
+  gap: 16px;
+}
+.storefront .store-options .field {
+  margin: 0;
+  min-width: 0;
+}
+.storefront .store-options input,
+.storefront .store-options select,
+.storefront .store-options textarea {
+  min-height: 44px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.storefront .store-options small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.store-field-error {
+  color: var(--destructive);
+  font-size: 13px;
+}
+.store-config-price {
+  display: grid;
+  gap: 12px;
+  background: var(--store-accent);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
+.store-config-price > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.store-config-price > span:last-of-type strong {
+  font-size: 24px;
+}
+.store-config-back {
+  font-size: 14px;
+  padding: 12px 0;
+}
+.store-inquiry-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 32px;
+  margin: 24px 0 48px;
+  align-items: start;
+}
+.store-inquiry-lines {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.store-inquiry-line {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+.store-inquiry-line-header {
+  display: flex;
+  gap: 20px;
+}
+.store-inquiry-line-header > div {
+  min-width: 0;
+}
+.store-inquiry-line-header img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: white;
+  flex-shrink: 0;
+}
+.store-inquiry-line h2 {
+  font-size: 19px;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.store-inquiry-line p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 6px 0;
+}
+.store-inquiry-line-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 20px;
+}
+.store-inquiry-line-actions select {
+  width: 80px;
+  min-height: 44px;
+}
+.store-inquiry-summary {
+  background: var(--store-accent);
+  padding: 24px;
+  border-radius: 16px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.store-inquiry-summary h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.store-prepared {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.store-prepared textarea {
+  min-height: 240px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.configuration-editor {
+  display: grid;
+  gap: 16px;
+  padding: 20px 0;
+}
+.configuration-editor-field,
+.configuration-editor-option {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.configuration-editor-field legend,
+.configuration-editor-option legend {
+  padding: 0 8px;
+  font-weight: 600;
+}
+@media (min-width: 1024px) and (min-height: 900px) {
+  .store-inquiry-summary {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100dvh - 48px);
+    overflow: auto;
+  }
+}
+@media (max-width: 800px) {
+  .store-product-experience,
+  .store-inquiry-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .store-product-visual {
+    display: contents;
+  }
+  .store-product-visual .product-carousel {
+    order: 0;
+  }
+  .store-image-caption {
+    order: 1;
+    margin: 0;
+  }
+  .store-product-choices {
+    order: 2;
+  }
+  .store-product-story {
+    order: 3;
+  }
+  .store-inquiry-line-header {
+    gap: 12px;
+  }
+  .store-inquiry-line-header img {
+    width: 64px;
+    height: 64px;
+  }
+  .store-inquiry-summary {
+    padding: 20px;
+  }
+  .store-config-action {
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+    background: var(--paper);
+    z-index: 2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .store-product-experience *,
+  .store-inquiry-layout * {
+    scroll-behavior: auto;
+    transition: none;
+    animation: none;
+  }
+}
+.store-personalizable {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.store-price-nature {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.store-banners-focal {
+  display: block;
+  margin: 24px 0 40px;
+}
+.store-banners-focal .store-banner {
+  min-height: 360px;
+  border-radius: 24px;
+  padding: clamp(24px, 4vw, 56px);
+  gap: 40px;
+}
+.store-banners-focal h1 {
+  font-size: clamp(32px, 4.5vw, 60px);
+  line-height: 1.12;
+  max-width: 14ch;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
+.store-banners-focal img {
+  max-height: 440px;
+  width: 100%;
+  object-fit: contain;
+}
+@media (max-width: 800px) {
+  .store-banners-focal .store-banner {
+    min-height: 0;
+    padding: 24px;
+    gap: 24px;
+  }
+}

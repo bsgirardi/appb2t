@@ -37,7 +37,14 @@ it("uses current prices, preserves variants and prepares one contact without cre
     { productId: product.id, color: "Azul", size: "P", quantity: 3 },
     { productId: product.id, color: "Branco", size: "P", quantity: 2 },
   ];
-  const first = await reviewInquiry({ items });
+  const firstReview = await reviewInquiry({ items });
+  expect(firstReview.ready).toBe(false);
+  const confirmed = firstReview.lines.map((l) => ({
+    ...items[firstReview.lines.indexOf(l)],
+    commercialRevision: l.currentRevision,
+    seenPrice: l.configuredPrice,
+  }));
+  const first = await reviewInquiry({ items: confirmed });
   expect(first).toMatchObject({
     total: "0.50",
     ready: true,
@@ -127,4 +134,49 @@ it("validates the public endpoint boundary and rejects client-supplied prices", 
   expect(
     (await POST(request({ items: [{ productId: "x", quantity: -1 }] }))).status,
   ).toBe(422);
+});
+it("accepts bounded configured payloads above the old 16KiB cap and rejects oversized streaming requests", async () => {
+  const body = {
+    items: Array.from({ length: 20 }, (_, i) => ({
+      lineId: `l${i}`,
+      productId: `missing-${i}`,
+      quantity: 1,
+      answerLabels: Array.from({ length: 8 }, (_, j) => ({
+        fieldId: `f${j}`,
+        label: "Resposta antiga",
+        valueLabel: "á".repeat(500),
+      })),
+    })),
+  };
+  const request = new Request("http://localhost:3000/api/portfolio/inquiry", {
+    method: "POST",
+    headers: {
+      origin: "http://localhost:3000",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  expect((await POST(request)).status).toBe(200);
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(
+        new TextEncoder().encode(
+          JSON.stringify({ padding: "x".repeat(262145) }),
+        ),
+      );
+      controller.close();
+    },
+  });
+  const oversized = new Request("http://localhost:3000/api/portfolio/inquiry", {
+    method: "POST",
+    headers: {
+      origin: "http://localhost:3000",
+      "content-type": "application/json",
+    },
+    body: stream,
+    duplex: "half",
+  } as RequestInit & { duplex: "half" });
+  const response = await POST(oversized);
+  expect(response.status).toBe(422);
+  expect((await response.json()).error.message).toContain("muito grande");
 });

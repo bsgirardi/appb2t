@@ -12,7 +12,7 @@ import type { InquiryReview } from "@/domain/products/inquiry";
 import { InquiryPanel } from "@/components/products/inquiry-panel";
 import { InquiryLink } from "@/components/products/inquiry-link";
 import { ProductContact } from "@/components/products/product-contact";
-import { writeInquiry } from "@/lib/inquiry-store";
+import { readInquiry, writeInquiry } from "@/lib/inquiry-store";
 import { api } from "@/lib/client-api";
 import { productDTO } from "../fixtures/product";
 vi.mock("@/lib/client-api", () => ({ api: vi.fn() }));
@@ -27,6 +27,10 @@ const review: InquiryReview = {
   lines: [
     {
       ...item,
+      answers: [],
+      commercialRevision: null,
+      seenPrice: null,
+      answerLabels: [],
       name: "Vaso",
       sku: "V1",
       path: "/portfolio/produto/p/vaso",
@@ -85,9 +89,9 @@ it("adds selected options, updates the header and persists only identifiers and 
     screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
   );
   expect(screen.getByRole("link", { name: "Minha lista (2)" })).toBeTruthy();
-  expect(JSON.parse(localStorage.getItem("b2t:inquiry:v1")!)).toEqual([
-    { ...item, productId: productDTO.id, quantity: 2 },
-  ]);
+  expect(
+    JSON.parse(localStorage.getItem("b2t:inquiry:v2")!).items,
+  ).toMatchObject([{ ...item, productId: productDTO.id, quantity: 2 }]);
 });
 it("rechecks before contact and invalidates prepared contact when quantity changes", async () => {
   writeInquiry([item]);
@@ -113,9 +117,77 @@ it("keeps the list after network failure and allows retry", async () => {
     .mockResolvedValue(review);
   render(<InquiryPanel />);
   await screen.findByText(/Sem conexão/);
-  expect(localStorage.getItem("b2t:inquiry:v1")).toContain('"quantity":1');
+  expect(localStorage.getItem("b2t:inquiry:v2")).toContain('"quantity":1');
   fireEvent.click(
     screen.getByRole("button", { name: "Conferir e preparar contato" }),
   );
   await screen.findByRole("link", { name: "Abrir WhatsApp ↗" });
+});
+it("does not release contact from a review that arrived after an edit", async () => {
+  writeInquiry([item]);
+  let resolveOld!: (value: InquiryReview) => void;
+  const old = new Promise<InquiryReview>((resolve) => {
+    resolveOld = resolve;
+  });
+  vi.mocked(api)
+    .mockResolvedValueOnce(review)
+    .mockReturnValueOnce(old)
+    .mockResolvedValue(review);
+  render(<InquiryPanel />);
+  await screen.findByText("Vaso");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Conferir e preparar contato" }),
+  );
+  writeInquiry([{ ...item, quantity: 2 }]);
+  resolveOld(review);
+  await waitFor(() =>
+    expect(screen.queryByRole("link", { name: "Abrir WhatsApp ↗" })).toBeNull(),
+  );
+});
+it("explicitly combines a confirmed revision that now matches another saved line", async () => {
+  const rows = [
+    {
+      ...item,
+      lineId: "old",
+      commercialRevision: 1,
+      seenPrice: { kind: "REFERENCE" as const, unit: "9.00", subtotal: "9.00" },
+    },
+    {
+      ...item,
+      lineId: "current",
+      commercialRevision: 2,
+      seenPrice: {
+        kind: "REFERENCE" as const,
+        unit: "10.00",
+        subtotal: "10.00",
+      },
+    },
+  ];
+  writeInquiry(rows);
+  vi.mocked(api).mockResolvedValue({
+    ...review,
+    ready: false,
+    lines: rows.map((row) => ({
+      ...review.lines[0],
+      ...row,
+      answers: [],
+      answerLabels: [],
+      currentRevision: 2,
+      configuredPrice: { kind: "REFERENCE", unit: "10.00", subtotal: "10.00" },
+      requiresConfirmation: row.lineId === "old",
+    })),
+  });
+  render(<InquiryPanel />);
+  await screen.findByRole("button", {
+    name: "Confirmar atualização do item 1",
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Confirmar atualização do item 1" }),
+  );
+  expect(readInquiry()).toHaveLength(2);
+  fireEvent.click(
+    screen.getByRole("button", { name: "Confirmar atualização e combinar" }),
+  );
+  expect(readInquiry()).toHaveLength(1);
+  expect(readInquiry()[0]).toMatchObject({ lineId: "current", quantity: 2 });
 });

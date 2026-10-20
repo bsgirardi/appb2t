@@ -6,15 +6,26 @@ import type { ProductImageDTO } from "@/domain/products/types";
 export function ProductCarousel({
   name,
   images,
+  selectedImageId,
+  onImageChange,
 }: {
   name: string;
   images: ProductImageDTO[];
+  selectedImageId?: string;
+  onImageChange?: (id: string) => void;
 }) {
   const [index, setIndex] = useState(0);
   const touch = useRef<{ x: number; y: number } | null>(null);
-  const current = Math.min(index, images.length - 1);
+  const selected = images.findIndex((i) => i.id === selectedImageId);
+  const current = selectedImageId
+    ? Math.max(0, selected)
+    : Math.min(index, images.length - 1);
+  const choose = (photo: number) => {
+    setIndex(photo);
+    if (images[photo]) onImageChange?.(images[photo].id);
+  };
   const next = (direction: number) =>
-    setIndex((i) => (i + direction + images.length) % images.length);
+    choose((current + direction + images.length) % images.length);
   if (!images.length) return null;
   return (
     <div
@@ -70,7 +81,7 @@ export function ProductCarousel({
                 type="button"
                 aria-label={`Ver foto ${photo + 1} de ${name}`}
                 aria-pressed={current === photo}
-                onClick={() => setIndex(photo)}
+                onClick={() => choose(photo)}
                 className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 border-solid bg-white p-1 ${current === photo ? "border-primary" : "border-border"}`}
               >
                 <Image

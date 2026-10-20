@@ -87,6 +87,9 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  publicPriceMode String @default("REFERENCE")
+  commercialRevision Int @default(1)
+  configuration Json @default("{}")
   finishedStock FinishedStock?
   productionLines ProductionLine[]
   sku String? @unique

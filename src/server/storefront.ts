@@ -1,46 +1,14 @@
+import {
+  publicProductSelect as select,
+  toPublicProduct as present,
+} from "./product-public";
 import { cache } from "react";
 import type { Metadata } from "next";
-import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { appUrl } from "@/lib/env";
 import { productPath, summary } from "@/domain/products/storefront";
 import type { PublicProductDTO } from "@/domain/products/types";
-import type { Availability } from "@/domain/products/commercial";
 
-const select = {
-  sku: true,
-  shortDescription: true,
-  specifications: true,
-  colors: true,
-  sizes: true,
-  availability: true,
-  leadTimeDays: true,
-  id: true,
-  name: true,
-  description: true,
-  paymentTerms: true,
-  price: true,
-  seoTitle: true,
-  seoDescription: true,
-  images: {
-    select: { id: true, position: true },
-    orderBy: { position: "asc" as const },
-  },
-} as const;
-type Row = Prisma.ProductGetPayload<{ select: typeof select }>;
-function present(row: Row): PublicProductDTO {
-  return {
-    ...row,
-    sku: row.sku ?? "",
-    availability: row.availability as Availability,
-    price: row.price.toFixed(2),
-    imageUrl: `/api/products/${row.id}/image`,
-    images: row.images.map((image) => ({
-      ...image,
-      url: `/api/products/${row.id}/images/${image.id}`,
-    })),
-  };
-}
 export const publicProduct = cache(async (id: string) => {
   const row = await db.product.findFirst({
     where: { id, active: true },
@@ -92,6 +60,49 @@ export async function catalogPage(
         }
       : {}),
   };
+  if (order === "menor-preco" || order === "maior-preco") {
+    return db.$transaction(
+      async (tx) => {
+        const referenceWhere = { ...where, publicPriceMode: "REFERENCE" };
+        const consultWhere = { ...where, publicPriceMode: "CONSULT" };
+        const [references, total] = await Promise.all([
+          tx.product.count({ where: referenceWhere }),
+          tx.product.count({ where }),
+        ]);
+        const offset = (page - 1) * 12;
+        const knownTake = Math.max(0, Math.min(12, references - offset));
+        const known = knownTake
+          ? await tx.product.findMany({
+              where: referenceWhere,
+              select,
+              orderBy: [
+                { price: order === "menor-preco" ? "asc" : "desc" },
+                { name: "asc" },
+                { id: "asc" },
+              ],
+              skip: offset,
+              take: knownTake,
+            })
+          : [];
+        const consulted =
+          knownTake < 12
+            ? await tx.product.findMany({
+                where: consultWhere,
+                select,
+                orderBy: [{ name: "asc" }, { id: "asc" }],
+                skip: Math.max(0, offset - references),
+                take: 12 - knownTake,
+              })
+            : [];
+        return {
+          products: [...known, ...consulted].map(present),
+          total,
+          pages: Math.ceil(total / 12),
+        };
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
   const orderBy =
     order === "menor-preco"
       ? [{ price: "asc" as const }, { id: "asc" as const }]
