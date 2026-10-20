@@ -9,7 +9,7 @@ import {
   attemptKeySchema,
 } from "@/domain/catalog-requests/validation";
 import { canonicalSubmission } from "@/domain/catalog-requests/identity";
-import { consumeRequestQuota } from "./rate-limit";
+import { consumeRequestQuotaWithClient } from "./rate-limit";
 import { buildRequestSnapshot } from "./snapshot";
 export const requestHash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
@@ -37,7 +37,7 @@ export async function receiveCatalogRequest(
   const submission = parseCatalogSubmission(raw);
   const attemptHash = requestHash(submission.attemptKey);
   const contentHash = requestHash(canonicalSubmission(submission));
-  return db.$transaction(
+  const outcome = await db.$transaction(
     async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${attemptHash}, 0))`;
       const existing = await tx.catalogRequest.findUnique({
@@ -49,11 +49,19 @@ export async function receiveCatalogRequest(
             "CONFLICT",
             "Esta tentativa já foi recebida com outro conteúdo. Verifique o recibo anterior.",
           );
-        return receiptOf(existing);
+        return { receipt: receiptOf(existing) };
       }
-      // Separate committed debit survives a later commercial validation rejection.
-      await consumeRequestQuota(browserId);
-      const snapshot = await buildRequestSnapshot(tx, submission);
+      await consumeRequestQuotaWithClient(tx, browserId);
+      let snapshot;
+      try {
+        snapshot = await buildRequestSnapshot(tx, submission);
+      } catch (error) {
+        // Commit the debit for a rejected offer without creating a request.
+        // Throw outside this transaction so intake never needs a second connection.
+        if (error instanceof AppError && error.code === "CONFLICT")
+          return { rejection: error };
+        throw error;
+      }
       const row = await tx.catalogRequest.create({
         data: {
           attemptHash,
@@ -76,8 +84,10 @@ export async function receiveCatalogRequest(
           events: { create: { action: "RECEIVED", actorName: "Visitante" } },
         },
       });
-      return receiptOf(row);
+      return { receipt: receiptOf(row) };
     },
     { timeout: 20000 },
   );
+  if (outcome.rejection) throw outcome.rejection;
+  return outcome.receipt!;
 }

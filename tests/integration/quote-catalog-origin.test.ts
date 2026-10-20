@@ -1,4 +1,12 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+import { tokenHash } from "@/server/auth/session";
+const session = vi.hoisted(() => ({ token: undefined as string | undefined }));
+vi.mock("next/headers", () => ({
+  cookies: async () => ({
+    get: () => (session.token ? { value: session.token } : undefined),
+  }),
+}));
+import { PUT } from "@/app/api/quotes/[id]/route";
 import { db } from "@/lib/db";
 import { setupDatabase, seedUser } from "./setup";
 import { saveCustomer } from "@/server/customers";
@@ -136,4 +144,81 @@ it("allows an explicit duplicate to keep its existing origin with a fresh line i
   expect(saved.input.items![2].catalogOrigin).toEqual(
     first.input.items![0].catalogOrigin,
   );
+});
+it("saves a large received quote and explicit duplicates through the authenticated editor boundary", async () => {
+  const { actor, input } = await fixture();
+  const items = Array.from({ length: 20 }, (_, i) => {
+    const metadata = origin(`source-${i}`);
+    metadata.snapshot.answers = Array.from({ length: 8 }, (_, j) => ({
+      fieldId: `f${j}`,
+      value: "a".repeat(500),
+    }));
+    metadata.snapshot.answerLabels = metadata.snapshot.answers.map(
+      (answer) => ({
+        fieldId: answer.fieldId,
+        label: "Campo",
+        valueLabel: "a".repeat(1000),
+      }),
+    );
+    metadata.snapshot.paymentTerms = "p".repeat(2000);
+    return {
+      ...input.items[0],
+      lineId: `source-${i}`,
+      description: "Descrição revista ".repeat(50),
+      catalogOrigin: metadata,
+    };
+  });
+  const first = await db.$transaction((tx) =>
+    saveQuoteWithClient(tx, actor, undefined, { ...input, items }),
+  );
+  session.token = "c".repeat(64);
+  await db.session.create({
+    data: {
+      tokenHash: tokenHash(session.token),
+      userId: actor.id,
+      expiresAt: new Date(Date.now() + 60000),
+    },
+  });
+  const edited = {
+    ...first.input,
+    expectedVersion: first.version,
+    items: Array.from({ length: 100 }, (_, i) => ({
+      ...first.input.items![i % 20],
+      lineId: `edit-${i}`,
+      unitPrice: "12.00",
+    })),
+  };
+  const body = JSON.stringify(edited);
+  expect(Buffer.byteLength(body)).toBeGreaterThan(262144);
+  expect(Buffer.byteLength(body)).toBeLessThan(16 * 1024 * 1024);
+  const response = await PUT(
+    new Request(`http://localhost:3000/api/quotes/${first.id}`, {
+      method: "PUT",
+      headers: {
+        origin: "http://localhost:3000",
+        "content-type": "application/json",
+      },
+      body,
+    }),
+    { params: Promise.resolve({ id: first.id }) },
+  );
+  expect(response.status).toBe(200);
+  const saved = (await response.json()).data;
+  expect(saved.input.items).toHaveLength(100);
+  expect(saved.input.items[99].catalogOrigin).toEqual(
+    first.input.items![19].catalogOrigin,
+  );
+  const oversized = await PUT(
+    new Request(`http://localhost:3000/api/quotes/${first.id}`, {
+      method: "PUT",
+      headers: {
+        origin: "http://localhost:3000",
+        "content-type": "application/json",
+        "content-length": String(16 * 1024 * 1024 + 1),
+      },
+      body: "{}",
+    }),
+    { params: Promise.resolve({ id: first.id }) },
+  );
+  expect(oversized.status).toBe(422);
 });

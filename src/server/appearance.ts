@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 import { storefrontSchema } from "@/domain/appearance/storefront";
 import { AppError, conflict } from "@/lib/errors";
@@ -31,8 +32,10 @@ const publicSelect = {
   darkPrimary: true,
   darkAccent: true,
 } as const;
-export async function getPublicAppearance(): Promise<PublicAppearanceDTO> {
-  const row = await db.companyAppearance.findUnique({
+export async function getPublicAppearance(
+  tx: Prisma.TransactionClient = db,
+): Promise<PublicAppearanceDTO> {
+  const row = await tx.companyAppearance.findUnique({
     where: { id: 1 },
     select: { ...publicSelect, logo: { select: { cacheKey: true } } },
   });

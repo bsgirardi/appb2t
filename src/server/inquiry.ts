@@ -46,7 +46,7 @@ export async function reviewInquiryWithClient(
         commercialRevision: true,
       },
     }),
-    getPublicAppearance(),
+    getPublicAppearance(tx),
   ]);
   const lines: InquiryLine[] = items.map((item) => {
     const product = products.find((p) => p.id === item.productId);

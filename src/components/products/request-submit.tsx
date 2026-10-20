@@ -29,10 +29,12 @@ export function RequestSubmit({
   items,
   review,
   onClearSubmitted,
+  onReviewRequired,
 }: {
   items: InquiryItem[];
   review?: InquiryReview;
   onClearSubmitted: (submitted: InquiryItem[]) => void;
+  onReviewRequired?: () => void;
 }) {
   const recovery = useRequestAttempt();
   const corrupt = recovery === "corrupt";
@@ -85,6 +87,7 @@ export function RequestSubmit({
           }
           setRejected(true);
           setNotice(error.message);
+          onReviewRequired?.();
           return;
         } catch {
           /* An uncertain response must retain the original attempt. */

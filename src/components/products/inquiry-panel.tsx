@@ -102,6 +102,7 @@ export function InquiryPanel() {
     if (busy) return;
     setBusy(true);
     setPrepared(undefined);
+    setResult(undefined);
     setNotice("");
     try {
       const fresh = await api<InquiryReview>("/api/portfolio/inquiry", {
@@ -177,6 +178,7 @@ export function InquiryPanel() {
         <RequestSubmit
           items={items}
           review={review}
+          onReviewRequired={prepare}
           onClearSubmitted={(sent) =>
             update(clearSubmittedLines(readInquiry(), sent))
           }
@@ -396,6 +398,7 @@ export function InquiryPanel() {
           <RequestSubmit
             items={items}
             review={review}
+            onReviewRequired={prepare}
             onClearSubmitted={(sent) =>
               update(clearSubmittedLines(readInquiry(), sent))
             }

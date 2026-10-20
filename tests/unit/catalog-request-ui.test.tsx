@@ -8,6 +8,9 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { RequestSubmit } from "@/components/products/request-submit";
+import { InquiryPanel } from "@/components/products/inquiry-panel";
+import { writeInquiry } from "@/lib/inquiry-store";
+import type { InquiryReview } from "@/domain/products/inquiry";
 import { api, ApiError } from "@/lib/client-api";
 import {
   discardRequestAttempt,
@@ -137,4 +140,68 @@ it("explains rate limiting without discarding the recoverable attempt", async ()
   fireEvent.click(screen.getByRole("button", { name: "Enviar solicitação" }));
   await screen.findByText(/Muitas tentativas. Aguarde/);
   expect(readRequestAttempt()?.kind).toBe("pending");
+});
+it("refreshes a rejected offer and requires its confirmation while retaining contact", async () => {
+  const selected = { ...items[0], lineId: "selected" };
+  writeInquiry([selected]);
+  const initial: InquiryReview = {
+    ...review,
+    lines: [
+      {
+        ...selected,
+        name: "Peça",
+        sku: "",
+        path: null,
+        imageUrl: null,
+        price: "10.00",
+        subtotal: "10.00",
+        problem: null,
+      },
+    ],
+  };
+  let changed = false;
+  vi.mocked(api).mockImplementation(async (url) => {
+    if (url === "/api/portfolio/inquiry")
+      return changed
+        ? {
+            ...initial,
+            ready: false,
+            lines: initial.lines.map((line) => ({
+              ...line,
+              price: "12.00",
+              requiresConfirmation: true,
+              currentRevision: 2,
+              configuredPrice: {
+                kind: "REFERENCE",
+                unit: "12.00",
+                subtotal: "12.00",
+              },
+            })),
+          }
+        : initial;
+    if (url === "/api/portfolio/requests/browser") return {};
+    if (url === "/api/portfolio/requests/receipt") return null;
+    throw new ApiError("A seleção mudou.", "CONFLICT");
+  });
+  render(<InquiryPanel />);
+  await screen.findByText("Peça");
+  fill();
+  changed = true;
+  fireEvent.click(screen.getByRole("button", { name: "Enviar solicitação" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Revisar seleção e contato" }),
+  );
+  await screen.findByRole("button", {
+    name: "Confirmar atualização do item 1",
+  });
+  expect((screen.getByLabelText("Seu nome") as HTMLInputElement).value).toBe(
+    "Ana Silva",
+  );
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Enviar solicitação",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
 });

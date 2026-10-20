@@ -40,12 +40,22 @@ export async function buildRequestSnapshot(
       paymentTerms: true,
     },
   });
+  const occupied = new Set(
+    review.lines.flatMap((line) => (line.lineId ? [line.lineId] : [])),
+  );
   const lines = review.lines.map((line, index): CatalogLineSnapshot => {
+    let lineId = line.lineId;
+    if (!lineId) {
+      let suffix = index;
+      while (occupied.has(`line-${suffix}`)) suffix++;
+      lineId = `line-${suffix}`;
+      occupied.add(lineId);
+    }
     const product = products.find((p) => p.id === line.productId)!;
     const definition = readProductConfiguration(product.configuration);
     return {
       schemaVersion: 1,
-      lineId: line.lineId ?? `line-${index}`,
+      lineId,
       productId: line.productId,
       commercialRevision: line.currentRevision!,
       name: line.name,

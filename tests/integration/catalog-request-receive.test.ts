@@ -126,6 +126,20 @@ it("receives consultation without exposing internal price or a false total", asy
     "75.00",
   );
 });
+it("allocates missing source identities without colliding with supplied identities", async () => {
+  const { payload, browserId } = await fixture();
+  const items = payload.items.map((item, index) => {
+    const rest = { ...item, lineId: undefined };
+    return index === 0 ? { ...rest, lineId: "line-1" } : rest;
+  });
+  await receiveCatalogRequest({ ...payload, items }, browserId);
+  const lines = await db.catalogRequestLine.findMany({
+    orderBy: { position: "asc" },
+  });
+  const ids = lines.map((line) => (line.snapshot as { lineId: string }).lineId);
+  expect(ids[0]).toBe("line-1");
+  expect(new Set(ids).size).toBe(2);
+});
 it("rejects changed offers without partial receipt but retains quota debit", async () => {
   const { payload, browserId, product } = await fixture();
   await db.product.update({
