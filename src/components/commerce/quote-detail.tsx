@@ -16,6 +16,7 @@ import { Notice } from "@/components/ui/field";
 import { QuoteForm } from "./quote-form";
 import { DocumentPrint } from "./document-print";
 import type { CommercialProduct } from "./document-items";
+import { CatalogOrigins } from "./catalog-origin";
 export function QuoteDetail({
   initial,
   customers,
@@ -60,6 +61,9 @@ export function QuoteDetail({
     <div className="commerce-page">
       <Link href="/orcamentos">← Orçamentos</Link>
       <h1>{quote.number}</h1>
+      <CatalogOrigins
+        items={quote.snapshot?.items ?? quote.input.items ?? []}
+      />
       <p>
         Estado: <strong>{quote.status}</strong>
       </p>

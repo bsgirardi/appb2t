@@ -33,6 +33,11 @@ import type {
 import { paginationSchema, type Page } from "@/domain/shared/pagination";
 import { createDocumentSnapshot } from "./commerce/snapshots";
 import { quoteEvent } from "./commerce/audit";
+import { catalogLineOriginSchema } from "@/domain/catalog-requests/snapshot";
+const saveQuoteSchema = quoteDraftSchema.extend({
+  expectedVersion: z.number().int().positive().optional(),
+  costBindings: costBindingsSchema.optional(),
+});
 type Row = Prisma.QuoteGetPayload<{
   include: { events: true; sale: { select: { id: true } } };
 }>;
@@ -94,81 +99,115 @@ export async function saveQuote(
   id: string | undefined,
   raw: unknown,
 ): Promise<QuoteDTO> {
-  const parsed = quoteDraftSchema
-    .extend({
-      expectedVersion: z.number().int().positive().optional(),
-      costBindings: costBindingsSchema.optional(),
-    })
-    .parse(raw);
+  if (
+    !id &&
+    saveQuoteSchema.parse(raw).items?.some((item) => item.catalogOrigin)
+  )
+    throw new AppError(
+      "VALIDATION",
+      "Prepare a origem pelo atendimento da solicitação.",
+    );
+  return db.$transaction((tx) => saveQuoteWithClient(tx, actor, id, raw));
+}
+export async function saveQuoteWithClient(
+  tx: Prisma.TransactionClient,
+  actor: Actor,
+  id: string | undefined,
+  raw: unknown,
+): Promise<QuoteDTO> {
+  const parsed = saveQuoteSchema.parse(raw);
   const { expectedVersion, costBindings, ...input } = parsed;
-  return db.$transaction(async (tx) => {
-    let previousRevisionId: string | null = null;
-    if (id) {
-      await lock(tx, id);
-      const old = await row(tx, id);
-      previousRevisionId = old.costRevisionId;
-      if (old.version !== expectedVersion) throw conflict();
-      if (old.status !== "RASCUNHO")
-        throw new AppError("CONFLICT", "Reabra o orçamento antes de editar.");
+  let previousRevisionId: string | null = null;
+  if (id) {
+    await lock(tx, id);
+    const old = await row(tx, id);
+    previousRevisionId = old.costRevisionId;
+    if (old.version !== expectedVersion) throw conflict();
+    if (old.status !== "RASCUNHO")
+      throw new AppError("CONFLICT", "Reabra o orçamento antes de editar.");
+    const origins = new Map(
+      (old.input as QuoteDraftInput).items?.map((item) => [
+        item.lineId,
+        item.catalogOrigin,
+      ]) ?? [],
+    );
+    for (const item of input.items ?? []) {
+      const original = origins.get(item.lineId);
+      if (item.catalogOrigin) {
+        const incoming = JSON.stringify(item.catalogOrigin);
+        const same = original
+          ? incoming === JSON.stringify(catalogLineOriginSchema.parse(original))
+          : !origins.has(item.lineId) &&
+            [...origins.values()].some(
+              (value) =>
+                value &&
+                incoming ===
+                  JSON.stringify(catalogLineOriginSchema.parse(value)),
+            );
+        if (!same)
+          throw new AppError(
+            "VALIDATION",
+            "A origem recebida não pode ser substituída.",
+          );
+      }
+      if (original) item.catalogOrigin = original;
     }
-    const previous = await readDocumentCosts(
-      tx,
-      { quoteId: id ?? "" },
-      previousRevisionId,
+  }
+  const previous = await readDocumentCosts(
+    tx,
+    { quoteId: id ?? "" },
+    previousRevisionId,
+  );
+  if (input.items)
+    input.items = prepareLineItems(input.items, !!previous?.bindings.length);
+  else if (previous?.bindings.length && costBindings?.length !== 0)
+    throw new AppError(
+      "CONFLICT",
+      "Atualize o documento para preservar os itens e suas estimativas.",
     );
-    if (input.items)
-      input.items = prepareLineItems(input.items, !!previous?.bindings.length);
-    else if (previous?.bindings.length && costBindings?.length !== 0)
-      throw new AppError(
-        "CONFLICT",
-        "Atualize o documento para preservar os itens e suas estimativas.",
-      );
-    if (
-      input.customerId &&
-      !(await tx.customer.findFirst({
-        where: { id: input.customerId, active: true },
-      }))
-    )
-      throw new AppError("VALIDATION", "Selecione um cliente ativo.");
-    const totals =
-      input.items &&
-      input.discount !== undefined &&
-      input.shipping !== undefined
-        ? calculateDocumentTotals(input.items, input.discount, input.shipping)
-        : null;
-    const data = {
-      input: input as Prisma.InputJsonValue,
-      customerId: input.customerId ?? null,
-      validUntil: input.validUntil ? civilDateToDb(input.validUntil) : null,
-      totals: totals ? { ...totals } : Prisma.DbNull,
-    };
-    const q = id
-      ? await tx.quote.update({
-          where: { id },
-          data: { ...data, version: { increment: 1 } },
-        })
-      : await tx.quote.create({ data });
-    await tx.quoteItem.deleteMany({ where: { quoteId: q.id } });
-    if (input.items)
-      await tx.quoteItem.createMany({
-        data: input.items.map((i, position) => ({
-          ...itemColumns(i, position),
-          quoteId: q.id,
-          position,
-        })),
-      });
-    const costRevisionId = await saveDocumentCosts(
-      tx,
-      actor,
-      { quoteId: q.id },
-      input.items ?? [],
-      costBindings,
-      previousRevisionId,
-    );
-    await tx.quote.update({ where: { id: q.id }, data: { costRevisionId } });
-    await quoteEvent(tx, actor, q.id, id ? "EDIT" : "CREATE");
-    return dto(await row(tx, q.id), tx);
-  });
+  if (
+    input.customerId &&
+    !(await tx.customer.findFirst({
+      where: { id: input.customerId, active: true },
+    }))
+  )
+    throw new AppError("VALIDATION", "Selecione um cliente ativo.");
+  const totals =
+    input.items && input.discount !== undefined && input.shipping !== undefined
+      ? calculateDocumentTotals(input.items, input.discount, input.shipping)
+      : null;
+  const data = {
+    input: input as Prisma.InputJsonValue,
+    customerId: input.customerId ?? null,
+    validUntil: input.validUntil ? civilDateToDb(input.validUntil) : null,
+    totals: totals ? { ...totals } : Prisma.DbNull,
+  };
+  const q = id
+    ? await tx.quote.update({
+        where: { id },
+        data: { ...data, version: { increment: 1 } },
+      })
+    : await tx.quote.create({ data });
+  await tx.quoteItem.deleteMany({ where: { quoteId: q.id } });
+  if (input.items)
+    await tx.quoteItem.createMany({
+      data: input.items.map((i, position) => ({
+        ...itemColumns(i, position),
+        quoteId: q.id,
+        position,
+      })),
+    });
+  const costRevisionId = await saveDocumentCosts(
+    tx,
+    actor,
+    { quoteId: q.id },
+    input.items ?? [],
+    costBindings,
+    previousRevisionId,
+  );
+  await tx.quote.update({ where: { id: q.id }, data: { costRevisionId } });
+  await quoteEvent(tx, actor, q.id, id ? "EDIT" : "CREATE");
+  return dto(await row(tx, q.id), tx);
 }
 export async function transitionQuote(
   actor: Actor,
