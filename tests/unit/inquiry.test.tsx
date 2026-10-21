@@ -90,7 +90,7 @@ it("adds selected options, updates the header and persists only identifiers and 
   );
   expect(screen.getByRole("link", { name: "Minha lista (2)" })).toBeTruthy();
   expect(
-    JSON.parse(localStorage.getItem("b2t:inquiry:v2")!).items,
+    JSON.parse(localStorage.getItem("b2t:inquiry:v3")!).selection.items,
   ).toMatchObject([{ ...item, productId: productDTO.id, quantity: 2 }]);
 });
 it("rechecks before contact and invalidates prepared contact when quantity changes", async () => {
@@ -119,7 +119,7 @@ it("keeps the list after network failure and allows retry", async () => {
     .mockResolvedValue(review);
   render(<InquiryPanel />);
   await screen.findByText(/Sem conexão/);
-  expect(localStorage.getItem("b2t:inquiry:v2")).toContain('"quantity":1');
+  expect(localStorage.getItem("b2t:inquiry:v3")).toContain('"quantity":1');
   fireEvent.click(
     screen.getByRole("button", { name: "Conferir e preparar contato" }),
   );

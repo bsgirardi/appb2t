@@ -245,7 +245,7 @@ it("warns when adding a product can only save the list in memory", () => {
   const spy = vi
     .spyOn(Storage.prototype, "setItem")
     .mockImplementation(function (this: Storage, key: string, value: string) {
-      if (key === "b2t:inquiry:v2") throw Error("quota");
+      if (key === "b2t:inquiry:v3") throw Error("quota");
       return original.call(this, key, value);
     });
   fireEvent.click(

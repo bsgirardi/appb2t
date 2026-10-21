@@ -11,6 +11,8 @@ import type {
   CatalogSubmission,
 } from "@/domain/catalog-requests/types";
 import type { InquiryItem } from "@/domain/products/inquiry";
+import { parseKitSelection } from "@/domain/kits/selection";
+import type { KitSelection } from "@/domain/kits/types";
 export type PendingAttempt = {
   kind: "pending";
   payload: CatalogSubmission;
@@ -33,7 +35,7 @@ function subscribe(listener: () => void) {
 }
 function snapshot() {
   try {
-    return readRequestAttempt();
+    return readStoredRequestAttempt();
   } catch {
     return "corrupt" as const;
   }
@@ -63,7 +65,7 @@ const schema = z.discriminatedUnion("kind", [
     })
     .strict(),
 ]);
-export function readRequestAttempt(): PendingAttempt | ConfirmedAttempt | null {
+function readStoredRequestAttempt(): PendingAttempt | ConfirmedAttempt | null {
   if (memory !== undefined) return memory;
   let raw: string | null;
   try {
@@ -88,6 +90,10 @@ export function readRequestAttempt(): PendingAttempt | ConfirmedAttempt | null {
   memory = parsed.data;
   return memory;
 }
+export function readRequestAttempt(): PendingAttempt | ConfirmedAttempt | null {
+  const stored = readStoredRequestAttempt();
+  return stored ? structuredClone(stored) : null;
+}
 export function createRequestAttempt(
   input: Omit<CatalogSubmission, "attemptKey">,
 ): PendingAttempt {
@@ -104,9 +110,10 @@ export function createRequestAttempt(
 function persist(attempt: PendingAttempt | ConfirmedAttempt): {
   storage: "session" | "memory";
 } {
-  memory = attempt;
+  const copy = schema.parse(attempt);
+  memory = copy;
   try {
-    sessionStorage.setItem(key, JSON.stringify(attempt));
+    sessionStorage.setItem(key, JSON.stringify(copy));
     publish();
     return { storage: "session" };
   } catch {
@@ -163,7 +170,52 @@ export function clearSubmittedLines(
     phone: "",
   };
   const identity = (item: InquiryItem) =>
-    canonicalSubmission({ attemptKey: "", contact, items: [item] });
+    JSON.stringify([
+      item.kitInstanceId ?? null,
+      canonicalSubmission({ attemptKey: "", contact, items: [item] }),
+    ]);
   const sent = new Set(submitted.map(identity));
-  return current.filter((item) => !sent.has(identity(item)));
+  return current.filter(
+    (item) => !!item.kitInstanceId || !sent.has(identity(item)),
+  );
+}
+export function clearSubmittedSelection(
+  current: KitSelection,
+  submitted: KitSelection,
+): KitSelection {
+  const now = parseKitSelection(current),
+    sent = parseKitSelection(submitted);
+  const contact = {
+    name: "Selection",
+    preferredChannel: "email" as const,
+    email: "",
+    phone: "",
+  };
+  const groupIdentity = (selection: KitSelection, id: string) =>
+    canonicalSubmission({
+      attemptKey: "",
+      contact,
+      schemaVersion: 2,
+      items: selection.items.filter((i) => i.kitInstanceId === id),
+      groups: selection.groups.filter((g) => g.instanceId === id),
+    });
+  const removed = new Set(
+    now.groups
+      .filter(
+        (g) =>
+          sent.groups.some((s) => s.instanceId === g.instanceId) &&
+          groupIdentity(now, g.instanceId) ===
+            groupIdentity(sent, g.instanceId),
+      )
+      .map((g) => g.instanceId),
+  );
+  const items = clearSubmittedLines(
+    now.items,
+    sent.items.filter((i) => !i.kitInstanceId),
+  ).filter((i) => !i.kitInstanceId || !removed.has(i.kitInstanceId));
+  return parseKitSelection({
+    schemaVersion: 2,
+    items,
+    groups: now.groups.filter((g) => !removed.has(g.instanceId)),
+  });
 }
