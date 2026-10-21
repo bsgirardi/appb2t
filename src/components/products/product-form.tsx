@@ -1,5 +1,6 @@
 "use client";
 import { ProductConfigurationEditor } from "./product-configuration-editor";
+import { QuantityTierEditor } from "./quantity-tier-editor";
 import { emptyProductConfiguration } from "@/domain/products/configuration";
 
 import { Card } from "@/components/ui/card";
@@ -98,6 +99,8 @@ export function ProductForm({
           name: product.name,
           configuration: product.configuration ?? emptyProductConfiguration,
           publicPriceMode: product.publicPriceMode ?? "REFERENCE",
+          quantityTiers: product.quantityTiers ?? [],
+          compositionImageId: product.compositionImageId ?? null,
           sku: product.sku ?? "",
           shortDescription: product.shortDescription ?? "",
           specifications: product.specifications ?? "",
@@ -449,6 +452,43 @@ export function ProductForm({
                 setDraft({ ...draft, configuration })
               }
             />
+            <QuantityTierEditor
+              value={draft.quantityTiers ?? []}
+              onChange={(quantityTiers) =>
+                setDraft({ ...draft, quantityTiers })
+              }
+            />
+            <div className="field">
+              <Label htmlFor="composition-image">
+                Foto para montagem de kits
+              </Label>
+              <NativeSelect
+                id="composition-image"
+                className="min-h-11"
+                value={draft.compositionImageId ?? ""}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    compositionImageId: e.target.value || null,
+                  })
+                }
+              >
+                <option value="">Usar capa do produto</option>
+                {(product?.images ?? [])
+                  .filter((image) =>
+                    gallery.some((g) => "id" in g && g.id === image.id),
+                  )
+                  .map((image) => (
+                    <option key={image.id} value={image.id}>
+                      Foto {image.position + 1}
+                    </option>
+                  ))}
+              </NativeSelect>
+              <small className="muted">
+                Use uma foto existente. Se já houver uma imagem com fundo
+                transparente, ela pode facilitar a composição.
+              </small>
+            </div>
             <ProductCommercialEditor
               value={draft}
               onChange={(commercial) => setDraft({ ...draft, ...commercial })}

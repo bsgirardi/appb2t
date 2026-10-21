@@ -219,6 +219,21 @@ export function AppShell({
         className="w-full justify-start"
       >
         <Link
+          aria-current={path.startsWith("/kits") ? "page" : undefined}
+          className={path.startsWith("/kits") ? "nav-item active" : "nav-item"}
+          href="/kits"
+        >
+          <Box size={19} />
+          Kits
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start"
+      >
+        <Link
           aria-current={path === "/" ? "page" : undefined}
           className="nav-item"
           href="/"
@@ -359,11 +374,13 @@ export function AppShell({
                               ? "Coleções"
                               : path.startsWith("/configuracoes")
                                 ? "Configurações"
-                                : path.startsWith("/produtos")
-                                  ? "Produtos"
-                                  : path === "/conta"
-                                    ? "Minha conta"
-                                    : "Calculadora de custos"}
+                                : path.startsWith("/kits")
+                                  ? "Kits"
+                                  : path.startsWith("/produtos")
+                                    ? "Produtos"
+                                    : path === "/conta"
+                                      ? "Minha conta"
+                                      : "Calculadora de custos"}
             </strong>
           </span>
           <span className="internal-chip">
