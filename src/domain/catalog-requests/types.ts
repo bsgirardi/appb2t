@@ -8,6 +8,8 @@ export interface CatalogContact {
   email: string;
 }
 export interface CatalogSubmission {
+  schemaVersion?: 2;
+  groups?: import("@/domain/kits/types").KitGroupInput[];
   attemptKey: string;
   contact: CatalogContact;
   items: InquiryItem[];
@@ -20,6 +22,7 @@ export interface CatalogReceipt {
 export type CatalogRequestState =
   "RECEBIDA" | "EM_ATENDIMENTO" | "ORCAMENTO_PREPARADO" | "ENCERRADA";
 export interface CatalogLineSnapshot {
+  kitInstanceId?: string;
   schemaVersion: 1;
   lineId: string;
   productId: string;
@@ -60,6 +63,7 @@ export interface CatalogRequestSummaryDTO {
   quoteId: string | null;
 }
 export interface CatalogRequestDTO extends CatalogRequestSummaryDTO {
+  groups?: import("@/domain/kits/types").KitGroupSnapshot[];
   contact: CatalogContact;
   lines: CatalogLineSnapshot[];
   knownTotal: string | null;

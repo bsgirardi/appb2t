@@ -8,6 +8,7 @@ const money = z
 export const catalogLineSnapshotSchema = z
   .object({
     schemaVersion: z.literal(1),
+    kitInstanceId: id.optional(),
     lineId: id,
     productId: id,
     commercialRevision: z.number().int().positive(),

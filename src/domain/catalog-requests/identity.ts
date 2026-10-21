@@ -1,7 +1,7 @@
 import type { CatalogSubmission } from "./types";
 export function canonicalSubmission(input: CatalogSubmission): string {
   const c = input.contact;
-  return JSON.stringify([
+  const legacy = JSON.stringify([
     c.name,
     c.preferredChannel,
     c.phone,
@@ -19,6 +19,19 @@ export function canonicalSubmission(input: CatalogSubmission): string {
       i.seenPrice
         ? [i.seenPrice.kind, i.seenPrice.unit, i.seenPrice.subtotal]
         : null,
+    ]),
+  ]);
+  if (input.schemaVersion !== 2) return legacy;
+  return JSON.stringify([
+    legacy,
+    2,
+    input.items.map((i) => i.kitInstanceId ?? null),
+    (input.groups ?? []).map((g) => [
+      g.instanceId,
+      g.kitId,
+      g.commercialRevision,
+      g.placements.map((p) => [p.lineId, p.x, p.y, p.z]),
+      g.seenPrice,
     ]),
   ]);
 }

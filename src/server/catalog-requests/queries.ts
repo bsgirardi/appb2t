@@ -12,6 +12,7 @@ import type {
   CatalogRequestSummaryDTO,
 } from "@/domain/catalog-requests/types";
 import { receiptOf } from "./receive";
+import { kitRequestSnapshotSchema } from "@/domain/kits/snapshot";
 const include = {
   assignee: { select: { name: true } },
   _count: { select: { lines: true } },
@@ -64,6 +65,9 @@ export async function getCatalogRequestWithClient(
     ...summary(row),
     contact: row.contact as unknown as CatalogContact,
     lines,
+    groups: row.kitSnapshot
+      ? kitRequestSnapshotSchema.parse(row.kitSnapshot).groups
+      : [],
     knownTotal: row.knownTotal?.toFixed(2) ?? null,
     currentProducts,
     events: row.events.map((event) => ({

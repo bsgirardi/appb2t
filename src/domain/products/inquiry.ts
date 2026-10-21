@@ -121,6 +121,8 @@ export interface InquiryLine extends InquiryItem {
   fieldErrors?: Record<string, string>;
 }
 export interface InquiryReview {
+  groups?: import("@/domain/kits/types").KitGroupReview[];
+  closedTotal?: string | null;
   lines: InquiryLine[];
   total: string;
   knownTotal?: string | null;

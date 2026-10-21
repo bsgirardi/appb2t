@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { inquiryItemsSchema } from "@/domain/products/inquiry";
 import type { CatalogSubmission } from "./types";
+import {
+  kitGroupInputSchema,
+  parseKitSelection,
+} from "@/domain/kits/selection";
 export const attemptKeySchema = z
   .string()
   .regex(/^[a-f0-9]{64}$/, "Tentativa inválida.");
@@ -55,7 +59,7 @@ export const catalogContactSchema = z
         message: "Informe seu e-mail.",
       });
   });
-export const catalogSubmissionSchema = z
+const submissionBase = z
   .object({
     attemptKey: attemptKeySchema,
     contact: catalogContactSchema,
@@ -65,6 +69,38 @@ export const catalogSubmissionSchema = z
     ),
   })
   .strict();
+const legacySubmissionSchema = submissionBase.refine(
+  (v) => v.items.every((i) => !i.kitInstanceId),
+  "O kit precisa de um grupo de montagem.",
+);
+const kitSubmissionSchema = submissionBase
+  .extend({
+    schemaVersion: z.literal(2),
+    groups: z.array(kitGroupInputSchema).max(20),
+  })
+  .superRefine((v, ctx) => {
+    try {
+      parseKitSelection({ schemaVersion: 2, items: v.items, groups: v.groups });
+    } catch (error) {
+      ctx.addIssue({
+        code: "custom",
+        message: error instanceof Error ? error.message : "Montagem inválida.",
+        path: ["groups"],
+      });
+    }
+  })
+  .transform((v) => ({
+    ...v,
+    groups: parseKitSelection({
+      schemaVersion: 2,
+      items: v.items,
+      groups: v.groups,
+    }).groups,
+  }));
+export const catalogSubmissionSchema = z.union([
+  legacySubmissionSchema,
+  kitSubmissionSchema,
+]);
 export function parseCatalogSubmission(raw: unknown): CatalogSubmission {
   return catalogSubmissionSchema.parse(raw);
 }
