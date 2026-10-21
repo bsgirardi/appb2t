@@ -260,9 +260,19 @@ export async function setProductActive(
 ): Promise<ProductDTO> {
   productStateSchema.parse({ active, expectedVersion });
   return db.$transaction(async (tx) => {
+    await lockCatalog(tx);
+    const old = await tx.product.findUnique({
+      where: { id },
+      select: { active: true },
+    });
+    if (!old) throw notFound();
     const result = await tx.product.updateMany({
       where: { id, version: expectedVersion },
-      data: { active, version: { increment: 1 } },
+      data: {
+        active,
+        version: { increment: 1 },
+        commercialRevision: { increment: old.active === active ? 0 : 1 },
+      },
     });
     if (!result.count) throw conflict();
     return dto(

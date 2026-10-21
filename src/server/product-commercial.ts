@@ -54,6 +54,7 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
     };
   };
   const keys = [
+    "active",
     "name",
     "sku",
     "colors",
