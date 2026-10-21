@@ -13,6 +13,7 @@ import type {
 import { AppError } from "@/lib/errors";
 import type { ProductInput } from "./types";
 import { commercialShape } from "./commercial";
+import { quantityTiersSchema } from "./quantity-pricing";
 const finalPriceSchema = z
   .string()
   .trim()
@@ -26,6 +27,8 @@ export function parseFinalPrice(raw: string): string {
 export const productSchema = z
   .object({
     ...commercialShape,
+    quantityTiers: quantityTiersSchema.optional(),
+    compositionImageId: z.string().min(1).max(100).nullable().optional(),
     configuration: productConfigurationSchema.optional(),
     publicPriceMode: priceModeSchema.optional(),
     seoTitle: z.string().trim().max(70).optional(),

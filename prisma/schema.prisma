@@ -88,6 +88,9 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  quantityTiers Json @default("[]")
+  compositionImageId String?
+  kitProducts CatalogKitProduct[]
   publicPriceMode String @default("REFERENCE")
   commercialRevision Int @default(1)
   configuration Json @default("{}")
@@ -1123,6 +1126,7 @@ enum CatalogRequestState {
   ENCERRADA
 }
 model CatalogRequest {
+  kitSnapshot Json?
   id String @id @default(cuid())
   sequence Int @unique @default(autoincrement())
   state CatalogRequestState @default(RECEBIDA)
@@ -1178,4 +1182,38 @@ model CatalogRequestQuota {
   attempts Int @default(0)
   expiresAt DateTime
   @@index([expiresAt])
+}
+
+model CatalogKit {
+  id String @id @default(cuid())
+  name String
+  description String @default("")
+  active Boolean @default(false)
+  position Int @default(0)
+  version Int @default(1)
+  commercialRevision Int @default(1)
+  tiers Json @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products CatalogKitProduct[]
+  events CatalogKitEvent[]
+  @@index([active, position])
+}
+model CatalogKitProduct {
+  kitId String
+  productId String
+  kit CatalogKit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  @@id([kitId, productId])
+  @@index([productId])
+}
+model CatalogKitEvent {
+  id String @id @default(cuid())
+  kitId String
+  kit CatalogKit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  action String
+  actorId String?
+  actorName String
+  createdAt DateTime @default(now())
+  @@index([kitId, createdAt])
 }

@@ -2,6 +2,7 @@ import type { Product } from "@prisma/client";
 import type { ProductInput } from "@/domain/products/types";
 import { readProductConfiguration } from "@/domain/products/configuration";
 import { AppError } from "@/lib/errors";
+import { quantityTiersSchema } from "@/domain/products/quantity-pricing";
 export function productConfigurationForSave(
   input: ProductInput,
   existing: string[],
@@ -11,6 +12,22 @@ export function productConfigurationForSave(
     input.configuration ?? old?.configuration,
   );
   const retained = input.images.flatMap((i) => ("id" in i ? [i.id] : []));
+  const compositionImageId =
+    input.compositionImageId === undefined
+      ? old?.compositionImageId
+      : input.compositionImageId;
+  if (compositionImageId && !existing.includes(compositionImageId))
+    throw new AppError(
+      "VALIDATION",
+      "A foto de composição não pertence a este produto.",
+    );
+  input.compositionImageId =
+    compositionImageId && retained.includes(compositionImageId)
+      ? compositionImageId
+      : null;
+  input.quantityTiers = quantityTiersSchema.parse(
+    input.quantityTiers ?? old?.quantityTiers ?? [],
+  );
   for (const field of config.fields)
     if (field.type === "SINGLE_CHOICE")
       for (const option of field.options) {
@@ -46,6 +63,16 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
     "paymentTerms",
   ] as const;
   const changed =
+    JSON.stringify(
+      quantityTiersSchema
+        .parse(old.quantityTiers)
+        .sort((a, b) => a.minQuantity - b.minQuantity),
+    ) !==
+      JSON.stringify(
+        (input.quantityTiers ?? quantityTiersSchema.parse(old.quantityTiers))
+          .slice()
+          .sort((a, b) => a.minQuantity - b.minQuantity),
+      ) ||
     keys.some(
       (k) =>
         input[k] !== undefined &&

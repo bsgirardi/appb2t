@@ -1,11 +1,14 @@
 import type { Prisma } from "@prisma/client";
 import type { PublicProductDTO } from "@/domain/products/types";
 import type { Availability } from "@/domain/products/commercial";
+import { quantityTiersSchema } from "@/domain/products/quantity-pricing";
 import {
   readProductConfiguration,
   priceModeSchema,
 } from "@/domain/products/configuration";
 export const publicProductSelect = {
+  quantityTiers: true,
+  compositionImageId: true,
   publicPriceMode: true,
   commercialRevision: true,
   configuration: true,
@@ -33,6 +36,8 @@ type PublicRow = Prisma.ProductGetPayload<{
 }>;
 export function toPublicProduct(row: PublicRow): PublicProductDTO {
   return {
+    quantityTiers: quantityTiersSchema.parse(row.quantityTiers),
+    compositionImageId: row.compositionImageId,
     id: row.id,
     name: row.name,
     sku: row.sku ?? "",
