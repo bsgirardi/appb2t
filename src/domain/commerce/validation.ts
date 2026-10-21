@@ -3,6 +3,7 @@ import { z } from "zod";
 import { AppError } from "@/lib/errors";
 import { parseCivilDate } from "./dates";
 import { catalogLineOriginSchema } from "@/domain/catalog-requests/snapshot";
+import { catalogKitDocumentSchema } from "@/domain/kits/document";
 export const MONEY_MAX = "9999999999999999.99";
 export function parseMoney(
   raw: string,
@@ -63,6 +64,7 @@ export const itemSchema = z
   .strict();
 export const documentSchema = z
   .object({
+    catalogKits: catalogKitDocumentSchema.optional(),
     customerId: z.string().min(1).max(100),
     items: z.array(itemSchema).min(1).max(100),
     discount: moneySchema,

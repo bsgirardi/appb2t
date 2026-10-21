@@ -101,7 +101,8 @@ export async function saveQuote(
 ): Promise<QuoteDTO> {
   if (
     !id &&
-    saveQuoteSchema.parse(raw).items?.some((item) => item.catalogOrigin)
+    (saveQuoteSchema.parse(raw).items?.some((item) => item.catalogOrigin) ||
+      saveQuoteSchema.parse(raw).catalogKits)
   )
     throw new AppError(
       "VALIDATION",

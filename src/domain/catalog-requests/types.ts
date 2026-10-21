@@ -63,6 +63,7 @@ export interface CatalogRequestSummaryDTO {
   quoteId: string | null;
 }
 export interface CatalogRequestDTO extends CatalogRequestSummaryDTO {
+  currentKits?: import("@/domain/kits/types").KitDTO[];
   groups?: import("@/domain/kits/types").KitGroupSnapshot[];
   contact: CatalogContact;
   lines: CatalogLineSnapshot[];
@@ -90,6 +91,8 @@ export type RequestChange =
     }
   | { action: "NOTE" | "CLOSE"; expectedVersion: number; note: string };
 export interface RequestQuoteInput {
+  additionalDiscount?: string;
+  kitReviewFingerprint?: string;
   expectedVersion: number;
   document: QuoteInput;
   sources: { lineId: string; sourceLineId: string; standalone: boolean }[];

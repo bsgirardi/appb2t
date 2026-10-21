@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import Decimal from "decimal.js";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
@@ -8,7 +8,14 @@ import type {
   CatalogRequestDTO,
 } from "@/domain/catalog-requests/types";
 import type { QuoteDTO } from "@/domain/commerce/types";
-import { quoteSchema } from "@/domain/commerce/validation";
+import { quoteSchema, moneySchema } from "@/domain/commerce/validation";
+import { lockKitCatalog } from "@/server/kits/locks";
+import { calculatePreparedKitDiscount } from "@/server/kits/quote-pricing";
+import {
+  catalogKitDocumentSchema,
+  kitPreparationReview,
+  assertKitDocumentBytes,
+} from "@/domain/kits/document";
 import { saveQuoteWithClient } from "@/server/commerce/quote-write";
 import { getQuote } from "@/server/quotes";
 import { getCatalogRequestWithClient } from "./queries";
@@ -16,6 +23,11 @@ import { lockCatalogRequest } from "./service";
 const schema = z
   .object({
     expectedVersion: z.number().int().positive(),
+    additionalDiscount: moneySchema.default("0.00"),
+    kitReviewFingerprint: z
+      .string()
+      .max(256 * 1024)
+      .optional(),
     document: quoteSchema,
     sources: z
       .array(
@@ -75,8 +87,10 @@ export async function prepareRequestQuote(
       const ids = [
         ...new Set(detail.lines.map((line) => line.productId)),
       ].sort();
-      await tx.$queryRaw(
-        Prisma.sql`SELECT id FROM "Product" WHERE id IN (${Prisma.join(ids)}) ORDER BY id FOR SHARE`,
+      await lockKitCatalog(
+        tx,
+        ids,
+        (detail.groups ?? []).map((g) => g.kitId),
       );
       const activeProducts = await tx.product.findMany({
         where: { id: { in: ids }, active: true },
@@ -109,9 +123,68 @@ export async function prepareRequestQuote(
         };
         return { ...item, catalogOrigin };
       });
-      const quote = await saveQuoteWithClient(tx, actor, undefined, {
+      let catalogKits;
+      if (detail.groups?.length) {
+        const calculation = calculatePreparedKitDiscount(
+          detail.groups,
+          input.document.items,
+          input.sources,
+        );
+        const discount = new Decimal(calculation.discount)
+          .plus(input.additionalDiscount)
+          .toFixed(2);
+        const subtotal = input.document.items.reduce(
+          (s, i) => s.plus(new Decimal(i.unitPrice).times(i.quantity)),
+          new Decimal(0),
+        );
+        if (new Decimal(discount).gte(subtotal))
+          throw new AppError(
+            "VALIDATION",
+            "O desconto global deve ser menor que o subtotal.",
+          );
+        if (input.document.discount !== discount)
+          throw new AppError(
+            "VALIDATION",
+            "Confira o desconto dos kits e o desconto adicional antes de preparar.",
+          );
+        if (
+          input.kitReviewFingerprint !==
+          kitPreparationReview(input.document.items, input.sources, discount)
+        )
+          throw new AppError(
+            "VALIDATION",
+            "Confirme a revisão das quantidades, dos preços e dos descontos atuais.",
+          );
+        catalogKits = catalogKitDocumentSchema.parse({
+          schemaVersion: 1,
+          requestId: id,
+          groups: detail.groups,
+          preparation: {
+            groups: calculation.groups,
+            sources: input.sources.map(({ lineId, sourceLineId }) => ({
+              lineId,
+              sourceLineId,
+            })),
+            kitDiscount: calculation.discount,
+            additionalDiscount: input.additionalDiscount,
+            totalDiscount: discount,
+          },
+        });
+      }
+      const document = {
         ...input.document,
         items,
+        ...(catalogKits ? { catalogKits } : {}),
+      };
+      // Incoming generic metadata never establishes received provenance.
+      if (!catalogKits) delete document.catalogKits;
+      try {
+        assertKitDocumentBytes(document);
+      } catch (error) {
+        throw new AppError("VALIDATION", (error as Error).message);
+      }
+      const quote = await saveQuoteWithClient(tx, actor, undefined, {
+        ...document,
       });
       await tx.catalogRequest.update({
         where: { id },
@@ -122,7 +195,9 @@ export async function prepareRequestQuote(
           events: {
             create: {
               action: "PREPARE_QUOTE",
-              note: quote.number,
+              note: catalogKits
+                ? `${quote.number} — Descontos de kits e valores revisados pela equipe.`
+                : quote.number,
               actorId: actor.id,
               actorName: actor.name,
             },

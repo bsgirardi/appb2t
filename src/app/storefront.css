@@ -1,3 +1,26 @@
+.kit-received-preview {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.kit-received-piece {
+  display: grid;
+  gap: 4px;
+  max-width: 100%;
+  padding: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.kit-received-piece img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.kit-received-piece span {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
 .kit-builder {
   min-width: 0;
   padding-block: 24px;

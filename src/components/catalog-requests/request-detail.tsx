@@ -15,6 +15,7 @@ import type {
 import type { CustomerDTO } from "@/domain/customers/types";
 import { RequestQuoteForm } from "./request-quote-form";
 import { requestStateLabels } from "./request-panel";
+import { KitReceivedPreview } from "@/components/kits/kit-received-preview";
 const actionLabels: Record<string, string> = {
   RECEIVED: "Solicitação recebida",
   START: "Atendimento iniciado",
@@ -123,6 +124,62 @@ export function RequestDetail({
           O registro abaixo preserva o que foi recebido, mesmo se o catálogo
           mudar.
         </p>
+        {(request.groups ?? []).map((group) => {
+          const current = request.currentKits?.find(
+            (k) => k.id === group.kitId,
+          );
+          return (
+            <section className="request-received-kit" key={group.instanceId}>
+              <h3>{group.name}</h3>
+              <KitReceivedPreview group={group} lines={request.lines} />
+              <p>
+                Regras recebidas:{" "}
+                {group.tiers.length
+                  ? group.tiers
+                      .map(
+                        (t) =>
+                          `${t.minQuantity} unidades: ${t.kind === "PERCENT" ? `${t.percent}%` : formatBRL(t.amount)} de desconto`,
+                      )
+                      .join("; ")
+                  : "sem faixa de desconto"}
+                .
+              </p>
+              <p>
+                {group.price.total === null
+                  ? "Referência recebida pendente de consulta."
+                  : `Referência líquida recebida: ${formatBRL(group.price.total)}`}
+              </p>
+              <details>
+                <summary className="min-h-11">
+                  Condições atuais do cadastro do kit
+                </summary>
+                <p>
+                  {!current
+                    ? "Kit não encontrado no cadastro atual."
+                    : !current.active
+                      ? "Kit desativado no catálogo atual."
+                      : current.commercialRevision !== group.commercialRevision
+                        ? "As condições do kit mudaram desde o envio. A preparação usará a tabela recebida."
+                        : "As condições comerciais do kit continuam iguais às recebidas."}
+                </p>
+                {current && (
+                  <p>
+                    Faixas atuais:{" "}
+                    {current.tiers.length
+                      ? current.tiers
+                          .map(
+                            (t) =>
+                              `${t.minQuantity} unidades: ${t.kind === "PERCENT" ? `${t.percent}%` : formatBRL(t.amount)}`,
+                          )
+                          .join("; ")
+                      : "sem desconto"}
+                    .
+                  </p>
+                )}
+              </details>
+            </section>
+          );
+        })}
         {request.lines.map((line, index) => {
           const current = request.currentProducts.find(
             (product) => product.id === line.productId,
