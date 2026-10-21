@@ -7,6 +7,9 @@ import { parseKitSelection } from "@/domain/kits/selection";
 import { lockKitCatalog } from "./kits/locks";
 import { reviewProductLinesWithClient } from "./inquiry-lines";
 import { reviewKitSelectionWithClient } from "./kits/review";
+import { getPublicAppearance } from "./appearance";
+import { appUrl } from "@/lib/env";
+import { buildInquiryMessage } from "@/domain/products/inquiry-message";
 export async function reviewInquiry(raw: unknown): Promise<InquiryReview> {
   return db.$transaction((tx) => reviewInquiryWithClient(tx, raw), {
     timeout: 20000,
@@ -38,6 +41,17 @@ export async function reviewInquiryWithClient(
     review.lines.some(
       (l) => !l.kitInstanceId && !l.problem && l.subtotal !== null,
     ) || review.groups.some((g) => !g.problem && g.price?.kind === "REFERENCE");
+  const contact = review.ready
+    ? buildInquiryMessage(
+        review.lines,
+        {
+          knownTotal: hasKnown ? review.knownTotal : null,
+          consultCount: review.consultCount,
+        },
+        { ...(await getPublicAppearance(tx)), origin: appUrl().href },
+        review.groups,
+      )
+    : { message: "", contact: null, channel: null };
   return {
     lines: review.lines,
     groups: review.groups,
@@ -46,8 +60,6 @@ export async function reviewInquiryWithClient(
     knownTotal: hasKnown ? review.knownTotal : null,
     consultCount: review.consultCount,
     ready: review.ready,
-    message: "",
-    contact: null,
-    channel: null,
+    ...contact,
   };
 }

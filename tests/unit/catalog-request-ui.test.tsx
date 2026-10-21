@@ -49,6 +49,35 @@ function fill() {
     target: { value: "11999999999" },
   });
 }
+it("includes_kit_groups_and_composition_in_the_preserved_attempt", async () => {
+  const group = {
+    instanceId: "g",
+    kitId: "k",
+    commercialRevision: 1,
+    seenPrice: null,
+    placements: [{ lineId: items[0].lineId!, x: 0.4, y: 0.6, z: 0 }],
+  };
+  vi.mocked(api).mockResolvedValueOnce({}).mockResolvedValueOnce(receipt);
+  render(
+    <RequestSubmit
+      items={items.map((i) => ({ ...i, kitInstanceId: "g" }))}
+      groups={[group]}
+      review={review}
+      onClearSubmitted={() => {}}
+    />,
+  );
+  fill();
+  fireEvent.click(screen.getByRole("button", { name: "Enviar solicitação" }));
+  await screen.findByText(receipt.protocol);
+  const body = vi
+    .mocked(api)
+    .mock.calls.find((c) => c[0] === "/api/portfolio/requests")?.[1];
+  expect(body).toMatchObject({
+    schemaVersion: 2,
+    groups: [group],
+    items: [{ kitInstanceId: "g" }],
+  });
+});
 it("focuses the first contact error and requires a valid review", () => {
   const view = render(
     <RequestSubmit items={items} review={review} onClearSubmitted={vi.fn()} />,
