@@ -1209,6 +1209,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .kit-builder *,
   .store-product-experience *,
   .store-inquiry-layout * {
     scroll-behavior: auto;

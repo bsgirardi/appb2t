@@ -258,3 +258,10 @@ export function useInquiry() {
 export function useInquiryStorageStatus() {
   return useSyncExternalStore(subscribe, statusSnapshot, () => "");
 }
+export function useInquiryDraftValid() {
+  return useSyncExternalStore(
+    subscribe,
+    () => parseKitDraft(snapshot()).status === "valid",
+    () => true,
+  );
+}

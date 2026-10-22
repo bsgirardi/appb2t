@@ -21,6 +21,7 @@ import {
   useKitSelection,
   readKitSelection,
   useInquiryStorageStatus,
+  useInquiryDraftValid,
 } from "@/lib/inquiry-store";
 import { createKitCompositionStore } from "@/lib/kit-composition-store";
 import { api } from "@/lib/client-api";
@@ -43,10 +44,22 @@ export function KitBuilder(props: Props) {
     () => false,
   );
   return hydrated ? (
-    <Builder {...props} />
+    <RecoverableBuilder {...props} />
   ) : (
     <p role="status">Preparando a montagem…</p>
   );
+}
+function RecoverableBuilder(props: Props) {
+  const valid = useInquiryDraftValid();
+  if (!valid)
+    return (
+      <Alert role="alert">
+        Não foi possível ler sua lista salva. Copie a recuperação antes de
+        reiniciar.{" "}
+        <Link href="/portfolio/orcamento">Abrir recuperação da lista</Link>
+      </Alert>
+    );
+  return <Builder {...props} />;
 }
 function Builder({ kit, products, initialInstanceId }: Props) {
   const selection = useKitSelection(),
@@ -525,7 +538,18 @@ function Builder({ kit, products, initialInstanceId }: Props) {
           </section>
         </div>
         <aside className="kit-builder-panel">
-          <KitSummary review={summary} />
+          {!currentReview && group && (
+            <p className="store-note">
+              Estimativa desta página. Revise o conjunto para conferir os
+              valores atuais.
+            </p>
+          )}
+          <KitSummary
+            review={
+              currentReview?.groups?.find((g) => g.instanceId === instanceId) ??
+              summary
+            }
+          />
           <Button
             type="button"
             className="min-h-11 w-full"

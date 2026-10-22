@@ -1,6 +1,15 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { api } from "@/lib/client-api";
+vi.mock("@/lib/client-api", () => ({ api: vi.fn() }));
 import { KitBuilder } from "@/components/kits/kit-builder";
 import { KitSummary } from "@/components/kits/kit-summary";
 import {
@@ -11,6 +20,7 @@ import {
 import { parseKitSelection } from "@/domain/kits/selection";
 import { productDTO } from "../fixtures/product";
 beforeEach(() => {
+  vi.clearAllMocks();
   localStorage.clear();
   sessionStorage.clear();
   resetInquiry();
@@ -137,4 +147,96 @@ it("url_cannot_adopt_a_group_belonging_to_another_kit", () => {
     screen.queryByRole("button", { name: "Mover Vaso geométrico, 1 unidades" }),
   ).toBeNull();
   expect(readKitSelection().groups[0].kitId).toBe("another-kit");
+});
+
+it("ready_server_review_remains_authoritative_after_price_changes", async () => {
+  writeKitSelection(
+    parseKitSelection({
+      schemaVersion: 2,
+      items: [
+        {
+          lineId: "l",
+          productId: productDTO.id,
+          quantity: 5,
+          kitInstanceId: "g",
+        },
+      ],
+      groups: [
+        {
+          instanceId: "g",
+          kitId: "k",
+          commercialRevision: 1,
+          seenPrice: null,
+          placements: [{ lineId: "l", x: 0.5, y: 0.5, z: 0 }],
+        },
+      ],
+    }),
+  );
+  const price = {
+    kind: "REFERENCE",
+    quantity: 5,
+    knownSubtotal: "150.00",
+    subtotal: "150.00",
+    discount: "15.00",
+    total: "135.00",
+    tier: kit.tiers[0],
+  };
+  const group = {
+    ...readKitSelection().groups[0],
+    currentRevision: 1,
+    name: kit.name,
+    price,
+    problem: null,
+    requiresConfirmation: true,
+  };
+  const review = {
+    ready: false,
+    lines: [
+      {
+        lineId: "l",
+        answers: [],
+        answerLabels: [],
+        currentRevision: 2,
+        configuredPrice: {
+          kind: "REFERENCE",
+          unit: "30.00",
+
+          subtotal: "150.00",
+        },
+        problem: null,
+      },
+    ],
+    groups: [group],
+    total: "135.00",
+    message: "",
+  };
+  vi.mocked(api)
+    .mockResolvedValueOnce(review)
+    .mockResolvedValueOnce({
+      ...review,
+      ready: true,
+      groups: [{ ...group, requiresConfirmation: false }],
+    });
+  render(
+    <KitBuilder kit={kit} products={[{ ...productDTO, price: "20.00" }]} />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Revisar conjunto" }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole("button", { name: "Confirmar referências atuais" }),
+    ).toBeTruthy(),
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Confirmar referências atuais" }),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Revisar conjunto" }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole("link", { name: "Continuar para a lista" }),
+    ).toBeTruthy(),
+  );
+  const summary = screen.getByRole("region", { name: "Resumo de Kit Ana" });
+  expect(within(summary).getByText("R$ 135,00")).toBeTruthy();
+  expect(within(summary).queryByText("R$ 85,00")).toBeNull();
+  expect(readKitSelection().groups[0].seenPrice?.total).toBe("135.00");
 });
