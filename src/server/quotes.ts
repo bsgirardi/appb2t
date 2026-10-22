@@ -34,9 +34,15 @@ import { paginationSchema, type Page } from "@/domain/shared/pagination";
 import { createDocumentSnapshot } from "./commerce/snapshots";
 import { quoteEvent } from "./commerce/audit";
 import { catalogLineOriginSchema } from "@/domain/catalog-requests/snapshot";
+import {
+  kitDiscountReviewSchema,
+  assertKitDocumentBytes,
+} from "@/domain/kits/document";
+import { enforceKitDocumentEdit } from "./kits/document-history";
 const saveQuoteSchema = quoteDraftSchema.extend({
   expectedVersion: z.number().int().positive().optional(),
   costBindings: costBindingsSchema.optional(),
+  kitDiscountReview: kitDiscountReviewSchema.optional(),
 });
 type Row = Prisma.QuoteGetPayload<{
   include: { events: true; sale: { select: { id: true } } };
@@ -117,7 +123,8 @@ export async function saveQuoteWithClient(
   raw: unknown,
 ): Promise<QuoteDTO> {
   const parsed = saveQuoteSchema.parse(raw);
-  const { expectedVersion, costBindings, ...input } = parsed;
+  const { expectedVersion, costBindings, kitDiscountReview, ...input } = parsed;
+  let kitDiscountReviewed = false;
   let previousRevisionId: string | null = null;
   if (id) {
     await lock(tx, id);
@@ -126,6 +133,11 @@ export async function saveQuoteWithClient(
     if (old.version !== expectedVersion) throw conflict();
     if (old.status !== "RASCUNHO")
       throw new AppError("CONFLICT", "Reabra o orçamento antes de editar.");
+    kitDiscountReviewed = enforceKitDocumentEdit(
+      old.input as QuoteDraftInput,
+      input,
+      kitDiscountReview,
+    );
     const origins = new Map(
       (old.input as QuoteDraftInput).items?.map((item) => [
         item.lineId,
@@ -183,6 +195,13 @@ export async function saveQuoteWithClient(
     validUntil: input.validUntil ? civilDateToDb(input.validUntil) : null,
     totals: totals ? { ...totals } : Prisma.DbNull,
   };
+  if (input.catalogKits) {
+    try {
+      assertKitDocumentBytes(input);
+    } catch (error) {
+      throw new AppError("VALIDATION", (error as Error).message);
+    }
+  }
   const q = id
     ? await tx.quote.update({
         where: { id },
@@ -208,6 +227,14 @@ export async function saveQuoteWithClient(
   );
   await tx.quote.update({ where: { id: q.id }, data: { costRevisionId } });
   await quoteEvent(tx, actor, q.id, id ? "EDIT" : "CREATE");
+  if (input.catalogKits && (!id || kitDiscountReviewed))
+    await quoteEvent(
+      tx,
+      actor,
+      q.id,
+      "KIT_DISCOUNT_REVIEW",
+      `Desconto revisado para os valores da versão ${q.version}.`,
+    );
   return dto(await row(tx, q.id), tx);
 }
 export async function transitionQuote(

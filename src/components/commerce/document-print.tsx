@@ -74,6 +74,26 @@ export function DocumentPrint({
                     </strong>
                   )}
                   {item.description}
+                  {item.catalogOrigin &&
+                    snapshot.catalogKits?.groups.find(
+                      (group) =>
+                        group.lineIds.includes(
+                          item.catalogOrigin!.sourceLineId,
+                        ) &&
+                        item.catalogOrigin!.requestId ===
+                          snapshot.catalogKits!.requestId,
+                    ) && (
+                      <p>
+                        Conjunto:{" "}
+                        {
+                          snapshot.catalogKits.groups.find((group) =>
+                            group.lineIds.includes(
+                              item.catalogOrigin!.sourceLineId,
+                            ),
+                          )!.name
+                        }
+                      </p>
+                    )}
                 </td>
                 <td>{item.quantity}</td>
                 <td>{money(item.unitPrice)}</td>

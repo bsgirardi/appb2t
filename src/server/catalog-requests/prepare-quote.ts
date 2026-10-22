@@ -158,6 +158,7 @@ export async function prepareRequestQuote(
         catalogKits = catalogKitDocumentSchema.parse({
           schemaVersion: 1,
           requestId: id,
+          receivedLines: detail.lines,
           groups: detail.groups,
           preparation: {
             groups: calculation.groups,

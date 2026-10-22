@@ -7,6 +7,7 @@ import { calculateKitPrice } from "./pricing";
 import { kitGroupSnapshotSchema } from "./snapshot";
 import { kitDiscountTierSchema } from "./validation";
 import { positiveCatalogMoney } from "@/domain/products/quantity-pricing";
+import { catalogLineSnapshotSchema } from "@/domain/catalog-requests/snapshot";
 const id = z.string().min(1).max(100),
   money = z.string().regex(/^\d{1,16}\.\d{2}$/);
 export const preparedKitCalculationSchema = z
@@ -27,6 +28,7 @@ export const catalogKitDocumentSchema = z
   .object({
     schemaVersion: z.literal(1),
     requestId: id,
+    receivedLines: z.array(catalogLineSnapshotSchema).min(1).max(20).optional(),
     groups: z.array(kitGroupSnapshotSchema).min(1).max(20),
     preparation: z
       .object({
@@ -44,6 +46,28 @@ export const catalogKitDocumentSchema = z
   .strict()
   .superRefine((v, ctx) => {
     const p = v.preparation;
+    if (
+      v.receivedLines &&
+      (new Set(v.receivedLines.map((l) => l.lineId)).size !==
+        v.receivedLines.length ||
+        p.sources.length !== v.receivedLines.length ||
+        p.sources.some(
+          (s) => !v.receivedLines!.some((l) => l.lineId === s.sourceLineId),
+        ) ||
+        v.groups.some((g) =>
+          g.lineIds.some(
+            (id) =>
+              !v.receivedLines!.some(
+                (l) => l.lineId === id && l.kitInstanceId === g.instanceId,
+              ),
+          ),
+        ))
+    )
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "Linhas recebidas não correspondem aos grupos e às origens do histórico.",
+      });
     if (
       new Set(v.groups.map((g) => g.instanceId)).size !== v.groups.length ||
       new Set(p.groups.map((g) => g.instanceId)).size !== p.groups.length ||
@@ -155,4 +179,23 @@ export function assertKitDocumentBytes(value: unknown) {
     throw new Error(
       "O orçamento excede o limite permitido. Reduza o conteúdo sem perder o histórico.",
     );
+}
+export type KitDiscountReview = { fingerprint: string };
+export const kitDiscountReviewSchema = z
+  .object({
+    fingerprint: z
+      .string()
+      .min(1)
+      .max(256 * 1024),
+  })
+  .strict();
+export function discountReviewFingerprint(
+  items: DocumentItemInput[],
+  discount: string,
+): string {
+  return kitPreparationReview(
+    items,
+    [],
+    new Decimal(discount.trim().replace(",", ".")).toFixed(2),
+  );
 }

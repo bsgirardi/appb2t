@@ -18,6 +18,12 @@ import { api } from "@/lib/client-api";
 import { Notice, Field } from "@/components/ui/field";
 import { DocumentItems, type CommercialProduct } from "./document-items";
 import { CatalogOrigins } from "./catalog-origin";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  discountReviewFingerprint,
+  type KitDiscountReview,
+} from "@/domain/kits/document";
+import { KitDocumentHistory } from "./kit-document-history";
 export function QuoteForm({
   quote,
   customers,
@@ -35,6 +41,7 @@ export function QuoteForm({
   saveDraft?: (
     draft: QuoteDraftInput,
     costBindings?: { lineId: string; snapshotId: string }[],
+    kitDiscountReview?: KitDiscountReview,
   ) => Promise<void>;
   title?: string;
 }) {
@@ -61,7 +68,38 @@ export function QuoteForm({
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const [kitEdited, setKitEdited] = useState(false),
+    [reviewedKitFingerprint, setReviewedKitFingerprint] = useState<string>();
+  let kitFingerprint: string | undefined;
+  if (draft.catalogKits)
+    try {
+      kitFingerprint = discountReviewFingerprint(
+        draft.items ?? [],
+        draft.discount ?? "0.00",
+      );
+    } catch {}
   function update(patch: QuoteDraftInput) {
+    if (
+      draft.catalogKits &&
+      (patch.items !== undefined || patch.discount !== undefined)
+    ) {
+      let changed = true;
+      try {
+        changed =
+          discountReviewFingerprint(
+            patch.items ?? draft.items ?? [],
+            patch.discount ?? draft.discount ?? "0.00",
+          ) !==
+          discountReviewFingerprint(
+            draft.items ?? [],
+            draft.discount ?? "0.00",
+          );
+      } catch {}
+      if (changed) {
+        setKitEdited(true);
+        setReviewedKitFingerprint(undefined);
+      }
+    }
     setDraft((old) => ({ ...old, ...patch }));
   }
   let total = "—";
@@ -81,11 +119,25 @@ export function QuoteForm({
       setError(parsed.error.issues.map((i) => i.message).join(" "));
       return;
     }
+    if (
+      draft.catalogKits &&
+      kitEdited &&
+      (!kitFingerprint || reviewedKitFingerprint !== kitFingerprint)
+    ) {
+      setError(
+        "Confirme a revisão do desconto para as linhas e os preços atuais.",
+      );
+      return;
+    }
+    const kitDiscountReview =
+      draft.catalogKits && kitEdited && kitFingerprint
+        ? { fingerprint: kitFingerprint }
+        : undefined;
     pending.current = true;
     setBusy(true);
     try {
       if (saveDraft) {
-        await saveDraft(parsed.data, outgoing);
+        await saveDraft(parsed.data, outgoing, kitDiscountReview);
         return;
       }
       onSaved(
@@ -94,6 +146,7 @@ export function QuoteForm({
           {
             ...parsed.data,
             costBindings: outgoing,
+            ...(kitDiscountReview ? { kitDiscountReview } : {}),
             ...(quote ? { expectedVersion: quote.version } : {}),
           },
           quote ? "PUT" : "POST",
@@ -173,7 +226,9 @@ export function QuoteForm({
           );
         }}
         onChange={(items) =>
-          update({ items: items.length ? items : undefined })
+          update({
+            items: items.length || draft.catalogKits ? items : undefined,
+          })
         }
       />
       <div className="form-grid">
@@ -190,6 +245,27 @@ export function QuoteForm({
           onChange={(e) => update({ shipping: e.target.value })}
         />
       </div>
+      {draft.catalogKits && (
+        <>
+          <KitDocumentHistory value={draft.catalogKits} />
+          {kitEdited && (
+            <label className="flex min-h-11 items-center gap-3">
+              <Checkbox
+                checked={
+                  !!kitFingerprint && reviewedKitFingerprint === kitFingerprint
+                }
+                disabled={!kitFingerprint || busy}
+                onChange={(e) =>
+                  setReviewedKitFingerprint(
+                    e.target.checked ? kitFingerprint : undefined,
+                  )
+                }
+              />
+              Revisei o desconto deste documento
+            </label>
+          )}
+        </>
+      )}
       {bindings.length > 0 &&
         ((Number(draft.discount?.replace(",", ".")) || 0) > 0 ||
           (Number(draft.shipping?.replace(",", ".")) || 0) > 0) && (

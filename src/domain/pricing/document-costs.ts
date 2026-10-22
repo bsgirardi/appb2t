@@ -11,7 +11,10 @@ export function lineFingerprint(item: DocumentItemInput): string {
 export function duplicateDocumentItem(
   item: DocumentItemInput,
 ): DocumentItemInput {
-  return { ...item, lineId: crypto.randomUUID() };
+  const duplicate = { ...item, lineId: crypto.randomUUID() };
+  if (item.catalogOrigin?.snapshot.kitInstanceId)
+    delete duplicate.catalogOrigin;
+  return duplicate;
 }
 export function compareLineCost(
   item: DocumentItemInput,
