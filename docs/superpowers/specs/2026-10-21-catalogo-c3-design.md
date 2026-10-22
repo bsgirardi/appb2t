@@ -1,6 +1,6 @@
 # C3 — Quantidades, kits e montador 2D
 
-Data: 21/10/2026. Base funcional: C1 e C2 integrados em `d9497ad`, com C2 publicada localmente em 21/10. Estado: desenho em conversa aprovado; esta especificação escrita aguarda revisão do usuário. A aprovação anterior autoriza escrever este documento, sem iniciar implementação ou publicação.
+Data: 21/10/2026. Base funcional: C1 e C2 integrados em `d9497ad`, com C2 publicada localmente em 21/10. Estado atualizado em 22/10/2026: especificação escrita e plano aprovados pelo usuário, com implementação nativa autorizada. Integração e publicação dependem da entrega revisável e da decisão operacional.
 
 ## 1. Objetivo e decisões recebidas
 
@@ -168,6 +168,6 @@ Montador acessível por teclado e por lista textual equivalente. Cada imagem tem
 
 ## 13. Próxima etapa e limites da aprovação
 
-Revisar esta especificação escrita antes de preparar o plano executável, com contratos, arquivos, locks, migração, testes, ordem de entregas e método de execução. Implementação aguarda aprovação do documento e do plano conforme o fluxo escolhido. Integração e publicação têm autorização própria; a instalação C2 permanece preservada durante o desenho.
+A especificação e o plano executável foram aprovados, e a implementação nativa foi autorizada. A validação e a passagem operacional estão registradas no relatório de 22/10/2026. Integração e publicação têm autorização própria; a instalação C2 permanece preservada até a decisão sobre a candidata.
 
 Auto-revisão: decisões explícitas separadas dos detalhes propostos; cálculo individual e de kit sem acumulação; consulta e valores negativos tratados; identidade incorpora contexto; recuperação e retry incluem composição; desconto global não duplica abatimento; formatos legados e fluxo de conversão contemplados. Nenhum código de produto, dependência, schema ou dado operacional foi alterado nesta etapa.

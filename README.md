@@ -42,6 +42,16 @@ Na área interna, **Solicitações** permite a ADMIN e OPERATOR ativos consultar
 
 O protocolo sozinho não permite consultar dados do cliente. O envio tem limite de 20 linhas, 99 unidades por linha, 256 KiB e cotas de novas tentativas por navegador/instalação. Antes de publicar C2 em uma instalação existente, faça backup e aplique `202610200001_catalog_requests` pelo serviço de migração. Essa migração é aditiva; nunca use fixtures ou a suíte mutável no banco operacional.
 
+### Quantidades e kits (C3)
+
+No cadastro de produto, configure as faixas de quantidade e a foto usada na composição. Fora de kits, cada personalização conta separadamente: Ana e Bia não compartilham a faixa. Em **Kits**, a equipe escolhe os produtos permitidos e cadastra faixas percentuais ou valores fixos. Todas as unidades contam; o valor fixo é abatido uma vez por montagem. Dentro do kit, não se acumulam as faixas individuais dos componentes.
+
+Na loja, **Monte seu conjunto** abre o montador. O visitante personaliza peças, ajusta quantidades na lista de componentes e move fotos por arraste, teclado ou botões. Posições e zoom não alteram quantidades/preços. Revise e confirme as referências atuais antes de continuar para a lista. Um componente sob consulta mantém o total do kit pendente, sem desconto parcial. A montagem é ilustrativa, sem escala física nem aprovação de arte.
+
+A solicitação preserva componentes, personalizações, posições e a tabela completa recebida. Ao preparar o orçamento, a equipe revisa preços, quantidades e desconto adicional; os descontos dos kits entram uma vez no desconto global. Edições comerciais posteriores exigem nova confirmação do desconto e preservam a preparação original. Impressão e conversão mantêm os valores negociados.
+
+Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A candidata C3 não equivale a publicação operacional. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
+
 ### Seleção e canal complementar
 
 Na página do produto, escolha as opções e a quantidade e use **Adicionar à lista de orçamento**. O link **Minha lista** permite ajustar quantidades, remover itens e conferir os valores. Combinações iguais são somadas; cores/tamanhos diferentes permanecem em linhas separadas. Limites: 20 combinações e 99 unidades por combinação.
