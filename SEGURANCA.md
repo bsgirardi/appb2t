@@ -1,6 +1,10 @@
 # Segurança das dependências — appb2t
 
-Revisão de 15/10/2026.
+## Atualização de22/10/2026 — versão1.1.0
+
+Auditoria repetida: `npm audit --omit=dev` sem alertas; auditoria completa com cinco alertas altos da cadeia braces/lint já descrita abaixo. Vite foi atualizado de7.3.6 para7.3.7 e Vitest de4.1.11 para4.1.12, eliminando três alertas adicionais (um alto e dois moderados) das ferramentas de desenvolvimento/testes. Next.js16.3.8 e as regras de lint foram preservados; não foi aplicado `audit fix --force` nem o rebaixamento incompatível sugerido pelo npm. Evidências locais ignoradas em `test-results/release-1.1.0/audit-*.json`.
+
+## Histórico — revisão de15/10/2026
 
 Complemento de validação em 16/10: build Docker com Next.js 16.3.8 aprovado na candidata visual; catálogo executado em ambiente isolado. Isso resolve o bloqueio de build descrito no histórico abaixo, sem publicação ou nova auditoria de dependências. Registro em `docs/superpowers/2026-10-16-catalogo-integrado.md`.
 

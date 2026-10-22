@@ -1,8 +1,14 @@
 # appb2t · Gestão e calculadora de impressão 3D
 
+Versão **1.1.0**. Consulte [histórico de versões](CHANGELOG.md) e [registro da release](docs/superpowers/2026-10-22-release-1.1.0.md).
+
 Para preparar o build em outro servidor, siga [PRODUCAO.md](PRODUCAO.md). Pendências resumidas em [PENDENCIAS.md](PENDENCIAS.md). O nome técnico do projeto é `appb2t`; a identidade comercial configurada no banco permanece B2T.
 
 Ferramenta de precificação de filamento e resina com catálogo público de produtos, PostgreSQL centralizado, contas individuais e configurações exclusivas de administradores. Interface responsiva em português, valores em reais e motor decimal compartilhado entre calculadora e catálogo.
+
+## Dashboard e navegação
+
+Após entrar, a equipe acessa `/dashboard`. Os cartões mostram vendas criadas no mês (exceto rascunhos/canceladas), orçamentos em aberto dentro da regra de validade e ordens liberadas/em execução. Administradores também consultam saldo e valores a receber/pagar pelo motor financeiro existente. O menu agrupa Vendas, Produção e Financeiro, mantendo Solicitações e Kits; os grupos podem ser recolhidos e o grupo da tela atual inicia aberto.
 
 ## O que está incluído
 
@@ -185,17 +191,17 @@ npm test
 
 `t` é o tempo total em horas. Filamento usa gramas/kg; resina usa ml/litro.
 
-| Parcela | Cálculo |
-| --- | --- |
-| Material | consumo ÷ 1000 × preço por kg/litro |
-| Energia | t × watts ÷ 1000 × tarifa por kWh |
-| Máquina | t × aquisição ÷ (meses × dias/mês × horas/dia) |
-| Manutenção | (material + energia) × manutenção% |
-| Subtotal | material + energia + máquina + manutenção |
-| Falhas | subtotal × falhas% |
-| Acabamento | subtotal × acabamento% |
-| Custo total | subtotal + falhas + acabamento + fixação |
-| Preço sugerido | custo total × (1 + acréscimo% / 100) |
+| Parcela        | Cálculo                                        |
+| -------------- | ---------------------------------------------- |
+| Material       | consumo ÷ 1000 × preço por kg/litro            |
+| Energia        | t × watts ÷ 1000 × tarifa por kWh              |
+| Máquina        | t × aquisição ÷ (meses × dias/mês × horas/dia) |
+| Manutenção     | (material + energia) × manutenção%             |
+| Subtotal       | material + energia + máquina + manutenção      |
+| Falhas         | subtotal × falhas%                             |
+| Acabamento     | subtotal × acabamento%                         |
+| Custo total    | subtotal + falhas + acabamento + fixação       |
+| Preço sugerido | custo total × (1 + acréscimo% / 100)           |
 
 Nas parcelas percentuais, divida o percentual informado por 100. O lucro representa **acréscimo sobre o custo**, não margem sobre a venda. R$ 10 de custo com acréscimo de 200% resulta em R$ 30 de venda.
 
