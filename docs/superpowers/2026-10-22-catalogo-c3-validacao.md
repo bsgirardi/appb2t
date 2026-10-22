@@ -38,7 +38,13 @@ Movimento reduzido: por escolha explícita do usuário, verificação automatiza
 
 ## Operação
 
+Em 22/10/2026, o usuário escolheu enviar a branch e criar Pull Request para `main`, com atualização de documentação. README, PENDENCIAS e PRODUCAO refletem a entrega revisável e as limitações conhecidas. Essa autorização não executa integração ou publicação operacional.
+
+A limpeza automática dos arquivos temporários foi rejeitada pela política de execução; os registros foram preservados em diretório ignorado, com cópia em `test-results/catalog-c3/execution-record/`. Isso não afetou os testes ou os dados operacionais.
+
 Validação da candidata concluída, com os dois menores adiados e a substituição da conferência de movimento reduzido pela análise automatizada autorizada. Antes de publicar C3, obter a decisão sobre o resultado revisável. Na publicação, fazer outro backup recente e ensaio, aplicar a migração aditiva e trocar a aplicação com health e teste HTTP. Preservar o banco e os dados em rollback da aplicação; não apagar tabelas, imagens nem volumes. O ensaio acima não substitui o backup imediatamente anterior à publicação.
+
+O retorno para C2 após gerar documentos C3 não foi validado: os contratos estritos anteriores não incluem `catalogKits`. A preservação dos dados exige versão compatível ou recuperação ensaiada, conforme [PRODUCAO.md](../../PRODUCAO.md#c3-atualização-de-uma-instalação-c2).
 
 ## Revisão independente
 

@@ -44,6 +44,8 @@ O protocolo sozinho não permite consultar dados do cliente. O envio tem limite 
 
 ### Quantidades e kits (C3)
 
+Estado em 22/10/2026: candidata validada, com envio para revisão por Pull Request autorizado. A instalação operacional continua em C2; integração e publicação são etapas posteriores. Consulte [pendências](PENDENCIAS.md) e [implantação de C3](PRODUCAO.md#c3-atualização-de-uma-instalação-c2).
+
 No cadastro de produto, configure as faixas de quantidade e a foto usada na composição. Fora de kits, cada personalização conta separadamente: Ana e Bia não compartilham a faixa. Em **Kits**, a equipe escolhe os produtos permitidos e cadastra faixas percentuais ou valores fixos. Todas as unidades contam; o valor fixo é abatido uma vez por montagem. Dentro do kit, não se acumulam as faixas individuais dos componentes.
 
 Na loja, **Monte seu conjunto** abre o montador. O visitante personaliza peças, ajusta quantidades na lista de componentes e move fotos por arraste, teclado ou botões. Posições e zoom não alteram quantidades/preços. Revise e confirme as referências atuais antes de continuar para a lista. Um componente sob consulta mantém o total do kit pendente, sem desconto parcial. A montagem é ilustrativa, sem escala física nem aprovação de arte.
