@@ -33,6 +33,8 @@ it.each(["ADMIN", "OPERATOR"] as const)(
         "publicPriceMode",
         "commercialRevision",
         "configuration",
+        "quantityTiers",
+        "compositionImageId",
         "imageUrl",
         "images",
         "seoTitle",

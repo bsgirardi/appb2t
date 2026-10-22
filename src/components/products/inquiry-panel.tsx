@@ -7,13 +7,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { RequestSubmit } from "./request-submit";
-import { clearSubmittedLines } from "@/lib/catalog-request-attempt";
+import {
+  clearSubmittedLines,
+  clearSubmittedSelection,
+} from "@/lib/catalog-request-attempt";
+import { KitSummary } from "@/components/kits/kit-summary";
+import type { KitSelection, KitGroupReview } from "@/domain/kits/types";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
 import {
-  useInquiry,
+  useKitSelection,
+  readKitSelection,
+  writeKitSelection,
+  inquiryConflictText,
+  resolveInquiryConflict,
   readInquiry,
   writeInquiry,
   useInquiryStorageStatus,
@@ -28,9 +37,10 @@ import {
 import { api } from "@/lib/client-api";
 import { formatBRL } from "@/domain/calculation/calculate";
 export function InquiryPanel() {
-  const items = useInquiry();
+  const selection = useKitSelection();
+  const items = selection.items;
   const storageStatus = useInquiryStorageStatus();
-  const stamp = JSON.stringify(items);
+  const stamp = JSON.stringify(selection);
   const [result, setResult] = useState<{
     stamp: string;
     review?: InquiryReview;
@@ -48,7 +58,10 @@ export function InquiryPanel() {
   useEffect(() => {
     let active = true;
     if (items.length)
-      api<InquiryReview>("/api/portfolio/inquiry", { items })
+      api<InquiryReview>(
+        "/api/portfolio/inquiry",
+        selection.groups.length ? selection : { items },
+      )
         .then((review) => {
           if (active) setResult({ stamp, review });
         })
@@ -58,11 +71,39 @@ export function InquiryPanel() {
     return () => {
       active = false;
     };
-  }, [items, stamp]);
+  }, [items, selection, stamp]);
   const current = result?.stamp === stamp ? result : undefined;
   const preparedReview =
     prepared?.stamp === stamp ? prepared.review : undefined;
   const review = preparedReview ?? current?.review;
+  function clearSent(sent: KitSelection) {
+    try {
+      writeKitSelection(clearSubmittedSelection(readKitSelection(), sent));
+      setPrepared(undefined);
+    } catch (error) {
+      setNotice((error as Error).message);
+    }
+  }
+  function confirmGroup(group: KitGroupReview) {
+    try {
+      const current = readKitSelection();
+      writeKitSelection({
+        ...current,
+        groups: current.groups.map((g) =>
+          g.instanceId === group.instanceId
+            ? {
+                ...g,
+                commercialRevision: group.currentRevision,
+                seenPrice: group.price,
+              }
+            : g,
+        ),
+      });
+      setPrepared(undefined);
+    } catch (error) {
+      setNotice((error as Error).message);
+    }
+  }
   function update(next: typeof items) {
     try {
       writeInquiry(next);
@@ -105,9 +146,10 @@ export function InquiryPanel() {
     setResult(undefined);
     setNotice("");
     try {
-      const fresh = await api<InquiryReview>("/api/portfolio/inquiry", {
-        items,
-      });
+      const fresh = await api<InquiryReview>(
+        "/api/portfolio/inquiry",
+        selection.groups.length ? selection : { items },
+      );
       setResult({ stamp, review: fresh });
       if (fresh.ready) setPrepared({ stamp, review: fresh });
     } catch (error) {
@@ -127,6 +169,50 @@ export function InquiryPanel() {
   const storage = storageStatus ? (
     <Alert role="alert">
       <p>{storageStatus}</p>
+      {inquiryConflictText() && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            onClick={() => {
+              try {
+                resolveInquiryConflict("local");
+                setRecovery("");
+              } catch (e) {
+                setNotice((e as Error).message);
+              }
+            }}
+          >
+            Manter a versão desta aba
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            onClick={() => {
+              try {
+                resolveInquiryConflict("remote");
+                setRecovery("");
+              } catch (e) {
+                setNotice((e as Error).message);
+              }
+            }}
+          >
+            Usar a versão da outra aba
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            onClick={() =>
+              setRecovery(JSON.stringify(inquiryConflictText(), null, 2))
+            }
+          >
+            Mostrar as duas versões para recuperação
+          </Button>
+        </>
+      )}
       <Button
         type="button"
         variant="outline"
@@ -176,6 +262,8 @@ export function InquiryPanel() {
           <Link href="/#all-products">Explorar produtos</Link>
         </Button>
         <RequestSubmit
+          groups={selection.groups}
+          onClearSubmittedSelection={clearSent}
           items={items}
           review={review}
           onReviewRequired={prepare}
@@ -214,6 +302,27 @@ export function InquiryPanel() {
       {!current && <p role="status">Conferindo preços e disponibilidade…</p>}
       <div className="store-inquiry-layout">
         <div className="store-inquiry-lines">
+          {(review?.groups ?? []).map((group) => (
+            <section className="kit-inquiry-group" key={group.instanceId}>
+              <KitSummary review={group} />
+              <Button asChild variant="outline" className="min-h-11">
+                <Link
+                  href={`/portfolio/conjuntos/${encodeURIComponent(group.kitId)}?montagem=${encodeURIComponent(group.instanceId)}`}
+                >
+                  Editar composição de {group.name}
+                </Link>
+              </Button>
+              {group.requiresConfirmation && !group.problem && (
+                <Button
+                  type="button"
+                  className="min-h-11"
+                  onClick={() => confirmGroup(group)}
+                >
+                  Confirmar regra de {group.name}
+                </Button>
+              )}
+            </section>
+          ))}
           {items.map((item, index) => {
             const line = review?.lines.find((l) =>
               l.lineId && item.lineId
@@ -339,7 +448,11 @@ export function InquiryPanel() {
                   {line?.path && item.lineId && (
                     <Button asChild variant="outline">
                       <Link
-                        href={`${productBrowsePath({ id: item.productId, name: line.name }, item.catalogContext)}${item.catalogContext && (item.catalogContext.collection || item.catalogContext.search || item.catalogContext.order !== "nome" || item.catalogContext.page > 1) ? "&" : "?"}editar=${encodeURIComponent(item.lineId)}`}
+                        href={
+                          item.kitInstanceId
+                            ? `/portfolio/conjuntos/${encodeURIComponent(selection.groups.find((g) => g.instanceId === item.kitInstanceId)!.kitId)}?montagem=${encodeURIComponent(item.kitInstanceId)}`
+                            : `${productBrowsePath({ id: item.productId, name: line.name }, item.catalogContext)}${item.catalogContext && (item.catalogContext.collection || item.catalogContext.search || item.catalogContext.order !== "nome" || item.catalogContext.page > 1) ? "&" : "?"}editar=${encodeURIComponent(item.lineId)}`
+                        }
                       >
                         Editar configuração
                       </Link>
@@ -396,6 +509,8 @@ export function InquiryPanel() {
             pedido.
           </p>
           <RequestSubmit
+            groups={selection.groups}
+            onClearSubmittedSelection={clearSent}
             items={items}
             review={review}
             onReviewRequired={prepare}

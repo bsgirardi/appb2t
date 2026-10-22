@@ -118,3 +118,65 @@ it("does not prepare consultation without a chosen customer and positive price",
   expect(screen.getByRole("alert")).toBeTruthy();
   expect(api).not.toHaveBeenCalled();
 });
+it("kit_preparation_separates_discount_and_invalidates_review_after_any_price_edit", () => {
+  const group = {
+    schemaVersion: 1 as const,
+    instanceId: "g",
+    kitId: "k",
+    name: "Kit Ana",
+    commercialRevision: 1,
+    tiers: [{ minQuantity: 5, kind: "FIXED" as const, amount: "15.00" }],
+    lineIds: ["l0"],
+    placements: [{ lineId: "l0", x: 0.5, y: 0.5, z: 0 }],
+    images: [{ lineId: "l0", imageId: null, imageUrl: null }],
+    price: {
+      kind: "REFERENCE" as const,
+      quantity: 5,
+      knownSubtotal: "100.00",
+      subtotal: "100.00",
+      discount: "15.00",
+      total: "85.00",
+      tier: { minQuantity: 5, kind: "FIXED" as const, amount: "15.00" },
+    },
+  };
+  render(
+    <RequestQuoteForm
+      request={{
+        ...request,
+        state: "EM_ATENDIMENTO",
+        groups: [group],
+        lines: [
+          {
+            ...request.lines[0],
+            kitInstanceId: "g",
+            quantity: 5,
+            priceKind: "REFERENCE",
+            unitPrice: "20.00",
+            subtotal: "100.00",
+          },
+        ],
+      }}
+      initialCustomers={[]}
+      onPrepared={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  const checkbox = screen.getByLabelText(
+    "Revisei os preços, as quantidades e os descontos dos kits",
+  ) as HTMLInputElement;
+  expect(checkbox.checked).toBe(false);
+  fireEvent.click(checkbox);
+  expect(checkbox.checked).toBe(true);
+  fireEvent.change(screen.getByLabelText("Preço unitário 1"), {
+    target: { value: "21.00" },
+  });
+  expect(checkbox.checked).toBe(false);
+  fireEvent.change(screen.getByLabelText("Preço unitário 1"), {
+    target: { value: "20.00" },
+  });
+  expect(checkbox.checked).toBe(false);
+  fireEvent.change(screen.getByLabelText("Desconto comercial adicional (R$)"), {
+    target: { value: "5.00" },
+  });
+  expect(screen.getByText(/Desconto global:.*20,00/)).toBeTruthy();
+});

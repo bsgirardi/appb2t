@@ -41,7 +41,7 @@ export function SaleForm({
       title={sale ? "Editar venda" : "Nova venda"}
       onSaved={() => {}}
       onCancel={onCancel}
-      saveDraft={async (draft, costBindings) => {
+      saveDraft={async (draft, costBindings, kitDiscountReview) => {
         const parsed = documentSchema.safeParse(draft);
         if (!parsed.success)
           throw new Error(
@@ -53,6 +53,7 @@ export function SaleForm({
             {
               ...parsed.data,
               costBindings,
+              ...(kitDiscountReview ? { kitDiscountReview } : {}),
               ...(sale ? { expectedVersion: sale.version } : {}),
             },
             sale ? "PUT" : "POST",

@@ -71,6 +71,14 @@ export async function receiveCatalogRequest(
           contact: submission.contact as unknown as Prisma.InputJsonValue,
           knownTotal: snapshot.knownTotal,
           consultCount: snapshot.consultCount,
+          ...(snapshot.groups.length
+            ? {
+                kitSnapshot: {
+                  schemaVersion: 1,
+                  groups: snapshot.groups,
+                } as unknown as Prisma.InputJsonValue,
+              }
+            : {}),
           lines: {
             create: snapshot.lines.map((line, position) => ({
               position,

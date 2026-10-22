@@ -17,10 +17,12 @@ import {
   StoreBanners,
   StoreFeatured,
   StoreAbout,
+  StoreKits,
 } from "@/components/products/storefront-sections";
 import { StorefrontShell } from "@/components/products/storefront-shell";
 import { ProductCatalog } from "@/components/products/product-catalog";
 import { summary } from "@/domain/products/storefront";
+import { listPublicKits } from "@/server/kits/queries";
 export const dynamic = "force-dynamic";
 import {
   catalogFilters as filters,
@@ -58,9 +60,10 @@ export async function generateMetadata({ searchParams }: Props) {
 }
 export default async function PortfolioPage({ searchParams }: Props) {
   const f = filters(await searchParams);
-  const [identity, collections] = await Promise.all([
+  const [identity, collections, kits] = await Promise.all([
     getPublicAppearance(),
     listPublicCollections(),
+    listPublicKits(),
   ]);
   const collection = collections.find((c) => c.id === f.collection);
   if (f.collection && !collection) notFound();
@@ -168,6 +171,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
         ) : (
           <StoreWelcome />
         ))}
+      {home && <StoreKits kits={kits} />}
       {home && <StoreCollections collections={collections} />}
       <CollectionNavigation collections={collections} context={f} />
       {home

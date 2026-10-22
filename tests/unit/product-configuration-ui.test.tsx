@@ -11,6 +11,65 @@ beforeEach(() => {
   writeInquiry([]);
 });
 afterEach(cleanup);
+it("uses_individual_tier_outside_kit_and_only_base_inside_kit", () => {
+  const product = {
+    ...productDTO,
+    price: "20.00",
+    quantityTiers: [{ minQuantity: 10, baseUnitPrice: "18.00" }],
+    configuration: {
+      ...emptyProductConfiguration,
+      fields: [
+        {
+          id: "name",
+          label: "Nome",
+          help: "",
+          required: true,
+          type: "SHORT_TEXT" as const,
+          maxLength: 120,
+          effect: { kind: "ADD" as const, amount: "2.00" },
+        },
+      ],
+    },
+  };
+  const view = render(
+    <ProductContact
+      product={product}
+      phone=""
+      email=""
+      url="http://localhost/p"
+    />,
+  );
+  fireEvent.change(screen.getByLabelText(/Nome/), { target: { value: "Ana" } });
+  fireEvent.change(screen.getByLabelText("Quantidade para orçamento"), {
+    target: { value: "10" },
+  });
+  expect(screen.getByText(/Faixa aplicada/)).toBeTruthy();
+  fireEvent.click(
+    screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
+  );
+  expect(readInquiry()[0].seenPrice?.unit).toBe("20.00");
+  view.unmount();
+  const selected: unknown[] = [];
+  render(
+    <ProductContact
+      product={product}
+      phone=""
+      email=""
+      url="http://localhost/p"
+      kitContext={{ instanceId: "g", onSave: (item) => selected.push(item) }}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText(/Nome/), { target: { value: "Ana" } });
+  fireEvent.change(screen.getByLabelText("Quantidade para orçamento"), {
+    target: { value: "10" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Adicionar ao kit" }));
+  expect(selected[0]).toMatchObject({
+    kitInstanceId: "g",
+    seenPrice: { unit: "22.00" },
+  });
+  expect(readInquiry()).toHaveLength(1);
+});
 it("keeps different personalized names as separate saved lines", () => {
   render(
     <ProductContact
@@ -186,7 +245,7 @@ it("warns when adding a product can only save the list in memory", () => {
   const spy = vi
     .spyOn(Storage.prototype, "setItem")
     .mockImplementation(function (this: Storage, key: string, value: string) {
-      if (key === "b2t:inquiry:v2") throw Error("quota");
+      if (key === "b2t:inquiry:v3") throw Error("quota");
       return original.call(this, key, value);
     });
   fireEvent.click(

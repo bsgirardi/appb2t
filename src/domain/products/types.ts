@@ -1,4 +1,5 @@
 import type { ProductConfiguration, PriceMode } from "./configuration";
+import type { QuantityTier } from "./quantity-pricing";
 import type {
   StoredProductCalculation,
   PricingSnapshotDTO,
@@ -11,6 +12,8 @@ export interface ProductImageDTO {
   position: number;
 }
 export interface ProductInput extends CommercialFields {
+  quantityTiers?: QuantityTier[];
+  compositionImageId?: string | null;
   configuration?: ProductConfiguration;
   publicPriceMode?: PriceMode;
   seoTitle?: string;
@@ -27,6 +30,8 @@ export interface ProductInput extends CommercialFields {
   printerId?: string | null;
 }
 export interface PublicProductDTO extends CommercialFields {
+  quantityTiers?: QuantityTier[];
+  compositionImageId?: string | null;
   configuration?: ProductConfiguration;
   publicPriceMode?: PriceMode;
   commercialRevision?: number;

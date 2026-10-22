@@ -5,9 +5,16 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import Decimal from "decimal.js";
+import { formatBRL } from "@/domain/calculation/calculate";
+import {
+  calculatePreparedKitDiscount,
+  kitPreparationReview,
+} from "@/domain/kits/document";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { api } from "@/lib/client-api";
-import { quoteSchema } from "@/domain/commerce/validation";
+import { quoteSchema, moneySchema } from "@/domain/commerce/validation";
 import type { CustomerDTO } from "@/domain/customers/types";
 import type { CatalogRequestDTO } from "@/domain/catalog-requests/types";
 export function RequestQuoteForm({
@@ -57,6 +64,56 @@ export function RequestQuoteForm({
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const form = useRef<HTMLFormElement>(null);
+  const [reviewedFingerprint, setReviewedFingerprint] = useState<string>();
+  const hasKits = !!request.groups?.length;
+  const previewItems = lines.map((line) => {
+    const source = request.lines.find((s) => s.lineId === line.sourceLineId)!;
+    const active = request.currentProducts.some(
+      (p) => p.id === source.productId && p.active,
+    );
+    return {
+      lineId: line.lineId,
+      ...(active || !line.standalone ? { productId: source.productId } : {}),
+      description: line.description,
+      quantity: line.quantity,
+      unitPrice: line.unitPrice,
+    };
+  });
+  const sources = lines.map(({ lineId, sourceLineId, standalone }) => ({
+    lineId,
+    sourceLineId,
+    standalone,
+  }));
+  let globalDiscount = discount,
+    kitDiscount = "0.00",
+    fingerprint: string | undefined,
+    kitError = "",
+    kitCalculations: ReturnType<typeof calculatePreparedKitDiscount>["groups"] =
+      [];
+  if (hasKits)
+    try {
+      const calculation = calculatePreparedKitDiscount(
+        request.groups!,
+        previewItems,
+        sources,
+      );
+      kitCalculations = calculation.groups;
+      kitDiscount = calculation.discount;
+      globalDiscount = new Decimal(kitDiscount)
+        .plus(moneySchema.parse(discount))
+        .toFixed(2);
+      const subtotal = previewItems.reduce(
+        (s, i) =>
+          s.plus(new Decimal(i.unitPrice.replace(",", ".")).times(i.quantity)),
+        new Decimal(0),
+      );
+      if (new Decimal(globalDiscount).gte(subtotal))
+        throw new Error("O desconto global deve ser menor que o subtotal.");
+      fingerprint = kitPreparationReview(previewItems, sources, globalDiscount);
+    } catch {
+      kitError =
+        "Informe preços positivos e quantidades de 1 a 99 nos componentes; confira os descontos para continuar.";
+    }
   async function findCustomers() {
     try {
       const found = await api<CustomerDTO[]>(
@@ -80,6 +137,16 @@ export function RequestQuoteForm({
     e.preventDefault();
     if (pending.current) return;
     setError("");
+    if (
+      hasKits &&
+      (kitError || !fingerprint || reviewedFingerprint !== fingerprint)
+    ) {
+      setError(
+        kitError ||
+          "Confirme a revisão dos preços, das quantidades e dos descontos dos kits.",
+      );
+      return;
+    }
     const items = lines.map((line) => {
       const source = request.lines.find((s) => s.lineId === line.sourceLineId)!;
       const active = request.currentProducts.some(
@@ -97,7 +164,7 @@ export function RequestQuoteForm({
       customerId,
       validUntil,
       paymentTerms,
-      discount,
+      discount: globalDiscount,
       shipping,
       internalNotes,
       items,
@@ -134,6 +201,12 @@ export function RequestQuoteForm({
         {
           expectedVersion: request.version,
           document: parsed.data,
+          ...(hasKits
+            ? {
+                additionalDiscount: moneySchema.parse(discount),
+                kitReviewFingerprint: fingerprint,
+              }
+            : {}),
           sources: lines.map(({ lineId, sourceLineId, standalone }) => ({
             lineId,
             sourceLineId,
@@ -203,12 +276,14 @@ export function RequestQuoteForm({
           const active = request.currentProducts.some(
             (p) => p.id === source.productId && p.active,
           );
-          const update = (patch: Partial<typeof line>) =>
+          const update = (patch: Partial<typeof line>) => {
+            setReviewedFingerprint(undefined);
             setLines((old) =>
               old.map((row) =>
                 row.lineId === line.lineId ? { ...row, ...patch } : row,
               ),
             );
+          };
           return (
             <fieldset key={line.lineId} className="commerce-item">
               <legend>
@@ -233,7 +308,7 @@ export function RequestQuoteForm({
                 label={`Quantidade ${index + 1}`}
                 type="number"
                 min={1}
-                max={100000}
+                max={source.kitInstanceId ? 99 : 100000}
                 value={line.quantity}
                 onChange={(e) => update({ quantity: Number(e.target.value) })}
               />
@@ -266,10 +341,15 @@ export function RequestQuoteForm({
         <div className="form-grid">
           <Field
             name="discount"
-            label="Desconto (R$)"
+            label={
+              hasKits ? "Desconto comercial adicional (R$)" : "Desconto (R$)"
+            }
             inputMode="decimal"
             value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
+            onChange={(e) => {
+              setReviewedFingerprint(undefined);
+              setDiscount(e.target.value);
+            }}
           />
           <Field
             name="shipping"
@@ -286,6 +366,65 @@ export function RequestQuoteForm({
             onChange={(e) => setValidUntil(e.target.value)}
           />
         </div>
+        {hasKits && (
+          <section
+            className="flex flex-col gap-3"
+            aria-label="Revisão dos descontos de kits"
+          >
+            <h3>Descontos de kits</h3>
+            <p>
+              Os preços unitários mostram a base e os adicionais, antes do
+              desconto. As faixas recebidas são usadas neste cálculo, sem
+              acumular faixas individuais.
+            </p>
+            {kitError ? (
+              <Notice>{kitError}</Notice>
+            ) : (
+              <>
+                {kitCalculations.map((calculation) => {
+                  const group = request.groups!.find(
+                    (g) => g.instanceId === calculation.instanceId,
+                  )!;
+                  return (
+                    <div key={group.instanceId}>
+                      <strong>{group.name}</strong>
+                      <p>
+                        {calculation.quantity} unidades; soma{" "}
+                        {formatBRL(calculation.subtotal)}; desconto{" "}
+                        {formatBRL(calculation.discount)}; referência líquida{" "}
+                        {formatBRL(calculation.total)}.
+                      </p>
+                      {JSON.stringify(calculation.tier) !==
+                        JSON.stringify(group.price.tier) ||
+                      calculation.total !== group.price.total ? (
+                        <p>
+                          O cálculo revisado difere da referência recebida.
+                          Confira os valores e a faixa.
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+                <p>
+                  Descontos dos kits: {formatBRL(kitDiscount)}. Desconto global:{" "}
+                  {formatBRL(globalDiscount)}.
+                </p>
+              </>
+            )}
+            <label className="flex min-h-11 items-center gap-3">
+              <Checkbox
+                checked={!!fingerprint && reviewedFingerprint === fingerprint}
+                disabled={!!kitError || busy}
+                onChange={(e) =>
+                  setReviewedFingerprint(
+                    e.target.checked ? fingerprint : undefined,
+                  )
+                }
+              />
+              Revisei os preços, as quantidades e os descontos dos kits
+            </label>
+          </section>
+        )}
         <Label>
           Condições de pagamento
           <Textarea

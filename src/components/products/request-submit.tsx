@@ -19,6 +19,8 @@ import {
 } from "@/lib/catalog-request-attempt";
 import { RequestContactForm } from "./request-contact-form";
 import { RequestReceipt } from "./request-receipt";
+import type { KitGroupInput, KitSelection } from "@/domain/kits/types";
+import { parseKitSelection } from "@/domain/kits/selection";
 const emptyContact: CatalogContact = {
   name: "",
   phone: "",
@@ -30,8 +32,12 @@ export function RequestSubmit({
   review,
   onClearSubmitted,
   onReviewRequired,
+  groups = [],
+  onClearSubmittedSelection,
 }: {
   items: InquiryItem[];
+  groups?: KitGroupInput[];
+  onClearSubmittedSelection?: (submitted: KitSelection) => void;
   review?: InquiryReview;
   onClearSubmitted: (submitted: InquiryItem[]) => void;
   onReviewRequired?: () => void;
@@ -45,11 +51,17 @@ export function RequestSubmit({
   const [warning, setWarning] = useState("");
   const [rejected, setRejected] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [submitted, setSubmitted] = useState<InquiryItem[] | null>(null);
+  const [submitted, setSubmitted] = useState<KitSelection | null>(null);
   const form = useRef<HTMLFormElement>(null);
   function accepted(receipt: CatalogReceipt, pending: PendingAttempt) {
     confirmRequestAttempt(receipt);
-    setSubmitted(pending.payload.items);
+    setSubmitted(
+      parseKitSelection({
+        schemaVersion: 2,
+        items: pending.payload.items,
+        groups: pending.payload.groups ?? [],
+      }),
+    );
     setContact(emptyContact);
     setNotice("");
     setRejected(false);
@@ -140,7 +152,11 @@ export function RequestSubmit({
     }
     setErrors({});
     try {
-      const pending = createRequestAttempt({ contact: parsed.data, items });
+      const pending = createRequestAttempt({
+        contact: parsed.data,
+        items,
+        ...(groups.length ? { schemaVersion: 2 as const, groups } : {}),
+      });
       const status = writeRequestAttempt(pending);
       if (status.storage === "memory")
         setWarning(
@@ -187,7 +203,9 @@ export function RequestSubmit({
               type="button"
               variant="outline"
               onClick={() => {
-                onClearSubmitted(submitted);
+                if (onClearSubmittedSelection)
+                  onClearSubmittedSelection(submitted);
+                else onClearSubmitted(submitted.items);
                 setSubmitted(null);
               }}
             >

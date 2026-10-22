@@ -19,6 +19,7 @@ export interface DocumentItemInput {
   unitPrice: string;
 }
 export interface DocumentInput {
+  catalogKits?: import("@/domain/kits/document").CatalogKitDocument;
   customerId: string;
   items: DocumentItemInput[];
   discount: string;
@@ -49,6 +50,7 @@ export interface DocumentItemSnapshot extends DocumentItemInput {
   name: string;
 }
 export interface DocumentSnapshot {
+  catalogKits?: import("@/domain/kits/document").CatalogKitDocument;
   company: CompanyIdentityDTO;
   customer: CustomerSnapshot;
   items: DocumentItemSnapshot[];

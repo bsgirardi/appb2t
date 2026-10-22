@@ -1,8 +1,14 @@
 # appb2t · Gestão e calculadora de impressão 3D
 
+Versão **1.1.0**. Consulte [histórico de versões](CHANGELOG.md) e [registro da release](docs/superpowers/2026-10-22-release-1.1.0.md).
+
 Para preparar o build em outro servidor, siga [PRODUCAO.md](PRODUCAO.md). Pendências resumidas em [PENDENCIAS.md](PENDENCIAS.md). O nome técnico do projeto é `appb2t`; a identidade comercial configurada no banco permanece B2T.
 
 Ferramenta de precificação de filamento e resina com catálogo público de produtos, PostgreSQL centralizado, contas individuais e configurações exclusivas de administradores. Interface responsiva em português, valores em reais e motor decimal compartilhado entre calculadora e catálogo.
+
+## Dashboard e navegação
+
+Após entrar, a equipe acessa `/dashboard`. Os cartões mostram vendas criadas no mês (exceto rascunhos/canceladas), orçamentos em aberto dentro da regra de validade e ordens liberadas/em execução. Administradores também consultam saldo e valores a receber/pagar pelo motor financeiro existente. O menu agrupa Vendas, Produção e Financeiro, mantendo Solicitações e Kits; os grupos podem ser recolhidos e o grupo da tela atual inicia aberto.
 
 ## O que está incluído
 
@@ -41,6 +47,18 @@ Se a resposta do envio for interrompida, use **Verificar recebimento** ou **Tent
 Na área interna, **Solicitações** permite a ADMIN e OPERATOR ativos consultar a seleção recebida, atribuir responsável, registrar notas e encerrar/reabrir o atendimento. A equipe escolhe ou cadastra conscientemente o cliente, revisa as descrições/valores e resolve itens sob consulta antes de **Preparar orçamento**. Essa ação cria um único rascunho vinculado, com a origem completa das personalizações preservada; emissão e demais etapas seguem o fluxo existente de orçamentos. Produtos posteriormente retirados exigem revisão explícita como itens avulsos.
 
 O protocolo sozinho não permite consultar dados do cliente. O envio tem limite de 20 linhas, 99 unidades por linha, 256 KiB e cotas de novas tentativas por navegador/instalação. Antes de publicar C2 em uma instalação existente, faça backup e aplique `202610200001_catalog_requests` pelo serviço de migração. Essa migração é aditiva; nunca use fixtures ou a suíte mutável no banco operacional.
+
+### Quantidades e kits (C3)
+
+Estado em 22/10/2026: candidata validada, em revisão no [PR #3](https://github.com/bsgirardi/appb2t/pull/3). A instalação operacional continua em C2; integração e publicação são etapas posteriores. Consulte [pendências](PENDENCIAS.md) e [implantação de C3](PRODUCAO.md#c3-atualização-de-uma-instalação-c2).
+
+No cadastro de produto, configure as faixas de quantidade e a foto usada na composição. Fora de kits, cada personalização conta separadamente: Ana e Bia não compartilham a faixa. Em **Kits**, a equipe escolhe os produtos permitidos e cadastra faixas percentuais ou valores fixos. Todas as unidades contam; o valor fixo é abatido uma vez por montagem. Dentro do kit, não se acumulam as faixas individuais dos componentes.
+
+Na loja, **Monte seu conjunto** abre o montador. O visitante personaliza peças, ajusta quantidades na lista de componentes e move fotos por arraste, teclado ou botões. Posições e zoom não alteram quantidades/preços. Revise e confirme as referências atuais antes de continuar para a lista. Um componente sob consulta mantém o total do kit pendente, sem desconto parcial. A montagem é ilustrativa, sem escala física nem aprovação de arte.
+
+A solicitação preserva componentes, personalizações, posições e a tabela completa recebida. Ao preparar o orçamento, a equipe revisa preços, quantidades e desconto adicional; os descontos dos kits entram uma vez no desconto global. Edições comerciais posteriores exigem nova confirmação do desconto e preservam a preparação original. Impressão e conversão mantêm os valores negociados.
+
+Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A candidata C3 não equivale a publicação operacional. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
 
 ### Seleção e canal complementar
 
@@ -173,17 +191,17 @@ npm test
 
 `t` é o tempo total em horas. Filamento usa gramas/kg; resina usa ml/litro.
 
-| Parcela | Cálculo |
-| --- | --- |
-| Material | consumo ÷ 1000 × preço por kg/litro |
-| Energia | t × watts ÷ 1000 × tarifa por kWh |
-| Máquina | t × aquisição ÷ (meses × dias/mês × horas/dia) |
-| Manutenção | (material + energia) × manutenção% |
-| Subtotal | material + energia + máquina + manutenção |
-| Falhas | subtotal × falhas% |
-| Acabamento | subtotal × acabamento% |
-| Custo total | subtotal + falhas + acabamento + fixação |
-| Preço sugerido | custo total × (1 + acréscimo% / 100) |
+| Parcela        | Cálculo                                        |
+| -------------- | ---------------------------------------------- |
+| Material       | consumo ÷ 1000 × preço por kg/litro            |
+| Energia        | t × watts ÷ 1000 × tarifa por kWh              |
+| Máquina        | t × aquisição ÷ (meses × dias/mês × horas/dia) |
+| Manutenção     | (material + energia) × manutenção%             |
+| Subtotal       | material + energia + máquina + manutenção      |
+| Falhas         | subtotal × falhas%                             |
+| Acabamento     | subtotal × acabamento%                         |
+| Custo total    | subtotal + falhas + acabamento + fixação       |
+| Preço sugerido | custo total × (1 + acréscimo% / 100)           |
 
 Nas parcelas percentuais, divida o percentual informado por 100. O lucro representa **acréscimo sobre o custo**, não margem sobre a venda. R$ 10 de custo com acréscimo de 200% resulta em R$ 30 de venda.
 

@@ -62,7 +62,7 @@ export default async function StockPage({
   const href = (page: number) =>
     `/estoque?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}) })}`;
   return (
-    <section className="min-w-0 space-y-5">
+    <section className="flex min-w-0 flex-col gap-5">
       <div className="page-heading">
         <div>
           <h1>Estoque</h1>
@@ -90,7 +90,7 @@ export default async function StockPage({
       {!parsed.success && (
         <Notice>Filtros inválidos. Exibindo a primeira página.</Notice>
       )}
-      <form className="flex flex-wrap items-end gap-2">
+      <form className="admin-filter-grid">
         <input type="hidden" name="view" value={view} />
         {saleId && <input type="hidden" name="saleId" value={saleId} />}
         <Field

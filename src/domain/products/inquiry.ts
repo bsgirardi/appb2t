@@ -32,6 +32,7 @@ export const inquiryItemSchema = z
       .strict()
       .optional(),
     lineId: z.string().min(1).max(100).optional(),
+    kitInstanceId: z.string().min(1).max(100).optional(),
     answers: configurationAnswersSchema.default([]),
     commercialRevision: z.number().int().positive().nullable().default(null),
     seenPrice: seenPriceSchema.nullable().default(null),
@@ -54,7 +55,12 @@ export type InquiryInput = z.input<typeof inquiryItemSchema>;
 export const inquiryKey = (
   item: Pick<
     InquiryInput,
-    "productId" | "color" | "size" | "answers" | "commercialRevision"
+    | "productId"
+    | "color"
+    | "size"
+    | "answers"
+    | "commercialRevision"
+    | "kitInstanceId"
   >,
 ) =>
   JSON.stringify([
@@ -66,6 +72,7 @@ export const inquiryKey = (
       .filter((a) => a.value)
       .sort((a, b) => a.fieldId.localeCompare(b.fieldId, "en")),
     item.commercialRevision ?? null,
+    item.kitInstanceId ?? null,
   ]);
 export const inquiryItemsSchema = z
   .array(inquiryItemSchema)
@@ -114,6 +121,8 @@ export interface InquiryLine extends InquiryItem {
   fieldErrors?: Record<string, string>;
 }
 export interface InquiryReview {
+  groups?: import("@/domain/kits/types").KitGroupReview[];
+  closedTotal?: string | null;
   lines: InquiryLine[];
   total: string;
   knownTotal?: string | null;

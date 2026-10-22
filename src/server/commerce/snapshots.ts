@@ -42,6 +42,7 @@ export async function createDocumentSnapshot(
   });
   return {
     snapshot: {
+      ...(input.catalogKits ? { catalogKits: input.catalogKits } : {}),
       company: {
         name: a.name,
         shortName: a.shortName,

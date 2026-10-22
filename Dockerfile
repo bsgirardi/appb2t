@@ -5,7 +5,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci
+RUN npm ci --maxsockets=5
 
 FROM deps AS build
 COPY . .

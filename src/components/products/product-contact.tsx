@@ -41,6 +41,7 @@ type Props = {
   editLineId?: string;
   backHref?: string;
   onOptionImage?: (id: string | null) => void;
+  kitContext?: { instanceId: string; onSave: (item: InquiryInput) => void };
 };
 const subscribe = () => () => {};
 export function ProductContact(props: Props) {
@@ -51,7 +52,7 @@ export function ProductContact(props: Props) {
   );
   return hydrated ? (
     <ContactForm
-      key={`${props.product.id}:${props.editLineId ?? "new"}`}
+      key={`${props.product.id}:${props.editLineId ?? "new"}:${props.kitContext?.instanceId ?? "loose"}`}
       {...props}
     />
   ) : (
@@ -66,10 +67,11 @@ function ContactForm({
   editLineId,
   backHref,
   onOptionImage,
+  kitContext,
 }: Props) {
   const storageStatus = useInquiryStorageStatus();
   const configuration = product.configuration ?? emptyProductConfiguration;
-  const draftKey = `${product.id}:${editLineId ?? "new"}`;
+  const draftKey = `${product.id}:${editLineId ?? "new"}${kitContext ? `:kit:${kitContext.instanceId}` : ""}`;
   const [draft, setDraft] = useState<InquiryInput>(() => {
     try {
       return (
@@ -121,6 +123,7 @@ function ContactForm({
       configuration,
       answers: draft.answers ?? [],
       quantity: draft.quantity,
+      quantityTiers: kitContext ? [] : (product.quantityTiers ?? []),
     });
   } catch {}
   const ready =
@@ -153,6 +156,7 @@ function ContactForm({
         configuration,
         answers,
         quantity: draft.quantity,
+        quantityTiers: kitContext ? [] : (product.quantityTiers ?? []),
       });
       const item = {
         ...draft,
@@ -175,8 +179,11 @@ function ContactForm({
         commercialRevision: product.commercialRevision ?? 1,
         seenPrice: currentPrice,
         answerLabels: answerLabels(configuration, answers),
+        ...(kitContext ? { kitInstanceId: kitContext.instanceId } : {}),
       };
-      if (editLineId) {
+      if (kitContext) {
+        kitContext.onSave(item);
+      } else if (editLineId) {
         const rows = readInquiry();
         if (rows.find((i) => i.lineId === editLineId)?.productId !== product.id)
           throw new Error(
@@ -197,9 +204,11 @@ function ContactForm({
       clearConfigurationDraft(draftKey);
       setMergePending(false);
       setNotice(
-        editLineId
-          ? "Configuração atualizada na lista."
-          : "Produto adicionado à lista.",
+        kitContext
+          ? "Peça adicionada ao kit."
+          : editLineId
+            ? "Configuração atualizada na lista."
+            : "Produto adicionado à lista.",
       );
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -350,7 +359,12 @@ function ContactForm({
               }
             />
           </div>
-          <ProductPriceSummary price={price} quantity={draft.quantity} />
+          <ProductPriceSummary
+            price={price}
+            quantity={draft.quantity}
+            quantityTiers={product.quantityTiers}
+            inKit={!!kitContext}
+          />
           <div className="store-config-action">
             <Button
               type="button"
@@ -363,9 +377,13 @@ function ContactForm({
               }
               onClick={() => save()}
             >
-              {editLineId
-                ? "Salvar configuração"
-                : "Adicionar à lista de orçamento"}
+              {kitContext
+                ? editLineId
+                  ? "Salvar peça do kit"
+                  : "Adicionar ao kit"
+                : editLineId
+                  ? "Salvar configuração"
+                  : "Adicionar à lista de orçamento"}
             </Button>
             {!ready && (
               <p className="store-note">
@@ -406,7 +424,10 @@ function ContactForm({
       {notice && (
         <p role="status">
           {notice}{" "}
-          <Link href="/portfolio/orcamento" className="inline-flex whitespace-nowrap">
+          <Link
+            href="/portfolio/orcamento"
+            className="inline-flex whitespace-nowrap"
+          >
             Ver minha lista →
           </Link>
         </p>

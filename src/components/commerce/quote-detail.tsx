@@ -4,6 +4,7 @@ import {
   currentBindingState,
 } from "@/components/pricing/line-cost-summary";
 import { Card } from "@/components/ui/card";
+import { KitDocumentHistory } from "./kit-document-history";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -204,6 +205,9 @@ export function QuoteDetail({
       )}
       <Card asChild>
         <section className="">
+          {quote.input.catalogKits && (
+            <KitDocumentHistory value={quote.input.catalogKits} />
+          )}
           <h2>Histórico</h2>
           <ul>
             {quote.events.map((e) => (
@@ -211,7 +215,11 @@ export function QuoteDetail({
                 {new Date(e.createdAt).toLocaleString("pt-BR", {
                   timeZone: "America/Sao_Paulo",
                 })}{" "}
-                · {e.action} · {e.actorName}
+                ·{" "}
+                {e.action === "KIT_DISCOUNT_REVIEW"
+                  ? "Desconto revisado"
+                  : e.action}{" "}
+                · {e.actorName}
               </li>
             ))}
           </ul>

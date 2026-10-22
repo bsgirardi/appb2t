@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import { quantityBasePrice, type QuantityTier } from "./quantity-pricing";
 import {
   validateAnswers,
   type PriceMode,
@@ -15,6 +16,7 @@ export function configuredPrice(input: {
   configuration: ProductConfiguration;
   answers: ConfigurationAnswer[];
   quantity: number;
+  quantityTiers?: QuantityTier[];
 }): ConfiguredPrice {
   const quantity = z.number().int().min(1).max(99).parse(input.quantity);
   const answers = validateAnswers(input.configuration, input.answers);
@@ -28,7 +30,9 @@ export function configuredPrice(input: {
     return { kind: "CONSULT", unit: null, subtotal: null };
   if (!input.basePrice || !/^\d{1,16}(\.\d{1,2})?$/.test(input.basePrice))
     throw new Error("Preço de referência inválido.");
-  const base = new Decimal(input.basePrice);
+  const base = new Decimal(
+    quantityBasePrice(input.basePrice, quantity, input.quantityTiers ?? []),
+  );
   if (base.lte(0)) throw new Error("Preço de referência inválido.");
   const unit = effects
     .reduce((sum, e) => (e.kind === "ADD" ? sum.plus(e.amount) : sum), base)

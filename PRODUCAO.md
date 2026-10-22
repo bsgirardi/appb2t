@@ -93,3 +93,14 @@ Não renomeie nem apague volumes para realizar esta mudança. Não execute `dock
 Configure backup automático com retenção, cópia fora do servidor e restauração testada. Antes de atualizar uma instalação com dados, gere backup atual e preserve a imagem anterior. As migrações ficam em prisma/migrations e não devem ser removidas da entrega.
 
 Consulte [PENDENCIAS.md](PENDENCIAS.md) antes de publicar externamente. A preparação da pasta não configura domínio, proxy, certificados ou agendamento de backups.
+
+## C3: atualização de uma instalação C2
+
+Estado em 22/10/2026: C3 é uma candidata validada em revisão no [PR #3](https://github.com/bsgirardi/appb2t/pull/3). A instalação operacional permanece em C2; a porta 3104 e seu banco separado servem somente à conferência. Criar ou aprovar o PR não executa migração nem publica a aplicação.
+
+1. Antes da publicação autorizada, gere novo backup consistente do banco operacional e preserve a imagem anterior. O backup do ensaio de 22/10 não substitui o backup imediatamente anterior à troca.
+2. Restaure esse backup em PostgreSQL 17 separado, sem reutilizar o volume operacional. Aplique as migrações pendentes pelo serviço `migrate`, incluindo `202610220001_catalog_kits`, e compare os registros anteriores usando suas colunas originais. O ensaio C3 já executado preservou contagens e hashes de 82 projeções históricas; detalhes e identificação da imagem estão no [relatório de validação](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
+3. Depois do ensaio aprovado, use o nome Compose e o volume efetivos da instalação existente, conforme a seção de preservação de volumes. Aplique a migração aditiva e só inicie a nova aplicação após seu sucesso. Não importe fixtures, usuários fictícios ou o banco da candidata na instalação operacional.
+4. Confira `/api/health`, login, produtos/fotos, documentos legados e um fluxo controlado de kit até preparação de orçamento. O kit deve aplicar seu desconto uma vez, sem acumular faixas individuais; consulta mantém o total pendente. Verifique também impressão e preservação de valores históricos antes de liberar o atendimento.
+
+**Retorno de versão:** preserve o banco migrado, seus novos registros e o backup. C2 não foi validada para ler os metadados `catalogKits` gerados por C3 e usa contratos estritos anteriores; portanto, não trate a troca pela imagem C2 como rollback compatível depois de criar documentos C3. Se for necessário interromper a nova versão, suspenda novas gravações e use uma versão compatível ou um procedimento de recuperação previamente ensaiado. Não remova tabelas/colunas, não descarte o volume e não restaure um backup antigo sobre registros novos sem um plano explícito de reconciliação.

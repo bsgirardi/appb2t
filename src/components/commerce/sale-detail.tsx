@@ -5,6 +5,7 @@ import {
   currentBindingState,
 } from "@/components/pricing/line-cost-summary";
 import { Card } from "@/components/ui/card";
+import { KitDocumentHistory } from "./kit-document-history";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -293,6 +294,9 @@ export function SaleDetail({
       )}
       <Card asChild>
         <section className="">
+          {sale.document.catalogKits && (
+            <KitDocumentHistory value={sale.document.catalogKits} />
+          )}
           <h2>Histórico</h2>
           <ul>
             {sale.events.map((e) => (
@@ -300,7 +304,11 @@ export function SaleDetail({
                 {new Date(e.createdAt).toLocaleString("pt-BR", {
                   timeZone: "America/Sao_Paulo",
                 })}{" "}
-                · {e.action} · {e.actorName}
+                ·{" "}
+                {e.action === "KIT_DISCOUNT_REVIEW"
+                  ? "Desconto revisado"
+                  : e.action}{" "}
+                · {e.actorName}
                 {e.reason && ` · ${e.reason}`}
               </li>
             ))}

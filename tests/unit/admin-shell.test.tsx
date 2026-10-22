@@ -13,6 +13,25 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
 }));
 afterEach(cleanup);
+it("groups operations into collapsible menus and exposes the dashboard", () => {
+  render(
+    <AppShell actor={actor}>
+      <h1>Conteúdo</h1>
+    </AppShell>,
+  );
+  expect(
+    screen.getByRole("link", { name: "Dashboard" }).getAttribute("href"),
+  ).toBe("/dashboard");
+  for (const name of ["Vendas", "Produção", "Financeiro"]) {
+    const trigger = screen.getByRole("button", { name });
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(trigger);
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  }
+  expect(screen.getByRole("link", { name: "Clientes" })).toBeTruthy();
+  expect(screen.getByRole("link", { name: "Estoque" })).toBeTruthy();
+  expect(screen.getByRole("link", { name: "Rentabilidade" })).toBeTruthy();
+});
 const actor = {
   id: "u",
   name: "Equipe B2T",
@@ -68,6 +87,7 @@ it("preserves operator navigation restrictions", () => {
     "Configurações",
   ])
     expect(screen.queryByRole("link", { name })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Produção" }));
   expect(screen.getByRole("link", { name: "Calculadora" })).toBeTruthy();
   expect(
     screen.getByRole("link", { name: "Abrir loja" }).getAttribute("href"),
@@ -98,4 +118,19 @@ it("carries the administrative palette into the mobile portal", () => {
     screen.getByRole("dialog").style.getPropertyValue("--light-primary"),
   ).toBe("#224455");
   expect(screen.getByRole("dialog").className).toContain("admin-theme");
+});
+
+it("keeps_catalog_requests_and_kits_in_the_grouped_sales_navigation", () => {
+  render(
+    <AppShell actor={actor}>
+      <h1>Conteúdo</h1>
+    </AppShell>,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Vendas" }));
+  expect(
+    screen.getByRole("link", { name: "Solicitações" }).getAttribute("href"),
+  ).toBe("/solicitacoes");
+  expect(screen.getByRole("link", { name: "Kits" }).getAttribute("href")).toBe(
+    "/kits",
+  );
 });

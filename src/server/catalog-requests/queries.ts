@@ -12,6 +12,8 @@ import type {
   CatalogRequestSummaryDTO,
 } from "@/domain/catalog-requests/types";
 import { receiptOf } from "./receive";
+import { kitRequestSnapshotSchema } from "@/domain/kits/snapshot";
+import { kitInclude, kitDTO } from "@/server/kits/queries";
 const include = {
   assignee: { select: { name: true } },
   _count: { select: { lines: true } },
@@ -60,10 +62,23 @@ export async function getCatalogRequestWithClient(
       commercialRevision: true,
     },
   });
+  const groups = row.kitSnapshot
+    ? kitRequestSnapshotSchema.parse(row.kitSnapshot).groups
+    : [];
+  const currentKits = groups.length
+    ? (
+        await tx.catalogKit.findMany({
+          where: { id: { in: groups.map((g) => g.kitId) } },
+          include: kitInclude,
+        })
+      ).map(kitDTO)
+    : [];
   return {
     ...summary(row),
     contact: row.contact as unknown as CatalogContact,
     lines,
+    groups,
+    currentKits,
     knownTotal: row.knownTotal?.toFixed(2) ?? null,
     currentProducts,
     events: row.events.map((event) => ({

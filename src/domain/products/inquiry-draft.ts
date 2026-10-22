@@ -20,6 +20,25 @@ export const inquiryEnvelopeSchema = z
   })
   .strict();
 export type InquiryEnvelope = z.infer<typeof inquiryEnvelopeSchema>;
+export function ensureInquiryLineIds(
+  items: InquiryInput[],
+  createId: () => string,
+): InquiryItem[] {
+  const rows = inquiryItemsSchema.parse(items),
+    occupied = new Set(rows.flatMap((i) => (i.lineId ? [i.lineId] : [])));
+  return rows.map((item) => {
+    if (item.lineId) return item;
+    const base = z.string().min(1).max(100).parse(createId());
+    let lineId = base,
+      suffix = 1;
+    while (occupied.has(lineId)) {
+      const end = `-${suffix++}`;
+      lineId = base.slice(0, 100 - end.length) + end;
+    }
+    occupied.add(lineId);
+    return { ...item, lineId };
+  });
+}
 export function parseInquiryDraft(
   raw: string,
 ):
@@ -55,7 +74,7 @@ export function migrateInquiryV1(
     .parse(JSON.parse(raw));
   return inquiryEnvelopeSchema.parse({
     formatVersion: 2,
-    items: legacy.map((i) => ({ ...i, lineId: createId() })),
+    items: ensureInquiryLineIds(legacy, createId),
   });
 }
 export function replaceInquiryItem(

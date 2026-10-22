@@ -36,3 +36,49 @@ it("keeps a long message intact and opens a channel without its body", () => {
   expect(r.contact!.length).toBeLessThan(6000);
   expect(new URL(r.contact!).searchParams.get("text")).toBeFalsy();
 });
+it("identifies_kit_components_and_discount_once_in_message", () => {
+  const result = buildInquiryMessage(
+    [
+      {
+        ...line,
+        kitInstanceId: "g",
+        quantity: 5,
+        answerLabels: [],
+        price: "20.00",
+        subtotal: "100.00",
+      },
+    ],
+    { knownTotal: "85.00", consultCount: 0 },
+    {
+      name: "B2T",
+      phone: "",
+      email: "equipe@example.test",
+      origin: "http://localhost:3000",
+    },
+    [
+      {
+        instanceId: "g",
+        kitId: "k",
+        name: "Kit Ana",
+        commercialRevision: 1,
+        currentRevision: 1,
+        placements: [],
+        seenPrice: null,
+        requiresConfirmation: false,
+        problem: null,
+        price: {
+          kind: "REFERENCE",
+          quantity: 5,
+          knownSubtotal: "100.00",
+          subtotal: "100.00",
+          discount: "15.00",
+          total: "85.00",
+          tier: { minQuantity: 5, kind: "FIXED", amount: "15.00" },
+        },
+      },
+    ],
+  );
+  expect(result.message).toContain("Kit Ana");
+  expect(result.message).toContain("15,00");
+  expect(result.message).toContain("85,00");
+});

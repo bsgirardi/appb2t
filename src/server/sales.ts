@@ -52,6 +52,8 @@ import {
   getSaleReceiptSummary,
 } from "./finance/entries";
 import { quoteEvent } from "./commerce/audit";
+import { kitDiscountReviewSchema } from "@/domain/kits/document";
+import { enforceKitDocumentEdit } from "./kits/document-history";
 async function event(
   tx: Prisma.TransactionClient,
   actor: Actor,
@@ -124,12 +126,14 @@ export async function saveSaleDraft(
   id: string | undefined,
   raw: unknown,
 ): Promise<SaleDTO> {
-  const { expectedVersion, costBindings, ...document } = documentSchema
-    .extend({
-      expectedVersion: z.number().int().positive().optional(),
-      costBindings: costBindingsSchema.optional(),
-    })
-    .parse(raw);
+  const { expectedVersion, costBindings, kitDiscountReview, ...document } =
+    documentSchema
+      .extend({
+        expectedVersion: z.number().int().positive().optional(),
+        costBindings: costBindingsSchema.optional(),
+        kitDiscountReview: kitDiscountReviewSchema.optional(),
+      })
+      .parse(raw);
   const totals = calculateDocumentTotals(
     document.items,
     document.discount,
@@ -137,12 +141,26 @@ export async function saveSaleDraft(
   );
   return db.$transaction(async (tx) => {
     let previousRevisionId: string | null = null;
+    let kitDiscountReviewed = false;
+    if (
+      !id &&
+      (document.catalogKits || document.items.some((i) => i.catalogOrigin))
+    )
+      throw new AppError(
+        "VALIDATION",
+        "A origem recebida deve vir de um orçamento preparado pela solicitação.",
+      );
     if (id) {
       await lockCommerce(tx, { saleId: id });
       const old = await row(tx, id);
       previousRevisionId = old.costRevisionId;
       if (old.version !== expectedVersion || old.status !== "RASCUNHO")
         throw conflict();
+      kitDiscountReviewed = enforceKitDocumentEdit(
+        old.document as unknown as DocumentInput,
+        document,
+        kitDiscountReview,
+      );
     }
     const previous = await readDocumentCosts(
       tx,
@@ -188,6 +206,14 @@ export async function saveSaleDraft(
     );
     await tx.sale.update({ where: { id: sale.id }, data: { costRevisionId } });
     await event(tx, actor, sale.id, id ? "EDIT" : "CREATE");
+    if (kitDiscountReviewed)
+      await event(
+        tx,
+        actor,
+        sale.id,
+        "KIT_DISCOUNT_REVIEW",
+        `Desconto revisado para os valores da versão ${sale.version}.`,
+      );
     return dto(tx, sale.id);
   });
 }
@@ -523,6 +549,7 @@ export const saleFilterSchema = paginationSchema.extend({
   status: z
     .enum([
       "all",
+      "realizadas",
       "RASCUNHO",
       "CONFIRMADA",
       "EM_PRODUCAO",
@@ -541,7 +568,11 @@ export async function listSales(
 ): Promise<Page<SaleDTO>> {
   const f = saleFilterSchema.parse(raw),
     where: Prisma.SaleWhereInput = {
-      ...(f.status !== "all" ? { status: f.status } : {}),
+      ...(f.status === "realizadas"
+        ? { status: { notIn: ["RASCUNHO", "CANCELADA"] as const } }
+        : f.status !== "all"
+          ? { status: f.status }
+          : {}),
       ...(f.customerId ? { customerId: f.customerId } : {}),
     };
   if (f.search) {

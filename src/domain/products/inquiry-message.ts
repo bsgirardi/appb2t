@@ -1,16 +1,20 @@
 import type { InquiryLine } from "./inquiry";
 import { whatsappLink } from "./storefront";
 import { formatBRL } from "@/domain/calculation/calculate";
+import type { KitGroupReview } from "@/domain/kits/types";
 export function buildInquiryMessage(
   lines: InquiryLine[],
   summary: { knownTotal: string | null; consultCount: number },
   identity: { name: string; phone: string; email: string; origin: string },
+  groups: KitGroupReview[] = [],
 ) {
   const message = [
     `Olá! Gostaria de solicitar um orçamento à ${identity.name}:`,
     ...lines.map((line, index) =>
       [
         `${index + 1}. ${line.name}${line.sku ? ` (${line.sku})` : ""}`,
+        line.kitInstanceId &&
+          `Conjunto: ${groups.find((g) => g.instanceId === line.kitInstanceId)?.name ?? "Kit"}`,
         line.color && `Cor: ${line.color}`,
         line.size && `Tamanho: ${line.size}`,
         ...line.answerLabels.map((a) => `${a.label}: ${a.valueLabel}`),
@@ -23,6 +27,18 @@ export function buildInquiryMessage(
         .filter(Boolean)
         .join("\n"),
     ),
+    ...groups.map((group) => {
+      const p = group.price;
+      return [
+        group.name,
+        p ? `${p.quantity} unidades neste kit` : "",
+        p?.kind === "REFERENCE"
+          ? `Soma dos componentes: ${formatBRL(p.subtotal!)}. Desconto do kit: ${formatBRL(p.discount!)}. Referência líquida: ${formatBRL(p.total!)}.`
+          : "Total do kit a confirmar; desconto não aplicado a uma soma parcial.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }),
     summary.knownTotal !== null
       ? `${summary.consultCount ? "Soma dos itens com referência" : "Total de referência"}: ${formatBRL(summary.knownTotal)} (sem frete).`
       : "Valor a confirmar, sem frete.",
