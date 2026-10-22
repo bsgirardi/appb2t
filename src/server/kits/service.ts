@@ -7,6 +7,7 @@ import { kitDefinitionSchema, updateKitSchema } from "@/domain/kits/validation";
 import { lockCatalog } from "@/server/catalog-memberships";
 import { kitDTO, kitInclude } from "./queries";
 export async function listKits(_actor: Actor): Promise<KitDTO[]> {
+  void _actor;
   return (
     await db.catalogKit.findMany({
       include: kitInclude,

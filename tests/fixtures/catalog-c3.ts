@@ -25,6 +25,22 @@ export async function createC3RequestFixture(consult = false) {
       name: "Peça Ana",
       price: "30",
       publicPriceMode: consult ? "CONSULT" : "REFERENCE",
+      configuration: {
+        formatVersion: 1,
+        included: "Uma peça",
+        leadTimeCondition: "",
+        fields: [
+          {
+            id: "name",
+            type: "SHORT_TEXT",
+            label: "Nome",
+            help: "",
+            required: true,
+            maxLength: 120,
+            effect: { kind: "NONE" },
+          },
+        ],
+      },
     },
     uploads,
   );
@@ -57,7 +73,13 @@ export async function createC3RequestFixture(consult = false) {
     tiers: [{ minQuantity: 5, kind: "PERCENT", percent: "10" }],
   });
   const items = [
-    { lineId: "a", productId: a.id, quantity: 2, kitInstanceId: "g1" },
+    {
+      lineId: "a",
+      productId: a.id,
+      quantity: 2,
+      kitInstanceId: "g1",
+      answers: [{ fieldId: "name", value: "Ana" }],
+    },
     { lineId: "b", productId: b.id, quantity: 3, kitInstanceId: "g1" },
     { lineId: "c", productId: b.id, quantity: 5, kitInstanceId: "g2" },
   ];

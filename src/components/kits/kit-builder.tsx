@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -87,7 +87,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
   const eligible = products.filter(
     (p) => kit.productIds.includes(p.id) && p.availability !== "UNAVAILABLE",
   );
-  const localPrice = useMemo(() => {
+  const localPrice = (() => {
     try {
       const rows = inquiryItemsSchema.parse(JSON.parse(itemsStamp));
       if (!rows.length) return { price: null, problem: null };
@@ -121,7 +121,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
     } catch (error) {
       return { price: null, problem: (error as Error).message };
     }
-  }, [itemsStamp, products, kit]);
+  })();
   const currentReview = reviewed?.stamp === stamp ? reviewed.review : undefined;
   const summary: KitGroupReview = {
     instanceId,
