@@ -92,6 +92,7 @@ export function SalePanel({
           <NativeSelect name="status" defaultValue={filters.status}>
             {[
               "all",
+              "realizadas",
               "RASCUNHO",
               "CONFIRMADA",
               "EM_PRODUCAO",
@@ -100,7 +101,11 @@ export function SalePanel({
               "CANCELADA",
             ].map((s) => (
               <option key={s} value={s}>
-                {s === "all" ? "Todos" : s}
+                {s === "all"
+                  ? "Todos"
+                  : s === "realizadas"
+                    ? "Vendas efetivadas"
+                    : s}
               </option>
             ))}
           </NativeSelect>

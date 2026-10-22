@@ -1,3 +1,4 @@
+import { NativeSelect } from "@/components/ui/native-select";
 import Link from "next/link";
 import { requireActor } from "@/server/auth/guards";
 import {
@@ -45,7 +46,7 @@ export default async function ProductionPage({
   const href = (page: number) =>
     `/producao?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}), ...(filter.status ? { status: filter.status } : {}), ...(filter.origin ? { origin: filter.origin } : {}), ...(filter.responsibleId ? { responsibleId: filter.responsibleId } : {}), ...(filter.dueFrom ? { dueFrom: filter.dueFrom } : {}), ...(filter.dueTo ? { dueTo: filter.dueTo } : {}) })}`;
   return (
-    <section className="min-w-0 space-y-5">
+    <section className="flex min-w-0 flex-col gap-5">
       <div className="page-heading">
         <div>
           <h1>Produção e entrega</h1>
@@ -67,7 +68,7 @@ export default async function ProductionPage({
       {!parsed.success && (
         <Notice>Filtros inválidos. Exibindo a primeira página.</Notice>
       )}
-      <form className="flex flex-wrap items-end gap-2">
+      <form className="admin-filter-grid">
         <input type="hidden" name="view" value={view} />
         {saleId && <input type="hidden" name="saleId" value={saleId} />}
         <Field label="Buscar item" name="query" defaultValue={filter.query} />
@@ -75,7 +76,7 @@ export default async function ProductionPage({
           <>
             <label className="field">
               Responsável
-              <select
+              <NativeSelect
                 name="responsibleId"
                 defaultValue={filter.responsibleId ?? ""}
               >
@@ -85,7 +86,7 @@ export default async function ProductionPage({
                     {u.name}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             <Field
               label="Prazo a partir de"
@@ -101,7 +102,7 @@ export default async function ProductionPage({
             />
             <label className="field">
               Estado
-              <select name="status" defaultValue={filter.status ?? ""}>
+              <NativeSelect name="status" defaultValue={filter.status ?? ""}>
                 <option value="">Todos</option>
                 {[
                   ["RASCUNHO", "Rascunho"],
@@ -114,15 +115,15 @@ export default async function ProductionPage({
                     {l}
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             <label className="field">
               Destino
-              <select name="origin" defaultValue={filter.origin ?? ""}>
+              <NativeSelect name="origin" defaultValue={filter.origin ?? ""}>
                 <option value="">Todos</option>
                 <option value="SALE">Venda</option>
                 <option value="STOCK">Estoque</option>
-              </select>
+              </NativeSelect>
             </label>
           </>
         )}

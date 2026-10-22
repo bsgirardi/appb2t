@@ -20,7 +20,7 @@ export function AuthForm({ mode = "login" }: { mode?: "login" | "password" }) {
           email: form.get("email"),
           password: form.get("password"),
         });
-        router.replace("/calculadora");
+        router.replace("/dashboard");
         router.refresh();
       } else {
         if (form.get("next") !== form.get("confirm"))

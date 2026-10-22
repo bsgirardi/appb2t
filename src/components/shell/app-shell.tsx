@@ -4,16 +4,7 @@ import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type CSSProperties, type ReactNode } from "react";
-import {
-  Box,
-  Calculator,
-  Settings2,
-  LogOut,
-  ShieldCheck,
-  ArrowUpRight,
-  UserRound,
-  Menu,
-} from "lucide-react";
+import { LogOut, ShieldCheck, ArrowUpRight, Menu } from "lucide-react";
 import type { Actor } from "@/server/auth/session";
 import { api } from "@/lib/client-api";
 import { Button } from "@/components/ui/button";
@@ -25,6 +16,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { AdminNavigation, navigationTitle } from "./admin-navigation";
 import { Brand } from "./brand";
 import { themeVariables } from "@/domain/appearance/theme";
 import type {
@@ -61,220 +53,11 @@ export function AppShell({
     }
   }
   const navigation = (
-    <nav
-      aria-label="Menu principal"
-      data-open={menuOpen}
-      onClick={(event) => {
-        if ((event.target as HTMLElement).closest("a")) setMenuOpen(false);
-      }}
-    >
-      {[
-        ["/clientes", "Clientes"],
-        ["/solicitacoes", "Solicitações"],
-        ["/orcamentos", "Orçamentos"],
-        ["/vendas", "Vendas"],
-        ["/producao", "Produção"],
-        ["/planejamento", "Planejamento"],
-        ["/estoque", "Estoque"],
-      ].map(([href, label]) => (
-        <Button
-          key={href}
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Link
-            href={href}
-            aria-current={path.startsWith(href) ? "page" : undefined}
-            className={path.startsWith(href) ? "nav-item active" : "nav-item"}
-          >
-            <Box size={19} />
-            {label}
-          </Link>
-        </Button>
-      ))}
-      {actor.role === "ADMIN" && (
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Link
-            href="/rentabilidade"
-            aria-current={
-              path.startsWith("/rentabilidade") ? "page" : undefined
-            }
-            className={
-              path.startsWith("/rentabilidade") ? "nav-item active" : "nav-item"
-            }
-          >
-            <Box size={19} />
-            Rentabilidade
-          </Link>
-        </Button>
-      )}
-      {actor.role === "ADMIN" && (
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Link
-            aria-current={path === "/financeiro" ? "page" : undefined}
-            className={
-              path.startsWith("/financeiro") ? "nav-item active" : "nav-item"
-            }
-            href="/financeiro"
-          >
-            <Box size={19} />
-            Financeiro
-          </Link>
-        </Button>
-      )}
-      {actor.role === "ADMIN" && (
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Link
-            aria-current={
-              path === "/configuracoes/aparencia" ? "page" : undefined
-            }
-            className={
-              path === "/configuracoes/aparencia"
-                ? "nav-item active"
-                : "nav-item"
-            }
-            href="/configuracoes/aparencia"
-          >
-            <Settings2 size={19} />
-            Aparência
-          </Link>
-        </Button>
-      )}
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path === "/calculadora" ? "page" : undefined}
-          className={path === "/calculadora" ? "nav-item active" : "nav-item"}
-          href="/calculadora"
-        >
-          <Calculator size={19} />
-          Calculadora
-          <span className="nav-marker" />
-        </Link>
-      </Button>
-      {actor.role === "ADMIN" && (
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <Link
-            aria-current={path === "/configuracoes" ? "page" : undefined}
-            className={
-              path.startsWith("/configuracoes") &&
-              path !== "/configuracoes/aparencia"
-                ? "nav-item active"
-                : "nav-item"
-            }
-            href="/configuracoes"
-          >
-            <Settings2 size={19} />
-            Configurações
-          </Link>
-        </Button>
-      )}
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path === "/produtos" ? "page" : undefined}
-          className={
-            path.startsWith("/produtos") ? "nav-item active" : "nav-item"
-          }
-          href="/produtos"
-        >
-          <Box size={19} />
-          Produtos
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path.startsWith("/kits") ? "page" : undefined}
-          className={path.startsWith("/kits") ? "nav-item active" : "nav-item"}
-          href="/kits"
-        >
-          <Box size={19} />
-          Kits
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path === "/" ? "page" : undefined}
-          className="nav-item"
-          href="/"
-        >
-          <ArrowUpRight size={19} />
-          Abrir loja
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path === "/colecoes" ? "page" : undefined}
-          className={
-            path.startsWith("/colecoes") ? "nav-item active" : "nav-item"
-          }
-          href="/colecoes"
-        >
-          <Box size={19} />
-          Coleções
-        </Link>
-      </Button>
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start"
-      >
-        <Link
-          aria-current={path === "/conta" ? "page" : undefined}
-          className={path === "/conta" ? "nav-item active" : "nav-item"}
-          href="/conta"
-        >
-          <UserRound size={19} />
-          Minha conta
-        </Link>
-      </Button>
-    </nav>
+    <AdminNavigation
+      path={path}
+      admin={actor.role === "ADMIN"}
+      onNavigate={() => setMenuOpen(false)}
+    />
   );
   return (
     <div
@@ -285,7 +68,7 @@ export function AppShell({
         Pular para o conteúdo
       </a>
       <Sidebar aria-label="Área administrativa">
-        <Link href="/calculadora" aria-label={`${identity.name} início`}>
+        <Link href="/dashboard" aria-label={`${identity.name} início`}>
           <Brand identity={identity} />
         </Link>
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -355,33 +138,7 @@ export function AppShell({
         <header className="topbar">
           <span>
             Gestão <span className="slash">/</span>{" "}
-            <strong>
-              {path.startsWith("/producao")
-                ? "Produção e entrega"
-                : path.startsWith("/estoque")
-                  ? "Estoque"
-                  : path.startsWith("/financeiro")
-                    ? "Financeiro"
-                    : path.startsWith("/clientes")
-                      ? "Clientes"
-                      : path.startsWith("/solicitacoes")
-                        ? "Solicitações"
-                        : path.startsWith("/orcamentos")
-                          ? "Orçamentos"
-                          : path.startsWith("/vendas")
-                            ? "Vendas"
-                            : path.startsWith("/colecoes")
-                              ? "Coleções"
-                              : path.startsWith("/configuracoes")
-                                ? "Configurações"
-                                : path.startsWith("/kits")
-                                  ? "Kits"
-                                  : path.startsWith("/produtos")
-                                    ? "Produtos"
-                                    : path === "/conta"
-                                      ? "Minha conta"
-                                      : "Calculadora de custos"}
-            </strong>
+            <strong>{navigationTitle(path)}</strong>
           </span>
           <span className="internal-chip">
             <span className="dot" /> Uso interno <ArrowUpRight size={13} />

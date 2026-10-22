@@ -1,5 +1,11 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import type { FinanceDashboardDTO } from "@/domain/finance/types";
 import { money } from "./shared";
 export function FinanceDashboard({
@@ -30,16 +36,47 @@ export function FinanceDashboard({
           </p>
         </div>
       </div>
-      <div className="finance-grid">
-        {cards.map(([label, value]) => (
-          <Card key={label} asChild>
-            <article className="finance-account" >
-              <small>{label}</small>
+      <div className="dashboard-metrics">
+        {cards.slice(0, 3).map(([label, value]) => (
+          <Card key={label}>
+            <CardHeader>
+              <CardTitle>{label}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <strong className="finance-value">{money(value)}</strong>
-            </article>
+            </CardContent>
           </Card>
         ))}
       </div>
+      <Accordion
+        type="single"
+        collapsible
+        defaultValue={
+          Number(data.receivableOverdue) > 0 || Number(data.payableOverdue) > 0
+            ? "details"
+            : undefined
+        }
+      >
+        <AccordionItem value="details">
+          <AccordionTrigger>
+            Vencimentos e movimentação do período
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="finance-grid">
+              {cards.slice(3).map(([label, value]) => (
+                <Card key={label}>
+                  <CardHeader>
+                    <CardTitle>{label}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <strong className="finance-value">{money(value)}</strong>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
       <p>
         O saldo atual inclui o saldo inicial e todas as movimentações das contas
         selecionadas. Transferências e ajustes não compõem entradas e saídas

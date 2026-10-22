@@ -59,7 +59,7 @@ export function ProductionPanel({
     router.refresh();
   }
   return (
-    <div className="space-y-5">
+    <div className="flex min-w-0 flex-col gap-5">
       {error && <Notice>{error}</Notice>}
       {sale && (
         <DeliveryHistory
@@ -68,7 +68,11 @@ export function ProductionPanel({
           onDone={() => void refresh()}
         />
       )}
-      <Button variant="outline" onClick={() => void refresh()}>
+      <Button
+        className="self-start"
+        variant="outline"
+        onClick={() => void refresh()}
+      >
         Atualizar saldos sem apagar campos
       </Button>
       {view === "finished" ? (
@@ -92,7 +96,9 @@ export function ProductionPanel({
           ) : (
             <>
               {!detail && !create && (
-                <Button onClick={() => setCreate(true)}>Nova ordem</Button>
+                <Button className="self-start" onClick={() => setCreate(true)}>
+                  Nova ordem
+                </Button>
               )}
               {create ? (
                 <OrderForm

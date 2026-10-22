@@ -105,7 +105,7 @@ export function KitForm({
       {conflict && (
         <p>
           Seu preenchimento foi preservado. Copie as alterações antes de
-          cancelar e abrir a versão atual.
+          cancelar, usar Atualizar lista e abrir a versão atual.
         </p>
       )}
       <Field

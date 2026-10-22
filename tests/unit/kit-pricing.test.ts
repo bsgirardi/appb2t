@@ -141,3 +141,20 @@ it("validates_kit_tier_and_definition_boundaries", () => {
     }).success,
   ).toBe(false);
 });
+it("rounds_percentage_once_even_near_the_allowed_money_maximum", () => {
+  const result = calculateKitPrice(
+    [
+      {
+        quantity: 1,
+        price: {
+          kind: "REFERENCE",
+          unit: "9999999999999950.01",
+          subtotal: "9999999999999950.01",
+        },
+      },
+    ],
+    [{ minQuantity: 1, kind: "PERCENT", percent: "99.99" }],
+  );
+  expect(result.discount).toBe("9998999999999950.01");
+  expect(result.total).toBe("1000000000000.00");
+});

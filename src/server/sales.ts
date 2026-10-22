@@ -549,6 +549,7 @@ export const saleFilterSchema = paginationSchema.extend({
   status: z
     .enum([
       "all",
+      "realizadas",
       "RASCUNHO",
       "CONFIRMADA",
       "EM_PRODUCAO",
@@ -567,7 +568,11 @@ export async function listSales(
 ): Promise<Page<SaleDTO>> {
   const f = saleFilterSchema.parse(raw),
     where: Prisma.SaleWhereInput = {
-      ...(f.status !== "all" ? { status: f.status } : {}),
+      ...(f.status === "realizadas"
+        ? { status: { notIn: ["RASCUNHO", "CANCELADA"] as const } }
+        : f.status !== "all"
+          ? { status: f.status }
+          : {}),
       ...(f.customerId ? { customerId: f.customerId } : {}),
     };
   if (f.search) {

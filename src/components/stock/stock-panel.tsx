@@ -100,7 +100,7 @@ export function StockPanel({
       ? options.extras.find((e) => e.id === detail.extraId)
       : undefined;
   return (
-    <div className="space-y-5">
+    <div className="flex min-w-0 flex-col gap-5">
       {error && <Notice>{error}</Notice>}
       {!["list", "detail", "receive"].includes(mode) && (
         <div className="rounded border p-3">

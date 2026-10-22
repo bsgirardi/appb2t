@@ -1,9 +1,13 @@
-import Decimal from "decimal.js";
+import DecimalJS from "decimal.js";
 import { z } from "zod";
 import type { ConfiguredPrice } from "@/domain/products/configuration-price";
 import { positiveCatalogMoney } from "@/domain/products/quantity-pricing";
 import { kitDiscountTiersSchema } from "./validation";
 import type { KitDiscountTier, KitPrice } from "./types";
+const Decimal = DecimalJS.clone({
+  precision: 40,
+  rounding: DecimalJS.ROUND_HALF_UP,
+});
 const maxMoney = new Decimal("9999999999999999.99");
 export function calculateKitPrice(
   lines: { quantity: number; price: ConfiguredPrice }[],
