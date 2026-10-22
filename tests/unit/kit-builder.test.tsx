@@ -239,4 +239,14 @@ it("ready_server_review_remains_authoritative_after_price_changes", async () => 
   expect(within(summary).getByText("R$ 135,00")).toBeTruthy();
   expect(within(summary).queryByText("R$ 85,00")).toBeNull();
   expect(readKitSelection().groups[0].seenPrice?.total).toBe("135.00");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Mover Vaso geométrico, 5 unidades" }),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Mover para a direita" }));
+  expect(
+    within(screen.getByRole("region", { name: "Resumo de Kit Ana" })).getByText(
+      "R$ 135,00",
+    ),
+  ).toBeTruthy();
+  expect(readKitSelection().items[0].quantity).toBe(5);
 });

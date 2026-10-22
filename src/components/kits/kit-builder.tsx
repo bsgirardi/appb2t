@@ -93,8 +93,21 @@ function Builder({ kit, products, initialInstanceId }: Props) {
     members = selection.items.filter((i) => i.kitInstanceId === instanceId),
     itemsStamp = JSON.stringify(members),
     stamp = JSON.stringify({ items: members, group });
+  const pricingStamp = JSON.stringify([
+    kit.id,
+    instanceId,
+    members.map(({ lineId, productId, quantity, color, size, answers }) => ({
+      lineId,
+      productId,
+      quantity,
+      color,
+      size,
+      answers,
+    })),
+  ]);
   const [reviewed, setReviewed] = useState<{
     stamp: string;
+    pricingStamp: string;
     review: InquiryReview;
   }>();
   const eligible = products.filter(
@@ -136,6 +149,10 @@ function Builder({ kit, products, initialInstanceId }: Props) {
     }
   })();
   const currentReview = reviewed?.stamp === stamp ? reviewed.review : undefined;
+  const reviewedPrice =
+    reviewed?.pricingStamp === pricingStamp
+      ? reviewed.review.groups?.find((g) => g.instanceId === instanceId)
+      : undefined;
   const summary: KitGroupReview = {
     instanceId,
     kitId: kit.id,
@@ -270,7 +287,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
         items: members,
         groups: [group],
       });
-      setReviewed({ stamp, review: fresh });
+      setReviewed({ stamp, pricingStamp, review: fresh });
       setNotice(
         fresh.ready
           ? "Conjunto revisado. Continue para a lista para enviar à equipe."
@@ -538,18 +555,13 @@ function Builder({ kit, products, initialInstanceId }: Props) {
           </section>
         </div>
         <aside className="kit-builder-panel">
-          {!currentReview && group && (
+          {!reviewedPrice && group && (
             <p className="store-note">
               Estimativa desta página. Revise o conjunto para conferir os
               valores atuais.
             </p>
           )}
-          <KitSummary
-            review={
-              currentReview?.groups?.find((g) => g.instanceId === instanceId) ??
-              summary
-            }
-          />
+          <KitSummary review={reviewedPrice ?? summary} />
           <Button
             type="button"
             className="min-h-11 w-full"
