@@ -1,8 +1,12 @@
-import Decimal from "decimal.js";
+import DecimalJS from "decimal.js";
 import { db } from "@/lib/db";
 import type { Actor } from "./auth/session";
 import { todaySaoPaulo, civilDateToDb } from "@/domain/commerce/dates";
 import { getFinanceDashboard } from "./finance/reports";
+const Decimal = DecimalJS.clone({
+  precision: 40,
+  rounding: DecimalJS.ROUND_HALF_UP,
+});
 
 export async function getDashboard(actor: Actor, now = new Date()) {
   const today = todaySaoPaulo(now),

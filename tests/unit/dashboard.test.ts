@@ -55,3 +55,12 @@ it("uses the existing financial report for administrators", async () => {
   });
   expect(mocks.finance).toHaveBeenCalledOnce();
 });
+it("keeps_all_cents_when_summing_large_monthly_sales", async () => {
+  mocks.sale.findMany.mockResolvedValue(
+    Array.from({ length: 101 }, () => ({
+      totals: { total: "9999999999999999.99" },
+    })),
+  );
+  const result = await getDashboard(actor, new Date("2026-10-22T12:00:00Z"));
+  expect(result.salesValue).toBe("1009999999999999998.99");
+});
