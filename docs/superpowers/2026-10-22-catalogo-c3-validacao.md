@@ -38,7 +38,7 @@ Movimento reduzido: por escolha explícita do usuário, verificação automatiza
 
 ## Operação
 
-Em 22/10/2026, o usuário escolheu enviar a branch e criar Pull Request para `main`, com atualização de documentação. README, PENDENCIAS e PRODUCAO refletem a entrega revisável e as limitações conhecidas. Essa autorização não executa integração ou publicação operacional.
+Em 22/10/2026, o usuário escolheu enviar a branch e criar Pull Request para `main`, com atualização de documentação. Branch enviada e [PR #3](https://github.com/bsgirardi/appb2t/pull/3) aberto para revisão. README, PENDENCIAS e PRODUCAO refletem a entrega revisável e as limitações conhecidas. Essa autorização não executa integração ou publicação operacional.
 
 A limpeza automática dos arquivos temporários foi rejeitada pela política de execução; os registros foram preservados em diretório ignorado, com cópia em `test-results/catalog-c3/execution-record/`. Isso não afetou os testes ou os dados operacionais.
 

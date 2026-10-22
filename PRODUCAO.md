@@ -96,7 +96,7 @@ Consulte [PENDENCIAS.md](PENDENCIAS.md) antes de publicar externamente. A prepar
 
 ## C3: atualização de uma instalação C2
 
-Estado em 22/10/2026: C3 é uma candidata validada para revisão por Pull Request. A instalação operacional permanece em C2; a porta 3104 e seu banco separado servem somente à conferência. Criar ou aprovar o PR não executa migração nem publica a aplicação.
+Estado em 22/10/2026: C3 é uma candidata validada em revisão no [PR #3](https://github.com/bsgirardi/appb2t/pull/3). A instalação operacional permanece em C2; a porta 3104 e seu banco separado servem somente à conferência. Criar ou aprovar o PR não executa migração nem publica a aplicação.
 
 1. Antes da publicação autorizada, gere novo backup consistente do banco operacional e preserve a imagem anterior. O backup do ensaio de 22/10 não substitui o backup imediatamente anterior à troca.
 2. Restaure esse backup em PostgreSQL 17 separado, sem reutilizar o volume operacional. Aplique as migrações pendentes pelo serviço `migrate`, incluindo `202610220001_catalog_kits`, e compare os registros anteriores usando suas colunas originais. O ensaio C3 já executado preservou contagens e hashes de 82 projeções históricas; detalhes e identificação da imagem estão no [relatório de validação](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
