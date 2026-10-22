@@ -2,7 +2,7 @@
 
 Atualizado em 22/10/2026.
 
-1. **Segurança:** Next.js atualizado de 16.3.6 para 16.3.8 para corrigir os avisos publicados. Restam cinco alertas altos derivados de uma única falha em braces, dependência indireta das ferramentas de lint, ainda sem versão corrigida. Não remover as regras de lint nem rebaixar Next.js para silenciar o relatório. Acompanhar a correção upstream; detalhes em SEGURANCA.md.
+1. **Segurança — prioridade:** a auditoria nova feita na instalação limpa identificou um pacote crítico (Next.js 16.3.8) e cinco altos na cadeia de lint/braces. O npm indica Next.js 16.4.2; preparar atualização compatível, testes/build e nova publicação. O resultado anterior de zero alertas de produção ficou desatualizado após a consulta nova. Não aplicar rebaixamento do lint nem audit fix --force. Detalhes, avisos e mitigação de sharp em SEGURANCA.md.
 2. **Novo servidor:** configurar .env, domínio/proxy HTTPS e backups automáticos; testar restauração. Não há comprovação de configuração externa existente.
 3. **Dados:** decidir entre instalação vazia e migração; para migrar, transferir backup atual separadamente e validar o destino. Nenhum dado ou senha real está no pacote.
 4. **Publicação local concluída:** versão 1.1.0 em http://localhost:3000, imagem `appb2t:1.1.0` saudável, dashboard e catálogo C3 integrados pelo [PR #3](https://github.com/bsgirardi/appb2t/pull/3). Migração aditiva aplicada após backup final; as 82 projeções históricas e o volume `b2t-calculadora_postgres_data` foram preservados. Publicação externa depende do servidor/domínio descritos acima.

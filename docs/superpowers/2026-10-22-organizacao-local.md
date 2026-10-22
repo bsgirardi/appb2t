@@ -7,3 +7,7 @@ Backups, registros de validação e estado de planejamento das duas pastas auxil
 As pastas auxiliares catalogo-c1 e catalogo-c2 foram arquivadas pelo gerenciador do Codex e removidas de seus caminhos anteriores, com recuperação disponível. Pastas de outras tarefas e projetos não foram removidas. O banco, as credenciais locais e o volume operacional foram preservados; a aplicação 1.1.0 permaneceu saudável.
 
 A revisão automática bloqueou a remoção solicitada do cache .next e do arquivo incremental de TypeScript; eles foram preservados. Isso não altera o código sincronizado nem o sistema publicado.
+
+Instalação limpa das dependências concluída e cliente Prisma regenerado. A verificação inicial encontrou arquivos TypeScript de ferramentas históricas dentro dos backups preservados; backups e estado local de planejamento foram excluídos da seleção do TypeScript, e backups também do lint. Os arquivos atuais de src/tests continuam incluídos. Após o ajuste, typecheck e lint passaram. Nenhuma regra de análise de código foi desabilitada.
+
+A auditoria nova identificou um pacote crítico em Next.js, além dos cinco altos das ferramentas de lint. SEGURANCA.md e PENDENCIAS.md registram a atualização de segurança como próxima prioridade; nenhuma atualização de runtime foi publicada nesta limpeza.

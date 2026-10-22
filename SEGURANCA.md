@@ -1,6 +1,14 @@
 # Segurança das dependências — appb2t
 
-## Atualização de22/10/2026 — versão1.1.0
+## Nova auditoria durante a sincronização local — 22/10/2026
+
+A instalação limpa voltou a consultar o registro npm e identificou **seis pacotes sinalizados: um crítico em Next.js e cinco altos na cadeia de lint/braces**. Este resultado substitui o estado de zero alertas de produção registrado na auditoria anterior da release, que permanece como histórico. Evidência local: `test-results/release-1.1.0/sync-original-audit.json`.
+
+O grupo Next.js inclui [otimização de imagens/SVG](https://github.com/advisories/GHSA-2464-fhr4-w9xw), [Server Actions](https://github.com/advisories/GHSA-p3m5-59mp-jv5r) e [use cache com typed arrays](https://github.com/advisories/GHSA-673q-mjm6-r5xr). Os dois avisos críticos consultados indicam correção em 16.4.1; o npm propõe Next.js 16.4.2. A instalação atual usa sharp 0.35.5, a mitigação indicada para o aviso de imagens, e não foi encontrado uso de `use cache`/`cacheComponents` no código/configuração. Isso não elimina a pendência de atualização nem constitui auditoria completa de exposição.
+
+Próxima manutenção prioritária: atualizar Next.js e seu pacote de lint compatível, ler os guias da versão instalada e executar testes/build antes de publicar a correção. A sincronização/limpeza não alterou dependências versionadas nem a aplicação em execução; não foi aplicado audit fix --force.
+
+## Histórico: auditoria anterior de22/10/2026 — versão1.1.0
 
 Auditoria repetida: `npm audit --omit=dev` sem alertas; auditoria completa com cinco alertas altos da cadeia braces/lint já descrita abaixo. Vite foi atualizado de7.3.6 para7.3.7 e Vitest de4.1.11 para4.1.12, eliminando três alertas adicionais (um alto e dois moderados) das ferramentas de desenvolvimento/testes. Next.js16.3.8 e as regras de lint foram preservados; não foi aplicado `audit fix --force` nem o rebaixamento incompatível sugerido pelo npm. Evidências locais ignoradas em `test-results/release-1.1.0/audit-*.json`.
 
