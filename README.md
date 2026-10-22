@@ -50,7 +50,7 @@ O protocolo sozinho não permite consultar dados do cliente. O envio tem limite 
 
 ### Quantidades e kits (C3)
 
-Estado em 22/10/2026: candidata validada, em revisão no [PR #3](https://github.com/bsgirardi/appb2t/pull/3). A instalação operacional continua em C2; integração e publicação são etapas posteriores. Consulte [pendências](PENDENCIAS.md) e [implantação de C3](PRODUCAO.md#c3-atualização-de-uma-instalação-c2).
+Estado em 22/10/2026: versão 1.1.0 integrada pelo [PR #3](https://github.com/bsgirardi/appb2t/pull/3) e publicada localmente em http://localhost:3000, com dashboard e catálogo C3. Suíte completa: 651 testes aprovados; migração operacional preservou as 82 projeções históricas. Consulte [pendências](PENDENCIAS.md) e [implantação de C3](PRODUCAO.md#c3-atualização-de-uma-instalação-c2).
 
 No cadastro de produto, configure as faixas de quantidade e a foto usada na composição. Fora de kits, cada personalização conta separadamente: Ana e Bia não compartilham a faixa. Em **Kits**, a equipe escolhe os produtos permitidos e cadastra faixas percentuais ou valores fixos. Todas as unidades contam; o valor fixo é abatido uma vez por montagem. Dentro do kit, não se acumulam as faixas individuais dos componentes.
 
@@ -58,7 +58,7 @@ Na loja, **Monte seu conjunto** abre o montador. O visitante personaliza peças,
 
 A solicitação preserva componentes, personalizações, posições e a tabela completa recebida. Ao preparar o orçamento, a equipe revisa preços, quantidades e desconto adicional; os descontos dos kits entram uma vez no desconto global. Edições comerciais posteriores exigem nova confirmação do desconto e preservam a preparação original. Impressão e conversão mantêm os valores negociados.
 
-Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A candidata C3 não equivale a publicação operacional. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
+Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A instalação local 1.1.0 já recebeu essa migração; em outras instalações, execute o procedimento de atualização. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
 
 ### Seleção e canal complementar
 
@@ -337,6 +337,6 @@ ADMIN corrige por compensação com motivo e referência ao registro original. C
 
 ### Implantação U3
 
-Migração aditiva: `202610070001_production`. Antes de publicar, faça novo backup verificável e restaure-o em ambiente isolado; compare registros, documentos e imagens. Preserve comandos idempotentes, eventos e revisões. O ensaio de desenvolvimento não substitui o backup imediatamente anterior à publicação. Recuperação exige coordenar versão da aplicação e banco; não apagar tabelas nem o volume operacional. Esta versão candidata não foi implantada em produção.
+Migração aditiva: `202610070001_production`. Antes de publicar, faça novo backup verificável e restaure-o em ambiente isolado; compare registros, documentos e imagens. Preserve comandos idempotentes, eventos e revisões. O ensaio de desenvolvimento não substitui o backup imediatamente anterior à publicação. Recuperação exige coordenar versão da aplicação e banco; não apagar tabelas nem o volume operacional. A instalação local recebeu esses módulos e a versão 1.1.0; publicação externa depende da infraestrutura descrita em PRODUCAO.md.
 
 Continuam fora de U3: planejamento automático de capacidade, fiscal, devolução comercial/financeira e rentabilidade consolidada por pedido.

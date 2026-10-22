@@ -10,4 +10,4 @@
 - Recuperação do cadastro de kits após conflito e precisão decimal em valores extremos corrigidas.
 - Correções de segurança das ferramentas de testes Vite/Vitest; dependências de produção sem alertas no audit realizado.
 
-A versão no código não equivale a implantação concluída. Registro operacional e validação em [release1.1.0](docs/superpowers/2026-10-22-release-1.1.0.md).
+Integrada e publicada localmente em 22/10/2026, com migração e preservação do banco verificadas. Registro operacional e validação em [release1.1.0](docs/superpowers/2026-10-22-release-1.1.0.md).

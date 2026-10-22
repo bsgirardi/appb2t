@@ -74,3 +74,7 @@ A revisão independente não excluiu comportamentos do julgamento. Os dois achad
 A validação manual também alternou um componente fictício para sob consulta: o resumo mostrou somente R$60 conhecidos, total pendente e nenhum desconto parcial. Foi restaurado para referência antes da entrega. Recuperação de rascunho inválido, conflito entre abas e retry idempotente contam com testes automatizados; não foram induzidos manualmente no armazenamento do navegador.
 
 A revisão independente não excluiu comportamentos do julgamento. Os dois achados importantes entraram em uma única rodada de correção. Os dois menores estão explicitamente adiados acima.
+
+## Atualização operacional — release 1.1.0
+
+C3 foi integrado junto do dashboard no PR #3 e publicado localmente em 22/10/2026. A release completa passou 651 testes em 199 arquivos, build, tipagem, lint e conferência do dashboard no navegador integrado. Migração operacional aplicada após backup final, preservando as 82 projeções históricas. Consulte o [registro definitivo da release](2026-10-22-release-1.1.0.md) para hashes, imagem e limites da verificação. Os estados de candidata acima documentam as etapas anteriores.
