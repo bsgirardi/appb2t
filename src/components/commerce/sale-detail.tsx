@@ -1,5 +1,6 @@
 "use client";
 import { SaleStock } from "@/components/stock/reservation-form";
+import { DocumentArt } from "@/components/art/document-art";
 import {
   DocumentCostSummary,
   currentBindingState,
@@ -106,6 +107,7 @@ export function SaleDetail({
     <div className="commerce-page">
       <Link href="/vendas">← Vendas</Link>
       <h1>{sale.number}</h1>
+      <DocumentArt items={sale.document.items} art={sale.art} />
       <p>
         Estado: <strong>{sale.status}</strong>
       </p>

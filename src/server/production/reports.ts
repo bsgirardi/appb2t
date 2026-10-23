@@ -16,6 +16,7 @@ import { lineContext, executable, orderDTO, activeSale } from "./orders";
 import { lockProduction } from "./locks";
 import { allocationRemaining } from "./reservations";
 import { linkReportTx } from "@/server/planning/invariants";
+import { assertProductionArt } from "@/server/art/production";
 export async function recordProduction(actor: Actor, raw: unknown) {
   const v = reportSchema.parse(raw);
   return runProductionCommand(actor, "PRODUCTION_REPORT", v, async (tx) => {
@@ -23,6 +24,8 @@ export async function recordProduction(actor: Actor, raw: unknown) {
     if (o.version !== v.expectedVersion) throw conflict();
     executable(o.status);
     if (o.saleId) await activeSale(tx, o.saleId);
+    if (o.saleId && l.saleLineKey)
+      await assertProductionArt(tx, o.saleId, [l.saleLineKey]);
     checkDate(v.effectiveDate, v.reason);
     if (v.failedUnits && !v.reason) invalid("Informe o motivo da falha.");
     const good = l.events.reduce((s, e) => s + e.goodUnits, 0),

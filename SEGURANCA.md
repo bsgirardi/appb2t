@@ -1,5 +1,15 @@
 # Segurança das dependências — appb2t
 
+## Candidata de segurança — 23/10/2026
+
+Next.js e eslint-config-next atualizados de 16.3.8 para **16.4.2**, com versões exatas no package.json e lockfile. Auditoria de produção após a atualização: **zero vulnerabilidades**. A auditoria completa continua com cinco alertas altos na cadeia de desenvolvimento braces/micromatch/fast-glob/plugin de lint; não foi aplicado o rebaixamento para eslint-config-next 14.2.35 sugerido pelo npm nem audit fix --force. Sharp permanece em 0.35.5.
+
+No novo computador, os 399 testes unitários em 99 arquivos passaram com Node 22.23.4; tipagem, lint e build Windows também passaram com Next.js 16.4.2. A integração, o build Docker e a publicação ainda estão pendentes. O Docker apresentou primeiro falta de memória no Hyper-V e depois erro 500 na API, impedindo iniciar o banco de testes. Nenhum banco foi importado ou migrado. O usuário escolheu instalação vazia; os bancos de outros aplicativos foram preservados.
+
+Relatórios locais ignorados: `test-results/seguranca-20261023/audit-full.json` e `audit-production.json`. Esta candidata não altera a publicação 1.1.0 do computador anterior. A atualização só deve ser publicada após completar as verificações pendentes.
+
+O reinício controlado `docker desktop restart --timeout 90` excedeu o limite ao tentar encerrar processos do Desktop; o estado final consultado foi `stopping`. A API 1.54 também falhou, descartando uma simples diferença de versão da API como solução. É necessário recuperar o Docker (próximo passo: reiniciar o Windows) antes da validação integrada. Nenhum encerramento forçado ou reinício do Windows foi executado pelo agente.
+
 ## Nova auditoria durante a sincronização local — 22/10/2026
 
 A instalação limpa voltou a consultar o registro npm e identificou **seis pacotes sinalizados: um crítico em Next.js e cinco altos na cadeia de lint/braces**. Este resultado substitui o estado de zero alertas de produção registrado na auditoria anterior da release, que permanece como histórico. Evidência local: `test-results/release-1.1.0/sync-original-audit.json`.
@@ -48,3 +58,17 @@ A correção é entregue no código e no pacote para novo build. A instalação 
 - Build Docker desta atualização: não executado até o fim, pois Docker Desktop retornou erro de inicialização antes do build. Repetir o build Linux/Docker no servidor de destino conforme PRODUCAO.md. O build Docker validado anteriormente era da versão 16.3.6.
 
 Não foi reiniciado ou atualizado nenhum serviço da instalação existente. A indisponibilidade do Docker impediu reconfirmar sua saúde nesta rodada.
+
+## Validação e instalação local concluídas — 23/10/2026
+
+Docker recuperado e inventário inicial sem contêineres/volumes. PostgreSQL 17 dedicado de testes criado na porta 55432; 23 migrações aplicadas. Suíte completa no contêiner Linux/Node 22: 651 testes em 199 arquivos aprovados, saída zero (160,13 s). As tentativas Windows sem progresso foram interrompidas e não contam como validação completa.
+
+O teste planning-flow dependia do horário atual e falhava antes das 08h20 de São Paulo ao registrar um marco futuro. Falha reproduzida isoladamente; relógio fixado apenas nesse teste e restaurado ao terminar. Cenário isolado e suíte completa aprovados. A aplicação não foi alterada por essa correção de teste.
+
+Build Docker aprovado. Instalação vazia iniciada com Compose: app e banco saudáveis, migração concluída. HTTP: /api/health, / e /login retornam 200; /dashboard retorna 307 para /login. Banco operacional próprio appb2t_postgres_data, separado de appb2t-test_test_data; contagem de usuários zero. Primeiro administrador ainda precisa ser criado interativamente com `docker compose --profile tools run --rm admin` no terminal local. Não informar senha no chat.
+
+Atualização Next.js/eslint-config-next 16.4.2 instalada localmente. Auditoria de produção zerada; cinco alertas altos de desenvolvimento continuam pendentes upstream. C4 e C5 permanecem para etapas futuras. Sem commit ou push nesta rodada.
+
+## Verificação C4 — 23/10/2026
+
+Auditorias finais npm de produção e completa com --include=dev retornaram zero vulnerabilidades conhecidas, sem audit fix --force ou rebaixamento de lint. Este resultado posterior substitui os cinco alertas registrados anteriormente, sem alterar o relato histórico. C4 acrescenta PDFs inspecionados estruturalmente em worker limitado; isso não equivale a antivírus. Links de sete dias são credenciais por posse, com nome declarado, revogação e sessão HttpOnly; detalhes e limites no registro de validação C4. A chave operacional é gerada separadamente, fora do Git.

@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { receivedArtDescription } from "@/domain/art/configuration";
 import { Field, Notice } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -47,14 +48,7 @@ export function RequestQuoteForm({
     request.lines.map((line) => ({
       lineId: crypto.randomUUID(),
       sourceLineId: line.lineId,
-      description: [
-        line.name,
-        line.color && `Cor: ${line.color}`,
-        line.size && `Tamanho: ${line.size}`,
-        ...line.answerLabels.map((a) => `${a.label}: ${a.valueLabel}`),
-      ]
-        .filter(Boolean)
-        .join(" · "),
+      description: receivedArtDescription(line),
       quantity: line.quantity,
       unitPrice: line.unitPrice ?? "",
       standalone: false,

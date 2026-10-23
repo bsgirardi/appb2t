@@ -50,6 +50,7 @@ export interface DocumentItemSnapshot extends DocumentItemInput {
   name: string;
 }
 export interface DocumentSnapshot {
+  art?: import("@/domain/art/types").DocumentArtDTO[];
   catalogKits?: import("@/domain/kits/document").CatalogKitDocument;
   company: CompanyIdentityDTO;
   customer: CustomerSnapshot;
@@ -68,6 +69,7 @@ export interface CommerceEventDTO {
   createdAt: string;
 }
 export interface QuoteDTO {
+  art?: import("@/domain/art/types").DocumentArtDTO[];
   costs?: DocumentCostsDTO | null;
   id: string;
   number: string;
@@ -87,6 +89,7 @@ export interface ReceiptSummary {
   overdue: string;
 }
 export interface SaleDTO {
+  art?: import("@/domain/art/types").DocumentArtDTO[];
   fulfillmentMode?: "LEGACY" | "U3";
   costs?: DocumentCostsDTO | null;
   id: string;

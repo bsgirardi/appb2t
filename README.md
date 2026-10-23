@@ -60,6 +60,18 @@ A solicitação preserva componentes, personalizações, posições e a tabela c
 
 Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A instalação local 1.1.0 já recebeu essa migração; em outras instalações, execute o procedimento de atualização. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
 
+### Arte e aprovação (C4 — publicada localmente em 23/10/2026)
+
+Em Solicitações, abra **Arte e aprovação**, selecione as linhas que exigem arte e crie um pacote. A equipe envia JPEG, PNG, WebP ou PDF e identifica cada arquivo como referência ou arte final. Confira as instruções, a abrangência e os arquivos antes de publicar. São até dez arquivos por revisão, dez MiB por arquivo, cinquenta MiB por revisão e vinte revisões por pacote, com até vinte pacotes por solicitação. Imagens devem ser estáticas e ter até quarenta milhões de pixels; PDFs estáticos, sem senha e com até 500 páginas. Documentos inválidos, complexos ou com recursos ativos detectados são rejeitados. Essa inspeção não é antivírus nem certificação de segurança do conteúdo.
+
+**Gerar ou renovar link privado** exige a chave de instalação `ART_ACCESS_KEY`. O link vale sete dias; renová-lo revoga o anterior. Copie e envie pelo canal de atendimento. Qualquer pessoa que possua o link pode responder, sem conta; o nome informado é declarado, sem verificação independente. Revise os destinatários antes de compartilhar.
+
+O cliente confere todos os arquivos finais, informa seu nome e aprova a versão exata ou pede ajustes com comentário. A decisão fica registrada com horário e manifesto dos arquivos; ela não confirma compra, pagamento ou início da produção. Originais e prévias são privados, sem URLs públicas de arquivos. PDFs são oferecidos para download explícito.
+
+Uma versão publicada não pode ser editada. Crie outra revisão para corrigir arte ou instruções. Preparar o rascunho mantém a versão anterior; publicar a substitui e suspende novos apontamentos das linhas afetadas até novo aceite. Descrição ou quantidade comercial alteradas também deixam o aceite desatualizado. Cópias de itens não herdam aprovação: recebem identidade própria e precisam de revisão independente quando exigida. Retirar uma linha do pacote mantém a exigência pendente.
+
+Orçamentos emitidos conservam a evidência disponível na emissão; a aprovação posterior aparece separadamente. A venda consulta o estado atual, e a produção exige aprovação aplicável nas linhas marcadas. Consumos, peças e movimentos anteriores permanecem. Nenhum pagamento ou reserva é criado por C4. Arquivos publicados e decisões são conservados no PostgreSQL e acompanham seus backups; não há limpeza automática de histórico.
+
 ### Seleção e canal complementar
 
 Na página do produto, escolha as opções e a quantidade e use **Adicionar à lista de orçamento**. O link **Minha lista** permite ajustar quantidades, remover itens e conferir os valores. Combinações iguais são somadas; cores/tamanhos diferentes permanecem em linhas separadas. Limites: 20 combinações e 99 unidades por combinação.

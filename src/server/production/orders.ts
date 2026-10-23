@@ -14,6 +14,7 @@ import { invalid } from "@/server/stock/movements";
 import { lockProduction } from "./locks";
 import { runProductionCommand } from "./commands";
 import { projectSale } from "./fulfillment";
+import { assertProductionArt } from "@/server/art/production";
 export async function orderRow(tx: Prisma.TransactionClient, id: string) {
   const o = await tx.productionOrder.findUnique({
     where: { id },
@@ -232,6 +233,12 @@ export async function releaseOrder(
     if (o.version !== v.expectedVersion || o.status !== "RASCUNHO")
       throw conflict();
     if (o.saleId) await activeSale(tx, o.saleId);
+    if (o.saleId)
+      await assertProductionArt(
+        tx,
+        o.saleId,
+        o.lines.flatMap((l) => (l.saleLineKey ? [l.saleLineKey] : [])),
+      );
     await validatePeople(tx, o.responsibleId, o.lines);
     const stocks = await tx.finishedStock.findMany({
       where: {

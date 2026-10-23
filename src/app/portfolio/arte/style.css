@@ -1,0 +1,94 @@
+.art-public {
+  font-family: Poppins, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(20px, 5vw, 64px);
+}
+.art-public-header {
+  max-width: 46rem;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid var(--primary);
+  padding-bottom: 1.5rem;
+}
+.art-public-header h1 {
+  font-size: clamp(1.8rem, 4vw, 3.25rem);
+  line-height: 1.15;
+  margin: 0.5rem 0 1rem;
+}
+.art-public-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: 2rem;
+  margin-top: 2rem;
+  align-items: start;
+}
+.art-public-layout > *,
+.art-file {
+  min-width: 0;
+}
+.art-decision {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.art-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 44px;
+  line-height: 1.5;
+}
+.art-confirm input {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+.art-files-section {
+  margin-top: 2rem;
+}
+.art-file {
+  margin: 1rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+.art-preview {
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
+  object-fit: contain;
+  background: var(--muted);
+  border-radius: var(--radius);
+}
+.art-file figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.art-public a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+}
+.art-public button {
+  min-height: 44px;
+  white-space: normal;
+}
+.art-preserve {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .art-public-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .art-decision {
+    padding: 1rem;
+  }
+}

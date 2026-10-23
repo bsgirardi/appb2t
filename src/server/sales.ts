@@ -13,6 +13,7 @@ import {
   copyQuoteCostsToSale,
 } from "./pricing/document-costs";
 import { Prisma } from "@prisma/client";
+import { readDocumentArt, copyArtBindings } from "./art/documents";
 import { z } from "zod";
 import { createHash } from "node:crypto";
 import { db } from "@/lib/db";
@@ -82,6 +83,11 @@ async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
     id: s.id,
     number: `VEN-${String(s.sequence).padStart(6, "0")}`,
     quoteId: s.quoteId,
+    art: await readDocumentArt(
+      tx,
+      { saleId: s.id },
+      (s.document as unknown as DocumentInput).items,
+    ),
     status: s.status,
     fulfillmentMode: s.fulfillmentMode as "LEGACY" | "U3",
     version: s.version,
@@ -243,6 +249,7 @@ async function idempotent(
   return db.$transaction(
     async (tx) => {
       await lockOperation(tx, operationKey);
+      await lockPlanning(tx);
       const old = await tx.commercialOperation.findUnique({
         where: { key: operationKey },
       });
@@ -308,6 +315,7 @@ export async function confirmSale(
         tx,
         input,
         `/api/sales/${id}/logo`,
+        { saleId: id },
       );
       await tx.sale.update({
         where: { id },
@@ -412,6 +420,7 @@ export async function convertQuote(
         })),
       });
       const costRevisionId = await copyQuoteCostsToSale(tx, quoteId, sale.id);
+      await copyArtBindings(tx, quoteId, sale.id);
       await tx.sale.update({
         where: { id: sale.id },
         data: { costRevisionId },

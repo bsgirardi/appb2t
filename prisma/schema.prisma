@@ -14,6 +14,7 @@ enum Technology {
   RESIN
 }
 model User {
+  artCommands ArtCommand[]
   catalogRequests CatalogRequest[]
   profitabilityRevisions ProfitabilityRevision[]
   profitabilityAssessments ProfitabilityAssessment[]
@@ -210,6 +211,7 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ artBindings ArtDocumentBinding[]
  catalogRequest CatalogRequest?
  costRevisionId String?
  sale Sale?
@@ -278,6 +280,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ artBindings ArtDocumentBinding[]
  profitabilityState ProfitabilityState?
  profitabilityRevisions ProfitabilityRevision[]
  profitabilityAssessments ProfitabilityAssessment[]
@@ -1126,6 +1129,8 @@ enum CatalogRequestState {
   ENCERRADA
 }
 model CatalogRequest {
+  artPackages ArtPackage[]
+  artRequirements ArtLineRequirement[]
   kitSnapshot Json?
   id String @id @default(cuid())
   sequence Int @unique @default(autoincrement())
@@ -1216,4 +1221,140 @@ model CatalogKitEvent {
   actorName String
   createdAt DateTime @default(now())
   @@index([kitId, createdAt])
+}
+
+model ArtPackage {
+  id String @id @default(cuid())
+  requestId String
+  request CatalogRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  currentRevisionId String? @unique
+  currentRevision ArtRevision? @relation("CurrentArtRevision", fields: [currentRevisionId], references: [id], onDelete: Restrict)
+  revisions ArtRevision[] @relation("ArtPackageRevisions")
+  requirements ArtLineRequirement[]
+  createdAt DateTime @default(now())
+  @@index([requestId])
+}
+
+model ArtRevision {
+  id String @id @default(cuid())
+  packageId String
+  package ArtPackage @relation("ArtPackageRevisions", fields: [packageId], references: [id], onDelete: Restrict)
+  currentFor ArtPackage? @relation("CurrentArtRevision")
+  number Int
+  version Int @default(1)
+  state String @default("DRAFT")
+  instructions String @default("")
+  lines Json
+  manifest Json?
+  manifestHash String?
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  files ArtFile[]
+  decision ArtDecision?
+  grants ArtAccessGrant[]
+  events ArtEvent[]
+  @@unique([packageId, number])
+}
+
+model ArtLineRequirement {
+  details Json?
+  id String @id @default(cuid())
+  requestId String
+  request CatalogRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  sourceLineId String
+  required Boolean @default(true)
+  packageId String?
+  package ArtPackage? @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  configurationHash String
+  @@unique([requestId, sourceLineId])
+  @@index([packageId])
+}
+
+model ArtDocumentBinding {
+  id String @id @default(cuid())
+  quoteId String?
+  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  saleId String?
+  sale Sale? @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  lineKey String
+  requestId String
+  sourceLineId String
+  configurationHash String
+  valid Boolean @default(true)
+  @@unique([quoteId, lineKey])
+  @@unique([saleId, lineKey])
+  @@index([requestId, sourceLineId])
+}
+
+model ArtFile {
+  id String @id @default(cuid())
+  revisionId String
+  revision ArtRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  name String
+  purpose String
+  mimeType String
+  bytes Bytes
+  byteLength Int
+  sha256 String
+  preview Bytes?
+  previewSha256 String?
+  createdAt DateTime @default(now())
+  @@index([revisionId])
+}
+
+model ArtDecision {
+  id String @id @default(cuid())
+  revisionId String @unique
+  revision ArtRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  action String
+  name String
+  comment String @default("")
+  manifestHash String
+  manifest Json
+  operationKey String
+  payloadHash String
+  decidedAt DateTime @default(now())
+}
+
+model ArtAccessGrant {
+  id String @id @default(cuid())
+  revisionId String
+  revision ArtRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  tokenHash String @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  sessions ArtAccessSession[]
+  @@index([revisionId])
+}
+
+model ArtAccessSession {
+  tokenHash String @id
+  grantId String
+  grant ArtAccessGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([grantId])
+}
+
+model ArtCommand {
+  key String @id
+  actorId String
+  actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  type String
+  payloadHash String
+  result Json
+  createdAt DateTime @default(now())
+}
+
+model ArtEvent {
+  id String @id @default(cuid())
+  revisionId String
+  revision ArtRevision @relation(fields: [revisionId], references: [id], onDelete: Restrict)
+  action String
+  actorId String?
+  actorName String
+  note String @default("")
+  createdAt DateTime @default(now())
+  @@index([revisionId, createdAt])
 }

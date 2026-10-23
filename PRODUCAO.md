@@ -1,6 +1,6 @@
 # appb2t — build e instalação em outro servidor
 
-Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.3.8 e adaptação Nova/catálogo. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
+Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
 
@@ -87,6 +87,18 @@ docker compose -p b2t-calculadora ps
 ```
 
 Não renomeie nem apague volumes para realizar esta mudança. Não execute `docker compose down -v` sobre dados que deseja preservar. A publicação local de 16/10 preservou o projeto b2t-calculadora e seu volume original; o nome appb2t continua sendo o padrão para novas instalações.
+
+## C4: preparação e recuperação da candidata
+
+C4 publicado localmente em 23/10/2026, no projeto appb2t e volume appb2t_postgres_data. Consulte o [registro operacional](docs/superpowers/2026-10-23-publicacao-c4.md). Migrações aditivas: `202610230001_art_approval` e `202610230002_art_document_bindings`. Não usar `db push` nem importar fixtures na operação.
+
+Configure `ART_ACCESS_KEY` com 32 bytes aleatórios representados por 64 caracteres hexadecimais. O Compose passa essa variável ao runtime; sem ela, a emissão de links informa a configuração pendente e as funcionalidades anteriores continuam disponíveis. Não registrar a chave no Git, logs, tickets ou chat. Guarde-a em local protegido junto à configuração de recuperação. O banco conserva somente hashes dos tokens; respostas idempotentes de emissão conservam a identidade do acesso, e o segredo é derivado por HMAC da chave de instalação.
+
+Rotacionar a chave não revoga automaticamente links e sessões já emitidos, que continuam limitados pelos hashes, revogação e prazo salvos. Para invalidá-los, revogue o acesso pelo painel. Após rotação, não recupere uma emissão antiga com a mesma chave de operação: gere um novo link no painel. Não reutilizar senha do banco, senha de administrador ou chave de outro aplicativo.
+
+Antes da implantação autorizada, gere backup novo, restaure em PostgreSQL 17 separado, aplique as migrações e compare os dados legados. Faça um ciclo de arte com arquivos demonstrativos no ambiente isolado; confira imagem, download PDF, decisão, revogação, orçamento/venda e bloqueio produtivo. O runtime standalone precisa incluir `@cantoo/pdf-lib` e suas dependências: validar upload PDF na imagem Docker, além do build. O parser roda em worker com timeout de cinco segundos e heap de 128 MiB, rejeitando trabalhos que excedam esses limites.
+
+Preserve bytes originais, prévias, manifestos, comandos e decisões no backup. Após gravar C4, não executar downgrade cego para código anterior: exigências de aprovação precisam continuar protegendo a produção. Prefira correção para frente; restauração exige coordenar aplicação, chave e banco e definir explicitamente o ponto de recuperação. Não apagar tabelas/volumes nem restaurar backup antigo sobre novas decisões sem conciliação.
 
 ## Manutenção
 
