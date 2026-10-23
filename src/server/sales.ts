@@ -461,7 +461,9 @@ export async function cancelSale(
 ): Promise<SaleDTO> {
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
-  return db.$transaction(async (tx) => {
+  return db.$transaction(tx=>cancelSaleWithClient(tx,actor,id,expectedVersion,why,entryGuard));
+}
+export async function cancelSaleWithClient(tx:Prisma.TransactionClient, actor:Actor,id:string,expectedVersion:number,why:string,entryGuard?:{id:string;expectedVersion:number}):Promise<SaleDTO> {
     await lockPlanning(tx);
     await lockCommerce(tx, { saleId: id });
     const sale = await row(tx, id);
@@ -505,7 +507,7 @@ export async function cancelSale(
       data: { revision: { increment: 1 } },
     });
     return dto(tx, id);
-  });
+
 }
 export async function transitionSale(
   actor: Actor,
@@ -635,5 +637,6 @@ export async function listSales(
     { isolationLevel: "RepeatableRead" },
   );
 }
+
 
 
