@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import { setupDatabase } from "./setup";
 import {
@@ -23,7 +23,11 @@ import { forecast } from "@/domain/planning/scheduler";
 import { civilDay, civilInstant } from "@/domain/planning/calendar";
 import type { BatchDTO } from "@/domain/planning/types";
 setupDatabase();
+afterEach(() => vi.useRealTimers());
 it("executes a mixed overnight batch and another machine, reconciles failed pieces and schedules retry without financial duplication", async () => {
+  // The scenario records removals through 08:20 in São Paulo.
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-10-23T15:00:00.000Z"));
   const f = await planningFixture();
   const p2 = await db.printer.create({
     data: {
