@@ -89,6 +89,7 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+ checkoutPolicy Json?
   quantityTiers Json @default("[]")
   compositionImageId String?
   kitProducts CatalogKitProduct[]
@@ -211,6 +212,7 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ checkout Checkout?
  artBindings ArtDocumentBinding[]
  catalogRequest CatalogRequest?
  costRevisionId String?
@@ -246,6 +248,9 @@ model QuoteItem {
  @@unique([quoteId,lineKey])
 }
 model CommerceEvent {
+ authorKind String @default("ADMIN")
+ checkoutId String?
+ checkout Checkout? @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
  saleId String?
  sale Sale? @relation(fields:[saleId],references:[id],onDelete:Restrict)
  id String @id @default(cuid())
@@ -253,7 +258,7 @@ model CommerceEvent {
  quote Quote? @relation(fields:[quoteId],references:[id],onDelete:Restrict)
  action String
  reason String @default("")
- actorId String
+ actorId String?
  actorName String
  createdAt DateTime @default(now())
  @@index([quoteId,createdAt])
@@ -280,6 +285,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ checkout Checkout?
  artBindings ArtDocumentBinding[]
  profitabilityState ProfitabilityState?
  profitabilityRevisions ProfitabilityRevision[]
@@ -1129,6 +1135,7 @@ enum CatalogRequestState {
   ENCERRADA
 }
 model CatalogRequest {
+ checkout Checkout?
   artPackages ArtPackage[]
   artRequirements ArtLineRequirement[]
   kitSnapshot Json?
@@ -1190,6 +1197,7 @@ model CatalogRequestQuota {
 }
 
 model CatalogKit {
+ checkoutPolicy Json?
   id String @id @default(cuid())
   name String
   description String @default("")
@@ -1357,4 +1365,101 @@ model ArtEvent {
   note String @default("")
   createdAt DateTime @default(now())
   @@index([revisionId, createdAt])
+}
+
+model Checkout {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ version Int @default(1)
+ state String @default("REVIEW")
+ attemptHash String @unique
+ contentHash String
+ draft Json
+ review Json
+ fingerprint String
+ requestId String? @unique
+ request CatalogRequest? @relation(fields:[requestId],references:[id],onDelete:Restrict)
+ quoteId String? @unique
+ quote Quote? @relation(fields:[quoteId],references:[id],onDelete:Restrict)
+ saleId String? @unique
+ sale Sale? @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ acceptedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ offers CheckoutOffer[]
+ sessions CheckoutSession[]
+ accesses CheckoutAccess[]
+ operations CheckoutOperation[]
+ events CheckoutEvent[]
+ commerceEvents CommerceEvent[]
+ cancellations CheckoutCancellation[]
+ @@index([state,createdAt])
+}
+model CheckoutOffer {
+ id String @id @default(cuid())
+ checkoutId String
+ checkout Checkout @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ quoteVersion Int
+ review Json
+ fingerprint String
+ active Boolean @default(true)
+ createdAt DateTime @default(now())
+ @@index([checkoutId,active])
+}
+model CheckoutSession {
+ id String @id
+ checkoutId String?
+ checkout Checkout? @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ accessId String?
+ access CheckoutAccess? @relation(fields:[accessId],references:[id],onDelete:Restrict)
+ expiresAt DateTime
+ revokedAt DateTime?
+ createdAt DateTime @default(now())
+ @@index([expiresAt])
+}
+model CheckoutAccess {
+ id String @id @default(cuid())
+ tokenHash String @unique
+ checkoutId String
+ checkout Checkout @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ expiresAt DateTime
+ revokedAt DateTime?
+ createdAt DateTime @default(now())
+ sessions CheckoutSession[]
+}
+model CheckoutOperation {
+ key String @id
+ checkoutId String
+ checkout Checkout @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ type String
+ payloadHash String
+ result Json
+ createdAt DateTime @default(now())
+}
+model CheckoutEvent {
+ id String @id @default(cuid())
+ checkoutId String
+ checkout Checkout @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ action String
+ actorId String?
+ actorName String
+ reason String @default("")
+ createdAt DateTime @default(now())
+ @@index([checkoutId,createdAt])
+}
+model CheckoutCancellation {
+ id String @id @default(cuid())
+ checkoutId String
+ checkout Checkout @relation(fields:[checkoutId],references:[id],onDelete:Restrict)
+ state String @default("PENDING")
+ reason String
+ response String @default("")
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([checkoutId,state])
+}
+model CheckoutQuota {
+ key String @id
+ count Int @default(0)
+ windowStart DateTime @default(now())
 }
