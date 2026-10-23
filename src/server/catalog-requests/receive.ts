@@ -1,3 +1,4 @@
+import type { CatalogSubmission } from "@/domain/catalog-requests/types";
 import { createHash } from "node:crypto";
 import type { CatalogRequest } from "@prisma/client";
 import { Prisma } from "@prisma/client";
@@ -62,6 +63,16 @@ export async function receiveCatalogRequest(
           return { rejection: error };
         throw error;
       }
+      const row = await storeRequestSnapshot(tx, submission, attemptHash, contentHash, snapshot);
+      return { receipt: receiptOf(row) };
+    },
+    { timeout: 20000 },
+  );
+  if (outcome.rejection) throw outcome.rejection;
+  return outcome.receipt!;
+}
+
+export async function storeRequestSnapshot(tx: Prisma.TransactionClient, submission: CatalogSubmission, attemptHash:string, contentHash:string, snapshot:Awaited<ReturnType<typeof buildRequestSnapshot>>) {
       const row = await tx.catalogRequest.create({
         data: {
           attemptHash,
@@ -92,10 +103,6 @@ export async function receiveCatalogRequest(
           events: { create: { action: "RECEIVED", actorName: "Visitante" } },
         },
       });
-      return { receipt: receiptOf(row) };
-    },
-    { timeout: 20000 },
-  );
-  if (outcome.rejection) throw outcome.rejection;
-  return outcome.receipt!;
+
+return row;
 }
