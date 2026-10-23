@@ -9,9 +9,12 @@ import {
   newCheckoutKey,
   readCheckoutAttempt,
   saveCheckoutAttempt,
+  clearCheckoutAttempt,
 } from "@/domain/checkout/attempt";
 import { CheckoutSummary } from "./checkout-summary";
-export function CheckoutContinuation() {
+export function CheckoutContinuation({
+  checkoutId,
+}: { checkoutId?: string } = {}) {
   const [data, setData] = useState<CheckoutPublicDetail>();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -43,7 +46,9 @@ export function CheckoutContinuation() {
     (async () => {
       try {
         let selected =
-          new URL(window.location.href).searchParams.get("checkoutId") ?? "";
+          checkoutId ??
+          new URL(window.location.href).searchParams.get("checkoutId") ??
+          "";
         const token = window.location.hash.slice(1);
         if (token) {
           history.replaceState(null, "", window.location.pathname);
@@ -66,7 +71,10 @@ export function CheckoutContinuation() {
           setData(d);
           const attempt = readCheckoutAttempt();
           acceptKey.current =
-            attempt?.checkoutId === d.review.id
+            attempt?.checkoutId === d.review.id &&
+            attempt.kind === "ACCEPT_QUOTE" &&
+            attempt.expectedVersion === d.review.version &&
+            attempt.fingerprint === d.review.fingerprint
               ? attempt.operationKey
               : newCheckoutKey();
         }
@@ -77,7 +85,7 @@ export function CheckoutContinuation() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [checkoutId]);
   async function accept() {
     if (!data || !agreed) return;
     setBusy(true);
@@ -92,12 +100,14 @@ export function CheckoutContinuation() {
         agreed: true,
       };
       saveCheckoutAttempt({
+        kind: "ACCEPT_QUOTE",
         checkoutId: data.review.id,
         operationKey: payload.operationKey,
         expectedVersion: payload.expectedVersion,
         fingerprint: payload.fingerprint,
       });
       await api(`/api/portfolio/checkout/accept${suffix(id)}`, payload);
+      clearCheckoutAttempt();
       await load();
     } catch (e) {
       setError(

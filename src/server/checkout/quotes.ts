@@ -9,7 +9,7 @@ import type {
 import type { CheckoutReviewContent } from "@/domain/checkout/types";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
-import Decimal from "decimal.js";
+import { projectCheckoutDocument } from "./document-projection";
 import {
   checkoutQuotePublicationSchema,
   checkoutDecisionSchema,
@@ -92,54 +92,13 @@ export async function publishCheckoutQuote(
           "VALIDATION",
           "Retirada exige frete zero no orçamento.",
         );
-      const lines = document.items.map((item, i) => {
-        const source =
-          original.lines.find(
-            (l) =>
-              l.lineId === item.lineId ||
-              l.lineId === item.catalogOrigin?.sourceLineId,
-          ) ?? original.lines[i];
-        return {
-          ...source,
-          lineId: item.lineId ?? `line-${i}`,
-          name: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          subtotal: new Decimal(item.unitPrice).times(item.quantity).toFixed(2),
-          priceKind: "REFERENCE" as const,
-        };
-      });
-      const review: CheckoutReviewContent = {
-        ...original,
-        route: "DIRECT",
-        lines,
-        groups:
-          document.catalogKits?.groups.map((g) => {
-            const p = document.catalogKits!.preparation.groups.find(
-              (p) => p.instanceId === g.instanceId,
-            );
-            return p
-              ? {
-                  ...g,
-                  price: {
-                    ...g.price,
-                    quantity: p.quantity,
-                    subtotal: p.subtotal,
-                    discount: p.discount,
-                    total: p.total,
-                    tier: p.tier,
-                  },
-                }
-              : g;
-          }) ?? [],
-        shipping: document.shipping,
-        discount: document.discount,
-        total: totals.total,
-        paymentTerms: document.paymentTerms,
+      const review = projectCheckoutDocument(
+        original,
+        document,
+        totals,
         installments,
-        reasons: [],
-        validUntil: document.validUntil,
-      };
+        document.validUntil,
+      );
       const fingerprint = checkoutFingerprint(review);
       await tx.checkoutOffer.updateMany({
         where: { checkoutId: id, active: true },
@@ -273,7 +232,8 @@ export async function withdrawCheckoutOffer(
     await assertCheckoutActor(tx, actor);
     await lockPlanning(tx);
     const c = await lockCheckout(tx, id);
-    if (c.version !== version || c.saleId) throw conflict();
+    if (c.version !== version || c.saleId || c.state === "CLOSED")
+      throw conflict();
     await tx.checkoutOffer.updateMany({
       where: { checkoutId: id, active: true },
       data: { active: false },

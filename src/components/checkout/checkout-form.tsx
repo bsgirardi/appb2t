@@ -26,6 +26,7 @@ import {
   newCheckoutKey,
   saveCheckoutAttempt,
   clearCheckoutAttempt,
+  readCheckoutAttempt,
 } from "@/domain/checkout/attempt";
 import { CheckoutSummary } from "./checkout-summary";
 import { CheckoutContinuation } from "./checkout-continuation";
@@ -71,15 +72,23 @@ export function CheckoutForm({
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
   const [existing, setExisting] = useState(false);
+  const [existingId, setExistingId] = useState("");
   const sent = useRef<KitSelection | null>(null);
   const decisionKey = useRef("");
   const current = JSON.stringify({ selection, contact, mode, address });
   const validReview = stamp === current ? review : undefined;
   useEffect(() => {
     let active = true;
-    api<CheckoutPublicDetail>("/api/portfolio/checkout/detail")
+    const attempt = readCheckoutAttempt();
+    api<CheckoutPublicDetail>(
+      `/api/portfolio/checkout/detail${attempt ? `?checkoutId=${encodeURIComponent(attempt.checkoutId)}` : ""}`,
+    )
       .then((d) => {
-        if (active && d.receipt) setExisting(true);
+        if (active && d.receipt) {
+          clearCheckoutAttempt();
+          setExistingId(d.review.id);
+          setExisting(true);
+        }
       })
       .catch(() => {});
     return () => {
@@ -131,7 +140,7 @@ export function CheckoutForm({
         fingerprint: payload.fingerprint,
       });
       const r = await api<CheckoutReceipt>(
-        "/api/portfolio/checkout/confirm",
+        `/api/portfolio/checkout/confirm?checkoutId=${encodeURIComponent(validReview.id)}`,
         payload,
       );
       setReceipt(r);
@@ -154,10 +163,11 @@ export function CheckoutForm({
     setBusy(true);
     try {
       const d = await api<CheckoutPublicDetail>(
-        "/api/portfolio/checkout/detail",
+        `/api/portfolio/checkout/detail?checkoutId=${encodeURIComponent(review!.id)}`,
       );
       if (d.receipt) {
         setReceipt(d.receipt);
+        clearCheckoutAttempt();
         setUncertain(false);
       } else
         setError(
@@ -172,7 +182,7 @@ export function CheckoutForm({
   if (existing)
     return (
       <section className="flex flex-col gap-6">
-        <CheckoutContinuation />
+        <CheckoutContinuation checkoutId={existingId} />
         <Button
           variant="outline"
           onClick={async () => {

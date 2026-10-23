@@ -1,3 +1,6 @@
+import { projectCheckoutDocument } from "./checkout/document-projection";
+import type { CheckoutReviewContent } from "@/domain/checkout/types";
+import { checkoutFingerprint } from "./checkout/review";
 import { commerceAuthorship } from "./commerce/audit";
 import type {
   CommerceAuthor,
@@ -472,12 +475,21 @@ export async function convertQuoteWithClient(
           "CONFLICT",
           "O pedido foi encerrado. Revise o atendimento antes de converter.",
         );
+      const publicReview = projectCheckoutDocument(
+        checkout.review as unknown as CheckoutReviewContent,
+        document,
+        totals,
+        valid,
+      );
       await tx.checkout.update({
         where: { id: checkout.id },
         data: {
           quoteId,
           saleId: sale.id,
           state: "CONFIRMED",
+          review: publicReview as unknown as Prisma.InputJsonValue,
+          fingerprint: checkoutFingerprint(publicReview),
+          acceptedAt: new Date(),
           version: { increment: 1 },
         },
       });
@@ -547,6 +559,33 @@ export async function cancelSaleWithClient(
     data: { status: "CANCELADA", version: { increment: 1 } },
   });
   await event(tx, actor, id, "CANCEL", why);
+  const checkout = await tx.checkout.findUnique({ where: { saleId: id } });
+  if (checkout) {
+    await tx.checkout.update({
+      where: { id: checkout.id },
+      data: { state: "CLOSED", version: { increment: 1 } },
+    });
+    await tx.checkoutOffer.updateMany({
+      where: { checkoutId: checkout.id, active: true },
+      data: { active: false },
+    });
+    await tx.checkoutCancellation.updateMany({
+      where: { checkoutId: checkout.id, state: "PENDING" },
+      data: {
+        state: "COMPLETED",
+        response: "Venda cancelada pela equipe após conferência.",
+      },
+    });
+    await tx.checkoutEvent.create({
+      data: {
+        checkoutId: checkout.id,
+        action: "CANCELLED",
+        actorId: actor.id,
+        actorName: actor.name,
+        reason: "Venda cancelada pelos controles administrativos.",
+      },
+    });
+  }
   await reconcilePlanningTx(tx);
   await tx.planningState.update({
     where: { id: 1 },

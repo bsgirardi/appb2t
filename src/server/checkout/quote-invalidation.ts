@@ -4,7 +4,7 @@ export async function invalidateCheckoutQuote(
   quoteId: string,
 ) {
   const c = await tx.checkout.findUnique({ where: { quoteId } });
-  if (!c || c.saleId) return;
+  if (!c || c.saleId || c.state === "CLOSED") return;
   await tx.checkoutOffer.updateMany({
     where: { checkoutId: c.id, active: true },
     data: { active: false },

@@ -38,7 +38,7 @@ it("stores a stable confirmation identity without contact data or authorization 
     fingerprint: "b".repeat(64),
   };
   saveCheckoutAttempt(attempt);
-  expect(readCheckoutAttempt()).toEqual(attempt);
+  expect(readCheckoutAttempt()).toEqual({ ...attempt, kind: "CONFIRM" });
   expect(() =>
     saveCheckoutAttempt({ ...attempt, token: "secret" } as typeof attempt),
   ).toThrow();

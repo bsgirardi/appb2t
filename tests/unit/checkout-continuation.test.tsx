@@ -38,9 +38,9 @@ it("keeps the selection and offers recovery when the confirmation response is lo
     },
   };
   vi.mocked(api).mockImplementation(async (url) => {
-    if (url.endsWith("detail")) throw new ApiError("Sem pedido", "NOT_FOUND");
+    if (url.includes("/detail")) throw new ApiError("Sem pedido", "NOT_FOUND");
     if (url.endsWith("review")) return v;
-    if (url.endsWith("confirm"))
+    if (url.includes("/confirm"))
       throw new ApiError("Conexão perdida", "NETWORK");
     return {};
   });
