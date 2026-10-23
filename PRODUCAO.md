@@ -1,6 +1,6 @@
 # appb2t — build e instalação em outro servidor
 
-Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
+Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4. A instalação local recebeu C4 em 23/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
 

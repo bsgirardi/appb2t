@@ -26,4 +26,6 @@ Runtime appb2t:c4-20261023, ID sha256:4868b6ce0845c5ee3c0855dfaeff17d0ccf5c71c55
 
 HTTP: saúde, catálogo, login e página de arte 200; dashboard redireciona para login (307); revisão sem sessão 403; API interna sem login 401. Página privada com no-store/no-referrer. Chave operacional configurada e parser presente. Navegador confirmou orientação para abrir link privado. Zero usuários operacionais; nenhuma fixture ou conta criada. Primeiro administrador continua interativo, sem senha no chat.
 
-Publicação externa com domínio/HTTPS e backups automáticos fora desta máquina continuam pendentes. Integração pelo [PR #4](https://github.com/bsgirardi/appb2t/pull/4); resultado Git final será registrado após merge.
+Publicação externa com domínio/HTTPS e backups automáticos fora desta máquina continuam pendentes. [PR #4](https://github.com/bsgirardi/appb2t/pull/4) integrado em main, merge `9b6acbed553b4e6a033cd193b4501cfe8c15db59`. Checkout original X:/codex/appb2t sincronizado por fast-forward; árvore de código idêntica à implementação validada f519ffb. A configuração Compose operacional foi conferida novamente a partir do checkout original e segue healthy.
+
+Os arquivos locais anteriores já contemplados na integração foram preservados no stash identificado por `Preserve pre-C4 local files already integrated through PR4`, sem reaplicar duplicatas. .agents e skills-lock.json permaneceram intactos, locais e fora dos commits. Worktree e evidências isoladas conservados para continuidade de C5. Marco Git: c4-2026-10-23.
