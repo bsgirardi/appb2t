@@ -99,4 +99,3 @@ export function suggestedProductPrice(
     );
   return price.toFixed(2);
 }
-

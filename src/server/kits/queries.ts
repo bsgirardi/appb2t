@@ -14,7 +14,7 @@ export function kitDTO(
   row: Prisma.CatalogKitGetPayload<{ include: typeof kitInclude }>,
 ): KitDTO {
   return {
-    checkoutPolicy:readCheckoutPolicy(row.checkoutPolicy),
+    checkoutPolicy: readCheckoutPolicy(row.checkoutPolicy),
     id: row.id,
     name: row.name,
     description: row.description,
@@ -67,4 +67,3 @@ export async function getPublicKit(id: string): Promise<KitDTO | null> {
   });
   return row ? kitDTO(row) : null;
 }
-

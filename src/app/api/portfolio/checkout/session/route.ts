@@ -1,3 +1,7 @@
 import { initializeCheckoutSession } from "@/server/checkout/access";
-import {checkoutEndpoint,checkoutResponse} from "@/server/checkout/http";
-export function POST(request:Request) {return checkoutEndpoint(async()=>{ return initializeCheckoutSession(request);});}
+import { checkoutEndpoint } from "@/server/checkout/http";
+export function POST(request: Request) {
+  return checkoutEndpoint(async () => {
+    return initializeCheckoutSession(request);
+  });
+}

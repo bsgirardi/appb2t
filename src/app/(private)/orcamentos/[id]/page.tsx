@@ -1,3 +1,5 @@
+import { db } from "@/lib/db";
+import { CheckoutTeamPanel } from "@/components/checkout/checkout-team-panel";
 import { requireActor } from "@/server/auth/guards";
 import { getQuote } from "@/server/quotes";
 import { commerceOptions } from "@/server/commerce/options";
@@ -13,11 +15,18 @@ export default async function QuotePage({
     getQuote(actor, id),
     commerceOptions(actor),
   ]);
+  const checkout = await db.checkout.findFirst({
+    where: { OR: [{ quoteId: id }, { request: { quoteId: id } }] },
+    select: { id: true },
+  });
   return (
-    <QuoteDetail
-      key={`${initial.id}:${initial.version}`}
-      initial={initial}
-      {...options}
-    />
+    <>
+      <QuoteDetail
+        key={`${initial.id}:${initial.version}`}
+        initial={initial}
+        {...options}
+      />
+      {checkout && <CheckoutTeamPanel checkoutId={checkout.id} />}
+    </>
   );
 }

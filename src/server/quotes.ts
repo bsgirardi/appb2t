@@ -233,7 +233,7 @@ export async function saveQuoteWithClient(
   );
   await tx.quote.update({ where: { id: q.id }, data: { costRevisionId } });
   await quoteEvent(tx, actor, q.id, id ? "EDIT" : "CREATE");
-  if(id)await invalidateCheckoutQuote(tx,id);
+  if (id) await invalidateCheckoutQuote(tx, id);
   if (input.catalogKits && (!id || kitDiscountReviewed))
     await quoteEvent(
       tx,
@@ -316,7 +316,7 @@ export async function transitionQuote(
       data.status = action === "APPROVE" ? "APROVADO" : "REJEITADO";
     }
     await tx.quote.update({ where: { id }, data });
-    await invalidateCheckoutQuote(tx,id);
+    await invalidateCheckoutQuote(tx, id);
     await quoteEvent(tx, actor, id, action);
     return dto(await row(tx, id), tx);
   });

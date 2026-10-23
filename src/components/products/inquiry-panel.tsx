@@ -289,7 +289,11 @@ export function InquiryPanel() {
         </Button>
       </div>
       {storage}
-      <Button asChild><Link href="/portfolio/checkout">Continuar para compra ou conferência</Link></Button>
+      <Button asChild>
+        <Link href="/portfolio/checkout">
+          Continuar para compra ou conferência
+        </Link>
+      </Button>
       <p className="store-note">
         A lista fica salva neste navegador. Preparar contato não envia a
         solicitação nem reserva estoque.

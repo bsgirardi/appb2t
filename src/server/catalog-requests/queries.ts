@@ -15,6 +15,7 @@ import { receiptOf } from "./receive";
 import { kitRequestSnapshotSchema } from "@/domain/kits/snapshot";
 import { kitInclude, kitDTO } from "@/server/kits/queries";
 const include = {
+  checkout: { select: { id: true } },
   assignee: { select: { name: true } },
   _count: { select: { lines: true } },
 } satisfies Prisma.CatalogRequestInclude;
@@ -75,6 +76,7 @@ export async function getCatalogRequestWithClient(
     : [];
   return {
     ...summary(row),
+    ...(row.checkout ? { checkoutId: row.checkout.id } : {}),
     contact: row.contact as unknown as CatalogContact,
     lines,
     groups,

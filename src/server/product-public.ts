@@ -8,7 +8,7 @@ import {
   priceModeSchema,
 } from "@/domain/products/configuration";
 export const publicProductSelect = {
-  checkoutPolicy:true,
+  checkoutPolicy: true,
   quantityTiers: true,
   compositionImageId: true,
   publicPriceMode: true,
@@ -38,7 +38,7 @@ type PublicRow = Prisma.ProductGetPayload<{
 }>;
 export function toPublicProduct(row: PublicRow): PublicProductDTO {
   return {
-    checkoutPolicy:readCheckoutPolicy(row.checkoutPolicy),
+    checkoutPolicy: readCheckoutPolicy(row.checkoutPolicy),
     quantityTiers: quantityTiersSchema.parse(row.quantityTiers),
     compositionImageId: row.compositionImageId,
     id: row.id,
@@ -65,4 +65,3 @@ export function toPublicProduct(row: PublicRow): PublicProductDTO {
     imageUrl: `/api/products/${row.id}/image`,
   };
 }
-

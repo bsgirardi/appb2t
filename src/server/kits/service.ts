@@ -61,16 +61,18 @@ export async function saveKitWithClient(
     JSON.stringify([value.active, [...value.productIds].sort(), value.tiers]);
   const changed =
     old &&
-    (JSON.stringify(old.checkoutPolicy ?? {}) !== JSON.stringify(input.checkoutPolicy ?? old.checkoutPolicy ?? {}) || commercial({
-      ...kitDTO(old),
-      tiers: kitDTO(old)
-        .tiers.slice()
-        .sort((a, b) => a.minQuantity - b.minQuantity),
-    }) !==
+    (JSON.stringify(old.checkoutPolicy ?? {}) !==
+      JSON.stringify(input.checkoutPolicy ?? old.checkoutPolicy ?? {}) ||
       commercial({
-        ...input,
-        tiers: tiers.slice().sort((a, b) => a.minQuantity - b.minQuantity),
-      }));
+        ...kitDTO(old),
+        tiers: kitDTO(old)
+          .tiers.slice()
+          .sort((a, b) => a.minQuantity - b.minQuantity),
+      }) !==
+        commercial({
+          ...input,
+          tiers: tiers.slice().sort((a, b) => a.minQuantity - b.minQuantity),
+        }));
   const row = old
     ? await tx.catalogKit.update({
         where: { id: old.id },

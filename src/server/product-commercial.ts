@@ -65,7 +65,10 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
     "paymentTerms",
   ] as const;
   const changed =
-    JSON.stringify(readCheckoutPolicy(old.checkoutPolicy)) !== JSON.stringify(input.checkoutPolicy ?? readCheckoutPolicy(old.checkoutPolicy)) ||
+    JSON.stringify(readCheckoutPolicy(old.checkoutPolicy)) !==
+      JSON.stringify(
+        input.checkoutPolicy ?? readCheckoutPolicy(old.checkoutPolicy),
+      ) ||
     JSON.stringify(
       quantityTiersSchema
         .parse(old.quantityTiers)
@@ -87,4 +90,3 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
       JSON.stringify(config(input.configuration ?? old.configuration));
   return old.commercialRevision + (changed ? 1 : 0);
 }
-

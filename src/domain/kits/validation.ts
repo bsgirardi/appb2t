@@ -33,7 +33,7 @@ export const kitDiscountTiersSchema = z
 export const kitDefinitionSchema = z
   .object({
     name: z.string().trim().min(1).max(160),
-    checkoutPolicy:checkoutPolicySchema.optional(),
+    checkoutPolicy: checkoutPolicySchema.optional(),
     description: z.string().trim().max(2000),
     active: z.boolean(),
     position: z.number().int().min(0).max(99999),
@@ -51,4 +51,3 @@ export const kitDefinitionSchema = z
 export const updateKitSchema = kitDefinitionSchema.safeExtend({
   expectedVersion: z.number().int().positive(),
 });
-

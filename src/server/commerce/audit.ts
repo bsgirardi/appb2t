@@ -1,11 +1,27 @@
 import type { Prisma } from "@prisma/client";
 import type { Actor } from "../auth/session";
 import type { CommerceAuthor } from "./sale-write";
-export function commerceAuthorship(author:Actor|CommerceAuthor) {
-  if("kind" in author) return author.kind==="CHECKOUT"
-    ? {authorKind:"CHECKOUT",actorId:null,actorName:author.name,checkoutId:author.checkoutId}
-    : {authorKind:"ADMIN",actorId:author.actor.id,actorName:author.actor.name,checkoutId:null};
-  return {authorKind:"ADMIN",actorId:author.id,actorName:author.name,checkoutId:null};
+export function commerceAuthorship(author: Actor | CommerceAuthor) {
+  if ("kind" in author)
+    return author.kind === "CHECKOUT"
+      ? {
+          authorKind: "CHECKOUT",
+          actorId: null,
+          actorName: author.name,
+          checkoutId: author.checkoutId,
+        }
+      : {
+          authorKind: "ADMIN",
+          actorId: author.actor.id,
+          actorName: author.actor.name,
+          checkoutId: null,
+        };
+  return {
+    authorKind: "ADMIN",
+    actorId: author.id,
+    actorName: author.name,
+    checkoutId: null,
+  };
 }
 export async function quoteEvent(
   tx: Prisma.TransactionClient,

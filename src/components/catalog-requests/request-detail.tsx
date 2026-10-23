@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { TeamArtPanel } from "@/components/art/team-panel";
+import { CheckoutTeamPanel } from "@/components/checkout/checkout-team-panel";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -94,6 +95,9 @@ export function RequestDetail({
       <Link href="/solicitacoes">← Solicitações</Link>
       <h1>{request.protocol}</h1>
       <TeamArtPanel requestId={request.id} lines={request.lines} />
+      {request.checkoutId && (
+        <CheckoutTeamPanel checkoutId={request.checkoutId} />
+      )}
       <p>
         Estado: <strong>{requestStateLabels[request.state]}</strong>
       </p>

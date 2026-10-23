@@ -1,5 +1,7 @@
 "use client";
 import { ProductConfigurationEditor } from "./product-configuration-editor";
+import { CheckoutOfferFields } from "@/components/checkout/checkout-offer-fields";
+import { readCheckoutPolicy } from "@/domain/checkout/policy";
 import { QuantityTierEditor } from "./quantity-tier-editor";
 import { emptyProductConfiguration } from "@/domain/products/configuration";
 
@@ -97,6 +99,7 @@ export function ProductForm({
     product
       ? {
           name: product.name,
+          checkoutPolicy: readCheckoutPolicy(product.checkoutPolicy),
           configuration: product.configuration ?? emptyProductConfiguration,
           publicPriceMode: product.publicPriceMode ?? "REFERENCE",
           quantityTiers: product.quantityTiers ?? [],
@@ -443,6 +446,12 @@ export function ProductForm({
                 Sob consulta preserva o preço interno e o oculta na vitrine.
               </p>
             </div>
+            <CheckoutOfferFields
+              value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
+              onChange={(checkoutPolicy) =>
+                setDraft({ ...draft, checkoutPolicy })
+              }
+            />
             <ProductConfigurationEditor
               value={draft.configuration ?? emptyProductConfiguration}
               images={(product?.images ?? []).filter((image) =>

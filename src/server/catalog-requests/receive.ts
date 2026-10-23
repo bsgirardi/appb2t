@@ -63,7 +63,13 @@ export async function receiveCatalogRequest(
           return { rejection: error };
         throw error;
       }
-      const row = await storeRequestSnapshot(tx, submission, attemptHash, contentHash, snapshot);
+      const row = await storeRequestSnapshot(
+        tx,
+        submission,
+        attemptHash,
+        contentHash,
+        snapshot,
+      );
       return { receipt: receiptOf(row) };
     },
     { timeout: 20000 },
@@ -72,37 +78,43 @@ export async function receiveCatalogRequest(
   return outcome.receipt!;
 }
 
-export async function storeRequestSnapshot(tx: Prisma.TransactionClient, submission: CatalogSubmission, attemptHash:string, contentHash:string, snapshot:Awaited<ReturnType<typeof buildRequestSnapshot>>) {
-      const row = await tx.catalogRequest.create({
-        data: {
-          attemptHash,
-          contentHash,
-          name: submission.contact.name,
-          preferredChannel: submission.contact.preferredChannel,
-          contact: submission.contact as unknown as Prisma.InputJsonValue,
-          knownTotal: snapshot.knownTotal,
-          consultCount: snapshot.consultCount,
-          ...(snapshot.groups.length
-            ? {
-                kitSnapshot: {
-                  schemaVersion: 1,
-                  groups: snapshot.groups,
-                } as unknown as Prisma.InputJsonValue,
-              }
-            : {}),
-          lines: {
-            create: snapshot.lines.map((line, position) => ({
-              position,
-              snapshot: line as unknown as Prisma.InputJsonValue,
-              quantity: line.quantity,
-              priceKind: line.priceKind,
-              unitPrice: line.unitPrice,
-              subtotal: line.subtotal,
-            })),
-          },
-          events: { create: { action: "RECEIVED", actorName: "Visitante" } },
-        },
-      });
+export async function storeRequestSnapshot(
+  tx: Prisma.TransactionClient,
+  submission: CatalogSubmission,
+  attemptHash: string,
+  contentHash: string,
+  snapshot: Awaited<ReturnType<typeof buildRequestSnapshot>>,
+) {
+  const row = await tx.catalogRequest.create({
+    data: {
+      attemptHash,
+      contentHash,
+      name: submission.contact.name,
+      preferredChannel: submission.contact.preferredChannel,
+      contact: submission.contact as unknown as Prisma.InputJsonValue,
+      knownTotal: snapshot.knownTotal,
+      consultCount: snapshot.consultCount,
+      ...(snapshot.groups.length
+        ? {
+            kitSnapshot: {
+              schemaVersion: 1,
+              groups: snapshot.groups,
+            } as unknown as Prisma.InputJsonValue,
+          }
+        : {}),
+      lines: {
+        create: snapshot.lines.map((line, position) => ({
+          position,
+          snapshot: line as unknown as Prisma.InputJsonValue,
+          quantity: line.quantity,
+          priceKind: line.priceKind,
+          unitPrice: line.unitPrice,
+          subtotal: line.subtotal,
+        })),
+      },
+      events: { create: { action: "RECEIVED", actorName: "Visitante" } },
+    },
+  });
 
-return row;
+  return row;
 }
