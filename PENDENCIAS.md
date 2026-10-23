@@ -2,7 +2,7 @@
 
 Atualizado em 23/10/2026.
 
-1. **Segurança e C4:** Next.js/eslint-config-next 16.4.2, suíte final com 683 testes em 211 arquivos, tipagem, lint e build Docker aprovados. Auditorias finais de produção e completa com desenvolvimento retornaram zero vulnerabilidades conhecidas. Publicação C4 autorizada em 23/10; resultado operacional no registro abaixo. Primeiro administrador continua dependendo de criação interativa. Relatos de cinco alertas e bloqueio Docker em documentos anteriores são históricos.
+1. **Segurança e C4:** Next.js/eslint-config-next 16.4.2, suíte final com 683 testes em 211 arquivos, tipagem, lint e build Docker aprovados. Auditorias finais de produção e completa com desenvolvimento retornaram zero vulnerabilidades conhecidas. Publicação C4 concluída em 23/10 em http://localhost:3000; resultado operacional no registro abaixo. Primeiro administrador continua dependendo de criação interativa. Relatos de cinco alertas e bloqueio Docker em documentos anteriores são históricos.
 2. **Novo servidor:** configurar .env, domínio/proxy HTTPS e backups automáticos; testar restauração. Não há comprovação de configuração externa existente.
 3. **Dados:** o usuário escolheu instalação vazia neste computador. Preparar banco PostgreSQL 17 próprio e primeiro administrador; não importar dados antigos nem usar os bancos de outros aplicativos. Nenhum dado ou senha real está no pacote.
 4. **Publicação local concluída:** versão 1.1.0 em http://localhost:3000, imagem `appb2t:1.1.0` saudável, dashboard e catálogo C3 integrados pelo [PR #3](https://github.com/bsgirardi/appb2t/pull/3). Migração aditiva aplicada após backup final; as 82 projeções históricas e o volume `b2t-calculadora_postgres_data` foram preservados. Publicação externa depende do servidor/domínio descritos acima.
@@ -14,6 +14,6 @@ Aceite de navegador U4/U5 concluído para cenários representativos em celular/d
 
 ## C4 e continuidade C5 — 23/10/2026
 
-C4 implementado e validado: anexos pela equipe, aprovação por link privado, revisões imutáveis, continuidade em documentos e bloqueio de novos apontamentos quando a arte exigida não estiver aplicável. Publicação autorizada pelo usuário; consultar [registro C4](docs/superpowers/2026-10-23-publicacao-c4.md) para o resultado efetivo.
+C4 implementado e validado: anexos pela equipe, aprovação por link privado, revisões imutáveis, continuidade em documentos e bloqueio de novos apontamentos quando a arte exigida não estiver aplicável. Publicação local concluída, com backup final e 85 projeções preservadas; consultar [registro C4](docs/superpowers/2026-10-23-publicacao-c4.md) para o resultado efetivo.
 
 C5 permanece em desenho, com compra direta e fechamento de orçamento, pagamento externo registrado pela equipe e modalidades de entrega por produto/kit. Cálculo automático depende de serviço real ainda não escolhido. Não há checkout C5 publicado.

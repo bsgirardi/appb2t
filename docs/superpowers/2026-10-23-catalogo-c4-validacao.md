@@ -1,6 +1,6 @@
 # C4 — Registro de implementação e validação
 
-Estado: candidata em validação, sem publicação operacional. Data: 23/10/2026.
+Estado: validada e publicada localmente em 23/10/2026. Este documento conserva o ensaio isolado; publicação posterior no [registro operacional](2026-10-23-publicacao-c4.md).
 
 Worktree gerenciado: `C:\Users\Administrador\.codex\worktrees\catalogo-c4\appb2t`, branch `codex/catalogo-c4`. Origem `5e5ec24`; checkout original `X:\codex\appb2t` preservado. As cópias de package.json/lock e da correção de relógio planning-flow foram verificadas por SHA-256 e registradas separadamente no commit `19e206c`, mantendo explícita a manutenção anterior. O commit `dde14b5` registra a base de revisões de C4 e seus documentos aprovados.
 

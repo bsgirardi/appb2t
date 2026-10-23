@@ -18,4 +18,12 @@ O ensaio anterior restaurou o backup em banco separado e aplicou as duas migraç
 
 ## Resultado
 
-Publicação em execução. Backup final, comparação operacional, saúde HTTP, identidade da imagem e integração Git serão registrados após os comandos concluírem. A criação do primeiro administrador continua interativa, sem senha no chat ou credenciais inventadas.
+Publicação local concluída em http://localhost:3000. Backup final com aplicação parada: `X:/codex/appb2t/backups/publicacao-c4-20261023/final.dump`, 209891 bytes, SHA-256 `22002829DF6DD69BB11D02D218DE7FA1340590458A26FE2A653BC8B9DABE14E2`. Configuração privada, scripts, projeções e captura operacional ficam na mesma pasta ignorada.
+
+Ambas as migrações C4 foram aplicadas com sucesso; as 85 projeções anteriores ficaram idênticas. O backup final foi restaurado em b2t_c4_final_restore, exclusivamente no PostgreSQL de testes, e migrado novamente; comparação das 85 projeções idêntica antes/depois.
+
+Runtime appb2t:c4-20261023, ID sha256:4868b6ce0845c5ee3c0855dfaeff17d0ccf5c71c551b99066cbc5ac0ff0f487f, contêiner healthy. Volume appb2t_postgres_data preservado. Tags Compose padrão appb2t-app/appb2t-migrate/appb2t-admin também apontam às imagens C4.
+
+HTTP: saúde, catálogo, login e página de arte 200; dashboard redireciona para login (307); revisão sem sessão 403; API interna sem login 401. Página privada com no-store/no-referrer. Chave operacional configurada e parser presente. Navegador confirmou orientação para abrir link privado. Zero usuários operacionais; nenhuma fixture ou conta criada. Primeiro administrador continua interativo, sem senha no chat.
+
+Publicação externa com domínio/HTTPS e backups automáticos fora desta máquina continuam pendentes. Integração pelo [PR #4](https://github.com/bsgirardi/appb2t/pull/4); resultado Git final será registrado após merge.

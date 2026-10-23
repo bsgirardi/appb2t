@@ -60,7 +60,7 @@ A solicitação preserva componentes, personalizações, posições e a tabela c
 
 Limites: 20 linhas na seleção, 99 unidades por combinação/contexto, 20 montagens, 50 produtos permitidos e 10 faixas por kit. Histórico de orçamento até 16 MiB e editor até 100 linhas. Antes de implantar, aplique `202610220001_catalog_kits` somente após backup novo e ensaio separado. A instalação local 1.1.0 já recebeu essa migração; em outras instalações, execute o procedimento de atualização. Consulte [validação C3](docs/superpowers/2026-10-22-catalogo-c3-validacao.md).
 
-### Arte e aprovação (C4 — candidata em validação)
+### Arte e aprovação (C4 — publicada localmente em 23/10/2026)
 
 Em Solicitações, abra **Arte e aprovação**, selecione as linhas que exigem arte e crie um pacote. A equipe envia JPEG, PNG, WebP ou PDF e identifica cada arquivo como referência ou arte final. Confira as instruções, a abrangência e os arquivos antes de publicar. São até dez arquivos por revisão, dez MiB por arquivo, cinquenta MiB por revisão e vinte revisões por pacote, com até vinte pacotes por solicitação. Imagens devem ser estáticas e ter até quarenta milhões de pixels; PDFs estáticos, sem senha e com até 500 páginas. Documentos inválidos, complexos ou com recursos ativos detectados são rejeitados. Essa inspeção não é antivírus nem certificação de segurança do conteúdo.
 

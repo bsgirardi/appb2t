@@ -1,6 +1,6 @@
 # appb2t — build e instalação em outro servidor
 
-Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.3.8 e adaptação Nova/catálogo. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
+Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4. A instalação local foi atualizada em 16/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
 
@@ -90,7 +90,7 @@ Não renomeie nem apague volumes para realizar esta mudança. Não execute `dock
 
 ## C4: preparação e recuperação da candidata
 
-C4 está em validação no branch isolado `codex/catalogo-c4`; esta documentação não comprova publicação na instalação operacional. Migrações aditivas: `202610230001_art_approval` e `202610230002_art_document_bindings`. Não usar `db push` nem importar fixtures na operação.
+C4 publicado localmente em 23/10/2026, no projeto appb2t e volume appb2t_postgres_data. Consulte o [registro operacional](docs/superpowers/2026-10-23-publicacao-c4.md). Migrações aditivas: `202610230001_art_approval` e `202610230002_art_document_bindings`. Não usar `db push` nem importar fixtures na operação.
 
 Configure `ART_ACCESS_KEY` com 32 bytes aleatórios representados por 64 caracteres hexadecimais. O Compose passa essa variável ao runtime; sem ela, a emissão de links informa a configuração pendente e as funcionalidades anteriores continuam disponíveis. Não registrar a chave no Git, logs, tickets ou chat. Guarde-a em local protegido junto à configuração de recuperação. O banco conserva somente hashes dos tokens; respostas idempotentes de emissão conservam a identidade do acesso, e o segredo é derivado por HMAC da chave de instalação.
 
