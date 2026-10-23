@@ -49,6 +49,13 @@ export function OrderDetail({
       <p>
         {names[order.origin]} · prazo: {order.dueDate ?? "Não definido"}
       </p>
+      {order.saleId && (
+        <p>
+          <Link href={`/vendas/${order.saleId}`}>
+            Consultar arte e aprovação da venda
+          </Link>
+        </p>
+      )}
       {order.lines.map((l) => (
         <p key={l.id}>
           {l.description}: meta {l.targetUnits}, boas {l.goodUnits}, falhas{" "}

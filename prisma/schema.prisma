@@ -211,6 +211,7 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ artBindings ArtDocumentBinding[]
  catalogRequest CatalogRequest?
  costRevisionId String?
  sale Sale?
@@ -279,6 +280,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ artBindings ArtDocumentBinding[]
  profitabilityState ProfitabilityState?
  profitabilityRevisions ProfitabilityRevision[]
  profitabilityAssessments ProfitabilityAssessment[]
@@ -1255,6 +1257,7 @@ model ArtRevision {
 }
 
 model ArtLineRequirement {
+  details Json?
   id String @id @default(cuid())
   requestId String
   request CatalogRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
@@ -1265,6 +1268,22 @@ model ArtLineRequirement {
   configurationHash String
   @@unique([requestId, sourceLineId])
   @@index([packageId])
+}
+
+model ArtDocumentBinding {
+  id String @id @default(cuid())
+  quoteId String?
+  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  saleId String?
+  sale Sale? @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  lineKey String
+  requestId String
+  sourceLineId String
+  configurationHash String
+  valid Boolean @default(true)
+  @@unique([quoteId, lineKey])
+  @@unique([saleId, lineKey])
+  @@index([requestId, sourceLineId])
 }
 
 model ArtFile {

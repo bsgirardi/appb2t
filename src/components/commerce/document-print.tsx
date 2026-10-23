@@ -55,6 +55,19 @@ export function DocumentPrint({
         </p>
       </section>
       <div className="table-scroll">
+        {!!snapshot.art?.length && (
+          <section>
+            <h3>Arte na emissão deste documento</h3>
+            {snapshot.art.map((a) => (
+              <p key={a.lineKey}>
+                Linha {a.lineNumber ?? "—"}:{" "}
+                {a.applicable
+                  ? `aprovada, versão ${a.revisionNumber}`
+                  : "pendente de aprovação aplicável"}
+              </p>
+            ))}
+          </section>
+        )}
         <table>
           <thead>
             <tr>

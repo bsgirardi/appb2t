@@ -7,9 +7,29 @@ import {
   createArtRevision,
   publishRevision,
   updateArtDraft,
+  moveArtLine,
 } from "@/server/art/revisions";
 
 setupDatabase();
+it("retains the requirement when removing a line and invalidates the published scope", async () => {
+  const { actor, request, revision, lines } = await fixture();
+  await attach(revision.id);
+  await publishRevision(actor, revision.id, 1, "move-publish");
+  await moveArtLine(actor, request.id, {
+    operationKey: "move-detach",
+    sourceLineId: lines[0].lineId,
+    expectedPackageId: revision.packageId,
+    targetPackageId: null,
+  });
+  expect(await db.artLineRequirement.findFirst()).toMatchObject({
+    required: true,
+    packageId: null,
+  });
+  expect(
+    (await db.artRevision.findUniqueOrThrow({ where: { id: revision.id } }))
+      .state,
+  ).toBe("SUPERSEDED");
+});
 async function fixture() {
   const { actor, request, lines } = await createCatalogRequestFixture();
   const revision = await createArtPackage(actor, request.id, {

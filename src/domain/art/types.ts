@@ -1,6 +1,23 @@
 export interface ArtManifestLine {
   sourceLineId: string;
   configurationHash: string;
+  description?: string;
+  quantity?: number;
+}
+
+export interface DocumentArtDTO {
+  lineNumber?: number;
+  lineKey: string;
+  requestId: string;
+  sourceLineId: string;
+  required: boolean;
+  applicable: boolean;
+  packageId: string | null;
+  revisionId: string | null;
+  revisionNumber: number | null;
+  manifestHash: string | null;
+  decisionId: string | null;
+  decidedAt: string | null;
 }
 export interface ArtManifestFile {
   id: string;

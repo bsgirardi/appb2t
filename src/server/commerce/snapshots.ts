@@ -2,10 +2,12 @@ import type { Prisma } from "@prisma/client";
 import type { DocumentInput, DocumentSnapshot } from "@/domain/commerce/types";
 import { defaultAppearance } from "@/domain/appearance/validation";
 import { AppError } from "@/lib/errors";
+import { readDocumentArt } from "@/server/art/documents";
 export async function createDocumentSnapshot(
   tx: Prisma.TransactionClient,
   input: DocumentInput,
   logoUrl: string,
+  owner?: { quoteId: string } | { saleId: string },
 ): Promise<{
   snapshot: DocumentSnapshot;
   logo: { bytes: Uint8Array; mimeType: string } | null;
@@ -42,6 +44,15 @@ export async function createDocumentSnapshot(
   });
   return {
     snapshot: {
+      ...(owner
+        ? {
+            art: (await readDocumentArt(tx, owner, input.items)).map((a) => ({
+              ...a,
+              lineNumber:
+                input.items.findIndex((i) => i.lineId === a.lineKey) + 1,
+            })),
+          }
+        : {}),
       ...(input.catalogKits ? { catalogKits: input.catalogKits } : {}),
       company: {
         name: a.name,

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { TeamArtPanel } from "@/components/art/team-panel";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -92,6 +93,7 @@ export function RequestDetail({
     <div className="commerce-page request-detail">
       <Link href="/solicitacoes">← Solicitações</Link>
       <h1>{request.protocol}</h1>
+      <TeamArtPanel requestId={request.id} lines={request.lines} />
       <p>
         Estado: <strong>{requestStateLabels[request.state]}</strong>
       </p>

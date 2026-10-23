@@ -26,6 +26,8 @@ export function buildArtManifest(input: {
       .map((l) => ({
         sourceLineId: l.sourceLineId,
         configurationHash: l.configurationHash,
+        ...(l.description !== undefined ? { description: l.description } : {}),
+        ...(l.quantity !== undefined ? { quantity: l.quantity } : {}),
       }))
       .sort((a, b) => a.sourceLineId.localeCompare(b.sourceLineId)),
     files: files

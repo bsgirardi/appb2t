@@ -18,6 +18,7 @@ import {
 } from "@/domain/kits/document";
 import { saveQuoteWithClient } from "@/server/commerce/quote-write";
 import { getQuote } from "@/server/quotes";
+import { lockPlanning } from "@/server/planning/coordination";
 import { getCatalogRequestWithClient } from "./queries";
 import { lockCatalogRequest } from "./service";
 const schema = z
@@ -50,6 +51,7 @@ export async function prepareRequestQuote(
 ): Promise<{ request: CatalogRequestDTO; quote: QuoteDTO }> {
   const result = await db.$transaction(
     async (tx) => {
+      await lockPlanning(tx);
       const row = await lockCatalogRequest(tx, id);
       if (row.quoteId)
         return {

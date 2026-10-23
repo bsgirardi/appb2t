@@ -7,6 +7,8 @@ import {
   freezeDocumentCosts,
 } from "./pricing/document-costs";
 import { Prisma } from "@prisma/client";
+import { syncDocumentArt, readDocumentArt } from "./art/documents";
+import { lockPlanning } from "./planning/coordination";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
@@ -67,6 +69,7 @@ async function dto(
         ? { items: await readLineItems(tx, { quoteId: row.id }, input.items) }
         : {}),
     },
+    art: await readDocumentArt(tx, { quoteId: row.id }, input.items ?? []),
     costs: await readDocumentCosts(tx, { quoteId: row.id }, row.costRevisionId),
     totals: row.totals as unknown as DocumentTotals | null,
     snapshot: row.snapshot as unknown as DocumentSnapshot | null,
@@ -123,6 +126,7 @@ export async function saveQuoteWithClient(
   raw: unknown,
 ): Promise<QuoteDTO> {
   const parsed = saveQuoteSchema.parse(raw);
+  await lockPlanning(tx);
   const { expectedVersion, costBindings, kitDiscountReview, ...input } = parsed;
   let kitDiscountReviewed = false;
   let previousRevisionId: string | null = null;
@@ -209,6 +213,7 @@ export async function saveQuoteWithClient(
       })
     : await tx.quote.create({ data });
   await tx.quoteItem.deleteMany({ where: { quoteId: q.id } });
+  await syncDocumentArt(tx, { quoteId: q.id }, input.items ?? []);
   if (input.items)
     await tx.quoteItem.createMany({
       data: input.items.map((i, position) => ({
@@ -248,6 +253,7 @@ export async function transitionQuote(
     .parse(rawAction);
   z.number().int().positive().parse(expectedVersion);
   return db.$transaction(async (tx) => {
+    await lockPlanning(tx);
     await lock(tx, id);
     const q = await row(tx, id);
     if (q.version !== expectedVersion) throw conflict();
@@ -272,6 +278,7 @@ export async function transitionQuote(
         tx,
         input,
         `/api/quotes/${id}/logo`,
+        { quoteId: id },
       );
       await tx.documentLogo.deleteMany({ where: { quoteId: id } });
       if (logo)
