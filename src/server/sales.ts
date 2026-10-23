@@ -1,3 +1,5 @@
+import { commerceAuthorship } from "./commerce/audit";
+import type { CommerceAuthor, ConfirmSaleCommand, ConvertQuoteCommand } from "./commerce/sale-write";
 import { prepareSaleProductionCancellation } from "./production/lifecycle";
 import {
   releaseSaleReservations,
@@ -57,13 +59,13 @@ import { kitDiscountReviewSchema } from "@/domain/kits/document";
 import { enforceKitDocumentEdit } from "./kits/document-history";
 async function event(
   tx: Prisma.TransactionClient,
-  actor: Actor,
+  actor: Actor | CommerceAuthor,
   saleId: string,
   action: string,
   reason = "",
 ) {
   await tx.commerceEvent.create({
-    data: { saleId, action, reason, actorId: actor.id, actorName: actor.name },
+    data: { saleId, action, reason, ...commerceAuthorship(actor) },
   });
 }
 async function row(tx: Prisma.TransactionClient, id: string) {
@@ -298,7 +300,11 @@ export async function confirmSale(
     operationKey,
     "CONFIRM",
     { id, expectedVersion, rows },
-    async (tx) => {
+    (tx) => confirmSaleWithClient(tx, {kind:"ADMIN", actor}, {id, expectedVersion, rows}),
+  );
+}
+export async function confirmSaleWithClient(tx: Prisma.TransactionClient, actor: CommerceAuthor, command: ConfirmSaleCommand): Promise<SaleDTO> {
+  const {id, expectedVersion, rows}=command;
       await lockCommerce(tx, { saleId: id });
       const sale = await row(tx, id);
       if (sale.version !== expectedVersion || sale.status !== "RASCUNHO")
@@ -338,8 +344,7 @@ export async function confirmSale(
       await installments(tx, id, valid);
       await event(tx, actor, id, "CONFIRM");
       return dto(tx, id);
-    },
-  );
+
 }
 export async function convertQuote(
   actor: Actor,
@@ -353,7 +358,11 @@ export async function convertQuote(
     operationKey,
     "CONVERT",
     { quoteId, expectedVersion, rows },
-    async (tx) => {
+    (tx) => convertQuoteWithClient(tx, {kind:"ADMIN", actor}, {quoteId, expectedVersion, rows}),
+  );
+}
+export async function convertQuoteWithClient(tx: Prisma.TransactionClient, actor: CommerceAuthor, input: ConvertQuoteCommand): Promise<SaleDTO> {
+  const {quoteId, expectedVersion, rows}=input;
       await lockCommerce(tx, { quoteId });
       const q = await tx.quote.findUnique({
         where: { id: quoteId },
@@ -433,8 +442,7 @@ export async function convertQuote(
       await quoteEvent(tx, actor, quoteId, "CONVERT");
       await event(tx, actor, sale.id, "CONVERT");
       return dto(tx, sale.id);
-    },
-  );
+
 }
 export async function cancelSale(
   actor: Actor,
@@ -619,3 +627,5 @@ export async function listSales(
     { isolationLevel: "RepeatableRead" },
   );
 }
+
+

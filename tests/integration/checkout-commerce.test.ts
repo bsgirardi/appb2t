@@ -1,0 +1,21 @@
+import { expect,it } from "vitest";
+import { setupDatabase,seedUser } from "./setup";
+import { db } from "@/lib/db";
+import { saveCustomer } from "@/server/customers";
+import { saveSaleDraft } from "@/server/sales";
+import { confirmSaleWithClient } from "@/server/commerce/sale-write";
+import { todaySaoPaulo } from "@/domain/commerce/dates";
+setupDatabase();
+it("confirms with public authorship and rolls back the complete commercial transaction on failure",async()=>{
+ const actor=await seedUser(); const customer=await saveCustomer(actor,undefined,{name:"Ana",type:"PERSON",active:true});
+ const draft=await saveSaleDraft(actor,undefined,{customerId:customer.id,items:[{description:"Peça",quantity:1,unitPrice:"100.00"}],discount:"0.00",shipping:"0.00",paymentTerms:"Externo",internalNotes:""});
+ const checkout=await db.checkout.create({data:{attemptHash:"a",contentHash:"a",draft:{},review:{},fingerprint:"a"}});
+ const author={kind:"CHECKOUT" as const,checkoutId:checkout.id,name:"Ana"};
+ const input={id:draft.id,expectedVersion:draft.version,rows:[{number:1,amount:"100.00",dueDate:todaySaoPaulo(new Date())}]};
+ await expect(db.$transaction(async tx=>{await confirmSaleWithClient(tx,author,input);throw new Error("rollback");})).rejects.toThrow("rollback");
+ expect(await db.financialEntry.count()).toBe(0);
+ const sale=await db.$transaction(tx=>confirmSaleWithClient(tx,author,input));
+ expect(sale.receiptSummary).toMatchObject({received:"0.00",pending:"100.00"});
+ expect(await db.financialEntry.count()).toBe(1);
+ expect(await db.commerceEvent.findFirst({where:{saleId:sale.id,action:"CONFIRM"}})).toMatchObject({authorKind:"CHECKOUT",actorId:null,checkoutId:checkout.id});
+});
