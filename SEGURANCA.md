@@ -68,3 +68,7 @@ O teste planning-flow dependia do horário atual e falhava antes das 08h20 de S�
 Build Docker aprovado. Instalação vazia iniciada com Compose: app e banco saudáveis, migração concluída. HTTP: /api/health, / e /login retornam 200; /dashboard retorna 307 para /login. Banco operacional próprio appb2t_postgres_data, separado de appb2t-test_test_data; contagem de usuários zero. Primeiro administrador ainda precisa ser criado interativamente com `docker compose --profile tools run --rm admin` no terminal local. Não informar senha no chat.
 
 Atualização Next.js/eslint-config-next 16.4.2 instalada localmente. Auditoria de produção zerada; cinco alertas altos de desenvolvimento continuam pendentes upstream. C4 e C5 permanecem para etapas futuras. Sem commit ou push nesta rodada.
+
+## Verificação C4 — 23/10/2026
+
+Auditorias finais npm de produção e completa com --include=dev retornaram zero vulnerabilidades conhecidas, sem audit fix --force ou rebaixamento de lint. Este resultado posterior substitui os cinco alertas registrados anteriormente, sem alterar o relato histórico. C4 acrescenta PDFs inspecionados estruturalmente em worker limitado; isso não equivale a antivírus. Links de sete dias são credenciais por posse, com nome declarado, revogação e sessão HttpOnly; detalhes e limites no registro de validação C4. A chave operacional é gerada separadamente, fora do Git.

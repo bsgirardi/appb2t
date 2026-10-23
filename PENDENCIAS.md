@@ -2,7 +2,7 @@
 
 Atualizado em 23/10/2026.
 
-1. **Atualização local de segurança validada em 23/10:** Next.js/eslint-config-next 16.4.2 em execução saudável em http://localhost:3000, build Docker e 651 testes aprovados. Banco vazio próprio criado; falta cadastrar o primeiro administrador interativamente. Cinco alertas altos de desenvolvimento permanecem. O relato de bloqueio a seguir é histórico da preparação anterior. **Histórico — segurança:** candidata com Next.js e eslint-config-next 16.4.2 preparada no novo computador; auditoria de produção zerada, 399 testes unitários com Node 22, tipagem, lint e build Windows aprovados. Concluir build Docker, integração em banco isolado e validação local antes de publicar. Permanecem cinco alertas altos na cadeia de lint/braces; não aplicar rebaixamento do lint nem audit fix --force. Docker ainda apresentou erro 500 após a inicialização da VM Hyper-V. Detalhes em SEGURANCA.md.
+1. **Segurança e C4:** Next.js/eslint-config-next 16.4.2, suíte final com 683 testes em 211 arquivos, tipagem, lint e build Docker aprovados. Auditorias finais de produção e completa com desenvolvimento retornaram zero vulnerabilidades conhecidas. Publicação C4 autorizada em 23/10; resultado operacional no registro abaixo. Primeiro administrador continua dependendo de criação interativa. Relatos de cinco alertas e bloqueio Docker em documentos anteriores são históricos.
 2. **Novo servidor:** configurar .env, domínio/proxy HTTPS e backups automáticos; testar restauração. Não há comprovação de configuração externa existente.
 3. **Dados:** o usuário escolheu instalação vazia neste computador. Preparar banco PostgreSQL 17 próprio e primeiro administrador; não importar dados antigos nem usar os bancos de outros aplicativos. Nenhum dado ou senha real está no pacote.
 4. **Publicação local concluída:** versão 1.1.0 em http://localhost:3000, imagem `appb2t:1.1.0` saudável, dashboard e catálogo C3 integrados pelo [PR #3](https://github.com/bsgirardi/appb2t/pull/3). Migração aditiva aplicada após backup final; as 82 projeções históricas e o volume `b2t-calculadora_postgres_data` foram preservados. Publicação externa depende do servidor/domínio descritos acima.
@@ -11,3 +11,9 @@ Atualizado em 23/10/2026.
 7. **Correções da versão 1.1.0:** os dois menores conhecidos de C3 foram corrigidos com regressões: Atualizar lista recupera a versão atual após conflito, e Decimal local de 40 dígitos evita arredondamento intermediário do percentual. A mesma precisão foi aplicada ao agregado mensal do dashboard. A alteração administrativa aprovada em 19/10 foi recuperada de arquivos locais não commitados e integrada à candidata. Movimento reduzido mantém a verificação automatizada autorizada. Capturas, dumps, configuração privada e temporários ficam fora do Git.
 
 Aceite de navegador U4/U5 concluído para cenários representativos em celular/desktop, claro/escuro e teclado. Não há pendência de reimplementação desses módulos. Repositório privado GitHub configurado em https://github.com/bsgirardi/appb2t, com histórico enviado nas branches main e feat/calculadora.
+
+## C4 e continuidade C5 — 23/10/2026
+
+C4 implementado e validado: anexos pela equipe, aprovação por link privado, revisões imutáveis, continuidade em documentos e bloqueio de novos apontamentos quando a arte exigida não estiver aplicável. Publicação autorizada pelo usuário; consultar [registro C4](docs/superpowers/2026-10-23-publicacao-c4.md) para o resultado efetivo.
+
+C5 permanece em desenho, com compra direta e fechamento de orçamento, pagamento externo registrado pela equipe e modalidades de entrega por produto/kit. Cálculo automático depende de serviço real ainda não escolhido. Não há checkout C5 publicado.
