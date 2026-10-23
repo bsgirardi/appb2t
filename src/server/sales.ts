@@ -441,6 +441,14 @@ export async function convertQuoteWithClient(tx: Prisma.TransactionClient, actor
       });
       await quoteEvent(tx, actor, quoteId, "CONVERT");
       await event(tx, actor, sale.id, "CONVERT");
+      if(actor.kind==="ADMIN") {
+        const checkout=await tx.checkout.findFirst({where:{OR:[{quoteId},{request:{quoteId}}]}});
+        if(checkout){
+          if(checkout.state==="CLOSED")throw new AppError("CONFLICT","O pedido foi encerrado. Revise o atendimento antes de converter.");
+          await tx.checkout.update({where:{id:checkout.id},data:{quoteId,saleId:sale.id,state:"CONFIRMED",version:{increment:1}}});
+          await tx.checkoutOffer.updateMany({where:{checkoutId:checkout.id,active:true},data:{active:false}});
+        }
+      }
       return dto(tx, sale.id);
 
 }
