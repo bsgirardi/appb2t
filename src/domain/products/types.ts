@@ -12,6 +12,7 @@ export interface ProductImageDTO {
   position: number;
 }
 export interface ProductInput extends CommercialFields {
+  checkoutPolicy?: import("@/domain/checkout/types").CheckoutOfferPolicy;
   quantityTiers?: QuantityTier[];
   compositionImageId?: string | null;
   configuration?: ProductConfiguration;
@@ -30,6 +31,7 @@ export interface ProductInput extends CommercialFields {
   printerId?: string | null;
 }
 export interface PublicProductDTO extends CommercialFields {
+  checkoutPolicy?: import("@/domain/checkout/types").CheckoutOfferPolicy;
   quantityTiers?: QuantityTier[];
   compositionImageId?: string | null;
   configuration?: ProductConfiguration;

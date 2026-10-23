@@ -3,18 +3,7 @@ import { catalogContactSchema, attemptKeySchema } from "@/domain/catalog-request
 import { inquiryItemsSchema } from "@/domain/products/inquiry";
 import { kitGroupInputSchema, parseKitSelection } from "@/domain/kits/selection";
 import { installmentSchema } from "@/domain/commerce/validation";
-export const deliveryModeSchema = z.enum(["PICKUP", "TEAM_SHIPPING", "AUTOMATIC"]);
-export const checkoutPolicySchema = z.object({
-  directEnabled: z.boolean().default(false),
-  deliveryModes: z.array(deliveryModeSchema).max(3).refine(v => new Set(v).size === v.length).default([]),
-  externalPaymentInstructions: z.string().trim().max(2000).default(""),
-}).strict().superRefine((v,ctx) => {
-  if (v.directEnabled && (!v.externalPaymentInstructions || !v.deliveryModes.length))
-    ctx.addIssue({code:"custom",message:"Defina entrega e instruções de pagamento para ativar a compra direta."});
-});
-export function readCheckoutPolicy(value: unknown) {
-  return checkoutPolicySchema.parse(value ?? {});
-}
+export { checkoutPolicySchema, readCheckoutPolicy, deliveryModeSchema } from "./policy";
 const text = (max:number) => z.string().trim().min(1).max(max);
 export const checkoutAddressSchema = z.object({
   recipient:text(120), postalCode:z.string().regex(/^\d{8}$/), street:text(160), number:text(30),
@@ -42,3 +31,4 @@ export const checkoutQuotePublicationSchema = z.object({
   installments:z.array(installmentSchema).min(1).max(120),
 }).strict();
 export const checkoutCancellationSchema = z.object({operationKey:attemptKeySchema,reason:text(2000).min(3)}).strict();
+
