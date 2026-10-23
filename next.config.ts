@@ -22,6 +22,9 @@ const config: NextConfig = {
     ];
     return [
       { source: "/portfolio/arte", headers },
+      { source: "/portfolio/compra", headers },
+      { source: "/portfolio/checkout", headers },
+      { source: "/api/portfolio/checkout/:path*", headers },
       { source: "/api/portfolio/art/:path*", headers },
     ];
   },
