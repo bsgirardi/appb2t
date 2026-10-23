@@ -1,6 +1,6 @@
 # C5 — Checkout integrado do catálogo
 
-Data: 23/10/2026. Estado: proposta para revisão; implementação e publicação não autorizadas por este documento. As decisões comerciais estão em ../2026-10-23-catalogo-c5-decisoes.md.
+Data: 23/10/2026. Estado: desenho aprovado explicitamente pelo usuário em 23/10/2026, incluindo as propostas de habilitação, parcela única da compra direta e acesso privado. Próxima etapa autorizada: elaborar o plano de implementação. Publicação depende de autorização posterior própria. As decisões comerciais estão em ../2026-10-23-catalogo-c5-decisoes.md.
 
 ## Objetivo e limites
 
