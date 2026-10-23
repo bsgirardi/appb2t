@@ -37,6 +37,7 @@ import {
   catalogKitDocumentSchema,
 } from "@/domain/kits/document";
 import { documentSchema } from "@/domain/commerce/validation";
+import { syncDocumentArt } from "@/server/art/documents";
 import { consumeCheckoutQuotaTx } from "./quota";
 export async function prepareCheckout(
   p: CheckoutPrincipal,
@@ -163,7 +164,10 @@ export async function confirmCheckout(
               groups: review.groups,
               preparation: {
                 groups: kitCalculation.groups,
-                sources,
+                sources: sources.map(({ lineId, sourceLineId }) => ({
+                  lineId,
+                  sourceLineId,
+                })),
                 kitDiscount: kitCalculation.discount,
                 additionalDiscount: "0.00",
                 totalDiscount: review.discount,
@@ -195,6 +199,7 @@ export async function confirmCheckout(
             position,
           })),
         });
+        await syncDocumentArt(tx, { saleId: sale.id }, document.items);
         await confirmSaleWithClient(
           tx,
           { kind: "CHECKOUT", checkoutId: id, name: input.name },

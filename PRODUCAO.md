@@ -102,6 +102,18 @@ Preserve bytes originais, prévias, manifestos, comandos e decisões no backup. 
 
 ## Manutenção
 
+### Checkout C5
+
+`CHECKOUT_ACCESS_KEY` é uma chave própria de 32 bytes aleatórios em hexadecimal, independente de `ART_ACCESS_KEY`. Configure-a privadamente antes de emitir links de compra; não registre o valor em Git ou logs. O Compose transmite a variável ao runtime. A ausência da chave impede emissão de links, sem presumir pagamento ou ativar ofertas. Rotação exige emissão de novo link; revogue links/sessões antigos pelo painel se precisar invalidá-los imediatamente.
+
+Produtos e kits antigos continuam com compra direta desabilitada. A equipe deve habilitar conscientemente as modalidades, conferir preço/faixas/adicionais e informar instruções públicas reais de pagamento. Retirada exige endereço da loja. Cálculo automático permanece indisponível sem integração real. Pagamentos e devoluções financeiras são externos; registro, estorno, reservas e liberação continuam na gestão existente.
+
+Checkout usa sessões privadas com validade de sete dias, cookies HttpOnly e SameSite=Strict, e links compartilhados manualmente. Conferência não gera venda/recebível; compra direta e aceite de orçamento geram venda e parcelas uma vez. Pedido de cancelamento aguarda conclusão pela equipe. Não interpretar confirmação comercial como pagamento ou aprovação de arte.
+
+As cotas de revisão/confirmação são por sessão. Inicialização e troca de link usam limite compartilhado conservador na ausência de uma origem confiável de IP; não confiam em cabeçalhos encaminhados pelo visitante. Instalações com maior volume devem definir um ingresso confiável antes de refinar esse limite.
+
+Antes de publicação autorizada: backup novo com aplicação parada, restauração isolada, migração `20261023190000_catalog_checkout` e comparação das projeções legadas. Depois de novas compras C5, não fazer downgrade cego para C4: preserve os registros, a chave e a proteção contra duplicação. A implementação em worktree e a candidata de validação não substituem autorização de integração/publicação.
+
 Configure backup automático com retenção, cópia fora do servidor e restauração testada. Antes de atualizar uma instalação com dados, gere backup atual e preserve a imagem anterior. As migrações ficam em prisma/migrations e não devem ser removidas da entrega.
 
 Consulte [PENDENCIAS.md](PENDENCIAS.md) antes de publicar externamente. A preparação da pasta não configura domínio, proxy, certificados ou agendamento de backups.
