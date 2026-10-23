@@ -1,0 +1,26 @@
+import {expect,it} from "vitest";
+import {setupDatabase} from "./setup";
+import {checkoutFixture} from "../fixtures/checkout";
+import {db} from "@/lib/db";
+import {prepareCheckout} from "@/server/checkout/confirm";
+import {issueCheckoutAccess,exchangeCheckoutAccess,checkoutPrincipal,revokeCheckoutAccess} from "@/server/checkout/access";
+import {getCheckoutDetail} from "@/server/checkout/queries";
+setupDatabase();
+it("grants only the selected checkout and revalidates revocation on existing sessions",async()=>{
+ process.env.CHECKOUT_ACCESS_KEY="c".repeat(64);
+ const {actor,draft}=await checkoutFixture();await db.checkoutSession.create({data:{id:"s",expiresAt:new Date(Date.now()+86400000)}});
+ const review=await prepareCheckout({sessionId:"s",checkoutId:null},draft,"a".repeat(64));
+ const link=await issueCheckoutAccess(actor,review.id,"d".repeat(64));
+ expect(link.url).toContain("#");
+ expect(await issueCheckoutAccess(actor,review.id,"d".repeat(64))).toEqual(link);
+ const response=await exchangeCheckoutAccess(new Request("http://localhost:3000/api/portfolio/checkout/access",{method:"POST",headers:{origin:"http://localhost:3000","content-type":"application/json"},body:JSON.stringify({token:new URL(link.url).hash.slice(1)})}));
+ expect(response.status).toBe(200);
+ const cookie=response.headers.get("set-cookie")!;
+ expect(cookie).toContain("HttpOnly");expect(cookie).toContain("SameSite=Strict");
+ const request=new Request(`http://localhost:3000/api/portfolio/checkout/detail?checkoutId=${review.id}`,{headers:{cookie:cookie.split(";")[0]}});
+ const principal=await checkoutPrincipal(request);
+ expect((await getCheckoutDetail(principal)).review.id).toBe(review.id);
+ await expect(checkoutPrincipal(new Request("http://localhost:3000/api/portfolio/checkout/detail?checkoutId=other",{headers:{cookie}}))).rejects.toThrow();
+ await revokeCheckoutAccess(actor,review.id,review.version);
+ await expect(getCheckoutDetail(principal)).rejects.toMatchObject({code:"FORBIDDEN"});
+});

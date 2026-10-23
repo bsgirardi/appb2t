@@ -15,6 +15,7 @@ import { itemColumns } from "@/server/pricing/document-costs";
 import { calculateDocumentTotals } from "@/domain/commerce/totals";
 import { calculatePreparedKitDiscount,catalogKitDocumentSchema } from "@/domain/kits/document";
 import { documentSchema } from "@/domain/commerce/validation";
+import { consumeCheckoutQuotaTx } from "./quota";
 export async function prepareCheckout(p:CheckoutPrincipal,raw:CheckoutDraft,key:string):Promise<CheckoutReview>{
  const draft=checkoutDraftSchema.parse(raw);attemptKeySchema.parse(key);
  return db.$transaction(async tx=>{
@@ -26,6 +27,7 @@ export async function prepareCheckout(p:CheckoutPrincipal,raw:CheckoutDraft,key:
   const contentHash=checkoutFingerprint(draft);
   const attemptHash=checkoutFingerprint({session:session.id,key});
   if(old?.attemptHash===attemptHash) {if(old.contentHash!==contentHash)throw conflict();return reviewOf(old);}
+  await consumeCheckoutQuotaTx(tx,`review:${session.id}`,60);
   const review=await reviewCheckout(tx,draft);
   const data={draft:json(draft),review:json(review),fingerprint:checkoutFingerprint(review),contentHash,attemptHash};
   const row=old?await tx.checkout.update({where:{id:old.id},data:{...data,version:{increment:1}}}):await tx.checkout.create({data});

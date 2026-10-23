@@ -6,6 +6,7 @@ import { lockPlanning } from "@/server/planning/coordination";
 import type { CheckoutPrincipal } from "@/domain/checkout/types";
 import { attemptKeySchema } from "@/domain/catalog-requests/validation";
 import { checkoutFingerprint } from "./review";
+import { consumeCheckoutQuotaTx } from "./quota";
 export const json=(v:unknown)=>JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
 export async function authorizedSession(tx:Prisma.TransactionClient,p:CheckoutPrincipal) {
  await tx.$queryRaw`SELECT id FROM "CheckoutSession" WHERE id=${p.sessionId} FOR UPDATE`;
@@ -24,9 +25,11 @@ export async function runCheckoutCommand<T>(p:CheckoutPrincipal,type:string,key:
   const operationKey=`checkout:${s.checkoutId}:${key}`;
   await lockOperation(tx,operationKey);await lockPlanning(tx);
   await lockCheckout(tx,s.checkoutId);
+  await authorizedSession(tx,p);
   const hash=checkoutFingerprint(payload);
   const old=await tx.checkoutOperation.findUnique({where:{key:operationKey}});
   if(old) {if(old.type!==type || old.payloadHash!==hash) throw conflict();return old.result as T;}
+  if(type==="CONFIRM" || type==="ACCEPT_QUOTE")await consumeCheckoutQuotaTx(tx,`confirm:${s.id}`,10);
   const result=await action(tx,s.checkoutId);
   await tx.checkoutOperation.create({data:{key:operationKey,checkoutId:s.checkoutId,type,payloadHash:hash,result:json(result)}});
   return result;
