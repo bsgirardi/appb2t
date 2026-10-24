@@ -8,13 +8,13 @@ services:
       POSTGRES_USER: b2t
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${POSTGRES_DATA_PATH:-postgres_data}:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U b2t -d b2t"]
       interval: 5s
       timeout: 5s
       retries: 20
-    networks: [backend]
+    networks: [appb2t_network]
   migrate:
     build:
       context: .
@@ -25,7 +25,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks: [backend]
+    networks: [appb2t_network]
   app:
     build:
       context: .
@@ -36,6 +36,9 @@ services:
       APP_URL: ${APP_URL:-http://localhost:3000}
       ART_ACCESS_KEY: ${ART_ACCESS_KEY:-}
       CHECKOUT_ACCESS_KEY: ${CHECKOUT_ACCESS_KEY:-}
+      NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
     ports:
       - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
     depends_on:
@@ -53,7 +56,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    networks: [backend, web]
+    networks: [appb2t_network]
   admin:
     profiles: [tools]
     build:
@@ -67,10 +70,10 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-    networks: [backend]
+    networks: [appb2t_network]
 volumes:
   postgres_data:
 networks:
-  backend:
-    internal: true
-  web:
+  appb2t_network:
+    name: ${APP_NETWORK_NAME:-appb2t_network}
+    driver: bridge

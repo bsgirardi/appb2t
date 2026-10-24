@@ -1,5 +1,7 @@
 # appb2t — build e instalação em outro servidor
 
+Para a instalação limpa pelo GitHub no servidor da B2T, com porta 1992, rede appb2t_network, banco em pasta própria e configuração fora do clone, use [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md). Esse guia também cobre as próximas atualizações. As seções abaixo são a referência geral, incluindo migração de uma instalação com dados.
+
 Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4 e checkout C5. A instalação local recebeu C5 em 23/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
@@ -12,12 +14,14 @@ Copie a pasta appb2t inteira e entre nela. Crie o arquivo de ambiente:
 cp .env.example .env
 ```
 
-No PowerShell, use `Copy-Item .env.example .env`. Edite .env:
+No PowerShell, use `Copy-Item .env.example .env`. O exemplo agora contém as opções do servidor externo. Para uso local, ajuste .env:
 
 - POSTGRES_PASSWORD: senha nova, longa e aleatória, apenas com letras/números, pois é inserida na URL PostgreSQL.
 - APP_URL: endereço externo exato, por exemplo https://appb2t.seudominio.com.br, sem caminho adicional. Para uso local, http://localhost:3000.
 - APP_BIND=127.0.0.1: mantém a aplicação acessível somente pelo servidor/proxy local.
 - APP_PORT=3000: porta local do aplicativo.
+- POSTGRES_DATA_PATH=postgres_data: volume nomeado da instalação local; no servidor externo, use /etc/docker/appb2t/dados/postgres_data. Não mudar o caminho de uma instalação com dados sem transferência explícita.
+- APP_NETWORK_NAME=appb2t_network: rede bridge própria, compartilhada somente pelos serviços deste projeto. O PostgreSQL não publica porta no host. Outros projetos devem usar nomes de rede próprios.
 
 DATABASE_URL do exemplo é usada em execução fora do Docker. No Compose, a conexão é montada automaticamente com o serviço db. Usuário e banco continuam chamados b2t; mudar o nome do projeto não exige renomear o banco.
 
@@ -80,7 +84,7 @@ Confira login, contagens/cadastros, fotos, paletas, vendas, estoque e financeiro
 
 ## Nome do projeto e preservação de volumes
 
-O novo nome Compose é appb2t. Por padrão, o volume será appb2t_postgres_data. Na instalação antiga, b2t-calculadora_postgres_data continua separado. Executar Compose com outro nome pode abrir um banco novo e vazio; isso não significa que o volume antigo foi apagado.
+O nome Compose é appb2t. Sem POSTGRES_DATA_PATH, ou com POSTGRES_DATA_PATH=postgres_data, o volume continua appb2t_postgres_data. Com caminho absoluto nessa variável, o banco usa a pasta do host, como no .env.example do servidor. Não há transferência automática entre volume e pasta. Na instalação antiga, b2t-calculadora_postgres_data continua separado. Executar Compose com outro nome ou mudar a origem do mount pode abrir um banco novo e vazio; isso não significa que os dados antigos foram apagados.
 
 Para administrar a instalação antiga pelo código renomeado, especifique seu nome original em cada comando, por exemplo:
 
