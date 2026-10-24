@@ -1,19 +1,30 @@
-# appb2t — pendências resumidas
+# appb2t — estado e pendências
 
-Atualizado em 23/10/2026.
+Atualizado em 23/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
-1. **Segurança e C4:** Next.js/eslint-config-next 16.4.2, suíte final com 683 testes em 211 arquivos, tipagem, lint e build Docker aprovados. Auditorias finais de produção e completa com desenvolvimento retornaram zero vulnerabilidades conhecidas. Publicação C4 concluída em 23/10 em http://localhost:3000; resultado operacional no registro abaixo. Primeiro administrador continua dependendo de criação interativa. Relatos de cinco alertas e bloqueio Docker em documentos anteriores são históricos.
-2. **Novo servidor:** configurar .env, domínio/proxy HTTPS e backups automáticos; testar restauração. Não há comprovação de configuração externa existente.
-3. **Dados:** o usuário escolheu instalação vazia neste computador. Preparar banco PostgreSQL 17 próprio e primeiro administrador; não importar dados antigos nem usar os bancos de outros aplicativos. Nenhum dado ou senha real está no pacote.
-4. **Histórico da instalação anterior em 22/10:** versão 1.1.0 em http://localhost:3000, imagem `appb2t:1.1.0` saudável, dashboard e catálogo C3 integrados pelo [PR #3](https://github.com/bsgirardi/appb2t/pull/3). Migração aditiva aplicada após backup final; as 82 projeções históricas e o volume `b2t-calculadora_postgres_data` foram preservados. Publicação externa depende do servidor/domínio descritos acima.
-5. **Visual:** adaptação local de Button/Input/NativeSelect/Card/Badge e catálogo validada, incluindo 48 cenários integrados e fluxo da lista de orçamento. O preset completo não foi aplicado; configuração do gerador e Sheet/menu permanecem preservados. Não há pendência do aceite integrado representativo desta etapa. Registro: docs/superpowers/2026-10-16-catalogo-integrado.md.
-6. **C3 e dashboard concluídos na 1.1.0:** revisão sem achados críticos/importantes, 651 testes em 199 arquivos, tipagem, lint, build e aceite do dashboard desktop/móvel aprovados. Migração ensaiada em PostgreSQL 17 separado e aplicada na instalação local; verificações HTTP do catálogo passaram. Movimento reduzido conferido por verificação automatizada conforme autorizado. Ver [registro da release](docs/superpowers/2026-10-22-release-1.1.0.md).
-7. **Correções da versão 1.1.0:** os dois menores conhecidos de C3 foram corrigidos com regressões: Atualizar lista recupera a versão atual após conflito, e Decimal local de 40 dígitos evita arredondamento intermediário do percentual. A mesma precisão foi aplicada ao agregado mensal do dashboard. A alteração administrativa aprovada em 19/10 foi recuperada de arquivos locais não commitados e integrada à candidata. Movimento reduzido mantém a verificação automatizada autorizada. Capturas, dumps, configuração privada e temporários ficam fora do Git.
+## Desenvolvimento concluído
 
-Aceite de navegador U4/U5 concluído para cenários representativos em celular/desktop, claro/escuro e teclado. Não há pendência de reimplementação desses módulos. Repositório privado GitHub configurado em https://github.com/bsgirardi/appb2t, com histórico enviado nas branches main e feat/calculadora.
+- Gestão integrada U1–U5, dashboard, catálogo, solicitações, personalização e kits entregues.
+- C4: anexos e aprovação privada de arte, histórico imutável e bloqueios produtivos aplicáveis entregues.
+- C5: compra direta explícita, conferência de frete/consulta, aceite privado de orçamento, venda/parcelas idempotentes e cancelamento entregues. PR #5 integrado e C5 publicado em http://localhost:3000; 95 projeções legadas e volume preservados. [Registro](docs/superpowers/2026-10-23-publicacao-c5.md).
+- Primeiro administrador criado pelo procedimento oficial, com ADMIN ativo; nenhuma senha registrada na documentação.
+- Seletor Automático → Claro → Escuro implementado na loja, login, administrativo e acompanhamento privado. Preferência individual salva no navegador; paletas da empresa preservadas. [Verificação e publicação](docs/superpowers/2026-10-23-tema-e-encerramento.md).
 
-## C4 e continuidade C5 — 23/10/2026
+Não há funcionalidade obrigatória pendente do escopo aprovado até C5. A configuração comercial será feita manualmente pelo usuário; não representa módulo por desenvolver.
 
-C4 implementado e validado: anexos pela equipe, aprovação por link privado, revisões imutáveis, continuidade em documentos e bloqueio de novos apontamentos quando a arte exigida não estiver aplicável. Publicação local concluída, com backup final e 85 projeções preservadas; consultar [registro C4](docs/superpowers/2026-10-23-publicacao-c4.md) para o resultado efetivo.
+## Configuração e operação pelo responsável
 
-C5 permanece em desenho, com compra direta e fechamento de orçamento, pagamento externo registrado pela equipe e modalidades de entrega por produto/kit. Cálculo automático depende de serviço real ainda não escolhido. Não há checkout C5 publicado.
+- Preencher contatos, endereço de retirada, produtos/kits, preços, instruções de pagamento e modalidades. Compra direta dos itens legados permanece desabilitada até ativação explícita.
+- Configurar domínio/proxy HTTPS e APP_URL para acesso externo; a instalação atual continua local, limitada a 127.0.0.1:3000.
+- Configurar retenção e cópia automática de backups fora desta máquina, com restauração periódica. Backups manuais e ensaios desta entrega já foram feitos.
+- Antes de maior volume público, estabelecer ingresso confiável para refinar a cota compartilhada de inicialização/troca de links. Não confiar em cabeçalhos fornecidos pelo visitante.
+
+## Expansões opcionais
+
+Frete automático depende de escolher e contratar provedor real. Gateway, integrações bancárias/fiscais, marketplaces e outras expansões exigem escopo próprio. Pagamento e frete pela equipe continuam manuais. Não existe C6 aprovado.
+
+## Evidências e limites
+
+[Validação C5](docs/superpowers/2026-10-23-catalogo-c5-validacao.md) e [encerramento](docs/superpowers/2026-10-23-tema-e-encerramento.md) distinguem testes, inspeção visual e limites da automação. Relatos antigos de C5 apenas em desenho, administrador inexistente e inspeção restrita ao tema do sistema foram superados. A limitação da automação do campo nativo de data não representa defeito reproduzido no preenchimento humano.
+
+Dados de outras instalações não foram importados. .env, chaves, senhas, capturas, dumps e evidências operacionais permanecem fora do Git.

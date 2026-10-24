@@ -102,6 +102,12 @@ Preserve bytes originais, prévias, manifestos, comandos e decisões no backup. 
 
 ## Manutenção
 
+### Preferência de tema e administrador local
+
+O primeiro administrador da instalação local já foi criado pelo procedimento oficial em 23/10/2026. A criação interativa da seção 3A continua necessária em instalações novas. Credenciais não fazem parte deste pacote.
+
+O botão Tema permite Automático, Claro e Escuro, com preferência por navegador e sincronização entre abas. Não altera paletas da empresa nem requer migração. Resultado e limites de verificação no [registro de encerramento](docs/superpowers/2026-10-23-tema-e-encerramento.md).
+
 ### Checkout C5
 
 C5 publicado localmente em http://localhost:3000 após integração do [PR #5](https://github.com/bsgirardi/appb2t/pull/5). Consulte o [registro operacional C5](docs/superpowers/2026-10-23-publicacao-c5.md) para backup, imagens fixadas, migração, comparação dos dados e verificações. A migração preservou as 95 projeções legadas e o volume operacional.

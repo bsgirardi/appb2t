@@ -1,5 +1,7 @@
 # C5 — Implementação e validação do checkout
 
+Registro histórico da validação anterior à integração. C5 foi posteriormente integrado e publicado: [registro operacional](2026-10-23-publicacao-c5.md). Administrador e preferência manual de tema foram tratados no [encerramento](2026-10-23-tema-e-encerramento.md).
+
 Estado: implementação e validação isolada concluídas, com limites de navegador registrados abaixo; integração e publicação ainda pendentes. Desenho e execução nativa aprovados pelo usuário em 23/10/2026.
 
 Worktree: C:/Users/Administrador/.codex/worktrees/catalogo-c5/appb2t. Branch codex/catalogo-c5; base de implementação f0ff9f3. Original X:/codex/appb2t, .agents/, skills-lock.json e worktree/evidências C4 preservados.

@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { CheckoutContinuation } from "@/components/checkout/checkout-continuation";
 import { getPublicAppearance } from "@/server/appearance";
 import { siteThemeVariables } from "@/domain/appearance/theme";
+import { ThemeToggle } from "@/components/theme-toggle";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Seu pedido | B2T",
@@ -15,6 +16,9 @@ export default async function CheckoutContinuationPage() {
       className="storefront min-h-screen"
       style={siteThemeVariables(await getPublicAppearance()) as CSSProperties}
     >
+      <div className="private-theme-control">
+        <ThemeToggle />
+      </div>
       <CheckoutContinuation />
     </div>
   );

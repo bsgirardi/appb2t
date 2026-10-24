@@ -1,5 +1,7 @@
 # Publicação C5 — 23/10/2026
 
+Registro da troca C4 → C5. Atualização posterior: primeiro administrador criado e seletor de tema entregue conforme [encerramento](2026-10-23-tema-e-encerramento.md); as contagens abaixo descrevem o instante desta publicação.
+
 Migração C4 → C5, merge e publicação local autorizados explicitamente pelo usuário. [PR #5](https://github.com/bsgirardi/appb2t/pull/5) integrado em main pelo merge `3dc80c2e3b547fc30dde62bfcae4f98045a6a242`. A árvore resultante é idêntica à implementação `b52d764f93122deffada81b52b12ef0ba2b9ed6a`. Checkout original X:/codex/appb2t sincronizado por fast-forward; .agents/, skills-lock.json, stash, worktrees e evidências anteriores preservados.
 
 ## Validação antes da troca
