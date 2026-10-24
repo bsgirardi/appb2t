@@ -5,6 +5,7 @@ import { Notice } from "@/components/ui/field";
 import { Brand } from "@/components/shell/brand";
 import { getPublicAppearance } from "@/server/appearance";
 import { Layers3, Check } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 export default async function Login({
   searchParams,
 }: {
@@ -49,6 +50,7 @@ export default async function Login({
       </section>
       <section className="login-panel">
         <div className="login-box">
+          <ThemeToggle />
           <span className="tag">WORKSPACE INTERNO</span>
           <h2>Bom ter você por aqui.</h2>
           <p>Entre para continuar suas simulações.</p>

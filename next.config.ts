@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // Keep build page workers within the local Docker host's 2 GiB budget.
+  experimental: { cpus: 2 },
   serverExternalPackages: ["@cantoo/pdf-lib"],
   // The isolated PDF worker loads the CJS entry at runtime, outside the bundle.
   outputFileTracingIncludes: {

@@ -34,6 +34,8 @@ docker compose --profile tools build
 
 O Dockerfile usa Node 22, instala pelo package-lock, gera Prisma, verifica tipos e compila Next.js. A imagem final inclui standalone, arquivos estáticos e public. O build não necessita de dados de produção.
 
+A geração de páginas está limitada a dois processos em next.config.ts para reduzir o pico de memória no Docker local. Não executar build simultaneamente à suíte/bancos de teste; preferir host de build separado para evitar indisponibilidade da operação em máquinas com pouca memória. O limite foi adotado após OOM observado na instalação local com aproximadamente 2 GiB disponíveis.
+
 ## 3A. Instalação nova, sem dados anteriores
 
 ```sh
@@ -101,6 +103,12 @@ Antes da implantação autorizada, gere backup novo, restaure em PostgreSQL 17 s
 Preserve bytes originais, prévias, manifestos, comandos e decisões no backup. Após gravar C4, não executar downgrade cego para código anterior: exigências de aprovação precisam continuar protegendo a produção. Prefira correção para frente; restauração exige coordenar aplicação, chave e banco e definir explicitamente o ponto de recuperação. Não apagar tabelas/volumes nem restaurar backup antigo sobre novas decisões sem conciliação.
 
 ## Manutenção
+
+### Preferência de tema e administrador local
+
+O primeiro administrador da instalação local já foi criado pelo procedimento oficial em 23/10/2026. A criação interativa da seção 3A continua necessária em instalações novas. Credenciais não fazem parte deste pacote.
+
+O botão Tema permite Automático, Claro e Escuro, com preferência por navegador e sincronização entre abas. Não altera paletas da empresa nem requer migração. Resultado e limites de verificação no [registro de encerramento](docs/superpowers/2026-10-23-tema-e-encerramento.md).
 
 ### Checkout C5
 

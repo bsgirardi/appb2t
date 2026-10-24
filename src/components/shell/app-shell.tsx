@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { AdminNavigation, navigationTitle } from "./admin-navigation";
 import { Brand } from "./brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { themeVariables } from "@/domain/appearance/theme";
 import type {
   AppearancePalette,
@@ -140,6 +141,7 @@ export function AppShell({
             Gestão <span className="slash">/</span>{" "}
             <strong>{navigationTitle(path)}</strong>
           </span>
+          <ThemeToggle />
           <span className="internal-chip">
             <span className="dot" /> Uso interno <ArrowUpRight size={13} />
           </span>

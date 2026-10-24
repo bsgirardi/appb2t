@@ -4,6 +4,7 @@ import { getPublicAppearance } from "@/server/appearance";
 import { siteThemeVariables } from "@/domain/appearance/theme";
 import type { CSSProperties } from "react";
 import "./style.css";
+import { ThemeToggle } from "@/components/theme-toggle";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Revisão privada de arte | B2T",
@@ -16,6 +17,9 @@ export default async function ArtReviewPage() {
       className="storefront"
       style={siteThemeVariables(await getPublicAppearance()) as CSSProperties}
     >
+      <div className="private-theme-control">
+        <ThemeToggle />
+      </div>
       <PublicArtReview />
     </div>
   );

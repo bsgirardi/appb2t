@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { siteThemeVariables } from "@/domain/appearance/theme";
 import type { SiteColors } from "@/domain/appearance/site-colors";
 import { InquiryLink } from "./inquiry-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function StorefrontShell({
   identity,
@@ -93,6 +94,7 @@ export function StorefrontShell({
             </Button>
           </form>
           <div className="ml-auto flex items-center gap-3 md:ml-0">
+            <ThemeToggle />
             <InquiryLink />
             {contact && (
               <Button
