@@ -1,6 +1,6 @@
 # appb2t — build e instalação em outro servidor
 
-Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4. A instalação local recebeu C4 em 23/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
+Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4 e checkout C5. A instalação local recebeu C5 em 23/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 
 ## 1. Preparar o servidor
 
@@ -103,6 +103,8 @@ Preserve bytes originais, prévias, manifestos, comandos e decisões no backup. 
 ## Manutenção
 
 ### Checkout C5
+
+C5 publicado localmente em http://localhost:3000 após integração do [PR #5](https://github.com/bsgirardi/appb2t/pull/5). Consulte o [registro operacional C5](docs/superpowers/2026-10-23-publicacao-c5.md) para backup, imagens fixadas, migração, comparação dos dados e verificações. A migração preservou as 95 projeções legadas e o volume operacional.
 
 `CHECKOUT_ACCESS_KEY` é uma chave própria de 32 bytes aleatórios em hexadecimal, independente de `ART_ACCESS_KEY`. Configure-a privadamente antes de emitir links de compra; não registre o valor em Git ou logs. O Compose transmite a variável ao runtime. A ausência da chave impede emissão de links, sem presumir pagamento ou ativar ofertas. Rotação exige emissão de novo link; revogue links/sessões antigos pelo painel se precisar invalidá-los imediatamente.
 
