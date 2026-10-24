@@ -34,6 +34,8 @@ docker compose --profile tools build
 
 O Dockerfile usa Node 22, instala pelo package-lock, gera Prisma, verifica tipos e compila Next.js. A imagem final inclui standalone, arquivos estáticos e public. O build não necessita de dados de produção.
 
+A geração de páginas está limitada a dois processos em next.config.ts para reduzir o pico de memória no Docker local. Não executar build simultaneamente à suíte/bancos de teste; preferir host de build separado para evitar indisponibilidade da operação em máquinas com pouca memória. O limite foi adotado após OOM observado na instalação local com aproximadamente 2 GiB disponíveis.
+
 ## 3A. Instalação nova, sem dados anteriores
 
 ```sh

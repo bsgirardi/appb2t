@@ -22,6 +22,8 @@ Revisão independente sem achados importantes; um achado menor apontou variantes
 
 Checkout/recibo e dashboard inspecionados em claro/escuro; sincronização entre abas confirmada também pela interface. Build e publicação: registro final acrescentado após conclusão.
 
+Primeiro build cancelado após falta de memória global no Docker (aproximadamente 2 GiB), confirmada pelos eventos OOM do kernel às 01:57–01:58 UTC de 24/10. A etapa usava 19 workers e causou reinício da aplicação e do PostgreSQL; o banco concluiu recuperação automática e HTTP voltou a 200. Foi corrigido o limite de processos de páginas para dois em experimental.cpus, opção confirmada no código e tipos locais do Next 16.4.2. Bancos de teste parados antes da nova tentativa. Não houve downgrade, restauração sobre dados existentes ou intervenção no WAL.
+
 O controle nativo de data não atualizou o estado via fill na automação anterior; isso não comprova falha no preenchimento humano. Tema claro/escuro agora é inspecionável sem emulação. Movimento reduzido continua respeitado pelo CSS existente; nenhuma animação adicionada ao botão e nenhuma certificação visual sob emulação indisponível.
 
 ## Administração e continuidade
