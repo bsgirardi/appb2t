@@ -8,7 +8,7 @@ Atualizado em 23/10/2026. Este arquivo descreve o estado atual; desenhos e valid
 - C4: anexos e aprovação privada de arte, histórico imutável e bloqueios produtivos aplicáveis entregues.
 - C5: compra direta explícita, conferência de frete/consulta, aceite privado de orçamento, venda/parcelas idempotentes e cancelamento entregues. PR #5 integrado e C5 publicado em http://localhost:3000; 95 projeções legadas e volume preservados. [Registro](docs/superpowers/2026-10-23-publicacao-c5.md).
 - Primeiro administrador criado pelo procedimento oficial, com ADMIN ativo; nenhuma senha registrada na documentação.
-- Seletor Automático → Claro → Escuro implementado na loja, login, administrativo e acompanhamento privado. Preferência individual salva no navegador; paletas da empresa preservadas. [Verificação e publicação](docs/superpowers/2026-10-23-tema-e-encerramento.md).
+- Seletor Automático → Claro → Escuro publicado na loja, login, administrativo e acompanhamento privado pelo PR #6. Preferência individual salva no navegador; paletas da empresa preservadas. Validação final com 719 testes em 231 arquivos, tipagem, lint, build e login administrativo na instalação publicada. [Verificação e publicação](docs/superpowers/2026-10-23-tema-e-encerramento.md).
 
 Não há funcionalidade obrigatória pendente do escopo aprovado até C5. A configuração comercial será feita manualmente pelo usuário; não representa módulo por desenvolver.
 
