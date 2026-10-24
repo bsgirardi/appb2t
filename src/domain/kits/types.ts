@@ -26,6 +26,7 @@ export type KitSelection = {
   groups: KitGroupInput[];
 };
 export type KitDefinitionInput = {
+  checkoutPolicy?: import("@/domain/checkout/types").CheckoutOfferPolicy;
   name: string;
   description: string;
   active: boolean;

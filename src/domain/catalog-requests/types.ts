@@ -63,6 +63,7 @@ export interface CatalogRequestSummaryDTO {
   quoteId: string | null;
 }
 export interface CatalogRequestDTO extends CatalogRequestSummaryDTO {
+  checkoutId?: string;
   currentKits?: import("@/domain/kits/types").KitDTO[];
   groups?: import("@/domain/kits/types").KitGroupSnapshot[];
   contact: CatalogContact;

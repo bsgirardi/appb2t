@@ -7,9 +7,13 @@ export function setupDatabase() {
     const url = new URL(process.env.DATABASE_URL || "http://missing");
     if (
       url.pathname !== "/b2t_test" ||
+      url.port !== "55432" ||
       !["localhost", "127.0.0.1"].includes(url.hostname)
     )
       throw new Error("Tests require local b2t_test database");
+    await db.$executeRawUnsafe(
+      'TRUNCATE "Checkout", "CheckoutSession", "CheckoutQuota" CASCADE',
+    );
     await db.$executeRawUnsafe(
       'TRUNCATE "CatalogKit", "CatalogRequest", "CatalogRequestBrowser", "CatalogRequestQuota" CASCADE',
     );

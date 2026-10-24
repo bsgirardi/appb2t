@@ -1,4 +1,7 @@
 "use client";
+import { CheckoutOfferFields } from "@/components/checkout/checkout-offer-fields";
+import { readCheckoutPolicy } from "@/domain/checkout/policy";
+
 import { useId, useRef, useState, type FormEvent } from "react";
 import { Field, Notice } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
@@ -33,6 +36,7 @@ export function KitForm({
     kit
       ? {
           name: kit.name,
+          checkoutPolicy: readCheckoutPolicy(kit.checkoutPolicy),
           description: kit.description,
           active: kit.active,
           position: kit.position,
@@ -100,6 +104,10 @@ export function KitForm({
       noValidate
       className="flex min-w-0 flex-col gap-4"
     >
+      <CheckoutOfferFields
+        value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
+        onChange={(checkoutPolicy) => setDraft({ ...draft, checkoutPolicy })}
+      />
       <h2>{kit ? "Editar kit" : "Novo kit"}</h2>
       {error && <Notice>{error}</Notice>}
       {conflict && (

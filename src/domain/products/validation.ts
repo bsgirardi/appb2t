@@ -14,6 +14,7 @@ import { AppError } from "@/lib/errors";
 import type { ProductInput } from "./types";
 import { commercialShape } from "./commercial";
 import { quantityTiersSchema } from "./quantity-pricing";
+import { checkoutPolicySchema } from "@/domain/checkout/policy";
 const finalPriceSchema = z
   .string()
   .trim()
@@ -27,6 +28,7 @@ export function parseFinalPrice(raw: string): string {
 export const productSchema = z
   .object({
     ...commercialShape,
+    checkoutPolicy: checkoutPolicySchema.optional(),
     quantityTiers: quantityTiersSchema.optional(),
     compositionImageId: z.string().min(1).max(100).nullable().optional(),
     configuration: productConfigurationSchema.optional(),

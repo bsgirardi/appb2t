@@ -1,3 +1,12 @@
+import { projectCheckoutDocument } from "./checkout/document-projection";
+import type { CheckoutReviewContent } from "@/domain/checkout/types";
+import { checkoutFingerprint } from "./checkout/review";
+import { commerceAuthorship } from "./commerce/audit";
+import type {
+  CommerceAuthor,
+  ConfirmSaleCommand,
+  ConvertQuoteCommand,
+} from "./commerce/sale-write";
 import { prepareSaleProductionCancellation } from "./production/lifecycle";
 import {
   releaseSaleReservations,
@@ -57,13 +66,13 @@ import { kitDiscountReviewSchema } from "@/domain/kits/document";
 import { enforceKitDocumentEdit } from "./kits/document-history";
 async function event(
   tx: Prisma.TransactionClient,
-  actor: Actor,
+  actor: Actor | CommerceAuthor,
   saleId: string,
   action: string,
   reason = "",
 ) {
   await tx.commerceEvent.create({
-    data: { saleId, action, reason, actorId: actor.id, actorName: actor.name },
+    data: { saleId, action, reason, ...commerceAuthorship(actor) },
   });
 }
 async function row(tx: Prisma.TransactionClient, id: string) {
@@ -298,48 +307,59 @@ export async function confirmSale(
     operationKey,
     "CONFIRM",
     { id, expectedVersion, rows },
-    async (tx) => {
-      await lockCommerce(tx, { saleId: id });
-      const sale = await row(tx, id);
-      if (sale.version !== expectedVersion || sale.status !== "RASCUNHO")
-        throw conflict();
-      const input = documentSchema.parse(sale.document),
-        totals = calculateDocumentTotals(
-          input.items,
-          input.discount,
-          input.shipping,
-        );
-      const valid = validateInstallments(totals.total, rows);
-      await freezeDocumentCosts(tx, sale.costRevisionId);
-      const { snapshot, logo } = await createDocumentSnapshot(
+    (tx) =>
+      confirmSaleWithClient(
         tx,
-        input,
-        `/api/sales/${id}/logo`,
-        { saleId: id },
-      );
-      await tx.sale.update({
-        where: { id },
-        data: {
-          status: "CONFIRMADA",
-          fulfillmentMode: "U3",
-          version: { increment: 1 },
-          snapshot: snapshot as unknown as Prisma.InputJsonValue,
-          totals: { ...totals },
-        },
-      });
-      if (logo)
-        await tx.documentLogo.create({
-          data: {
-            saleId: id,
-            bytes: new Uint8Array(logo.bytes),
-            mimeType: logo.mimeType,
-          },
-        });
-      await installments(tx, id, valid);
-      await event(tx, actor, id, "CONFIRM");
-      return dto(tx, id);
-    },
+        { kind: "ADMIN", actor },
+        { id, expectedVersion, rows },
+      ),
   );
+}
+export async function confirmSaleWithClient(
+  tx: Prisma.TransactionClient,
+  actor: CommerceAuthor,
+  command: ConfirmSaleCommand,
+): Promise<SaleDTO> {
+  const { id, expectedVersion, rows } = command;
+  await lockCommerce(tx, { saleId: id });
+  const sale = await row(tx, id);
+  if (sale.version !== expectedVersion || sale.status !== "RASCUNHO")
+    throw conflict();
+  const input = documentSchema.parse(sale.document),
+    totals = calculateDocumentTotals(
+      input.items,
+      input.discount,
+      input.shipping,
+    );
+  const valid = validateInstallments(totals.total, rows);
+  await freezeDocumentCosts(tx, sale.costRevisionId);
+  const { snapshot, logo } = await createDocumentSnapshot(
+    tx,
+    input,
+    `/api/sales/${id}/logo`,
+    { saleId: id },
+  );
+  await tx.sale.update({
+    where: { id },
+    data: {
+      status: "CONFIRMADA",
+      fulfillmentMode: "U3",
+      version: { increment: 1 },
+      snapshot: snapshot as unknown as Prisma.InputJsonValue,
+      totals: { ...totals },
+    },
+  });
+  if (logo)
+    await tx.documentLogo.create({
+      data: {
+        saleId: id,
+        bytes: new Uint8Array(logo.bytes),
+        mimeType: logo.mimeType,
+      },
+    });
+  await installments(tx, id, valid);
+  await event(tx, actor, id, "CONFIRM");
+  return dto(tx, id);
 }
 export async function convertQuote(
   actor: Actor,
@@ -353,88 +373,133 @@ export async function convertQuote(
     operationKey,
     "CONVERT",
     { quoteId, expectedVersion, rows },
-    async (tx) => {
-      await lockCommerce(tx, { quoteId });
-      const q = await tx.quote.findUnique({
-        where: { id: quoteId },
-        include: { logo: true },
-      });
-      if (!q) throw new AppError("NOT_FOUND", "Orçamento não encontrado.");
-      if (
-        q.version !== expectedVersion ||
-        !q.validUntil ||
-        effectiveQuoteStatus(
-          q.status,
-          civilDateFromDb(q.validUntil),
-          todaySaoPaulo(new Date()),
-        ) !== "APROVADO"
-      )
-        throw conflict();
-      const { validUntil: _validUntil, ...document } =
-        q.input as unknown as DocumentInput & { validUntil: string };
-      void _validUntil;
-      document.items = await readLineItems(tx, { quoteId }, document.items);
-      if (
-        !(await tx.customer.findFirst({
-          where: { id: document.customerId, active: true },
-        }))
-      )
-        throw new AppError("VALIDATION", "O cliente precisa estar ativo.");
-      const totals = q.totals as unknown as DocumentTotals,
-        valid = validateInstallments(totals.total, rows);
-      const snapshot = q.snapshot as unknown as DocumentSnapshot;
-      const sale = await tx.sale.create({
+    (tx) =>
+      convertQuoteWithClient(
+        tx,
+        { kind: "ADMIN", actor },
+        { quoteId, expectedVersion, rows },
+      ),
+  );
+}
+export async function convertQuoteWithClient(
+  tx: Prisma.TransactionClient,
+  actor: CommerceAuthor,
+  input: ConvertQuoteCommand,
+): Promise<SaleDTO> {
+  const { quoteId, expectedVersion, rows } = input;
+  await lockCommerce(tx, { quoteId });
+  const q = await tx.quote.findUnique({
+    where: { id: quoteId },
+    include: { logo: true },
+  });
+  if (!q) throw new AppError("NOT_FOUND", "Orçamento não encontrado.");
+  if (
+    q.version !== expectedVersion ||
+    !q.validUntil ||
+    effectiveQuoteStatus(
+      q.status,
+      civilDateFromDb(q.validUntil),
+      todaySaoPaulo(new Date()),
+    ) !== "APROVADO"
+  )
+    throw conflict();
+  const { validUntil: _validUntil, ...document } =
+    q.input as unknown as DocumentInput & { validUntil: string };
+  void _validUntil;
+  document.items = await readLineItems(tx, { quoteId }, document.items);
+  if (
+    !(await tx.customer.findFirst({
+      where: { id: document.customerId, active: true },
+    }))
+  )
+    throw new AppError("VALIDATION", "O cliente precisa estar ativo.");
+  const totals = q.totals as unknown as DocumentTotals,
+    valid = validateInstallments(totals.total, rows);
+  const snapshot = q.snapshot as unknown as DocumentSnapshot;
+  const sale = await tx.sale.create({
+    data: {
+      quoteId,
+      customerId: document.customerId,
+      document: document as unknown as Prisma.InputJsonValue,
+      totals: { ...totals },
+      status: "CONFIRMADA",
+      fulfillmentMode: "U3",
+    },
+  });
+  const frozen = {
+    ...snapshot,
+    company: {
+      ...snapshot.company,
+      logoUrl: q.logo ? `/api/sales/${sale.id}/logo` : null,
+    },
+  };
+  await tx.sale.update({
+    where: { id: sale.id },
+    data: { snapshot: frozen as unknown as Prisma.InputJsonValue },
+  });
+  if (q.logo)
+    await tx.documentLogo.create({
+      data: {
+        saleId: sale.id,
+        bytes: q.logo.bytes,
+        mimeType: q.logo.mimeType,
+      },
+    });
+  await tx.saleItem.createMany({
+    data: document.items.map((i, position) => ({
+      ...itemColumns(i, position),
+      saleId: sale.id,
+      position,
+    })),
+  });
+  const costRevisionId = await copyQuoteCostsToSale(tx, quoteId, sale.id);
+  await copyArtBindings(tx, quoteId, sale.id);
+  await tx.sale.update({
+    where: { id: sale.id },
+    data: { costRevisionId },
+  });
+  await installments(tx, sale.id, valid);
+  await tx.quote.update({
+    where: { id: quoteId },
+    data: { status: "CONVERTIDO", version: { increment: 1 } },
+  });
+  await quoteEvent(tx, actor, quoteId, "CONVERT");
+  await event(tx, actor, sale.id, "CONVERT");
+  if (actor.kind === "ADMIN") {
+    const checkout = await tx.checkout.findFirst({
+      where: { OR: [{ quoteId }, { request: { quoteId } }] },
+    });
+    if (checkout) {
+      if (checkout.state === "CLOSED")
+        throw new AppError(
+          "CONFLICT",
+          "O pedido foi encerrado. Revise o atendimento antes de converter.",
+        );
+      const publicReview = projectCheckoutDocument(
+        checkout.review as unknown as CheckoutReviewContent,
+        document,
+        totals,
+        valid,
+      );
+      await tx.checkout.update({
+        where: { id: checkout.id },
         data: {
           quoteId,
-          customerId: document.customerId,
-          document: document as unknown as Prisma.InputJsonValue,
-          totals: { ...totals },
-          status: "CONFIRMADA",
-          fulfillmentMode: "U3",
-        },
-      });
-      const frozen = {
-        ...snapshot,
-        company: {
-          ...snapshot.company,
-          logoUrl: q.logo ? `/api/sales/${sale.id}/logo` : null,
-        },
-      };
-      await tx.sale.update({
-        where: { id: sale.id },
-        data: { snapshot: frozen as unknown as Prisma.InputJsonValue },
-      });
-      if (q.logo)
-        await tx.documentLogo.create({
-          data: {
-            saleId: sale.id,
-            bytes: q.logo.bytes,
-            mimeType: q.logo.mimeType,
-          },
-        });
-      await tx.saleItem.createMany({
-        data: document.items.map((i, position) => ({
-          ...itemColumns(i, position),
           saleId: sale.id,
-          position,
-        })),
+          state: "CONFIRMED",
+          review: publicReview as unknown as Prisma.InputJsonValue,
+          fingerprint: checkoutFingerprint(publicReview),
+          acceptedAt: new Date(),
+          version: { increment: 1 },
+        },
       });
-      const costRevisionId = await copyQuoteCostsToSale(tx, quoteId, sale.id);
-      await copyArtBindings(tx, quoteId, sale.id);
-      await tx.sale.update({
-        where: { id: sale.id },
-        data: { costRevisionId },
+      await tx.checkoutOffer.updateMany({
+        where: { checkoutId: checkout.id, active: true },
+        data: { active: false },
       });
-      await installments(tx, sale.id, valid);
-      await tx.quote.update({
-        where: { id: quoteId },
-        data: { status: "CONVERTIDO", version: { increment: 1 } },
-      });
-      await quoteEvent(tx, actor, quoteId, "CONVERT");
-      await event(tx, actor, sale.id, "CONVERT");
-      return dto(tx, sale.id);
-    },
-  );
+    }
+  }
+  return dto(tx, sale.id);
 }
 export async function cancelSale(
   actor: Actor,
@@ -445,51 +510,88 @@ export async function cancelSale(
 ): Promise<SaleDTO> {
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
-  return db.$transaction(async (tx) => {
-    await lockPlanning(tx);
-    await lockCommerce(tx, { saleId: id });
-    const sale = await row(tx, id);
-    if (sale.version !== expectedVersion) throw conflict();
-    assertSaleTransition(sale.status, "CANCELADA");
-    await prepareSaleProductionCancellation(tx, actor, id);
-    await releaseSaleReservations(tx, actor, id);
-    const entries = await tx.financialEntry.findMany({
-      where: { saleInstallment: { saleId: id } },
-      select: { id: true },
-    });
-    await lockCommerce(tx, { entryIds: entries.map((e) => e.id) });
-    if (entryGuard) {
-      const guarded = await tx.financialEntry.findUnique({
-        where: { id: entryGuard.id },
-      });
-      if (
-        !entries.some((e) => e.id === entryGuard.id) ||
-        guarded?.version !== entryGuard.expectedVersion
-      )
-        throw conflict();
-    }
-    const summary = await getSaleReceiptSummary(tx, id);
-    if (summary.received !== "0.00")
-      throw new AppError(
-        "CONFLICT",
-        "Estorne os recebimentos antes de cancelar a venda.",
-      );
-    await tx.financialEntry.updateMany({
-      where: { id: { in: entries.map((e) => e.id) }, canceledAt: null },
-      data: { canceledAt: new Date(), version: { increment: 1 } },
-    });
-    await tx.sale.update({
-      where: { id },
-      data: { status: "CANCELADA", version: { increment: 1 } },
-    });
-    await event(tx, actor, id, "CANCEL", why);
-    await reconcilePlanningTx(tx);
-    await tx.planningState.update({
-      where: { id: 1 },
-      data: { revision: { increment: 1 } },
-    });
-    return dto(tx, id);
+  return db.$transaction((tx) =>
+    cancelSaleWithClient(tx, actor, id, expectedVersion, why, entryGuard),
+  );
+}
+export async function cancelSaleWithClient(
+  tx: Prisma.TransactionClient,
+  actor: Actor,
+  id: string,
+  expectedVersion: number,
+  why: string,
+  entryGuard?: { id: string; expectedVersion: number },
+): Promise<SaleDTO> {
+  await lockPlanning(tx);
+  await lockCommerce(tx, { saleId: id });
+  const sale = await row(tx, id);
+  if (sale.version !== expectedVersion) throw conflict();
+  assertSaleTransition(sale.status, "CANCELADA");
+  await prepareSaleProductionCancellation(tx, actor, id);
+  await releaseSaleReservations(tx, actor, id);
+  const entries = await tx.financialEntry.findMany({
+    where: { saleInstallment: { saleId: id } },
+    select: { id: true },
   });
+  await lockCommerce(tx, { entryIds: entries.map((e) => e.id) });
+  if (entryGuard) {
+    const guarded = await tx.financialEntry.findUnique({
+      where: { id: entryGuard.id },
+    });
+    if (
+      !entries.some((e) => e.id === entryGuard.id) ||
+      guarded?.version !== entryGuard.expectedVersion
+    )
+      throw conflict();
+  }
+  const summary = await getSaleReceiptSummary(tx, id);
+  if (summary.received !== "0.00")
+    throw new AppError(
+      "CONFLICT",
+      "Estorne os recebimentos antes de cancelar a venda.",
+    );
+  await tx.financialEntry.updateMany({
+    where: { id: { in: entries.map((e) => e.id) }, canceledAt: null },
+    data: { canceledAt: new Date(), version: { increment: 1 } },
+  });
+  await tx.sale.update({
+    where: { id },
+    data: { status: "CANCELADA", version: { increment: 1 } },
+  });
+  await event(tx, actor, id, "CANCEL", why);
+  const checkout = await tx.checkout.findUnique({ where: { saleId: id } });
+  if (checkout) {
+    await tx.checkout.update({
+      where: { id: checkout.id },
+      data: { state: "CLOSED", version: { increment: 1 } },
+    });
+    await tx.checkoutOffer.updateMany({
+      where: { checkoutId: checkout.id, active: true },
+      data: { active: false },
+    });
+    await tx.checkoutCancellation.updateMany({
+      where: { checkoutId: checkout.id, state: "PENDING" },
+      data: {
+        state: "COMPLETED",
+        response: "Venda cancelada pela equipe após conferência.",
+      },
+    });
+    await tx.checkoutEvent.create({
+      data: {
+        checkoutId: checkout.id,
+        action: "CANCELLED",
+        actorId: actor.id,
+        actorName: actor.name,
+        reason: "Venda cancelada pelos controles administrativos.",
+      },
+    });
+  }
+  await reconcilePlanningTx(tx);
+  await tx.planningState.update({
+    where: { id: 1 },
+    data: { revision: { increment: 1 } },
+  });
+  return dto(tx, id);
 }
 export async function transitionSale(
   actor: Actor,

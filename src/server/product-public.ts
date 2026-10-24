@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { readCheckoutPolicy } from "@/domain/checkout/policy";
 import type { PublicProductDTO } from "@/domain/products/types";
 import type { Availability } from "@/domain/products/commercial";
 import { quantityTiersSchema } from "@/domain/products/quantity-pricing";
@@ -7,6 +8,7 @@ import {
   priceModeSchema,
 } from "@/domain/products/configuration";
 export const publicProductSelect = {
+  checkoutPolicy: true,
   quantityTiers: true,
   compositionImageId: true,
   publicPriceMode: true,
@@ -36,6 +38,7 @@ type PublicRow = Prisma.ProductGetPayload<{
 }>;
 export function toPublicProduct(row: PublicRow): PublicProductDTO {
   return {
+    checkoutPolicy: readCheckoutPolicy(row.checkoutPolicy),
     quantityTiers: quantityTiersSchema.parse(row.quantityTiers),
     compositionImageId: row.compositionImageId,
     id: row.id,

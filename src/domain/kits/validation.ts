@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import { checkoutPolicySchema } from "@/domain/checkout/policy";
 import { positiveCatalogMoney } from "@/domain/products/quantity-pricing";
 const minQuantity = z.number().int().min(1).max(1980);
 export const kitDiscountTierSchema = z.discriminatedUnion("kind", [
@@ -32,6 +33,7 @@ export const kitDiscountTiersSchema = z
 export const kitDefinitionSchema = z
   .object({
     name: z.string().trim().min(1).max(160),
+    checkoutPolicy: checkoutPolicySchema.optional(),
     description: z.string().trim().max(2000),
     active: z.boolean(),
     position: z.number().int().min(0).max(99999),

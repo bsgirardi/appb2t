@@ -3,6 +3,7 @@ import type { ProductInput } from "@/domain/products/types";
 import { readProductConfiguration } from "@/domain/products/configuration";
 import { AppError } from "@/lib/errors";
 import { quantityTiersSchema } from "@/domain/products/quantity-pricing";
+import { readCheckoutPolicy } from "@/domain/checkout/policy";
 export function productConfigurationForSave(
   input: ProductInput,
   existing: string[],
@@ -64,6 +65,10 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
     "paymentTerms",
   ] as const;
   const changed =
+    JSON.stringify(readCheckoutPolicy(old.checkoutPolicy)) !==
+      JSON.stringify(
+        input.checkoutPolicy ?? readCheckoutPolicy(old.checkoutPolicy),
+      ) ||
     JSON.stringify(
       quantityTiersSchema
         .parse(old.quantityTiers)

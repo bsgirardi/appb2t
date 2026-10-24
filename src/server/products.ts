@@ -114,6 +114,12 @@ function dataFor(input: ProductInput) {
     materialId: input.materialId ?? null,
     printerId: input.printerId ?? null,
     configuration: input.configuration as unknown as Prisma.InputJsonValue,
+    ...(input.checkoutPolicy
+      ? {
+          checkoutPolicy:
+            input.checkoutPolicy as unknown as Prisma.InputJsonValue,
+        }
+      : {}),
     calculation: input.calculation as unknown as Prisma.InputJsonValue,
     price: input.price,
   };

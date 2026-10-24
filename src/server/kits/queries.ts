@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { readCheckoutPolicy } from "@/domain/checkout/policy";
 import { db } from "@/lib/db";
 import { publicProductSelect, toPublicProduct } from "@/server/product-public";
 import type { KitDTO } from "@/domain/kits/types";
@@ -13,6 +14,7 @@ export function kitDTO(
   row: Prisma.CatalogKitGetPayload<{ include: typeof kitInclude }>,
 ): KitDTO {
   return {
+    checkoutPolicy: readCheckoutPolicy(row.checkoutPolicy),
     id: row.id,
     name: row.name,
     description: row.description,

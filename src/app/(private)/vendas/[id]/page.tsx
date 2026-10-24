@@ -1,3 +1,5 @@
+import { db } from "@/lib/db";
+import { CheckoutTeamPanel } from "@/components/checkout/checkout-team-panel";
 import { Button } from "@/components/ui/button";
 import { requireActor } from "@/server/auth/guards";
 import { getSale } from "@/server/sales";
@@ -15,6 +17,10 @@ export default async function SalePage({
     getSale(actor, id),
     commerceOptions(actor),
   ]);
+  const checkout = await db.checkout.findUnique({
+    where: { saleId: id },
+    select: { id: true },
+  });
   return (
     <>
       {actor.role === "ADMIN" && (
@@ -29,6 +35,7 @@ export default async function SalePage({
         initial={initial}
         {...options}
       />
+      {checkout && <CheckoutTeamPanel checkoutId={checkout.id} />}
     </>
   );
 }
