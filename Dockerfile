@@ -4,8 +4,9 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
-COPY package.json package-lock.json .npmrc ./
-RUN npm ci --maxsockets=5
+COPY package.json package-lock.json ./
+# Match the repository's npm settings without requiring hidden files in the context.
+RUN npm ci --legacy-peer-deps --maxsockets=5
 
 FROM deps AS build
 COPY . .

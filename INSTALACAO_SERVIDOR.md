@@ -213,3 +213,19 @@ O Compose aceita caminho absoluto em POSTGRES_DATA_PATH para o bind do servidor.
 O .env.example está preparado para o novo servidor. Para um ambiente local separado: APP_BIND=127.0.0.1, APP_PORT=3000, APP_URL=http://localhost:3000 e POSTGRES_DATA_PATH=postgres_data. Nunca copiar o exemplo sobre o .env local em uso.
 
 Referência detalhada e registros históricos: [PRODUCAO.md](PRODUCAO.md), [PENDENCIAS.md](PENDENCIAS.md).
+
+## 9. Erro de build: COPY .npmrc, arquivo não encontrado
+
+O .npmrc está versionado na raiz do repositório. Um clone completo inclui arquivos ocultos; cópia manual de arquivos ou um contexto de build incompleto pode deixá-lo de fora. O Dockerfile atualizado copia apenas package.json/package-lock.json para instalar e passa `--legacy-peer-deps` explicitamente, mantendo a configuração de dependências sem exigir o arquivo oculto.
+
+Na pasta do clone, atualize o código e repita os builds:
+
+```bash
+cd /opt/appb2t
+git pull --ff-only origin main
+dc build migrate
+dc build app
+dc --profile tools build admin
+```
+
+Defina a função dc da seção 4 se estiver em outro terminal. Preserve o .env externo e a pasta do banco. Essa correção não exige apagar cache, banco ou volume. Se package.json/package-lock.json também faltarem, confira se o clone está completo e se o contexto é /opt/appb2t, conforme a função dc; não crie arquivos vazios para contornar COPY.
