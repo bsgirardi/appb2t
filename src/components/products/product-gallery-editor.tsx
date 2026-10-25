@@ -65,6 +65,7 @@ export function ProductGalleryEditor({
   return (
     <div className="gallery-editor">
       <Field
+        required={value.length === 0}
         label="Fotos do produto"
         type="file"
         multiple

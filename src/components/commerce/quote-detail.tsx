@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import {
   DocumentCostSummary,
   currentBindingState,
@@ -205,28 +207,31 @@ export function QuoteDetail({
           </section>
         </Card>
       )}
-      <Card asChild>
-        <section className="">
-          {quote.input.catalogKits && (
-            <KitDocumentHistory value={quote.input.catalogKits} />
-          )}
-          <h2>Histórico</h2>
-          <ul>
-            {quote.events.map((e) => (
-              <li key={e.id}>
-                {new Date(e.createdAt).toLocaleString("pt-BR", {
-                  timeZone: "America/Sao_Paulo",
-                })}{" "}
-                ·{" "}
-                {e.action === "KIT_DISCOUNT_REVIEW"
-                  ? "Desconto revisado"
-                  : e.action}{" "}
-                · {e.actorName}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </Card>
+      <FormSection
+        id="quote-history"
+        title="Histórico do orçamento"
+        collapsible
+        defaultOpen={false}
+        summary={`${quote.events.length} registros`}
+      >
+        {quote.input.catalogKits && (
+          <KitDocumentHistory value={quote.input.catalogKits} />
+        )}
+        <ul>
+          {quote.events.map((e) => (
+            <li key={e.id}>
+              {new Date(e.createdAt).toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo",
+              })}{" "}
+              ·{" "}
+              {e.action === "KIT_DISCOUNT_REVIEW"
+                ? "Desconto revisado"
+                : e.action}{" "}
+              · {e.actorName}
+            </li>
+          ))}
+        </ul>
+      </FormSection>
     </div>
   );
 }

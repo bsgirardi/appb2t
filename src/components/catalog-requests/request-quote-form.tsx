@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import { useRef, useState } from "react";
 import { receivedArtDescription } from "@/domain/art/configuration";
 import { Field, Notice } from "@/components/ui/field";
@@ -247,7 +248,12 @@ export function RequestQuoteForm({
           }}
         />
       )}
-      <form ref={form} onSubmit={prepare} className="commerce-form" noValidate>
+      <AdminForm
+        ref={form}
+        onSubmit={prepare}
+        className="commerce-form"
+        noValidate
+      >
         <Label>
           Cliente revisado
           <NativeSelect
@@ -449,7 +455,7 @@ export function RequestQuoteForm({
             Cancelar preparação
           </Button>
         </div>
-      </form>
+      </AdminForm>
     </section>
   );
 }

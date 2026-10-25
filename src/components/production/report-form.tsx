@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { FormSection } from "@/components/admin/form-section";
 import { Select } from "@/components/finance/shared";
 import { ActionForm } from "./shared";
 import { Field } from "@/components/ui/field";
@@ -25,11 +26,27 @@ export function ReportForm({
     [rows, setRows] = useState<number[]>([]),
     [next, setNext] = useState(1);
   const line = order.lines.find((l) => l.id === lineId);
+  const [failed, setFailed] = useState(0);
   return (
     <ActionForm
       revision={order.version}
       title="Registrar execução"
       submit="Confirmar apontamento"
+      summary={
+        <section className="admin-summary-card">
+          <h3>{line?.description ?? "Execução da ordem"}</h3>
+          <dl>
+            <dt>Meta</dt>
+            <dd>{line?.targetUnits ?? 0}</dd>
+            <dt>Já produzidas</dt>
+            <dd>{line?.goodUnits ?? 0}</dd>
+          </dl>
+          <p>
+            Informe apenas esta execução. Ao confirmar, os materiais são
+            baixados e as peças boas entram no estoque.
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(f, operationKey) =>
@@ -132,6 +149,7 @@ export function ReportForm({
         <Field
           label="Peças com falha"
           name="failedUnits"
+          onChange={(event) => setFailed(Number(event.target.value))}
           type="number"
           min={0}
           step={1}
@@ -139,106 +157,122 @@ export function ReportForm({
           required
         />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Field
-          label="Tempo de máquina (min)"
-          name="machineMinutes"
-          inputMode="decimal"
-        />
-        <Field
-          label="Preparação (min)"
-          name="setupMinutes"
-          inputMode="decimal"
-        />
-        <Field
-          label="Acabamento (min)"
-          name="finishingMinutes"
-          inputMode="decimal"
-        />
-      </div>
-      <p className="text-sm text-muted-foreground">
-        Vazio significa não medido. Informe zero somente quando não houve tempo
-        ou consumo.
-      </p>
-      <Toggle name="timeComplete" label="Tempos completamente medidos" />
-      <Toggle
-        name="materialComplete"
-        label="Todos os materiais consumidos foram informados"
-      />
-      <Select
-        label="Reimpressão da tentativa"
-        name="reprintOf"
-        required={false}
-        options={order.events
-          .filter((e) => e.lineId === lineId && e.failedUnits > 0)
-          .map((e) => ({
-            value: e.id,
-            label: `${e.effectiveDate} · ${e.failedUnits} falhas · ${e.reason}`,
-          }))}
-      />
-      <h3>Consumo real de material</h3>
-      {rows.map((i, index) => (
-        <div key={i} className="rounded border p-3 space-y-2">
-          <Select
-            label={`Material ${index + 1}`}
-            name={`item${i}`}
-            options={options.materials.map((m) => ({
-              value: m.id,
-              label: `${m.name} (${m.unit})`,
-            }))}
+      <FormSection
+        id="report-times"
+        title="Tempos e medições"
+        collapsible
+        defaultOpen={false}
+        summary="Informe quando medidos; zero é diferente de não medido"
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field
+            label="Tempo de máquina (min)"
+            name="machineMinutes"
+            inputMode="decimal"
           />
           <Field
-            label={`Quantidade consumida ${index + 1}`}
-            name={`quantity${i}`}
+            label="Preparação (min)"
+            name="setupMinutes"
             inputMode="decimal"
-            required
           />
-          <Select
-            label={`Reserva utilizada ${index + 1}`}
-            name={`reservation${i}`}
-            required={false}
-            options={order.allocations
-              .filter((a) => a.lineId === lineId && Number(a.remaining) > 0)
-              .map((a) => ({
-                value: a.id,
-                label: `${a.name}: ${a.remaining} ${a.unit}`,
-              }))}
+          <Field
+            label="Acabamento (min)"
+            name="finishingMinutes"
+            inputMode="decimal"
           />
-          <Select
-            label={`Lote ou carretel ${index + 1} (opcional)`}
-            name={`identity${i}`}
-            required={false}
-            options={options.materials.flatMap((m) =>
-              m.identities.map((x) => ({
-                value: x.id,
-                label: `${m.name} · ${x.label}`,
-              })),
-            )}
-          />
-          <Toggle
-            name={`excess${i}`}
-            label="Confirmo eventual consumo acima da reserva"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setRows(rows.filter((x) => x !== i))}
-          >
-            Remover material
-          </Button>
         </div>
-      ))}
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          setRows([...rows, next]);
-          setNext(next + 1);
-        }}
+        <p className="text-sm text-muted-foreground">
+          Vazio significa não medido. Informe zero somente quando não houve
+          tempo ou consumo.
+        </p>
+        <Toggle name="timeComplete" label="Tempos completamente medidos" />
+        <Toggle
+          name="materialComplete"
+          label="Todos os materiais consumidos foram informados"
+        />
+        <Select
+          label="Reimpressão da tentativa"
+          name="reprintOf"
+          required={false}
+          options={order.events
+            .filter((e) => e.lineId === lineId && e.failedUnits > 0)
+            .map((e) => ({
+              value: e.id,
+              label: `${e.effectiveDate} · ${e.failedUnits} falhas · ${e.reason}`,
+            }))}
+        />
+      </FormSection>
+      <FormSection
+        id="report-materials"
+        title="Consumo real de material"
+        collapsible
+        defaultOpen={false}
+        hasErrors={rows.length > 0}
+        summary={`${rows.length} materiais informados`}
       >
-        Adicionar material
-      </Button>
-      <DateReason />
+        {rows.map((i, index) => (
+          <div key={i} className="rounded border p-3 space-y-2">
+            <Select
+              label={`Material ${index + 1}`}
+              name={`item${i}`}
+              options={options.materials.map((m) => ({
+                value: m.id,
+                label: `${m.name} (${m.unit})`,
+              }))}
+            />
+            <Field
+              label={`Quantidade consumida ${index + 1}`}
+              name={`quantity${i}`}
+              inputMode="decimal"
+              required
+            />
+            <Select
+              label={`Reserva utilizada ${index + 1}`}
+              name={`reservation${i}`}
+              required={false}
+              options={order.allocations
+                .filter((a) => a.lineId === lineId && Number(a.remaining) > 0)
+                .map((a) => ({
+                  value: a.id,
+                  label: `${a.name}: ${a.remaining} ${a.unit}`,
+                }))}
+            />
+            <Select
+              label={`Lote ou carretel ${index + 1} (opcional)`}
+              name={`identity${i}`}
+              required={false}
+              options={options.materials.flatMap((m) =>
+                m.identities.map((x) => ({
+                  value: x.id,
+                  label: `${m.name} · ${x.label}`,
+                })),
+              )}
+            />
+            <Toggle
+              name={`excess${i}`}
+              label="Confirmo eventual consumo acima da reserva"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setRows(rows.filter((x) => x !== i))}
+            >
+              Remover material
+            </Button>
+          </div>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setRows([...rows, next]);
+            setNext(next + 1);
+          }}
+        >
+          Adicionar material
+        </Button>
+      </FormSection>
+      <DateReason required={failed > 0} />
       <p>
         Ao confirmar, o material será baixado uma vez e as peças boas entrarão
         no estoque. Falhas não atendem à quantidade da venda.

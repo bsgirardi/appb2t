@@ -39,6 +39,16 @@ export function BatchForm({
     <ActionForm
       title={batch ? `Revisar lote ${batch.sequence}` : "Novo lote"}
       submit="Salvar lote"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Composição do lote</h3>
+          <p>{lines.length} linhas disponíveis para esta máquina.</p>
+          <p>
+            O rascunho não reserva peças. Confirme a composição antes de
+            vincular o material e confira tempo, perfil e encaixe.
+          </p>
+        </section>
+      }
       revision={`${data.revision}:${batch?.version ?? 0}`}
       onDone={onDone}
       onCancel={onCancel}

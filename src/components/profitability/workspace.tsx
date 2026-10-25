@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import { useRouter } from "next/navigation";
 import type {
   SaleProfitabilityDTO,
@@ -26,12 +28,20 @@ export function ProfitabilityWorkspace({
         channels={channels}
         onDone={() => router.refresh()}
       />
-      <AssessmentHistory
-        saleId={value.saleId}
-        items={assessments}
-        currentHash={value.factsHash}
-        onDone={() => router.refresh()}
-      />
+      <FormSection
+        id="profit-history"
+        title="Histórico de conferências"
+        collapsible
+        defaultOpen={false}
+        summary={`${assessments.length} conferências registradas`}
+      >
+        <AssessmentHistory
+          saleId={value.saleId}
+          items={assessments}
+          currentHash={value.factsHash}
+          onDone={() => router.refresh()}
+        />
+      </FormSection>
     </>
   );
 }

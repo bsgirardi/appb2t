@@ -1,4 +1,7 @@
 "use client";
+import { ContextEditor } from "@/components/admin/context-editor";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -57,107 +60,114 @@ export function CustomerPanel({
           Novo cliente
         </Button>
       </div>
-      {editing ? (
-        <CustomerForm
-          customer={editing === "new" ? undefined : editing}
-          onCancel={() => setEditing(null)}
-          onSaved={() => {
-            setEditing(null);
-            router.refresh();
-          }}
-        />
-      ) : (
-        <>
-          <form onSubmit={filter} className="product-toolbar">
-            <Field
-              label="Buscar cliente"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <div className="field">
-              <Label htmlFor="customer-active-filter">Situação</Label>
-              <NativeSelect
-                id="customer-active-filter"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value="true">Ativos</option>
-                <option value="false">Inativos</option>
-              </NativeSelect>
-            </div>
-            <Button variant="outline" size="sm" className="">
-              Buscar
-            </Button>
-          </form>
-          <Card asChild>
-            <div className="table-scroll">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Contato</TableHead>
-                    <TableHead>Situação</TableHead>
-                    <TableHead>Ações</TableHead>
+      <ContextEditor
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title={editing === "new" ? "Novo cliente" : "Editar cliente"}
+      >
+        {editing && (
+          <CustomerForm
+            customer={editing === "new" ? undefined : editing}
+            onCancel={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
+              router.refresh();
+            }}
+          />
+        )}
+      </ContextEditor>
+      <>
+        <AdminForm onSubmit={filter} className="product-toolbar">
+          <Field
+            label="Buscar cliente"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <div className="field">
+            <Label htmlFor="customer-active-filter">Situação</Label>
+            <NativeSelect
+              id="customer-active-filter"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+            >
+              <option value="all">Todos</option>
+              <option value="true">Ativos</option>
+              <option value="false">Inativos</option>
+            </NativeSelect>
+          </div>
+          <Button variant="outline" size="sm" className="">
+            Buscar
+          </Button>
+        </AdminForm>
+        <Card asChild>
+          <div className="table-scroll">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Contato</TableHead>
+                  <TableHead>Situação</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {initial.items.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell>
+                      <strong>{c.name}</strong>
+                      <small>{c.document}</small>
+                    </TableCell>
+                    <TableCell>
+                      {c.email || c.phone || "Não informado"}
+                    </TableCell>
+                    <TableCell>{c.active ? "Ativo" : "Inativo"}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className=""
+                        onClick={() => setEditing(c)}
+                      >
+                        Editar
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {initial.items.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell>
-                        <strong>{c.name}</strong>
-                        <small>{c.document}</small>
-                      </TableCell>
-                      <TableCell>
-                        {c.email || c.phone || "Não informado"}
-                      </TableCell>
-                      <TableCell>{c.active ? "Ativo" : "Inativo"}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className=""
-                          onClick={() => setEditing(c)}
-                        >
-                          Editar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {!initial.items.length && (
-                <p className="empty-state">Nenhum cliente encontrado.</p>
-              )}
-            </div>
-          </Card>
-          <Pagination className="product-toolbar">
-            <span>
-              {initial.total} clientes · página {initial.page}
-            </span>
-            <div className="product-actions">
-              <Button
-                variant="outline"
-                size="sm"
-                className=""
-                disabled={initial.page <= 1}
-                onClick={() => navigate(initial.page - 1)}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className=""
-                disabled={initial.page * initial.pageSize >= initial.total}
-                onClick={() => navigate(initial.page + 1)}
-              >
-                Próxima
-              </Button>
-            </div>
-          </Pagination>
-        </>
-      )}
+                ))}
+              </TableBody>
+            </Table>
+            {!initial.items.length && (
+              <p className="empty-state">Nenhum cliente encontrado.</p>
+            )}
+          </div>
+        </Card>
+        <Pagination className="product-toolbar">
+          <span>
+            {initial.total} clientes · página {initial.page}
+          </span>
+          <div className="product-actions">
+            <Button
+              variant="outline"
+              size="sm"
+              className=""
+              disabled={initial.page <= 1}
+              onClick={() => navigate(initial.page - 1)}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className=""
+              disabled={initial.page * initial.pageSize >= initial.total}
+              onClick={() => navigate(initial.page + 1)}
+            >
+              Próxima
+            </Button>
+          </div>
+        </Pagination>
+      </>
     </>
   );
 }

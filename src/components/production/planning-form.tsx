@@ -22,6 +22,16 @@ export function PlanningForm({
   return (
     <ActionForm
       title="Alterar planejamento"
+      submit="Salvar planejamento"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Planejamento da ordem</h3>
+          <p>
+            {order.lines.length} itens. O histórico de execução e as metas serão
+            preservados.
+          </p>
+        </section>
+      }
       revision={order.version}
       onDone={onDone}
       onCancel={onCancel}

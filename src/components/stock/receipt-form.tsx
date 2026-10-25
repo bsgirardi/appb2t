@@ -49,6 +49,16 @@ export function ReceiptForm({
     <ActionForm
       title="Receber compra"
       submit="Confirmar recebimento físico"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Recebimento físico</h3>
+          <p>{rows.length} itens neste recebimento.</p>
+          <p>
+            O material fica disponível ao confirmar. A conferência financeira é
+            feita separadamente pelo administrador.
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(f, operationKey) =>

@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import {
   useRef,
   useState,
@@ -327,7 +328,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={send} className="flex flex-col gap-4">
+        <AdminForm onSubmit={send} className="flex flex-col gap-4">
           {error ? <Notice>{error}</Notice> : null}
           {success ? <Notice kind="success">{success}</Notice> : null}
           {rebase ? (
@@ -651,7 +652,7 @@ function DraftForm({ value, actorId, channels, onDone }: Props) {
               ) : null}
             </div>
           </fieldset>
-        </form>
+        </AdminForm>
       </CardContent>
     </Card>
   );

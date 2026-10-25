@@ -24,6 +24,16 @@ export function SettlementForm({
           : "Registrar pagamento"
       }
       submit="Registrar baixa"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Saldo a liquidar</h3>
+          <strong>{money(entry.remainingAmount)}</strong>
+          <p>
+            A baixa registra o pagamento ou recebimento na conta escolhida. Pode
+            ser parcial.
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(data, operationKey) =>

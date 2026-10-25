@@ -6,23 +6,42 @@ export function Field({
   label,
   hint,
   suffix,
+  error,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   hint?: string;
   suffix?: ReactNode;
+  error?: string;
 }) {
   const generated = useId(),
     id = props.id || generated;
   return (
-    <div className="field">
-      <Label htmlFor={id}>{label}</Label>
+    <div
+      className="field"
+      data-slot="field"
+      data-invalid={error ? true : undefined}
+      data-disabled={props.disabled || undefined}
+    >
+      <div className="field-heading">
+        <Label htmlFor={id}>{label}</Label>
+        {props.required && (
+          <span className="field-required" aria-hidden="true">
+            Obrigatório
+          </span>
+        )}
+      </div>
       <div className="input-wrap">
         <Input
           {...props}
           id={id}
+          aria-invalid={error ? true : props["aria-invalid"]}
           aria-describedby={
-            [props["aria-describedby"], hint ? `${id}-hint` : undefined]
+            [
+              props["aria-describedby"],
+              hint ? `${id}-hint` : undefined,
+              error ? `${id}-error` : undefined,
+            ]
               .filter(Boolean)
               .join(" ") || undefined
           }
@@ -30,6 +49,11 @@ export function Field({
         {suffix && <span className="suffix">{suffix}</span>}
       </div>
       {hint && <small id={`${id}-hint`}>{hint}</small>}
+      {error && (
+        <small id={`${id}-error`} className="field-error" role="alert">
+          {error}
+        </small>
+      )}
     </div>
   );
 }

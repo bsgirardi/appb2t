@@ -1,4 +1,6 @@
 "use client";
+import { ContextEditor } from "@/components/admin/context-editor";
+
 import { Badge } from "@/components/ui/badge";
 
 import { Card } from "@/components/ui/card";
@@ -267,211 +269,231 @@ export function SettingsPanel({ initialData }: { initialData: AdminData }) {
         <TabsContent value={tab}>
           {notice && <Notice kind="success">{notice}</Notice>}
           {error && <Notice>{error}</Notice>}
-          {editing ? (
-            <RecordEditor
-              key={`${tab}-${editing.id ?? "new"}-${resetting}-${reloadKey}`}
-              title={
-                resetting
-                  ? "Redefinir senha"
-                  : `${editing.id || tab === "settings" ? "Editar" : "Adicionar"} · ${title}`
-              }
-              endpoint={endpoint}
-              fields={fields}
-              initial={resetting ? { password: "" } : editing}
-              onSaved={saved}
-              onCancel={() => {
+          <ContextEditor
+            open={!!editing}
+            onOpenChange={(open) => {
+              if (!open) {
                 setEditing(null);
                 setResetting(false);
-              }}
-              onReload={reloadRecord}
-              method={resetting ? "POST" : undefined}
-            />
-          ) : (
-            <Card asChild>
-              <section className="settings-list">
-                <div className="section-heading">
-                  <div>
-                    <h2>{title}</h2>
-                    <p className="section-description">
-                      {tab === "materials"
-                        ? "Preços de compra para filamentos e resinas."
-                        : tab === "printers"
-                          ? "Potência e amortização dos seus equipamentos."
-                          : tab === "users"
-                            ? "Acessos individuais. Um workspace compartilhado."
-                            : "Parâmetros utilizados em todas as simulações."}
-                    </p>
-                  </div>
-                  <div className="list-actions">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className=""
-                      aria-label="Atualizar lista"
-                      onClick={refresh}
-                      disabled={busy}
-                    >
-                      <RefreshCw size={17} />
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className=""
-                      onClick={() => {
-                        setEditing(
-                          tab === "settings" && data.settings
-                            ? { ...data.settings }
-                            : defaults[tab],
-                        );
-                        setNotice("");
-                      }}
-                    >
-                      <Plus size={16} />
-                      {tab === "settings" ? "Configurar custos" : "Adicionar"}
-                    </Button>
-                  </div>
+              }
+            }}
+            title={
+              resetting
+                ? "Redefinir senha"
+                : `${editing?.id || tab === "settings" ? "Editar" : "Adicionar"} · ${title}`
+            }
+          >
+            {editing && (
+              <RecordEditor
+                key={`${tab}-${editing.id ?? "new"}-${resetting}-${reloadKey}`}
+                title={
+                  resetting
+                    ? "Redefinir senha"
+                    : `${editing.id || tab === "settings" ? "Editar" : "Adicionar"} · ${title}`
+                }
+                endpoint={endpoint}
+                fields={fields}
+                initial={resetting ? { password: "" } : editing}
+                onSaved={saved}
+                onCancel={() => {
+                  setEditing(null);
+                  setResetting(false);
+                }}
+                onReload={reloadRecord}
+                method={resetting ? "POST" : undefined}
+              />
+            )}
+          </ContextEditor>
+          <Card asChild>
+            <section className="settings-list">
+              <div className="section-heading">
+                <div>
+                  <h2>{title}</h2>
+                  <p className="section-description">
+                    {tab === "materials"
+                      ? "Preços de compra para filamentos e resinas."
+                      : tab === "printers"
+                        ? "Potência e amortização dos seus equipamentos."
+                        : tab === "users"
+                          ? "Acessos individuais. Um workspace compartilhado."
+                          : "Parâmetros utilizados em todas as simulações."}
+                  </p>
                 </div>
-                {tab === "settings" ? (
-                  data.settings ? (
-                    <div className="settings-values">
-                      {costFields.map((f) => (
-                        <div key={f.key}>
-                          <span>{f.label}</span>
-                          <strong>
-                            {f.suffix === "%"
-                              ? `${data.settings![f.key as keyof SettingsDTO]}%`
-                              : formatBRL(
-                                  String(
-                                    data.settings![f.key as keyof SettingsDTO],
-                                  ),
-                                )}
-                            {f.key === "energyRate" ? " / kWh" : ""}
-                          </strong>
-                          {f.hint && <small>{f.hint}</small>}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="empty-state">
-                      <SlidersHorizontal size={32} />
-                      <h3>Defina os custos da sua operação</h3>
-                      <p>
-                        Informe sua tarifa de energia e os percentuais de
-                        produção para começar.
-                      </p>
-                    </div>
-                  )
-                ) : rows.length === 0 ? (
-                  <div className="empty-state">
-                    <Plus size={32} />
-                    <h3>
-                      {tab === "materials"
-                        ? "Seu primeiro material começa aqui"
+                <div className="list-actions">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className=""
+                    aria-label="Atualizar lista"
+                    onClick={refresh}
+                    disabled={busy}
+                  >
+                    <RefreshCw size={17} />
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className=""
+                    onClick={() => {
+                      setEditing(
+                        tab === "settings" && data.settings
+                          ? { ...data.settings }
+                          : defaults[tab],
+                      );
+                      setNotice("");
+                    }}
+                  >
+                    <Plus size={16} />
+                    {tab === "settings"
+                      ? "Configurar custos"
+                      : tab === "materials"
+                        ? "Adicionar material"
                         : tab === "printers"
-                          ? "Adicione sua primeira impressora"
-                          : "Convide sua equipe"}
-                    </h3>
-                    <p>Use o botão Adicionar para criar um cadastro.</p>
+                          ? "Adicionar impressora"
+                          : "Adicionar pessoa"}
+                  </Button>
+                </div>
+              </div>
+              {tab === "settings" ? (
+                data.settings ? (
+                  <div className="settings-values">
+                    {costFields.map((f) => (
+                      <div key={f.key}>
+                        <span>{f.label}</span>
+                        <strong>
+                          {f.suffix === "%"
+                            ? `${data.settings![f.key as keyof SettingsDTO]}%`
+                            : formatBRL(
+                                String(
+                                  data.settings![f.key as keyof SettingsDTO],
+                                ),
+                              )}
+                          {f.key === "energyRate" ? " / kWh" : ""}
+                        </strong>
+                        {f.hint && <small>{f.hint}</small>}
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <div className="table-scroll">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Nome</TableHead>
-                          <TableHead>
-                            {tab === "users"
-                              ? "Perfil / E-mail"
-                              : tab === "materials"
-                                ? "Tecnologia / Preço"
-                                : "Tecnologia / Potência"}
-                          </TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>
-                            <span className="sr-only">Ações</span>
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {rows.map((row) => (
-                          <TableRow key={row.id}>
-                            <TableCell>
-                              <strong>{row.name}</strong>
-                            </TableCell>
-                            <TableCell>
-                              {"email" in row ? (
-                                <>
-                                  <span>
-                                    {row.role === "ADMIN"
-                                      ? "Administrador"
-                                      : "Operador"}
-                                  </span>
-                                  <small>{row.email}</small>
-                                </>
-                              ) : "price" in row ? (
-                                <>
-                                  <span>
-                                    {row.technology === "FDM"
-                                      ? "Filamento"
-                                      : "Resina"}
-                                  </span>
-                                  <small>
-                                    {formatBRL(row.price)} /{" "}
-                                    {row.technology === "FDM" ? "kg" : "litro"}
-                                  </small>
-                                </>
-                              ) : (
-                                <>
-                                  <span>
-                                    {row.technology === "FDM"
-                                      ? "FDM"
-                                      : "SLA / DLP"}
-                                  </span>
-                                  <small>{row.watts} W</small>
-                                </>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="secondary">
-                                {row.active ? "Ativo" : "Inativo"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="row-actions">
+                  <div className="empty-state">
+                    <SlidersHorizontal size={32} />
+                    <h3>Defina os custos da sua operação</h3>
+                    <p>
+                      Informe sua tarifa de energia e os percentuais de produção
+                      para começar.
+                    </p>
+                  </div>
+                )
+              ) : rows.length === 0 ? (
+                <div className="empty-state">
+                  <Plus size={32} />
+                  <h3>
+                    {tab === "materials"
+                      ? "Seu primeiro material começa aqui"
+                      : tab === "printers"
+                        ? "Adicione sua primeira impressora"
+                        : "Convide sua equipe"}
+                  </h3>
+                  <p>Use o botão Adicionar para criar um cadastro.</p>
+                </div>
+              ) : (
+                <div className="table-scroll">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>
+                          {tab === "users"
+                            ? "Perfil / E-mail"
+                            : tab === "materials"
+                              ? "Tecnologia / Preço"
+                              : "Tecnologia / Potência"}
+                        </TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>
+                          <span className="sr-only">Ações</span>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>
+                            <strong>{row.name}</strong>
+                          </TableCell>
+                          <TableCell>
+                            {"email" in row ? (
+                              <>
+                                <span>
+                                  {row.role === "ADMIN"
+                                    ? "Administrador"
+                                    : "Operador"}
+                                </span>
+                                <small>{row.email}</small>
+                              </>
+                            ) : "price" in row ? (
+                              <>
+                                <span>
+                                  {row.technology === "FDM"
+                                    ? "Filamento"
+                                    : "Resina"}
+                                </span>
+                                <small>
+                                  {formatBRL(row.price)} /{" "}
+                                  {row.technology === "FDM" ? "kg" : "litro"}
+                                </small>
+                              </>
+                            ) : (
+                              <>
+                                <span>
+                                  {row.technology === "FDM"
+                                    ? "FDM"
+                                    : "SLA / DLP"}
+                                </span>
+                                <small>{row.watts} W</small>
+                              </>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">
+                              {row.active ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="row-actions">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className=""
+                                aria-label={`Editar ${row.name}`}
+                                onClick={() => setEditing({ ...row })}
+                              >
+                                <Pencil data-icon="inline-start" /> Editar
+                              </Button>
+                              {tab === "users" && (
                                 <Button
                                   variant="ghost"
                                   size="icon-sm"
                                   className=""
-                                  aria-label={`Editar ${row.name}`}
-                                  onClick={() => setEditing({ ...row })}
+                                  aria-label={`Redefinir senha de ${row.name}`}
+                                  onClick={() => {
+                                    setEditing({ ...row });
+                                    setResetting(true);
+                                  }}
                                 >
-                                  <Pencil size={16} />
+                                  <KeyRound size={16} />
                                 </Button>
-                                {tab === "users" && (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className=""
-                                    aria-label={`Redefinir senha de ${row.name}`}
-                                    onClick={() => {
-                                      setEditing({ ...row });
-                                      setResetting(true);
-                                    }}
-                                  >
-                                    <KeyRound size={16} />
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </section>
-            </Card>
-          )}
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </section>
+          </Card>
         </TabsContent>
       </Tabs>
       <div className="settings-footnote">

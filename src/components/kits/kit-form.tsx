@@ -1,4 +1,8 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+import { FormActions } from "@/components/admin/form-actions";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import { CheckoutOfferFields } from "@/components/checkout/checkout-offer-fields";
 import { readCheckoutPolicy } from "@/domain/checkout/policy";
 
@@ -98,16 +102,12 @@ export function KitForm({
     }
   }
   return (
-    <form
+    <AdminForm
       ref={form}
       onSubmit={save}
       noValidate
       className="flex min-w-0 flex-col gap-4"
     >
-      <CheckoutOfferFields
-        value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
-        onChange={(checkoutPolicy) => setDraft({ ...draft, checkoutPolicy })}
-      />
       <h2>{kit ? "Editar kit" : "Novo kit"}</h2>
       {error && <Notice>{error}</Notice>}
       {conflict && (
@@ -117,6 +117,7 @@ export function KitForm({
         </p>
       )}
       <Field
+        required
         name="name"
         label="Nome do kit"
         maxLength={160}
@@ -196,12 +197,34 @@ export function KitForm({
           </label>
         ))}
       </fieldset>
-      <KitTierEditor
-        value={draft.tiers}
-        disabled={busy}
-        onChange={(tiers) => setDraft({ ...draft, tiers })}
-      />
-      <div className="flex flex-wrap gap-3">
+      <FormSection
+        id="kit-offer"
+        title="Compra direta"
+        collapsible
+        defaultOpen={false}
+        hasErrors={!!error}
+        summary="Política de compra do kit"
+      >
+        <CheckoutOfferFields
+          value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
+          onChange={(checkoutPolicy) => setDraft({ ...draft, checkoutPolicy })}
+        />
+      </FormSection>
+      <FormSection
+        id="kit-tiers"
+        title="Descontos por quantidade"
+        collapsible
+        defaultOpen={false}
+        hasErrors={!!error}
+        summary={`${draft.tiers.length} faixas cadastradas`}
+      >
+        <KitTierEditor
+          value={draft.tiers}
+          disabled={busy}
+          onChange={(tiers) => setDraft({ ...draft, tiers })}
+        />
+      </FormSection>
+      <FormActions>
         <Button type="submit" className="min-h-11" disabled={busy || conflict}>
           {busy ? "Salvando…" : "Salvar kit"}
         </Button>
@@ -214,7 +237,7 @@ export function KitForm({
         >
           Cancelar
         </Button>
-      </div>
-    </form>
+      </FormActions>
+    </AdminForm>
   );
 }

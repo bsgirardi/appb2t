@@ -1,6 +1,6 @@
 # appb2t — estado e pendências
 
-Atualizado em 23/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
+Atualizado em 25/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
 ## Desenvolvimento concluído
 
@@ -9,6 +9,7 @@ Atualizado em 23/10/2026. Este arquivo descreve o estado atual; desenhos e valid
 - C5: compra direta explícita, conferência de frete/consulta, aceite privado de orçamento, venda/parcelas idempotentes e cancelamento entregues. PR #5 integrado e C5 publicado em http://localhost:3000; 95 projeções legadas e volume preservados. [Registro](docs/superpowers/2026-10-23-publicacao-c5.md).
 - Primeiro administrador criado pelo procedimento oficial, com ADMIN ativo; nenhuma senha registrada na documentação.
 - Seletor Automático → Claro → Escuro publicado na loja, login, administrativo e acompanhamento privado pelo PR #6. Preferência individual salva no navegador; paletas da empresa preservadas. Validação final com 719 testes em 231 arquivos, tipagem, lint, build e login administrativo na instalação publicada. [Verificação e publicação](docs/superpowers/2026-10-23-tema-e-encerramento.md).
+- Revisão da experiência administrativa implementada e aplicada no Docker local: campos obrigatórios e condicionais destacados, dados principais agrupados, seções adicionais expansíveis, resumos contextuais, ações de formulário acessíveis durante a rolagem e edições de clientes/configurações em painel lateral. Regras, permissões e dados preservados. [Relatório](docs/superpowers/reviews/2026-10-25-administrativo-ux.md).
 
 Não há funcionalidade obrigatória pendente do escopo aprovado até C5. A configuração comercial será feita manualmente pelo usuário; não representa módulo por desenvolver.
 
@@ -25,6 +26,8 @@ Não há funcionalidade obrigatória pendente do escopo aprovado até C5. A conf
 Frete automático depende de escolher e contratar provedor real. Gateway, integrações bancárias/fiscais, marketplaces e outras expansões exigem escopo próprio. Pagamento e frete pela equipe continuam manuais. Não existe C6 aprovado.
 
 ## Evidências e limites
+
+A revisão administrativa passou por build local e Docker, tipagem, lint, revisão independente e verificações visuais com fixtures. Seus 446 testes unitários passaram em grupos separados de interface e domínio. A execução conjunta do Vitest apresenta recursão no transporte de erros neste runtime; na preparação da PR, a repetição do grupo completo de interface também encontrou esse erro, enquanto domínio, tipagem e lint passaram novamente. Integrações de banco dessa revisão não foram executadas, pois exigem o banco exclusivo de testes. Os resultados históricos anteriores continuam válidos para suas respectivas entregas; não representam uma nova execução completa após esta revisão.
 
 [Validação C5](docs/superpowers/2026-10-23-catalogo-c5-validacao.md) e [encerramento](docs/superpowers/2026-10-23-tema-e-encerramento.md) distinguem testes, inspeção visual e limites da automação. Relatos antigos de C5 apenas em desenho, administrador inexistente e inspeção restrita ao tema do sistema foram superados. A limitação da automação do campo nativo de data não representa defeito reproduzido no preenchimento humano.
 

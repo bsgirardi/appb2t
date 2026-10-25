@@ -15,10 +15,13 @@ const rows: [keyof CalculationResult, string, string][] = [
 export function CostBreakdown({
   result,
   markup,
+  compact = false,
 }: {
   result: CalculationResult | null;
   markup: string;
+  compact?: boolean;
 }) {
+  const Breakdown = compact ? "details" : "div";
   return (
     <section className="result-column" aria-label="Resultado financeiro">
       <div className="price-card">
@@ -51,11 +54,14 @@ export function CostBreakdown({
         </div>
       </div>
       <Card asChild>
-        <div className="breakdown">
-          <div className="section-heading">
-            <h2>Composição do custo</h2>
-            <span className="tag">DETALHADO</span>
-          </div>
+        <Breakdown className="breakdown">
+          {compact && <summary>Composição do custo</summary>}
+          {!compact && (
+            <div className="section-heading">
+              <h2>Composição do custo</h2>
+              <span className="tag">DETALHADO</span>
+            </div>
+          )}
           <div className="cost-bar" aria-hidden="true">
             {rows.map(([key, , color]) => (
               <span
@@ -92,7 +98,7 @@ export function CostBreakdown({
               parcelas pode variar em um centavo.
             </p>
           </div>
-        </div>
+        </Breakdown>
       </Card>
     </section>
   );

@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import { useState } from "react";
 import Link from "next/link";
 import { Select, money } from "@/components/finance/shared";
@@ -62,42 +64,50 @@ export function OrderDetail({
           {l.failedUnits}, canceladas {l.canceledUnits}
         </p>
       ))}
-      <div className="flex flex-wrap gap-2">
-        {order.status === "RASCUNHO" && (
-          <Button variant="outline" onClick={() => setMode("edit")}>
-            Editar rascunho
-          </Button>
-        )}
-        {active && (
-          <Button variant="outline" onClick={() => setMode("planning")}>
-            Alterar planejamento
-          </Button>
-        )}
-        {active && (
-          <>
-            <Button onClick={() => setMode("report")}>
-              Registrar execução
-            </Button>
-            <Button variant="outline" onClick={() => setMode("reserve")}>
-              Reservar material
-            </Button>
-            <Button variant="outline" onClick={() => setMode("complete")}>
-              Concluir ordem
-            </Button>
-          </>
-        )}
-        {admin && order.events.length > 0 && (
-          <Button variant="outline" onClick={() => setMode("correction")}>
-            Corrigir apontamento
-          </Button>
-        )}
-        {!["CANCELADA", "CONCLUIDA"].includes(order.status) &&
-          (admin || !order.events.some((e) => e.kind === "REPORT")) && (
-            <Button variant="outline" onClick={() => setMode("cancel")}>
-              Cancelar restante
+      {active && (
+        <Button onClick={() => setMode("report")}>Registrar execução</Button>
+      )}
+      <FormSection
+        id="order-actions"
+        title="Planejamento e outras ações"
+        collapsible
+        defaultOpen={false}
+        summary="Reservas, conclusão e correções"
+      >
+        <div className="flex flex-wrap gap-2">
+          {order.status === "RASCUNHO" && (
+            <Button variant="outline" onClick={() => setMode("edit")}>
+              Editar rascunho
             </Button>
           )}
-      </div>
+          {active && (
+            <Button variant="outline" onClick={() => setMode("planning")}>
+              Alterar planejamento
+            </Button>
+          )}
+          {active && (
+            <>
+              <Button variant="outline" onClick={() => setMode("reserve")}>
+                Reservar material
+              </Button>
+              <Button variant="outline" onClick={() => setMode("complete")}>
+                Concluir ordem
+              </Button>
+            </>
+          )}
+          {admin && order.events.length > 0 && (
+            <Button variant="outline" onClick={() => setMode("correction")}>
+              Corrigir apontamento
+            </Button>
+          )}
+          {!["CANCELADA", "CONCLUIDA"].includes(order.status) &&
+            (admin || !order.events.some((e) => e.kind === "REPORT")) && (
+              <Button variant="outline" onClick={() => setMode("cancel")}>
+                Cancelar restante
+              </Button>
+            )}
+        </div>
+      </FormSection>
       {mode === "edit" && (
         <OrderForm
           order={order}

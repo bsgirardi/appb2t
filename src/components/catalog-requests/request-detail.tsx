@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import Link from "next/link";
 import { TeamArtPanel } from "@/components/art/team-panel";
 import { CheckoutTeamPanel } from "@/components/checkout/checkout-team-panel";
@@ -346,8 +348,13 @@ export function RequestDetail({
             />
           )}
       </section>
-      <section>
-        <h2>Histórico do atendimento</h2>
+      <FormSection
+        id="request-history"
+        title="Histórico do atendimento"
+        collapsible
+        defaultOpen={false}
+        summary={`${request.events.length} registros`}
+      >
         <ol>
           {request.events.map((event) => (
             <li key={event.id}>
@@ -360,7 +367,7 @@ export function RequestDetail({
             </li>
           ))}
         </ol>
-      </section>
+      </FormSection>
     </div>
   );
 }

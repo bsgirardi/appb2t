@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import { useState, useRef, useId } from "react";
 import type {
   PricingCatalogDTO,
@@ -217,6 +219,7 @@ export function BatchPricingForm({
           </Label>
           <Field
             {...fieldProps("quantity")}
+            required
             label="Quantidade do lote"
             readOnly={fixedQuantity !== undefined}
             type="number"
@@ -376,8 +379,14 @@ export function BatchPricingForm({
             placa.
           </p>
         </section>
-        <section className="space-y-3">
-          <h3>Complementos e embalagem</h3>
+        <FormSection
+          id="batch-extras"
+          title="Complementos e embalagem"
+          collapsible
+          defaultOpen={false}
+          hasErrors={draft.extras.length > 0}
+          summary={`${draft.extras.length} complementos no cálculo`}
+        >
           {draft.extras.map((x, i) => (
             <div className="rounded-lg border p-3 space-y-2" key={i}>
               <Label className="grid gap-2">
@@ -472,7 +481,7 @@ export function BatchPricingForm({
           >
             Adicionar complemento
           </Button>
-        </section>
+        </FormSection>
         <div className="form-grid">
           <Label className="grid gap-2">
             Canal de venda

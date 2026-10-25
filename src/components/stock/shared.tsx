@@ -1,5 +1,6 @@
 "use client";
 import { Field } from "@/components/ui/field";
+import { useState } from "react";
 import { Select } from "@/components/finance/shared";
 import type { StockItemDTO } from "@/server/stock/queries";
 import { toBaseQuantity, StockDecimal as D } from "@/domain/stock/quantities";
@@ -60,19 +61,23 @@ export function StockSummary({ item }: { item: StockItemDTO }) {
     </div>
   );
 }
-export function DateReason() {
+export function DateReason({ required = false }: { required?: boolean }) {
+  const today = todaySaoPaulo(new Date());
+  const [date, setDate] = useState(today);
   return (
     <>
       <Field
         label="Data efetiva"
         name="effectiveDate"
         type="date"
-        defaultValue={todaySaoPaulo(new Date())}
+        value={date}
+        onChange={(event) => setDate(event.target.value)}
         required
       />
       <Field
         label="Justificativa"
         name="reason"
+        required={required || (!!date && date < today)}
         minLength={3}
         maxLength={2000}
         hint="Obrigatória para saldo negativo, ajustes e datas anteriores."

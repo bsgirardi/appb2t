@@ -1,4 +1,8 @@
 "use client";
+import { TaskLayout } from "@/components/admin/task-layout";
+import { FormSection } from "@/components/admin/form-section";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import { ProductConfigurationEditor } from "./product-configuration-editor";
 import { CheckoutOfferFields } from "@/components/checkout/checkout-offer-fields";
 import { readCheckoutPolicy } from "@/domain/checkout/policy";
@@ -144,6 +148,7 @@ export function ProductForm({
     () => product?.images.map((i) => ({ id: i.id, url: i.url })) ?? [],
   );
   const pending = useRef(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false),
     [refreshing, setRefreshing] = useState(false),
     [error, setError] = useState(""),
@@ -229,6 +234,14 @@ export function ProductForm({
       ),
     });
     if (!parsed.success) {
+      setFieldErrors(
+        Object.fromEntries(
+          parsed.error.issues.map((issue) => [
+            String(issue.path[0]),
+            issue.message,
+          ]),
+        ),
+      );
       const commercialLabels: Record<string, string> = {
         sku: "Código do produto",
         configuration:
@@ -276,7 +289,12 @@ export function ProductForm({
     }
   }
   return (
-    <form className="product-form" onSubmit={save} noValidate>
+    <AdminForm
+      className="product-form"
+      onSubmit={save}
+      onChangeCapture={() => setFieldErrors({})}
+      noValidate
+    >
       <div className="product-toolbar">
         <Button
           variant="outline"
@@ -307,53 +325,111 @@ export function ProductForm({
         </Notice>
       )}
       <fieldset disabled={saving || refreshing}>
-        <div className="product-edit-grid">
+        <TaskLayout
+          summary={
+            pricingSnapshot ? (
+              <PricingResult
+                input={pricingSnapshot.input}
+                result={pricingSnapshot.result}
+              />
+            ) : (
+              <CostBreakdown
+                compact
+                result={result}
+                markup={draft.calculation.settings.markupPercent || "0"}
+              />
+            )
+          }
+        >
           <div className="product-form">
             <Card asChild>
               <section className="">
-                <h2>Apresentação do produto</h2>
-                <Field
-                  label="Nome do produto"
-                  value={draft.name}
-                  maxLength={120}
-                  required
-                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                />
-                <div className="field">
-                  <Label htmlFor="product-description">Descrição</Label>
-                  <Textarea
-                    id="product-description"
-                    value={draft.description}
-                    maxLength={5000}
+                <h2>Dados principais</h2>
+                <p className="admin-form-note">
+                  Identifique a peça e defina o que será apresentado ao cliente.
+                </p>
+                <div className="admin-essential-grid">
+                  <Field
+                    name="name"
+                    error={fieldErrors.name}
+                    label="Nome do produto"
+                    value={draft.name}
+                    maxLength={120}
                     required
                     onChange={(e) =>
-                      setDraft({ ...draft, description: e.target.value })
+                      setDraft({ ...draft, name: e.target.value })
                     }
                   />
-                </div>
-                <div className="field">
-                  <Label htmlFor="product-payment">Formas de pagamento</Label>
-                  <Textarea
-                    id="product-payment"
-                    value={draft.paymentTerms}
-                    maxLength={1000}
-                    placeholder="Ex.: Pix ou cartão em até 3 vezes sem juros"
+                  <div className="field">
+                    <Label htmlFor="product-description">Descrição</Label>
+                    <Textarea
+                      name="description"
+                      aria-invalid={!!fieldErrors.description}
+                      aria-describedby={
+                        fieldErrors.description
+                          ? "product-description-error"
+                          : undefined
+                      }
+                      id="product-description"
+                      value={draft.description}
+                      maxLength={5000}
+                      required
+                      onChange={(e) =>
+                        setDraft({ ...draft, description: e.target.value })
+                      }
+                    />
+                    {fieldErrors.description && (
+                      <small
+                        id="product-description-error"
+                        className="field-error"
+                        role="alert"
+                      >
+                        {fieldErrors.description}
+                      </small>
+                    )}
+                  </div>
+                  <div className="field">
+                    <Label htmlFor="product-payment">Formas de pagamento</Label>
+                    <Textarea
+                      name="paymentTerms"
+                      aria-invalid={!!fieldErrors.paymentTerms}
+                      aria-describedby={
+                        fieldErrors.paymentTerms
+                          ? "product-payment-error"
+                          : undefined
+                      }
+                      id="product-payment"
+                      value={draft.paymentTerms}
+                      maxLength={1000}
+                      placeholder="Ex.: Pix ou cartão em até 3 vezes sem juros"
+                      required
+                      onChange={(e) =>
+                        setDraft({ ...draft, paymentTerms: e.target.value })
+                      }
+                    />
+                    {fieldErrors.paymentTerms && (
+                      <small
+                        id="product-payment-error"
+                        className="field-error"
+                        role="alert"
+                      >
+                        {fieldErrors.paymentTerms}
+                      </small>
+                    )}
+                  </div>
+                  <Field
+                    name="price"
+                    error={fieldErrors.price}
+                    label="Preço final de venda"
+                    value={draft.price}
+                    inputMode="decimal"
                     required
                     onChange={(e) =>
-                      setDraft({ ...draft, paymentTerms: e.target.value })
+                      setDraft({ ...draft, price: e.target.value })
                     }
+                    hint="Valor publicado no catálogo. Independente da sugestão de custos."
                   />
                 </div>
-                <Field
-                  label="Preço final de venda"
-                  value={draft.price}
-                  inputMode="decimal"
-                  required
-                  onChange={(e) =>
-                    setDraft({ ...draft, price: e.target.value })
-                  }
-                  hint="Valor publicado no catálogo. Independente da sugestão de custos."
-                />
                 <Button
                   variant="outline"
                   size="sm"
@@ -385,37 +461,48 @@ export function ProductForm({
                     {formatBRL(result.total)}. Confira sua decisão comercial.
                   </Notice>
                 )}
-                <ProductGalleryEditor
-                  value={gallery}
-                  onChange={setGallery}
-                  onError={setError}
-                />
-                <h2>Coleções</h2>
-                <div className="selection-list">
-                  {collections.map((c) => (
-                    <Label className="product-checkbox" key={c.id}>
-                      <Checkbox
-                        checked={draft.collectionIds.includes(c.id)}
-                        onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            collectionIds: e.target.checked
-                              ? [...draft.collectionIds, c.id]
-                              : draft.collectionIds.filter((id) => id !== c.id),
-                          })
-                        }
-                      />
-                      {c.name}
-                      {c.active ? "" : " (inativa)"}
-                    </Label>
-                  ))}
-                </div>
-                {!collections.length && (
-                  <p className="muted">
-                    Crie suas coleções em <Link href="/colecoes">Coleções</Link>
-                    .
-                  </p>
-                )}
+                <FormSection
+                  id="product-gallery"
+                  title="Fotos e coleções"
+                  collapsible
+                  defaultOpen={false}
+                  hasErrors={gallery.length === 0 || !!fieldErrors.images}
+                  summary={`${gallery.length} fotos · ${draft.collectionIds.length} coleções`}
+                >
+                  <ProductGalleryEditor
+                    value={gallery}
+                    onChange={setGallery}
+                    onError={setError}
+                  />
+                  <h2>Coleções</h2>
+                  <div className="selection-list">
+                    {collections.map((c) => (
+                      <Label className="product-checkbox" key={c.id}>
+                        <Checkbox
+                          checked={draft.collectionIds.includes(c.id)}
+                          onChange={(e) =>
+                            setDraft({
+                              ...draft,
+                              collectionIds: e.target.checked
+                                ? [...draft.collectionIds, c.id]
+                                : draft.collectionIds.filter(
+                                    (id) => id !== c.id,
+                                  ),
+                            })
+                          }
+                        />
+                        {c.name}
+                        {c.active ? "" : " (inativa)"}
+                      </Label>
+                    ))}
+                  </div>
+                  {!collections.length && (
+                    <p className="muted">
+                      Crie suas coleções em{" "}
+                      <Link href="/colecoes">Coleções</Link>.
+                    </p>
+                  )}
+                </FormSection>
                 <Label className="product-checkbox">
                   <Checkbox
                     checked={draft.active}
@@ -446,102 +533,149 @@ export function ProductForm({
                 Sob consulta preserva o preço interno e o oculta na vitrine.
               </p>
             </div>
-            <CheckoutOfferFields
-              value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
-              onChange={(checkoutPolicy) =>
-                setDraft({ ...draft, checkoutPolicy })
-              }
-            />
-            <ProductConfigurationEditor
-              value={draft.configuration ?? emptyProductConfiguration}
-              images={(product?.images ?? []).filter((image) =>
-                gallery.some((g) => g.id === image.id),
-              )}
-              onChange={(configuration) =>
-                setDraft({ ...draft, configuration })
-              }
-            />
-            <QuantityTierEditor
-              value={draft.quantityTiers ?? []}
-              onChange={(quantityTiers) =>
-                setDraft({ ...draft, quantityTiers })
-              }
-            />
-            <div className="field">
-              <Label htmlFor="composition-image">
-                Foto para montagem de kits
-              </Label>
-              <NativeSelect
-                id="composition-image"
-                className="min-h-11"
-                value={draft.compositionImageId ?? ""}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    compositionImageId: e.target.value || null,
-                  })
+            <FormSection
+              id="product-offer"
+              title="Compra e faixas de preço"
+              collapsible
+              defaultOpen={false}
+              hasErrors={!!error}
+              summary="Compra direta e descontos por quantidade"
+            >
+              <CheckoutOfferFields
+                value={draft.checkoutPolicy ?? readCheckoutPolicy(null)}
+                onChange={(checkoutPolicy) =>
+                  setDraft({ ...draft, checkoutPolicy })
                 }
-              >
-                <option value="">Usar capa do produto</option>
-                {(product?.images ?? [])
-                  .filter((image) =>
-                    gallery.some((g) => "id" in g && g.id === image.id),
-                  )
-                  .map((image) => (
-                    <option key={image.id} value={image.id}>
-                      Foto {image.position + 1}
-                    </option>
-                  ))}
-              </NativeSelect>
-              <small className="muted">
-                Use uma foto existente. Se já houver uma imagem com fundo
-                transparente, ela pode facilitar a composição.
-              </small>
-            </div>
-            <ProductCommercialEditor
-              value={draft}
-              onChange={(commercial) => setDraft({ ...draft, ...commercial })}
-            />
-            <Card asChild>
-              <section className="product-seo-editor">
-                <h2>Busca e compartilhamento</h2>
-                <p className="muted">
-                  Personalize a apresentação nos buscadores. Campos vazios usam
-                  o nome e a descrição do produto.
-                </p>
-                <Field
-                  label="Título para buscadores"
-                  value={draft.seoTitle || ""}
-                  maxLength={70}
+              />
+            </FormSection>
+            <FormSection
+              id="product-personalization"
+              title="Personalização do produto"
+              collapsible
+              defaultOpen={false}
+              hasErrors={!!error}
+              summary="Opções disponíveis para o cliente"
+            >
+              <ProductConfigurationEditor
+                value={draft.configuration ?? emptyProductConfiguration}
+                images={(product?.images ?? []).filter((image) =>
+                  gallery.some((g) => g.id === image.id),
+                )}
+                onChange={(configuration) =>
+                  setDraft({ ...draft, configuration })
+                }
+              />
+            </FormSection>
+            <FormSection
+              id="product-tiers"
+              title="Preços por quantidade"
+              collapsible
+              defaultOpen={false}
+              hasErrors={!!error}
+              summary="Opcional"
+            >
+              <QuantityTierEditor
+                value={draft.quantityTiers ?? []}
+                onChange={(quantityTiers) =>
+                  setDraft({ ...draft, quantityTiers })
+                }
+              />
+            </FormSection>
+            <FormSection
+              id="product-kit-image"
+              title="Imagem para kits"
+              collapsible
+              defaultOpen={false}
+              summary="Opcional · usa a capa do produto"
+            >
+              <div className="field">
+                <Label htmlFor="composition-image">
+                  Foto para montagem de kits
+                </Label>
+                <NativeSelect
+                  id="composition-image"
+                  className="min-h-11"
+                  value={draft.compositionImageId ?? ""}
                   onChange={(e) =>
-                    setDraft({ ...draft, seoTitle: e.target.value })
+                    setDraft({
+                      ...draft,
+                      compositionImageId: e.target.value || null,
+                    })
                   }
-                  hint={`${(draft.seoTitle || "").length}/70 caracteres`}
+                >
+                  <option value="">Usar capa do produto</option>
+                  {(product?.images ?? [])
+                    .filter((image) =>
+                      gallery.some((g) => "id" in g && g.id === image.id),
+                    )
+                    .map((image) => (
+                      <option key={image.id} value={image.id}>
+                        Foto {image.position + 1}
+                      </option>
+                    ))}
+                </NativeSelect>
+                <small className="muted">
+                  Use uma foto existente. Se já houver uma imagem com fundo
+                  transparente, ela pode facilitar a composição.
+                </small>
+              </div>
+            </FormSection>
+            <FormSection
+              id="product-commercial"
+              title="Detalhes para venda"
+              collapsible
+              defaultOpen={false}
+              hasErrors={!!error}
+              summary={availabilityLabels[draft.availability ?? "CONSULT"]}
+            >
+              <ProductCommercialEditor
+                value={draft}
+                onChange={(commercial) => setDraft({ ...draft, ...commercial })}
+              />
+            </FormSection>
+            <FormSection
+              id="product-search"
+              title="Busca e compartilhamento"
+              collapsible
+              defaultOpen={false}
+              summary="Opcional · usa os dados do produto"
+            >
+              <p className="muted">
+                Personalize a apresentação nos buscadores. Campos vazios usam o
+                nome e a descrição do produto.
+              </p>
+              <Field
+                label="Título para buscadores"
+                value={draft.seoTitle || ""}
+                maxLength={70}
+                onChange={(e) =>
+                  setDraft({ ...draft, seoTitle: e.target.value })
+                }
+                hint={`${(draft.seoTitle || "").length}/70 caracteres`}
+              />
+              <div className="field">
+                <Label htmlFor="product-seo-description">
+                  Descrição para buscadores
+                </Label>
+                <Textarea
+                  id="product-seo-description"
+                  value={draft.seoDescription || ""}
+                  maxLength={170}
+                  onChange={(e) =>
+                    setDraft({ ...draft, seoDescription: e.target.value })
+                  }
                 />
-                <div className="field">
-                  <Label htmlFor="product-seo-description">
-                    Descrição para buscadores
-                  </Label>
-                  <Textarea
-                    id="product-seo-description"
-                    value={draft.seoDescription || ""}
-                    maxLength={170}
-                    onChange={(e) =>
-                      setDraft({ ...draft, seoDescription: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="search-preview">
-                  <small>Prévia aproximada nos buscadores</small>
-                  <h3>{draft.seoTitle || draft.name || "Nome do produto"}</h3>
-                  <p>
-                    {draft.seoDescription ||
-                      summary(draft.description) ||
-                      "Adicione uma descrição clara do produto."}
-                  </p>
-                </div>
-              </section>
-            </Card>
+              </div>
+              <div className="search-preview">
+                <small>Prévia aproximada nos buscadores</small>
+                <h3>{draft.seoTitle || draft.name || "Nome do produto"}</h3>
+                <p>
+                  {draft.seoDescription ||
+                    summary(draft.description) ||
+                    "Adicione uma descrição clara do produto."}
+                </p>
+              </div>
+            </FormSection>
             <Card asChild>
               <details className="product-publish-preview">
                 <summary>Prévia do produto antes de publicar</summary>
@@ -592,161 +726,165 @@ export function ProductForm({
                 )}
               </details>
             </Card>
-            <ProductPricingEditor
-              snapshot={pricingSnapshot}
-              legacy={draft.calculation}
-              materialId={draft.materialId}
-              printerId={draft.printerId}
-              onApply={(next) => {
-                setPricingSnapshot(next);
-                setInfo(
-                  "Ficha por lote aplicada ao rascunho. O preço final foi preservado.",
-                );
-              }}
-            />
-            {!pricingSnapshot && (
-              <>
-                <Card asChild>
-                  <section className="">
-                    <h2>Referências da calculadora</h2>
-                    <p className="muted">
-                      Escolha os cadastros para preencher os custos. Você pode
-                      ajustar cada valor abaixo.
-                    </p>
-                    <div className="field">
-                      <Label htmlFor="product-technology">Tecnologia</Label>
-                      <NativeSelect
-                        id="product-technology"
-                        value={technology}
-                        onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            materialId: null,
-                            printerId: null,
-                            calculation: {
-                              ...draft.calculation,
-                              technology: e.target.value as Technology,
-                            },
-                          })
-                        }
+            <FormSection
+              id="product-costs"
+              title="Custos e referências de produção"
+              collapsible
+              defaultOpen={!product}
+              hasErrors={!!error || (!result && !pricingSnapshot)}
+              summary={
+                pricingSnapshot
+                  ? "Ficha por lote aplicada"
+                  : "Cálculo de custo e sugestão de preço"
+              }
+            >
+              <ProductPricingEditor
+                snapshot={pricingSnapshot}
+                legacy={draft.calculation}
+                materialId={draft.materialId}
+                printerId={draft.printerId}
+                onApply={(next) => {
+                  setPricingSnapshot(next);
+                  setInfo(
+                    "Ficha por lote aplicada ao rascunho. O preço final foi preservado.",
+                  );
+                }}
+              />
+              {!pricingSnapshot && (
+                <>
+                  <Card asChild>
+                    <section className="">
+                      <h2>Referências da calculadora</h2>
+                      <p className="muted">
+                        Escolha os cadastros para preencher os custos. Você pode
+                        ajustar cada valor abaixo.
+                      </p>
+                      <div className="field">
+                        <Label htmlFor="product-technology">Tecnologia</Label>
+                        <NativeSelect
+                          id="product-technology"
+                          value={technology}
+                          onChange={(e) =>
+                            setDraft({
+                              ...draft,
+                              materialId: null,
+                              printerId: null,
+                              calculation: {
+                                ...draft.calculation,
+                                technology: e.target.value as Technology,
+                              },
+                            })
+                          }
+                        >
+                          <option value="FDM">Filamento · FDM</option>
+                          <option value="RESIN">Resina · SLA / DLP</option>
+                        </NativeSelect>
+                      </div>
+                      <div className="form-grid">
+                        <div className="field">
+                          <Label htmlFor="product-material">
+                            Material de referência
+                          </Label>
+                          <NativeSelect
+                            id="product-material"
+                            value={draft.materialId ?? ""}
+                            onChange={(e) => {
+                              const material = materials.find(
+                                (m) => m.id === e.target.value,
+                              );
+                              setDraft({
+                                ...draft,
+                                materialId: material?.id ?? null,
+                                calculation: {
+                                  ...draft.calculation,
+                                  materialPrice:
+                                    material?.price ??
+                                    draft.calculation.materialPrice,
+                                },
+                              });
+                            }}
+                          >
+                            <option value="">Selecione o material</option>
+                            {draft.materialId &&
+                              !materials.some(
+                                (m) => m.id === draft.materialId,
+                              ) && (
+                                <option value={draft.materialId}>
+                                  Referência indisponível · parâmetros salvos
+                                </option>
+                              )}
+                            {materials.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            ))}
+                          </NativeSelect>
+                        </div>
+                        <div className="field">
+                          <Label htmlFor="product-printer">
+                            Impressora de referência
+                          </Label>
+                          <NativeSelect
+                            id="product-printer"
+                            value={draft.printerId ?? ""}
+                            onChange={(e) => {
+                              const printer = printers.find(
+                                (p) => p.id === e.target.value,
+                              );
+                              setDraft({
+                                ...draft,
+                                printerId: printer?.id ?? null,
+                                calculation: {
+                                  ...draft.calculation,
+                                  printer: printer
+                                    ? { ...printer }
+                                    : draft.calculation.printer,
+                                },
+                              });
+                            }}
+                          >
+                            <option value="">Selecione a impressora</option>
+                            {draft.printerId &&
+                              !printers.some(
+                                (p) => p.id === draft.printerId,
+                              ) && (
+                                <option value={draft.printerId}>
+                                  Referência indisponível · parâmetros salvos
+                                </option>
+                              )}
+                            {printers.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </NativeSelect>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
+                        className=""
+                        onClick={refresh}
                       >
-                        <option value="FDM">Filamento · FDM</option>
-                        <option value="RESIN">Resina · SLA / DLP</option>
-                      </NativeSelect>
-                    </div>
-                    <div className="form-grid">
-                      <div className="field">
-                        <Label htmlFor="product-material">
-                          Material de referência
-                        </Label>
-                        <NativeSelect
-                          id="product-material"
-                          value={draft.materialId ?? ""}
-                          onChange={(e) => {
-                            const material = materials.find(
-                              (m) => m.id === e.target.value,
-                            );
-                            setDraft({
-                              ...draft,
-                              materialId: material?.id ?? null,
-                              calculation: {
-                                ...draft.calculation,
-                                materialPrice:
-                                  material?.price ??
-                                  draft.calculation.materialPrice,
-                              },
-                            });
-                          }}
-                        >
-                          <option value="">Selecione o material</option>
-                          {draft.materialId &&
-                            !materials.some(
-                              (m) => m.id === draft.materialId,
-                            ) && (
-                              <option value={draft.materialId}>
-                                Referência indisponível · parâmetros salvos
-                              </option>
-                            )}
-                          {materials.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.name}
-                            </option>
-                          ))}
-                        </NativeSelect>
-                      </div>
-                      <div className="field">
-                        <Label htmlFor="product-printer">
-                          Impressora de referência
-                        </Label>
-                        <NativeSelect
-                          id="product-printer"
-                          value={draft.printerId ?? ""}
-                          onChange={(e) => {
-                            const printer = printers.find(
-                              (p) => p.id === e.target.value,
-                            );
-                            setDraft({
-                              ...draft,
-                              printerId: printer?.id ?? null,
-                              calculation: {
-                                ...draft.calculation,
-                                printer: printer
-                                  ? { ...printer }
-                                  : draft.calculation.printer,
-                              },
-                            });
-                          }}
-                        >
-                          <option value="">Selecione a impressora</option>
-                          {draft.printerId &&
-                            !printers.some((p) => p.id === draft.printerId) && (
-                              <option value={draft.printerId}>
-                                Referência indisponível · parâmetros salvos
-                              </option>
-                            )}
-                          {printers.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </NativeSelect>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      type="button"
-                      className=""
-                      onClick={refresh}
-                    >
-                      <RefreshCw size={16} />
-                      {refreshing
-                        ? "Carregando…"
-                        : "Carregar configurações atuais"}
-                    </Button>
-                  </section>
-                </Card>
-                <ProductCalculationFields
-                  value={draft.calculation}
-                  onChange={(calculation) =>
-                    setDraft({ ...draft, calculation })
-                  }
-                />
-              </>
-            )}
+                        <RefreshCw size={16} />
+                        {refreshing
+                          ? "Carregando…"
+                          : "Carregar configurações atuais"}
+                      </Button>
+                    </section>
+                  </Card>
+                  <ProductCalculationFields
+                    value={draft.calculation}
+                    onChange={(calculation) =>
+                      setDraft({ ...draft, calculation })
+                    }
+                  />
+                </>
+              )}
+            </FormSection>
           </div>
-          {pricingSnapshot ? (
-            <PricingResult
-              input={pricingSnapshot.input}
-              result={pricingSnapshot.result}
-            />
-          ) : (
-            <CostBreakdown
-              result={result}
-              markup={draft.calculation.settings.markupPercent || "0"}
-            />
-          )}
-        </div>
+        </TaskLayout>
       </fieldset>
       <div className="product-actions">
         <Button
@@ -761,6 +899,6 @@ export function ProductForm({
         </Button>
         <span className="muted">O preço só será publicado ao salvar.</span>
       </div>
-    </form>
+    </AdminForm>
   );
 }

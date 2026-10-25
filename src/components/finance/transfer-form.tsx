@@ -21,6 +21,15 @@ export function TransferForm({
     <ActionForm
       title="Registrar transferência interna"
       submit="Registrar transferência"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Entre contas da empresa</h3>
+          <p>
+            Confirme a conta de origem, a conta de destino e o valor
+            transferido. O registro atualiza os saldos; não envia dinheiro.
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(data, operationKey) =>

@@ -1,4 +1,7 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -76,7 +79,7 @@ export function CustomerForm({
   }
   return (
     <Card asChild>
-      <form onSubmit={save} className="product-form">
+      <AdminForm onSubmit={save} className="product-form">
         {error && <Notice>{error}</Notice>}
         <fieldset disabled={busy}>
           <Field
@@ -125,22 +128,33 @@ export function CustomerForm({
             Documento opcional, informado pela equipe. Sem validação fiscal
             externa.
           </p>
-          <div className="field">
-            <Label htmlFor="customer-notes">Observações internas</Label>
-            <Textarea
-              id="customer-notes"
-              value={draft.notes}
-              maxLength={2000}
-              onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-            />
-          </div>
-          <Label className="product-checkbox">
-            <Checkbox
-              checked={draft.active}
-              onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
-            />
-            Cliente ativo
-          </Label>
+          <FormSection
+            id="customer-extra"
+            title="Observações e situação"
+            collapsible
+            defaultOpen={false}
+            hasErrors={!!error}
+            summary="Opcional"
+          >
+            <div className="field">
+              <Label htmlFor="customer-notes">Observações internas</Label>
+              <Textarea
+                id="customer-notes"
+                value={draft.notes}
+                maxLength={2000}
+                onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
+              />
+            </div>
+            <Label className="product-checkbox">
+              <Checkbox
+                checked={draft.active}
+                onChange={(e) =>
+                  setDraft({ ...draft, active: e.target.checked })
+                }
+              />
+              Cliente ativo
+            </Label>
+          </FormSection>
           <div className="product-actions">
             <Button variant="default" size="sm" type="submit" className="">
               {busy ? "Salvando…" : "Salvar cliente"}
@@ -150,13 +164,14 @@ export function CustomerForm({
               size="sm"
               type="button"
               className=""
+              data-cancel-editor
               onClick={onCancel}
             >
               Voltar
             </Button>
           </div>
         </fieldset>
-      </form>
+      </AdminForm>
     </Card>
   );
 }
