@@ -50,6 +50,17 @@ docker compose ps
 
 O serviço migrate aplica as migrações antes de iniciar a aplicação. O comando admin solicita nome, e-mail e senha interativamente; cria somente o primeiro administrador. Não há contas ou produtos de demonstração.
 
+### Recuperar a senha de um administrador existente
+
+Com o código atualizado e o banco em execução, reconstrua a ferramenta e execute:
+
+```sh
+docker compose --profile tools build admin
+docker compose --profile tools run --rm --no-deps admin npm run admin:create -- --reset-password
+```
+
+Informe o e-mail do ADMIN ativo e a nova senha (12–128 caracteres), duas vezes. A senha fica oculta no terminal; não a coloque na linha de comando nem no chat. A recuperação encerra as sessões dessa conta e limpa seu bloqueio temporário de login. Não cria usuários, não reativa contas e não altera os demais administradores ou os dados comerciais. Sem o argumento, o comando continua criando somente o primeiro administrador. Use os mesmos arquivos Compose, ambiente e nome de projeto da instalação.
+
 Abra o APP_URL configurado. Para conferência local:
 
 ```sh
