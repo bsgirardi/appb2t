@@ -1,6 +1,8 @@
 # appb2t — build e instalação em outro servidor
 
-Para a instalação limpa pelo GitHub no servidor da B2T, com porta 1992, rede appb2t_network, banco em pasta própria e configuração fora do clone, use [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md). Esse guia também cobre as próximas atualizações. As seções abaixo são a referência geral, incluindo migração de uma instalação com dados.
+Para instalar e atualizar o servidor, use [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md). O código, `.env`, `dados/postgres_data` e `backups` ficam juntos em `/etc/docker/appb2t`. Dentro dessa pasta, use `docker compose up -d` para subir o sistema; após baixar código novo, reconstrua as imagens conforme o guia. Não é necessária função auxiliar nem configuração fora da pasta do projeto.
+
+As seções abaixo são referência técnica e histórica, incluindo restauração de dados e configuração da instalação local. Não substituem o fluxo simplificado do guia do servidor. `dados/`, `backups/` e `.env` são privados e ficam excluídos do Git e do build Docker.
 
 Pacote de código para Linux/Docker, com fontes, imagens e migrações. Não contém banco, contas reais, senhas, .env ou dependências instaladas. Inclui Roboto administrativo, favicon, Next.js 16.4.2 e catálogo com aprovação de arte C4 e checkout C5. A instalação local recebeu C5 em 23/10/2026; este pacote também pode preparar outro servidor conforme os passos abaixo.
 

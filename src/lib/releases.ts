@@ -8,6 +8,20 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.2.1",
+    date: "2026-10-26",
+    title: "Instalação e atualização mais simples",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Guia do servidor simplificado, com projeto, configuração, dados e backups reunidos na mesma pasta.",
+          "Instruções diretas de Docker Compose para subir e atualizar o sistema, incluindo backup e preservação dos dados existentes.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.2.0",
     date: "2026-10-26",
     title: "Uma visão de cada operação",

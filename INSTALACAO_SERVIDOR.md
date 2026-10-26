@@ -1,69 +1,53 @@
-# Instalação pelo GitHub e atualização do servidor B2T
+# Instalação e atualização do servidor B2T
 
-Guia para **Linux com Bash**, instalação nova e atualizações seguintes. Configuração de referência: domínio `https://somosb2t.com.br`, porta do host **1992**, rede Docker **appb2t_network** e PostgreSQL 17 em **/etc/docker/appb2t/dados/postgres_data**. Não há importação de usuários/dados da instalação local: o primeiro administrador será criado no novo servidor.
+Guia para Linux com Bash. Projeto, configuração e persistência ficam juntos em **`/etc/docker/appb2t`**. Execute os comandos nessa pasta, como usuário com acesso ao Docker. O domínio de referência é `https://somosb2t.com.br`, com porta **1992** e PostgreSQL 17.
 
-O GitHub fornece código e migrações. O banco, as senhas e as chaves permanecem no servidor. Os comandos abaixo não foram executados no seu servidor remoto.
+## Estrutura
 
-## 1. Estrutura que permanece entre versões
-
-| Caminho/recurso | Finalidade |
-| --- | --- |
-| `/opt/appb2t` | Clone do repositório; código atualizado pelo Git |
-| `/etc/docker/appb2t/.env` | Configuração privada; fora do clone |
-| `/etc/docker/appb2t/dados/postgres_data` | Arquivos do PostgreSQL; não apagar nem recriar nas atualizações |
-| `/etc/docker/appb2t/backups` | Backups, configuração e identificação das versões anteriores |
-| `appb2t_network` | Rede bridge própria dos serviços db/migrate/app/admin |
-| `1992:3000` | Porta do host → porta interna da aplicação |
-
-O PostgreSQL não publica porta no host. Dentro da rede, a aplicação acessa `db:5432`; `localhost` dentro do contêiner não aponta para o banco. O Compose monta DATABASE_URL automaticamente com POSTGRES_PASSWORD. DATABASE_URL no .env é necessário somente se executar ferramentas fora do Docker.
-
-## 2. Pré-requisitos
-
-- Docker Engine com contêineres Linux e Docker Compose v2; Git e OpenSSL.
-- Pelo menos 4 GB de memória disponíveis para build, ou host de build separado. O Next está limitado a dois workers de páginas, mas build e bancos de teste não devem disputar memória com a operação.
-- Autenticação para ler o repositório privado GitHub. Use autenticação Git/SSH do servidor; não coloque tokens na URL ou nos arquivos versionados.
-- DNS, proxy HTTPS e firewall sob seu controle. Certificado e proxy não são criados por este repositório.
-
-Execute os comandos como administrador do servidor, por exemplo após `sudo -i`. Os exemplos usam caminhos fixos; se escolher outros, ajuste todos os comandos de forma consistente.
-
-```bash
-set -euo pipefail
-git --version
-docker --version
-docker compose version
-openssl version
-
-git clone https://github.com/bsgirardi/appb2t.git /opt/appb2t
-cd /opt/appb2t
-git switch main
+```text
+/etc/docker/appb2t/
+├── compose.yaml
+├── Dockerfile
+├── .env                      # configuração privada
+├── src/                      # código atualizado pelo Git
+├── dados/
+│   └── postgres_data/        # banco persistente
+└── backups/                  # backups e configuração anterior
 ```
 
-Se o clone já existir, não clone por cima: confira sua origem/estado e use a seção de atualização. Interrompa em qualquer falha.
+`.env`, `dados/` e `backups/` ficam fora do Git e do contexto de build Docker. Atualizar o código não deve substituir essas pastas. Não use `git clean -fdx`, limpeza de volumes ou `docker compose down -v` nessa instalação.
 
-## 3. Preparar uma instalação realmente vazia
+## 1. Instalação nova
 
-Este bloco **recusa sobrescrever um .env existente ou iniciar sobre uma pasta de banco preenchida**. Se encontrar dados, preserve-os e avalie uma atualização/migração; não apague a pasta para contornar a verificação.
+Requisitos: Git, OpenSSL, Docker Engine com contêineres Linux e Docker Compose v2. Reserve pelo menos 4 GB de memória para o build. O acesso ao repositório privado deve estar configurado no servidor.
+
+Os exemplos pressupõem um terminal de administrador (`sudo -i`). Para uma pasta que ainda não existe:
+
+```bash
+mkdir -p /etc/docker
+git clone https://github.com/bsgirardi/appb2t.git /etc/docker/appb2t
+cd /etc/docker/appb2t
+```
+
+Se a pasta já existir com configuração ou dados, não clone por cima. Use a seção de atualização ou de mudança do caminho.
+
+### Configuração inicial
+
+Execute uma única vez, somente para uma instalação vazia. O bloco recusa substituir um `.env` ou usar uma pasta de banco preenchida.
 
 ```bash
 set -euo pipefail
 umask 077
-install -d -m 700 /etc/docker/appb2t
-install -d -m 700 /etc/docker/appb2t/backups
-install -d -m 700 /etc/docker/appb2t/dados/postgres_data
-
-if [ -e /etc/docker/appb2t/.env ]; then
-  echo 'Configuração existente: não sobrescrever. Use a seção de atualização.' >&2
-  exit 1
-fi
-if [ -n "$(find /etc/docker/appb2t/dados/postgres_data -mindepth 1 -maxdepth 1 -print -quit)" ]; then
-  echo 'Pasta do banco não está vazia: preserve os dados e interrompa a instalação nova.' >&2
-  exit 1
-fi
-
+cd /etc/docker/appb2t
+test ! -e .env || { echo 'Já existe .env; use o procedimento de atualização.'; exit 1; }
+mkdir -p dados/postgres_data backups
+test -z "$(find dados/postgres_data -mindepth 1 -maxdepth 1 -print -quit)" || {
+  echo 'Já existem dados; interrompa a instalação nova.'; exit 1;
+}
 db_password="$(openssl rand -hex 32)"
 art_key="$(openssl rand -hex 32)"
 checkout_key="$(openssl rand -hex 32)"
-cat > /etc/docker/appb2t/.env <<EOF
+cat > .env <<EOF
 POSTGRES_PASSWORD=$db_password
 POSTGRES_DATA_PATH=/etc/docker/appb2t/dados/postgres_data
 APP_NETWORK_NAME=appb2t_network
@@ -73,168 +57,131 @@ APP_URL=https://somosb2t.com.br
 ART_ACCESS_KEY=$art_key
 CHECKOUT_ACCESS_KEY=$checkout_key
 EOF
-chmod 600 /etc/docker/appb2t/.env
+chmod 600 .env
 unset db_password art_key checkout_key
 ```
 
-As três credenciais são novas e independentes; os comandos não as imprimem. Guarde uma cópia protegida fora do servidor. Nunca substitua esse .env pelo .env.example durante uma atualização. A senha POSTGRES_PASSWORD é a do banco, não a senha do administrador do aplicativo. Alterá-la somente no .env não altera a senha de um PostgreSQL já inicializado.
+O Compose lê o `.env` desta pasta automaticamente. Não precisa de função auxiliar, `--env-file` ou caminhos adicionais. `POSTGRES_PASSWORD` é a senha do banco, independente da senha de acesso ao painel. `ART_ACCESS_KEY` e `CHECKOUT_ACCESS_KEY` são chaves independentes; preserve seus valores nas atualizações.
 
-`APP_BIND=0.0.0.0` mantém sua configuração de acesso por outra máquina/rede. Restrinja a porta 1992 no firewall conforme o proxy que a utiliza. Se o proxy estiver no mesmo host e você quiser acesso só local, use `APP_BIND=127.0.0.1`. Outros projetos devem usar nome de rede e pasta de dados diferentes.
-
-## 4. Subir banco, migrações e aplicação
-
-Defina esta função no terminal. **Repita-a em cada novo terminal**, inclusive para manutenção. Ela fixa projeto, configuração privada e contexto de build; assim mudar de diretório não muda o banco utilizado.
+### Construir e subir
 
 ```bash
-dc() {
-  docker compose -p appb2t \
-    --project-directory /opt/appb2t \
-    --env-file /etc/docker/appb2t/.env \
-    -f /opt/appb2t/compose.yaml "$@"
-}
-
-dc config --quiet
-# Builds sequenciais para limitar o pico de memória.
-dc build migrate
-dc build app
-dc --profile tools build admin
-
-dc up -d --wait db
-dc run --rm --no-deps migrate
-dc up -d --no-build --wait
-dc ps
+cd /etc/docker/appb2t
+# Construção sequencial para reduzir o consumo de memória.
+COMPOSE_PARALLEL_LIMIT=1 docker compose build app migrate
+docker compose up -d --wait
+docker compose --profile tools run --build --rm --no-deps admin
 ```
 
-Prossiga somente se todos os comandos terminarem com código zero. O serviço migrate usa `prisma migrate deploy`, respeitando o histórico; não use `db push` nem reset. O Compose pode checar as migrações novamente ao iniciar sua dependência, sem reaplicar uma migração já concluída.
+O último comando cria o primeiro administrador e solicita nome, e-mail e senha de 12 a 128 caracteres. Execute-o apenas uma vez. O serviço `migrate` aplica as migrações e precisa concluir antes de a aplicação iniciar. Não há importação de usuários ou dados locais pelo GitHub.
 
-Crie o **primeiro administrador**, uma única vez:
+## 2. Uso diário
+
+Dentro da pasta do projeto, estes são os comandos habituais:
 
 ```bash
-dc --profile tools run --rm --no-deps admin
+cd /etc/docker/appb2t
+docker compose up -d
+docker compose ps
+docker compose logs --tail 100 app migrate
 ```
 
-Informe nome, e-mail e senha com 12 a 128 caracteres no prompt. Nenhuma conta da instalação local vem pelo GitHub. Não execute esse comando em todas as atualizações; usuários adicionais são geridos pelo painel.
+`docker compose up -d` sobe o sistema com as imagens existentes. **Após baixar código novo, faça o build da seção seguinte:** `up -d` sozinho não recompila a versão instalada.
 
-Para recuperar a senha de um **ADMIN ativo existente**, com o código atualizado e o banco em execução:
+Para parar apenas a aplicação: `docker compose stop app`. Para conferir a saúde: `curl -f http://127.0.0.1:1992/api/health`.
 
-```bash
-dc --profile tools build admin
-dc --profile tools run --rm --no-deps admin npm run admin:create -- --reset-password
-```
+## 3. Atualizar para uma nova versão
 
-Informe o e-mail e a nova senha duas vezes, de forma oculta no terminal. A recuperação encerra as sessões da conta e limpa seu bloqueio temporário de login; não cria nem reativa usuários. Nunca passe a senha como argumento. A função `dc` mantém os arquivos e o ambiente desta instalação.
+Abra uma janela de manutenção. Os blocos abaixo são executados **no mesmo terminal Bash**, em ordem, e param em caso de erro. O banco permanece em execução; a aplicação fica parada durante o backup e o build. Preserve o `.env` e não altere `POSTGRES_DATA_PATH` de uma instalação existente.
 
-Confira a saúde e o mount efetivo:
-
-```bash
-dc exec -T app node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>{console.log(r.status);process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"
-docker inspect "$(dc ps -q db)" \
-  --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Type}} {{.Source}}{{end}}{{end}}'
-```
-
-O resultado do mount deve ser `bind /etc/docker/appb2t/dados/postgres_data`. Veja logs com `dc logs --tail 100 app migrate db`; não publique logs/configurações que contenham dados privados.
-
-## 5. Domínio, HTTPS e redes separadas
-
-Configure `somosb2t.com.br` no DNS e no proxy, com HTTPS válido. Se o proxy estiver no mesmo host, o destino será `http://127.0.0.1:1992`. Se estiver em outra máquina ou rede Docker, utilize um endereço do host acessível por esse proxy e a porta 1992; o nome `app` não resolve automaticamente entre redes separadas.
-
-Encaminhe o host e o protocolo originais, preserve Origin e aceite uploads de até 52 MiB. APP_URL deve coincidir com a URL pública exata, sem caminho adicional. Exemplo do trecho relevante em Nginx no mesmo host (certificado/servidor HTTPS configurados separadamente):
-
-```nginx
-client_max_body_size 52m;
-location / {
-    proxy_pass http://127.0.0.1:1992;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-}
-```
-
-Abra a URL pública, teste login, configure a empresa e cadastre um produto controlado. Confira imagens, emissão de link de arte, checkout e financeiro conforme seu fluxo. O aplicativo não presume que X-Forwarded-For é uma identidade confiável para relaxar cotas de acesso.
-
-## 6. Próximas versões: atualizar sem perder persistência
-
-Não editar compose.yaml no servidor: configure porta, rede, mount e domínio pelo .env externo. Antes de atualizar, leia as notas da versão, confirme compatibilidade de migração/PostgreSQL e reserve uma janela de manutenção. Não atualize a versão principal do PostgreSQL trocando apenas a tag da imagem.
-
-Execute como administrador, em Bash. A aplicação será parada antes do backup e do build; isso evita gravações durante o backup final e reduz competição por memória. O banco permanece ativo.
+### Salvar a versão anterior e fazer backup
 
 ```bash
 set -euo pipefail
 umask 077
-dc() {
-  docker compose -p appb2t \
-    --project-directory /opt/appb2t \
-    --env-file /etc/docker/appb2t/.env \
-    -f /opt/appb2t/compose.yaml "$@"
-}
-cd /opt/appb2t
+cd /etc/docker/appb2t
 git switch main
 git diff --exit-code
 git diff --cached --exit-code
-
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-backup_dir="/etc/docker/appb2t/backups/$stamp"
-install -d -m 700 "$backup_dir"
-git rev-parse HEAD > "$backup_dir/commit-anterior.txt"
+backup_dir="$PWD/backups/$stamp"
+mkdir -p "$backup_dir"
+chmod 700 "$backup_dir"
+cp .env "$backup_dir/ambiente.env"
 cp compose.yaml "$backup_dir/compose-anterior.yaml"
-cp /etc/docker/appb2t/.env "$backup_dir/ambiente.env"
-old_image="$(docker inspect --format '{{.Image}}' "$(dc ps -q app)")"
+git rev-parse HEAD > "$backup_dir/commit-anterior.txt"
+old_image="$(docker inspect --format '{{.Image}}' "$(docker compose ps -q app)")"
 docker tag "$old_image" "appb2t-app:antes-$stamp"
 printf '%s\n' "$old_image" > "$backup_dir/imagem-anterior.txt"
-
-git pull --ff-only origin main
-git rev-parse HEAD > "$backup_dir/commit-novo.txt"
-dc config --quiet
-dc stop app
-
-# O dump binário é gravado no contêiner e copiado, sem redirecionar bytes pelo terminal.
-dc exec -T db pg_dump -U b2t -d b2t -Fc -f /tmp/appb2t-predeploy.dump
-dc exec -T db pg_restore --list /tmp/appb2t-predeploy.dump > /dev/null
-dc cp db:/tmp/appb2t-predeploy.dump "$backup_dir/banco.dump"
+docker compose stop app
+docker compose exec -T db pg_dump -U b2t -d b2t -Fc -f /tmp/appb2t-predeploy.dump
+docker compose exec -T db pg_restore --list /tmp/appb2t-predeploy.dump > /dev/null
+docker compose cp db:/tmp/appb2t-predeploy.dump "$backup_dir/banco.dump"
 sha256sum "$backup_dir/banco.dump" > "$backup_dir/banco.dump.sha256"
-
-dc build migrate
-dc build app
-dc --profile tools build admin
-dc run --rm --no-deps migrate
-dc up -d --no-build --wait
-dc ps
-dc exec -T app node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>{console.log(r.status);process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"
 ```
 
-Se qualquer comando falhar, o bloco para. Depois de `stop app`, ela pode permanecer parada: resolva a falha antes de iniciar. Não ignore erro de backup ou migração e não execute a próxima linha isoladamente para contorná-lo. Confira login, dados e funcionalidades afetadas antes de encerrar a manutenção.
+O dump é copiado como arquivo binário, sem passar por redirecionamento de terminal. A leitura confirma o formato do backup; mantenha também uma rotina de restauração em banco isolado e cópia fora do servidor.
 
-O mount e o .env permanecem iguais; reconstruir imagens não apaga o banco. As migrações aplicam apenas alterações ainda pendentes. Não copie novamente o .env.example nem gere novas chaves. Se uma versão exigir variável adicional, acrescente-a preservando os valores existentes.
-
-## 7. Backups, falhas e recuperação
-
-- O backup inclui usuários, hashes de senha, dados comerciais, fotos e anexos persistidos no PostgreSQL. A pasta public do código vem pelo GitHub; o .env precisa de cópia privada separada.
-- `pg_restore --list` confirma leitura do arquivo, mas não substitui um ensaio de restauração. Teste restauração periodicamente em PostgreSQL 17 isolado, banco vazio, sem apontar a aplicação de teste para a operação.
-- A pasta de backups neste servidor não protege contra perda do servidor: configure cópia automática externa, retenção e teste de restauração. Esse agendamento não é instalado por este guia.
-- A imagem anterior é preservada para investigação. Depois de uma migração ou de novos registros, não presuma que basta voltar a imagem: confirme compatibilidade ou prepare recuperação conciliada em destino vazio, com a versão e as chaves correspondentes ao backup.
-- Não restaurar um backup antigo sobre registros recentes, não remover a pasta de dados e não usar `prisma migrate reset`, `db push` ou comandos de limpeza de volumes para atualizar.
-- `docker compose down` sem `-v` não é necessário neste procedimento. `down -v`, remoção de volumes e `rm -rf` da pasta de dados não fazem parte de instalação/atualização.
-
-## 8. Compatibilidade com a instalação local existente
-
-O Compose aceita caminho absoluto em POSTGRES_DATA_PATH para o bind do servidor. Sem essa variável, mantém o alias `postgres_data`, que corresponde ao volume local `appb2t_postgres_data`; também é possível configurá-la explicitamente como `postgres_data`. Isso não move dados entre volume e pasta.
-
-O .env.example está preparado para o novo servidor. Para um ambiente local separado: APP_BIND=127.0.0.1, APP_PORT=3000, APP_URL=http://localhost:3000 e POSTGRES_DATA_PATH=postgres_data. Nunca copiar o exemplo sobre o .env local em uso.
-
-Referência detalhada e registros históricos: [PRODUCAO.md](PRODUCAO.md), [PENDENCIAS.md](PENDENCIAS.md).
-
-## 9. Erro de build: COPY .npmrc, arquivo não encontrado
-
-O .npmrc está versionado na raiz do repositório. Um clone completo inclui arquivos ocultos; cópia manual de arquivos ou um contexto de build incompleto pode deixá-lo de fora. O Dockerfile atualizado copia apenas package.json/package-lock.json para instalar e passa `--legacy-peer-deps` explicitamente, mantendo a configuração de dependências sem exigir o arquivo oculto.
-
-Na pasta do clone, atualize o código e repita os builds:
+### Baixar, construir e subir
 
 ```bash
-cd /opt/appb2t
 git pull --ff-only origin main
-dc build migrate
-dc build app
-dc --profile tools build admin
+git rev-parse HEAD > "$backup_dir/commit-novo.txt"
+docker compose config --quiet
+COMPOSE_PARALLEL_LIMIT=1 docker compose build app migrate
+docker compose up -d --wait
+docker compose ps
+curl -f http://127.0.0.1:1992/api/health
 ```
 
-Defina a função dc da seção 4 se estiver em outro terminal. Preserve o .env externo e a pasta do banco. Essa correção não exige apagar cache, banco ou volume. Se package.json/package-lock.json também faltarem, confira se o clone está completo e se o contexto é /opt/appb2t, conforme a função dc; não crie arquivos vazios para contornar COPY.
+Confira login, a versão no rodapé, a página **Atualizações** e os fluxos usados pela equipe. As migrações são aplicadas pelo Compose; não execute `db push`, reset ou limpeza de tabelas. Se mudar a porta, ajuste a URL da verificação.
+
+Se algum comando falhar, interrompa e consulte `docker compose logs --tail 100 app migrate db`. A aplicação pode permanecer parada. Não ignore falha de backup ou migração para continuar. A imagem anterior foi preservada, mas voltar a ela após uma migração exige confirmar compatibilidade com o banco; não restaure backup antigo sobre registros novos.
+
+Não copie novamente o `.env.example`, não gere outras chaves e não recrie o administrador em cada atualização. O banco continua em `dados/postgres_data`, mesmo quando os contêineres são recriados.
+
+## 4. Recuperar a senha de um administrador
+
+```bash
+cd /etc/docker/appb2t
+docker compose --profile tools run --build --rm --no-deps admin npm run admin:create -- --reset-password
+```
+
+Com o banco ativo, informe e-mail do ADMIN ativo e a nova senha duas vezes no prompt. A senha fica oculta. O procedimento encerra as sessões dessa conta e limpa seu bloqueio temporário; não cria nem reativa usuários. Não informe a senha na linha de comando.
+
+## 5. Domínio e acesso
+
+Configure DNS e proxy HTTPS para `somosb2t.com.br`. No mesmo servidor, o proxy aponta para `http://127.0.0.1:1992`. Preserve `Host`, `X-Forwarded-Proto` e aceite uploads de até 52 MiB. `APP_URL` deve coincidir com a URL pública, sem caminho adicional.
+
+`APP_BIND=0.0.0.0` permite acesso pela rede: restrinja a porta no firewall conforme seu proxy. Se o proxy estiver no mesmo host, pode usar `APP_BIND=127.0.0.1`. O PostgreSQL não expõe porta no host; a aplicação usa `db:5432` internamente. Certificado, proxy e backups automáticos não são instalados pelo projeto.
+
+## 6. Instalação existente em outro caminho
+
+O caminho anterior do código era `/opt/appb2t`. Se já existem `.env`, banco ou backups em `/etc/docker/appb2t`, **mantenha-os no lugar**. Não mova uma pasta de PostgreSQL em execução e não clone sobre a pasta preenchida.
+
+Para reunir somente o código antigo com a persistência já existente no destino, faça backup, pare a aplicação e confira uma cópia com `rsync` (instale essa ferramenta se necessário):
+
+```bash
+# Conferência: não copia nem apaga arquivos.
+sudo rsync -an --exclude='.env' --exclude='.env.*' --exclude='dados/' --exclude='backups/' /opt/appb2t/ /etc/docker/appb2t/
+# Depois de conferir o resultado, copie sem sobrescrever configuração e dados.
+sudo rsync -a --exclude='.env' --exclude='.env.*' --exclude='dados/' --exclude='backups/' /opt/appb2t/ /etc/docker/appb2t/
+cd /etc/docker/appb2t
+```
+
+Esse procedimento pressupõe `.env` correto e persistência **já existentes no destino**, e inclui a pasta `.git`. Se o `.env` estiver apenas no caminho antigo, copie-o privadamente para o destino antes de iniciar. Preserve a origem até validar a atualização. Confira o mount abaixo e mantenha o mesmo nome Compose (`appb2t`, definido no arquivo). Não use `--delete` no rsync.
+
+```bash
+docker compose config --quiet
+docker inspect "$(docker compose ps -q db)" --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Type}} {{.Source}}{{end}}{{end}}'
+```
+
+Na instalação descrita aqui, o mount deve ser `bind /etc/docker/appb2t/dados/postgres_data`. Se o banco atual usa volume nomeado, mantenha o valor atual de `POSTGRES_DATA_PATH` até planejar a transferência com backup e restauração; mudar a variável não transfere os dados. Não inicie outro banco vazio por engano.
+
+## 7. Referência local e solução de problemas
+
+Na instalação local existente, mantenha `POSTGRES_DATA_PATH=postgres_data`, `APP_PORT=3000`, `APP_BIND=127.0.0.1` e `APP_URL=http://localhost:3000`. Isso preserva o volume `appb2t_postgres_data`; o guia de pastas do servidor não altera essa instalação automaticamente.
+
+Se o build informar arquivo ausente, confira se o clone contém `Dockerfile`, `package.json` e `package-lock.json` e execute os comandos na pasta do projeto. Atualize com `git pull --ff-only origin main` e repita a construção. O Dockerfile não exige copiar `.npmrc`. Não crie arquivos vazios para contornar erros de build.
+
+Referência técnica e histórico: [PRODUCAO.md](PRODUCAO.md). Para levar dados entre servidores, consulte a seção de restauração nesse documento.
