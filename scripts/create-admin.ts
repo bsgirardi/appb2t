@@ -2,13 +2,20 @@ import { input, password } from "@inquirer/prompts";
 import { z } from "zod";
 import { db } from "../src/lib/db";
 import { hashPassword } from "../src/server/auth/password";
+import { recoverAdminPassword } from "./admin-password";
 async function main() {
-  const name = z
-    .string()
-    .trim()
-    .min(2)
-    .max(100)
-    .parse(await input({ message: "Nome do administrador:" }));
+  const args = process.argv.slice(2);
+  const recovery = args.length === 1 && args[0] === "--reset-password";
+  if (args.length && !recovery)
+    throw new Error("Uso: npm run admin:create -- [--reset-password]");
+  const name = recovery
+    ? undefined
+    : z
+        .string()
+        .trim()
+        .min(2)
+        .max(100)
+        .parse(await input({ message: "Nome do administrador:" }));
   const email = z
     .string()
     .trim()
@@ -22,6 +29,13 @@ async function main() {
   });
   const confirm = await password({ message: "Repita a senha:", mask: true });
   if (secret !== confirm) throw new Error("As senhas não coincidem.");
+  if (recovery) {
+    await recoverAdminPassword(email, secret);
+    console.log(
+      "Senha redefinida. Sessões anteriores encerradas. Entre com a nova senha.",
+    );
+    return;
+  }
   const passwordHash = await hashPassword(secret);
   await db.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(823701)`;
@@ -30,7 +44,7 @@ async function main() {
         "Administrador já existente. Use a área de usuários para criar outros acessos.",
       );
     await tx.user.create({
-      data: { name, email, passwordHash, role: "ADMIN" },
+      data: { name: name!, email, passwordHash, role: "ADMIN" },
     });
   });
   console.log("Administrador criado. Entre com o e-mail e a senha informados.");
