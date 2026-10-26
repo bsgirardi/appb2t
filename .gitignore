@@ -7,6 +7,7 @@ coverage/
 *.tsbuildinfo
 .superpowers/
 backups/
+dados/
 *.dump
 test-results/
 playwright-report/

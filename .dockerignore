@@ -7,6 +7,7 @@ node_modules
 .superpowers
 coverage
 backups
+dados
 test-results
 playwright-report
 *.tsbuildinfo
