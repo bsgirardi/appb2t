@@ -1,6 +1,6 @@
 # appb2t — estado e pendências
 
-Atualizado em 25/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
+Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
 ## Desenvolvimento concluído
 
@@ -9,9 +9,17 @@ Atualizado em 25/10/2026. Este arquivo descreve o estado atual; desenhos e valid
 - C5: compra direta explícita, conferência de frete/consulta, aceite privado de orçamento, venda/parcelas idempotentes e cancelamento entregues. PR #5 integrado e C5 publicado em http://localhost:3000; 95 projeções legadas e volume preservados. [Registro](docs/superpowers/2026-10-23-publicacao-c5.md).
 - Primeiro administrador criado pelo procedimento oficial, com ADMIN ativo; nenhuma senha registrada na documentação.
 - Seletor Automático → Claro → Escuro publicado na loja, login, administrativo e acompanhamento privado pelo PR #6. Preferência individual salva no navegador; paletas da empresa preservadas. Validação final com 719 testes em 231 arquivos, tipagem, lint, build e login administrativo na instalação publicada. [Verificação e publicação](docs/superpowers/2026-10-23-tema-e-encerramento.md).
-- Revisão da experiência administrativa implementada e aplicada no Docker local: campos obrigatórios e condicionais destacados, dados principais agrupados, seções adicionais expansíveis, resumos contextuais, ações de formulário acessíveis durante a rolagem e edições de clientes/configurações em painel lateral. Regras, permissões e dados preservados. [Relatório](docs/superpowers/reviews/2026-10-25-administrativo-ux.md).
+- Revisão da experiência administrativa entregue pelo [PR #9](https://github.com/bsgirardi/appb2t/pull/9) e aplicada no Docker local: campos obrigatórios e condicionais destacados, dados principais agrupados, seções adicionais expansíveis, resumos contextuais, ações de formulário acessíveis durante a rolagem e edições de clientes/configurações em painel lateral. Regras, permissões e dados preservados. [Relatório](docs/superpowers/reviews/2026-10-25-administrativo-ux.md).
 
-Não há funcionalidade obrigatória pendente do escopo aprovado até C5. A configuração comercial será feita manualmente pelo usuário; não representa módulo por desenvolver.
+Não há módulo de negócio obrigatório por desenvolver no escopo aprovado até C5. A revisão administrativa foi implementada; as pendências de validação e operação abaixo continuam abertas. A configuração comercial será feita manualmente pelo usuário e não representa módulo por desenvolver.
+
+## Pendências técnicas e de validação
+
+1. **Estabilizar a execução completa do Vitest.** A validação da revisão administrativa teve 446 testes aprovados em grupos; na preparação do PR, 267 testes de domínio/upload e 41 testes focados de interface passaram novamente. O grupo completo de interface e a execução conjunta reproduziram recursão no transporte de erros. Investigar a causa e obter uma execução completa reproduzível, sem suprimir erros.
+2. **Validar a revisão administrativa com integrações de banco.** Executar somente no banco dedicado `localhost:55432/b2t_test`, pois o preparo dos testes limpa tabelas. Não usar o banco operacional. Esta validação não foi feita para a revisão de interface; validações anteriores de C5 e de recuperação de administrador não a substituem.
+3. **Conferir os fluxos reais com a equipe.** Validar cadastro de produto, orçamento/venda, apontamento de produção, recebimento de estoque e lançamento financeiro com dados representativos. As verificações visuais automatizadas desta revisão usaram fixtures; ajustes de usabilidade devem partir das dificuldades reproduzidas no uso.
+4. **Publicar separadamente a recuperação de senha administrativa.** Há trabalho local em `scripts/create-admin.ts`, `scripts/admin-password.ts`, `tests/integration/admin-recovery.test.ts` e documentação de instalação/produção, fora do PR #9. O registro local informa 12 testes focados aprovados, mas não comprova publicação no GitHub/servidor nem aprovação de uma suíte completa. Revisar esse conjunto e abrir uma PR própria, sem registrar credenciais.
+5. **Adicionar verificações automáticas no GitHub.** Não há workflow de CI/publicação configurado no repositório. Definir verificações de tipagem, lint e testes reproduzíveis; publicação automática precisa de destino e configuração próprios. Não é uma funcionalidade de negócio já contratada.
 
 ## Configuração e operação pelo responsável
 
