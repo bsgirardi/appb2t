@@ -2,6 +2,10 @@ import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Input } from "./input";
 import { Label } from "./label";
 import { Alert } from "./alert";
+import { cn } from "@/lib/utils";
+export function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+  return <div role="group" data-slot="field-group" className={cn("flex flex-col gap-4", className)} {...props} />;
+}
 export function Field({
   label,
   hint,

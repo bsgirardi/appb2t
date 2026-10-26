@@ -1,145 +1,79 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { Suspense } from "react";
 import { requireActor } from "@/server/auth/guards";
-import { getDashboard } from "@/server/dashboard";
+import { getDashboardPanel } from "@/server/dashboard/panels";
+import { resolveDashboardFilter } from "@/domain/dashboard/filters";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+  dashboardPanels,
+  permittedPanels,
+  type DashboardFilter,
+} from "@/domain/dashboard/types";
+import type { Actor } from "@/server/auth/session";
+import { DashboardToolbar } from "@/components/dashboard/dashboard-toolbar";
+import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
+import { dateLabel } from "@/components/dashboard/format";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { formatBRL as money } from "@/domain/calculation/calculate";
-
-export default async function DashboardPage() {
-  const data = await getDashboard(await requireActor());
-  const month = new Intl.DateTimeFormat("pt-BR", {
-    month: "long",
-    year: "numeric",
-    timeZone: "America/Sao_Paulo",
-  }).format(new Date(`${data.month}-15T12:00:00-03:00`));
-  const metrics = [
-    {
-      title: "Vendas do mês",
-      value: money(data.salesValue),
-      description: `${data.salesCount} vendas criadas em ${month}, exceto rascunhos e canceladas.`,
-      href: `/vendas?status=realizadas&from=${data.month}-01&to=${data.today}`,
-    },
-    {
-      title: "Orçamentos em aberto",
-      value: String(data.quotes),
-      description:
-        "Rascunhos e propostas enviadas ou aprovadas dentro da validade.",
-      href: "/orcamentos",
-    },
-    {
-      title: "Ordens em produção",
-      value: String(data.production),
-      description: "Ordens liberadas ou em execução neste momento.",
-      href: "/producao",
-    },
-    ...(data.finance
-      ? [
-          {
-            title: "Saldo atual",
-            value:
-              data.finance.balance === null
-                ? "Não informado"
-                : money(data.finance.balance),
-            description: "Posição das contas financeiras até hoje.",
-            href: "/financeiro",
-          },
-          {
-            title: "A receber",
-            value: money(data.finance.receivablePending),
-            description: "Saldo previsto em recebíveis ainda pendentes.",
-            href: "/financeiro/lancamentos?kind=RECEIVABLE",
-          },
-          {
-            title: "A pagar",
-            value: money(data.finance.payablePending),
-            description: "Saldo previsto em pagamentos ainda pendentes.",
-            href: "/financeiro/lancamentos?kind=PAYABLE",
-          },
-        ]
-      : []),
-  ];
+import { AppError } from "@/lib/errors";
+import DashboardLoading from "./loading";
+async function Panel({
+  actor,
+  filter,
+}: {
+  actor: Actor;
+  filter: DashboardFilter;
+}) {
+  const data = await getDashboardPanel(actor, filter);
+  return <DashboardPanel data={data} />;
+}
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const actor = await requireActor();
+  let filter: DashboardFilter;
+  try {
+    filter = resolveDashboardFilter(await searchParams, actor.role);
+  } catch (error) {
+    if (!(error instanceof AppError)) throw error;
+    return (
+      <section className="flex flex-col gap-4">
+        <h1>Dashboard</h1>
+        <Alert variant="destructive" role="alert">
+          {error.message}
+        </Alert>
+        <Button asChild variant="outline">
+          <Link href="/dashboard">Voltar à visão geral</Link>
+        </Button>
+      </section>
+    );
+  }
+  const selected = dashboardPanels.find((p) => p.id === filter.panel)!;
   return (
-    <section className="flex min-w-0 flex-col gap-6">
+    <section className="dashboard-workspace flex min-w-0 flex-col gap-6">
       <div className="page-heading mb-0">
         <div>
-          <div className="eyebrow">VISÃO GERAL</div>
-          <h1>Dashboard B2T</h1>
-          <p>Acompanhe vendas, produção e os próximos passos da equipe.</p>
+          <h1>{selected.label}</h1>
+          <p>{selected.description}</p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/vendas">
-            Ver vendas
-            <ArrowUpRight data-icon="inline-end" />
-          </Link>
-        </Button>
+        <p className="text-muted-foreground">
+          Atualizado em {dateLabel(filter.today)}
+        </p>
       </div>
+      <DashboardToolbar
+        key={JSON.stringify(filter)}
+        filter={filter}
+        panels={permittedPanels(actor.role)}
+      />
       <p className="text-muted-foreground">
-        Atualizado em {data.today.split("-").reverse().join("/")} · Vendas de{" "}
-        {month}
+        Período: {dateLabel(filter.from)} a {dateLabel(filter.to)}. Comparações
+        com {dateLabel(filter.previousFrom)} a {dateLabel(filter.previousTo)}.
+        Posições atuais identificadas em cada indicador.
       </p>
-      <Card>
-        <CardHeader>
-          <CardTitle>O que precisa de atenção</CardTitle>
-          <CardDescription>
-            Prioridades atuais para dar continuidade aos pedidos.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="dashboard-priorities">
-            <Link href="/producao">
-              <strong>{data.overdueProduction}</strong>
-              <span>Ordens ativas com prazo vencido</span>
-              <ArrowUpRight aria-hidden="true" />
-            </Link>
-            <Link href="/vendas?status=PRONTA">
-              <strong>{data.readySales}</strong>
-              <span>Vendas prontas para entrega</span>
-              <ArrowUpRight aria-hidden="true" />
-            </Link>
-            {data.finance && (
-              <Link href="/financeiro/lancamentos?kind=RECEIVABLE&overdue=true">
-                <strong>{money(data.finance.receivableOverdue)}</strong>
-                <span>Recebíveis vencidos</span>
-                <ArrowUpRight aria-hidden="true" />
-              </Link>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      <div className="dashboard-metrics">
-        {metrics.map((metric) => (
-          <Card key={metric.title}>
-            <CardHeader>
-              <CardTitle>{metric.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="dashboard-value">{metric.value}</p>
-            </CardContent>
-            <CardFooter className="flex-col items-stretch justify-between gap-3">
-              <CardDescription>{metric.description}</CardDescription>
-              <Button
-                asChild
-                variant="link"
-                size="sm"
-                className="justify-start px-0"
-              >
-                <Link href={metric.href}>
-                  Ver detalhes
-                  <ArrowUpRight data-icon="inline-end" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      <Suspense key={JSON.stringify(filter)} fallback={<DashboardLoading />}>
+        <Panel actor={actor} filter={filter} />
+      </Suspense>
     </section>
   );
 }

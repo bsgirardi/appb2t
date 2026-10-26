@@ -13,6 +13,50 @@
 @import "@fontsource/roboto/latin-700.css";
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "../";
+@layer components {
+  .dashboard-workspace {
+    --chart-1: var(--primary);
+    --chart-2: var(--accent);
+    --chart-3: var(--muted-foreground);
+  }
+  .dashboard-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--card);
+  }
+  .dashboard-date-fields {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .dashboard-date-fields > [data-slot="field"] {
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  .dashboard-stat {
+    display: block;
+    font-size: clamp(22px, 2vw, 30px);
+    font-weight: 600;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-stat[data-unavailable] {
+    font-size: 18px;
+    color: var(--muted-foreground);
+  }
+  @media (max-width: 600px) {
+    .dashboard-toolbar { padding: 16px; }
+    .dashboard-date-fields { width: 100%; }
+    .dashboard-date-fields > [data-slot="field"] { flex: 1 1 130px; }
+  }
+}
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
