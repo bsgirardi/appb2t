@@ -1,6 +1,7 @@
 "use client";
 import { AdminThemeProvider } from "@/components/admin/admin-theme";
 import { Alert } from "@/components/ui/alert";
+import { APP_VERSION } from "@/lib/version";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -154,6 +155,9 @@ export function AppShell({
           </main>
           <footer className="workspace-footer">
             <span>{identity.footer}</span>
+            <Link href="/atualizacoes">
+              Versão {APP_VERSION} · Atualizações
+            </Link>
             <span>Valores em BRL · Português (Brasil)</span>
           </footer>
         </div>

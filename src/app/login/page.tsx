@@ -6,6 +6,7 @@ import { Brand } from "@/components/shell/brand";
 import { getPublicAppearance } from "@/server/appearance";
 import { Layers3, Check } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_VERSION } from "@/lib/version";
 export default async function Login({
   searchParams,
 }: {
@@ -61,6 +62,9 @@ export default async function Login({
           <div className="login-help">
             Precisa de acesso? Fale com o administrador da sua equipe.
           </div>
+          <footer className="mt-4 text-center text-xs text-muted-foreground">
+            Versão {APP_VERSION}
+          </footer>
         </div>
       </section>
     </div>
