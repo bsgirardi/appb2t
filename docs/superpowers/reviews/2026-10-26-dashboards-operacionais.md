@@ -53,3 +53,13 @@ As regressões afetadas passaram: 14/14 testes em três arquivos. Sem achados me
 - O ledger usa registro equivalente aos auxiliares POSIX da skill no Windows. Arquivos locais e evidências não relacionados à publicação são preservados separadamente, sem inclusão no commit dos dashboards.
 
 Para abrir a prévia isolada: iniciar `node tests/dashboard-preview-server.mjs` e acessar `/tests/dashboard-preview.html` na porta 4175. Ela exibe claramente dados de teste e não acessa APIs ou banco. A tela real continua em `/dashboard` no servidor Next, com autenticação normal.
+
+## Validação no banco da instalação local — 26/10/2026
+
+Após localizar o PostgreSQL operacional no contêiner `appb2t-db-1`, o código atual de `src/` foi executado em contêiner temporário de ferramentas na rede da aplicação. A conexão usou `default_transaction_read_only=on`, confirmado por consulta ao PostgreSQL; nenhum registro foi criado ou alterado. Não foram executadas migrações nem a suíte de integração que limpa dados.
+
+As consultas dos seis painéis concluíram com código de saída zero, usando um administrador ativo existente: Visão geral (11 indicadores), Comercial (16), Produção (12), Estoque (6), Financeiro (14) e Rentabilidade (12). Os retornos também foram serializados com sucesso.
+
+Limite observado: esse banco local contém um usuário, mas nenhuma venda, orçamento, ordem de produção ou produto. O resultado valida conexão, compatibilidade das consultas e retorno sem dados. Não comprova cálculos sobre movimentação operacional populada, navegação autenticada no navegador ou acesso ao banco do servidor remoto. A tentativa anterior em `localhost:5432` falhava porque o PostgreSQL Docker não publica essa porta no host.
+
+A implementação já estava integrada pela PR #11 (`f31e700`). Esta atualização registra a validação posterior solicitada pelo usuário.
