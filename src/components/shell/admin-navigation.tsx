@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
   Boxes,
   Layers,
+  History,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -73,6 +74,7 @@ const groups: { label: string; items: Item[]; admin?: boolean }[] = [
   },
 ];
 const utilities: Item[] = [
+  { href: "/atualizacoes", label: "Atualizações", icon: History },
   {
     href: "/configuracoes",
     label: "Configurações",
