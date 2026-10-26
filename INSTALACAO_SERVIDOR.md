@@ -115,6 +115,15 @@ dc --profile tools run --rm --no-deps admin
 
 Informe nome, e-mail e senha com 12 a 128 caracteres no prompt. Nenhuma conta da instalação local vem pelo GitHub. Não execute esse comando em todas as atualizações; usuários adicionais são geridos pelo painel.
 
+Para recuperar a senha de um **ADMIN ativo existente**, com o código atualizado e o banco em execução:
+
+```bash
+dc --profile tools build admin
+dc --profile tools run --rm --no-deps admin npm run admin:create -- --reset-password
+```
+
+Informe o e-mail e a nova senha duas vezes, de forma oculta no terminal. A recuperação encerra as sessões da conta e limpa seu bloqueio temporário de login; não cria nem reativa usuários. Nunca passe a senha como argumento. A função `dc` mantém os arquivos e o ambiente desta instalação.
+
 Confira a saúde e o mount efetivo:
 
 ```bash
