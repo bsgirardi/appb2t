@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,7 +78,7 @@ export function CollectionForm({
   }
   return (
     <Card asChild>
-      <form onSubmit={save} className="product-form">
+      <AdminForm onSubmit={save} className="product-form">
         {error && <Notice>{error}</Notice>}
         <fieldset disabled={busy}>
           <Field
@@ -172,7 +173,7 @@ export function CollectionForm({
             </Button>
           </div>
         </fieldset>
-      </form>
+      </AdminForm>
     </Card>
   );
 }

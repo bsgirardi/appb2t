@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -122,6 +123,7 @@ export function RecordEditor({
             variant="ghost"
             size="icon-sm"
             className=""
+            data-cancel-editor
             onClick={onCancel}
             aria-label="Fechar edição"
             disabled={pending}
@@ -129,7 +131,7 @@ export function RecordEditor({
             <X size={20} />
           </Button>
         </div>
-        <form onSubmit={submit}>
+        <AdminForm onSubmit={submit}>
           <div className="form-grid editor-fields">
             {fields.map((f) => (
               <div key={f.key}>
@@ -137,6 +139,8 @@ export function RecordEditor({
                   <div className="field">
                     <Label htmlFor={`edit-${f.key}`}>{f.label}</Label>
                     <NativeSelect
+                      required
+                      aria-invalid={!!fieldErrors[f.key]}
                       id={`edit-${f.key}`}
                       value={String(draft[f.key] ?? "")}
                       onChange={(e) => update(f.key, e.target.value)}
@@ -158,6 +162,7 @@ export function RecordEditor({
                   </Label>
                 ) : (
                   <Field
+                    error={fieldErrors[f.key]}
                     label={f.label}
                     value={String(draft[f.key] ?? "")}
                     onChange={(e) => update(f.key, e.target.value)}
@@ -192,7 +197,7 @@ export function RecordEditor({
                     }
                   />
                 )}
-                {fieldErrors[f.key] && (
+                {f.kind === "select" && fieldErrors[f.key] && (
                   <small className="field-error">{fieldErrors[f.key]}</small>
                 )}
               </div>
@@ -217,6 +222,7 @@ export function RecordEditor({
               size="sm"
               type="button"
               className=""
+              data-cancel-editor
               onClick={onCancel}
               disabled={pending}
             >
@@ -227,7 +233,7 @@ export function RecordEditor({
               {pending ? "Salvando…" : "Salvar alterações"}
             </Button>
           </div>
-        </form>
+        </AdminForm>
       </section>
     </Card>
   );

@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -170,6 +172,7 @@ export function CalculatorForm({
                 <div className="field">
                   <Label htmlFor="material">Material</Label>
                   <NativeSelect
+                    required
                     id="material"
                     value={materialId}
                     onChange={(e) => setMaterialId(e.target.value)}
@@ -190,6 +193,7 @@ export function CalculatorForm({
                 <div className="field">
                   <Label htmlFor="printer">Impressora</Label>
                   <NativeSelect
+                    required
                     id="printer"
                     value={printerId}
                     onChange={(e) => setPrinterId(e.target.value)}
@@ -210,6 +214,7 @@ export function CalculatorForm({
               </div>
               <Separator className="my-6" />
               <Field
+                required
                 label="Consumo de material"
                 inputMode="decimal"
                 placeholder={technology === "FDM" ? "Ex.: 100" : "Ex.: 50"}
@@ -247,7 +252,13 @@ export function CalculatorForm({
               </div>
             </section>
           </Card>
-          <Card asChild>
+          <FormSection
+            id="calculator-parameters"
+            title="Parâmetros aplicados"
+            collapsible
+            defaultOpen={false}
+            summary="Custos padronizados da equipe"
+          >
             <section className="settings-summary">
               <div className="section-heading">
                 <h2>
@@ -304,7 +315,7 @@ export function CalculatorForm({
                 })}
               </small>
             </section>
-          </Card>
+          </FormSection>
         </div>
         <CostBreakdown
           result={result}

@@ -1,4 +1,5 @@
 "use client";
+import { AdminThemeProvider } from "@/components/admin/admin-theme";
 import { Alert } from "@/components/ui/alert";
 
 import Link from "next/link";
@@ -61,99 +62,102 @@ export function AppShell({
     />
   );
   return (
-    <div
-      className="app-shell admin-ui admin-theme font-admin text-sm"
-      style={paletteStyle}
-    >
-      <a href="#admin-content" className="store-skip">
-        Pular para o conteúdo
-      </a>
-      <Sidebar aria-label="Área administrativa">
-        <Link href="/dashboard" aria-label={`${identity.name} início`}>
-          <Brand identity={identity} />
-        </Link>
-        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="admin-menu-toggle md:hidden"
+    <AdminThemeProvider style={paletteStyle}>
+      <div
+        className="app-shell admin-ui admin-theme font-admin text-sm"
+        style={paletteStyle}
+      >
+        <a href="#admin-content" className="store-skip">
+          Pular para o conteúdo
+        </a>
+        <Sidebar aria-label="Área administrativa">
+          <Link href="/dashboard" aria-label={`${identity.name} início`}>
+            <Brand identity={identity} />
+          </Link>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="admin-menu-toggle md:hidden"
+              >
+                <Menu aria-hidden="true" /> Menu
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="admin-ui admin-theme font-admin"
+              style={paletteStyle}
             >
-              <Menu aria-hidden="true" /> Menu
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="admin-ui admin-theme font-admin"
-            style={paletteStyle}
-          >
-            <SheetTitle>Menu principal</SheetTitle>
-            <SheetDescription>
-              Navegação da equipe {identity.name}
-            </SheetDescription>
-            {navigation}
-          </SheetContent>
-        </Sheet>
-        <div className="workspace-badge">
-          <span className="dot" /> Ambiente da equipe <ShieldCheck size={14} />
-        </div>
-        <div className="nav-title">ÁREA DE TRABALHO</div>
-        <div className="admin-desktop-nav">{navigation}</div>
-        <div className="sidebar-bottom">
-          <div className="internal-note">
-            <ShieldCheck size={19} />
-            <div>
-              <strong>Seu espaço de produção</strong>
-              <p>
-                Dados compartilhados.
-                <br />
-                Acesso seguro para sua equipe.
-              </p>
-            </div>
+              <SheetTitle>Menu principal</SheetTitle>
+              <SheetDescription>
+                Navegação da equipe {identity.name}
+              </SheetDescription>
+              {navigation}
+            </SheetContent>
+          </Sheet>
+          <div className="workspace-badge">
+            <span className="dot" /> Ambiente da equipe{" "}
+            <ShieldCheck size={14} />
           </div>
-          <div className="profile">
-            <span className="avatar">
-              {actor.name.slice(0, 2).toUpperCase()}
+          <div className="nav-title">ÁREA DE TRABALHO</div>
+          <div className="admin-desktop-nav">{navigation}</div>
+          <div className="sidebar-bottom">
+            <div className="internal-note">
+              <ShieldCheck size={19} />
+              <div>
+                <strong>Seu espaço de produção</strong>
+                <p>
+                  Dados compartilhados.
+                  <br />
+                  Acesso seguro para sua equipe.
+                </p>
+              </div>
+            </div>
+            <div className="profile">
+              <span className="avatar">
+                {actor.name.slice(0, 2).toUpperCase()}
+              </span>
+              <div>
+                <strong>{actor.name}</strong>
+                <small>
+                  {actor.role === "ADMIN" ? "Administrador" : "Operador"}
+                </small>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className=""
+                aria-label="Sair da conta"
+                onClick={exit}
+              >
+                <LogOut size={17} />
+              </Button>
+            </div>
+            {error && <Alert role="alert">{error}</Alert>}
+          </div>
+        </Sidebar>
+        <div className="workspace">
+          <header className="topbar">
+            <span>
+              Gestão <span className="slash">/</span>{" "}
+              <strong>{navigationTitle(path)}</strong>
             </span>
-            <div>
-              <strong>{actor.name}</strong>
-              <small>
-                {actor.role === "ADMIN" ? "Administrador" : "Operador"}
-              </small>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className=""
-              aria-label="Sair da conta"
-              onClick={exit}
-            >
-              <LogOut size={17} />
-            </Button>
-          </div>
-          {error && <Alert role="alert">{error}</Alert>}
+            <ThemeToggle />
+            <span className="internal-chip">
+              <span className="dot" /> Uso interno <ArrowUpRight size={13} />
+            </span>
+          </header>
+          <main id="admin-content" className="min-w-0">
+            {children}
+          </main>
+          <footer className="workspace-footer">
+            <span>{identity.footer}</span>
+            <span>Valores em BRL · Português (Brasil)</span>
+          </footer>
         </div>
-      </Sidebar>
-      <div className="workspace">
-        <header className="topbar">
-          <span>
-            Gestão <span className="slash">/</span>{" "}
-            <strong>{navigationTitle(path)}</strong>
-          </span>
-          <ThemeToggle />
-          <span className="internal-chip">
-            <span className="dot" /> Uso interno <ArrowUpRight size={13} />
-          </span>
-        </header>
-        <main id="admin-content" className="min-w-0">
-          {children}
-        </main>
-        <footer className="workspace-footer">
-          <span>{identity.footer}</span>
-          <span>Valores em BRL · Português (Brasil)</span>
-        </footer>
       </div>
-    </div>
+    </AdminThemeProvider>
   );
 }

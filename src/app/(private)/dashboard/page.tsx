@@ -85,32 +85,6 @@ export default async function DashboardPage() {
         Atualizado em {data.today.split("-").reverse().join("/")} · Vendas de{" "}
         {month}
       </p>
-      <div className="dashboard-metrics">
-        {metrics.map((metric) => (
-          <Card key={metric.title}>
-            <CardHeader>
-              <CardTitle>{metric.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="dashboard-value">{metric.value}</p>
-            </CardContent>
-            <CardFooter className="flex-col items-stretch justify-between gap-3">
-              <CardDescription>{metric.description}</CardDescription>
-              <Button
-                asChild
-                variant="link"
-                size="sm"
-                className="justify-start px-0"
-              >
-                <Link href={metric.href}>
-                  Ver detalhes
-                  <ArrowUpRight data-icon="inline-end" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
       <Card>
         <CardHeader>
           <CardTitle>O que precisa de atenção</CardTitle>
@@ -140,6 +114,32 @@ export default async function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+      <div className="dashboard-metrics">
+        {metrics.map((metric) => (
+          <Card key={metric.title}>
+            <CardHeader>
+              <CardTitle>{metric.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="dashboard-value">{metric.value}</p>
+            </CardContent>
+            <CardFooter className="flex-col items-stretch justify-between gap-3">
+              <CardDescription>{metric.description}</CardDescription>
+              <Button
+                asChild
+                variant="link"
+                size="sm"
+                className="justify-start px-0"
+              >
+                <Link href={metric.href}>
+                  Ver detalhes
+                  <ArrowUpRight data-icon="inline-end" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </section>
   );
 }

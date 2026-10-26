@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ export function RequestPanel({
     <div className="commerce-page request-page">
       <h1>Solicitações</h1>
       <p>Revise as seleções recebidas antes de preparar um orçamento.</p>
-      <form
+      <AdminForm
         className="commerce-filters"
         onSubmit={(e) => {
           e.preventDefault();
@@ -55,7 +56,7 @@ export function RequestPanel({
           </NativeSelect>
         </Label>
         <Button type="submit">Filtrar</Button>
-      </form>
+      </AdminForm>
       <div className="request-inbox">
         {initial.items.map((item) => (
           <article key={item.id} className="request-inbox-item">

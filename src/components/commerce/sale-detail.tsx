@@ -1,4 +1,6 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+
 import { SaleStock } from "@/components/stock/reservation-form";
 import { DocumentArt } from "@/components/art/document-art";
 import {
@@ -294,29 +296,32 @@ export function SaleDetail({
           </Button>
         </section>
       )}
-      <Card asChild>
-        <section className="">
-          {sale.document.catalogKits && (
-            <KitDocumentHistory value={sale.document.catalogKits} />
-          )}
-          <h2>Histórico</h2>
-          <ul>
-            {sale.events.map((e) => (
-              <li key={e.id}>
-                {new Date(e.createdAt).toLocaleString("pt-BR", {
-                  timeZone: "America/Sao_Paulo",
-                })}{" "}
-                ·{" "}
-                {e.action === "KIT_DISCOUNT_REVIEW"
-                  ? "Desconto revisado"
-                  : e.action}{" "}
-                · {e.actorName}
-                {e.reason && ` · ${e.reason}`}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </Card>
+      <FormSection
+        id="sale-history"
+        title="Histórico da venda"
+        collapsible
+        defaultOpen={false}
+        summary={`${sale.events.length} registros`}
+      >
+        {sale.document.catalogKits && (
+          <KitDocumentHistory value={sale.document.catalogKits} />
+        )}
+        <ul>
+          {sale.events.map((e) => (
+            <li key={e.id}>
+              {new Date(e.createdAt).toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo",
+              })}{" "}
+              ·{" "}
+              {e.action === "KIT_DISCOUNT_REVIEW"
+                ? "Desconto revisado"
+                : e.action}{" "}
+              · {e.actorName}
+              {e.reason && ` · ${e.reason}`}
+            </li>
+          ))}
+        </ul>
+      </FormSection>
     </div>
   );
 }

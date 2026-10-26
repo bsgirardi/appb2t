@@ -1,4 +1,8 @@
 "use client";
+import { FormSection } from "@/components/admin/form-section";
+import { FormActions } from "@/components/admin/form-actions";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -107,7 +111,7 @@ export function AppearancePanel({
           </p>
         </div>
       </div>
-      <form onSubmit={save} className="product-edit-grid">
+      <AdminForm onSubmit={save} className="product-edit-grid">
         {" "}
         <Card asChild>
           <section className="">
@@ -157,18 +161,40 @@ export function AppearancePanel({
                 />{" "}
                 Remover logo
               </Label>
-              <AppearanceColors
-                value={draft}
-                onChange={(next) => setDraft({ ...defaultSiteColors, ...next })}
-              />
-              <StorefrontEditor
-                value={draft.storefront ?? defaultStorefront}
-                collections={collections}
-                onChange={(storefront) => setDraft({ ...draft, storefront })}
-              />
-              <Button variant="default" size="sm" type="submit" className="">
-                {busy ? "Salvando…" : "Salvar aparência"}
-              </Button>
+              <FormSection
+                id="appearance-colors"
+                title="Cores da interface"
+                collapsible
+                defaultOpen={false}
+                hasErrors={!!error}
+                summary="Paleta da marca"
+              >
+                <AppearanceColors
+                  value={draft}
+                  onChange={(next) =>
+                    setDraft({ ...defaultSiteColors, ...next })
+                  }
+                />
+              </FormSection>
+              <FormSection
+                id="appearance-store"
+                title="Organização da loja"
+                collapsible
+                defaultOpen={false}
+                hasErrors={!!error}
+                summary="Seções e conteúdo da vitrine"
+              >
+                <StorefrontEditor
+                  value={draft.storefront ?? defaultStorefront}
+                  collections={collections}
+                  onChange={(storefront) => setDraft({ ...draft, storefront })}
+                />
+              </FormSection>
+              <FormActions>
+                <Button variant="default" size="sm" type="submit" className="">
+                  {busy ? "Salvando…" : "Salvar aparência"}
+                </Button>
+              </FormActions>
             </fieldset>
           </section>
         </Card>
@@ -196,7 +222,7 @@ export function AppearancePanel({
             </a>
           </aside>
         </Card>
-      </form>
+      </AdminForm>
     </>
   );
 }

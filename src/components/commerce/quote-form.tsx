@@ -1,4 +1,8 @@
 "use client";
+import { TaskLayout } from "@/components/admin/task-layout";
+import { FormSection } from "@/components/admin/form-section";
+
+import { AdminForm } from "@/components/admin/admin-form";
 import type {
   LineCostBinding,
   PricingSnapshotDTO,
@@ -160,143 +164,185 @@ export function QuoteForm({
     }
   }
   return (
-    <form onSubmit={save} className="commerce-form">
+    <AdminForm onSubmit={save} className="commerce-form">
       <h2>{title ?? (quote ? "Editar orçamento" : "Novo orçamento")}</h2>
-      <CatalogOrigins items={draft.items ?? []} />
-      {error && <Notice>{error}</Notice>}
-      <Label>
-        Cliente
-        <NativeSelect
-          value={draft.customerId ?? ""}
-          onChange={(e) => update({ customerId: e.target.value || undefined })}
-        >
-          <option value="">Selecionar depois</option>
-          {customers.map((c) => (
-            <option key={c.id} value={c.id} disabled={!c.active}>
-              {c.name}
-              {c.active ? "" : " (inativo)"}
-            </option>
-          ))}
-        </NativeSelect>
-      </Label>
-      {!saveDraft && (
-        <Field
-          label="Válido até"
-          type="date"
-          value={draft.validUntil ?? ""}
-          onChange={(e) => update({ validUntil: e.target.value || undefined })}
-        />
-      )}
-      <DocumentItems
-        items={draft.items ?? []}
-        products={products}
-        renderPrivate={(item, index) => {
-          const binding = bindings.find((b) => b.lineId === item.lineId),
-            snapshot = snapshots.find((s) => s.id === binding?.snapshotId);
-          return (
-            <LinePricingControls
-              item={item}
-              binding={binding}
-              snapshot={snapshot}
-              onAttach={(s) => {
-                setSnapshots((old) => [...old.filter((x) => x.id !== s.id), s]);
-                setBindings((old) => [
-                  ...old.filter((b) => b.lineId !== item.lineId),
-                  {
-                    lineId: item.lineId!,
-                    snapshotId: s.id,
-                    fingerprint: lineFingerprint(item),
-                    state: "VALID",
-                  },
-                ]);
-              }}
-              onRemove={() =>
-                setBindings((old) =>
-                  old.filter((b) => b.lineId !== item.lineId),
-                )
-              }
-              onPrice={(unitPrice) =>
-                update({
-                  items: draft.items!.map((i, j) =>
-                    j === index ? { ...i, unitPrice } : i,
-                  ),
-                })
-              }
-            />
-          );
-        }}
-        onChange={(items) =>
-          update({
-            items: items.length || draft.catalogKits ? items : undefined,
-          })
+      <TaskLayout
+        summary={
+          <section className="admin-summary-card">
+            <h3>Resumo do documento</h3>
+            <dl>
+              <dt>Itens</dt>
+              <dd>{draft.items?.length ?? 0}</dd>
+              <dt>Desconto</dt>
+              <dd>R$ {draft.discount || "0,00"}</dd>
+              <dt>Frete</dt>
+              <dd>R$ {draft.shipping || "0,00"}</dd>
+              <dt>Total</dt>
+              <dd>R$ {total}</dd>
+            </dl>
+            <p className="admin-form-note">
+              Rascunho: os dados completos serão exigidos ao confirmar.
+            </p>
+          </section>
         }
-      />
-      <div className="form-grid">
-        <Field
-          label="Desconto (R$)"
-          inputMode="decimal"
-          value={draft.discount ?? ""}
-          onChange={(e) => update({ discount: e.target.value })}
-        />
-        <Field
-          label="Frete (R$)"
-          inputMode="decimal"
-          value={draft.shipping ?? ""}
-          onChange={(e) => update({ shipping: e.target.value })}
-        />
-      </div>
-      {draft.catalogKits && (
-        <>
-          <KitDocumentHistory value={draft.catalogKits} />
-          {kitEdited && (
-            <label className="flex min-h-11 items-center gap-3">
-              <Checkbox
-                checked={
-                  !!kitFingerprint && reviewedKitFingerprint === kitFingerprint
-                }
-                disabled={!kitFingerprint || busy}
-                onChange={(e) =>
-                  setReviewedKitFingerprint(
-                    e.target.checked ? kitFingerprint : undefined,
+      >
+        <CatalogOrigins items={draft.items ?? []} />
+        {error && <Notice>{error}</Notice>}
+        <Label>
+          Cliente
+          <NativeSelect
+            value={draft.customerId ?? ""}
+            onChange={(e) =>
+              update({ customerId: e.target.value || undefined })
+            }
+          >
+            <option value="">Selecionar depois</option>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id} disabled={!c.active}>
+                {c.name}
+                {c.active ? "" : " (inativo)"}
+              </option>
+            ))}
+          </NativeSelect>
+        </Label>
+        {!saveDraft && (
+          <Field
+            label="Válido até"
+            type="date"
+            value={draft.validUntil ?? ""}
+            onChange={(e) =>
+              update({ validUntil: e.target.value || undefined })
+            }
+          />
+        )}
+        <DocumentItems
+          items={draft.items ?? []}
+          products={products}
+          renderPrivate={(item, index) => {
+            const binding = bindings.find((b) => b.lineId === item.lineId),
+              snapshot = snapshots.find((s) => s.id === binding?.snapshotId);
+            return (
+              <LinePricingControls
+                item={item}
+                binding={binding}
+                snapshot={snapshot}
+                onAttach={(s) => {
+                  setSnapshots((old) => [
+                    ...old.filter((x) => x.id !== s.id),
+                    s,
+                  ]);
+                  setBindings((old) => [
+                    ...old.filter((b) => b.lineId !== item.lineId),
+                    {
+                      lineId: item.lineId!,
+                      snapshotId: s.id,
+                      fingerprint: lineFingerprint(item),
+                      state: "VALID",
+                    },
+                  ]);
+                }}
+                onRemove={() =>
+                  setBindings((old) =>
+                    old.filter((b) => b.lineId !== item.lineId),
                   )
                 }
+                onPrice={(unitPrice) =>
+                  update({
+                    items: draft.items!.map((i, j) =>
+                      j === index ? { ...i, unitPrice } : i,
+                    ),
+                  })
+                }
               />
-              Revisei o desconto deste documento
-            </label>
-          )}
-        </>
-      )}
-      {bindings.length > 0 &&
-        ((Number(draft.discount?.replace(",", ".")) || 0) > 0 ||
-          (Number(draft.shipping?.replace(",", ".")) || 0) > 0) && (
-          <p className="no-print">resultado global não apurado nesta etapa</p>
-        )}
-      <p>
-        <strong>Total: R$ {total}</strong>
-      </p>
-      <Label>
-        Condições de pagamento
-        <Textarea
-          maxLength={2000}
-          value={draft.paymentTerms ?? ""}
-          onChange={(e) =>
-            update({ paymentTerms: e.target.value || undefined })
+            );
+          }}
+          onChange={(items) =>
+            update({
+              items: items.length || draft.catalogKits ? items : undefined,
+            })
           }
         />
-      </Label>
-      <Label>
-        Notas internas
-        <Textarea
-          maxLength={2000}
-          value={draft.internalNotes ?? ""}
-          onChange={(e) => update({ internalNotes: e.target.value })}
-        />
-      </Label>
-      <p>
-        {saveDraft
-          ? "A venda será salva como rascunho. Revise o parcelamento antes de confirmar."
-          : "Salvar mantém o rascunho. A emissão exige cliente, itens, validade e condições de pagamento."}
-      </p>
+        <div className="form-grid">
+          <Field
+            label="Desconto (R$)"
+            inputMode="decimal"
+            value={draft.discount ?? ""}
+            onChange={(e) => update({ discount: e.target.value })}
+          />
+          <Field
+            label="Frete (R$)"
+            inputMode="decimal"
+            value={draft.shipping ?? ""}
+            onChange={(e) => update({ shipping: e.target.value })}
+          />
+        </div>
+        {draft.catalogKits && (
+          <>
+            <KitDocumentHistory value={draft.catalogKits} />
+            {kitEdited && (
+              <label className="flex min-h-11 items-center gap-3">
+                <Checkbox
+                  checked={
+                    !!kitFingerprint &&
+                    reviewedKitFingerprint === kitFingerprint
+                  }
+                  disabled={!kitFingerprint || busy}
+                  onChange={(e) =>
+                    setReviewedKitFingerprint(
+                      e.target.checked ? kitFingerprint : undefined,
+                    )
+                  }
+                />
+                Revisei o desconto deste documento
+              </label>
+            )}
+          </>
+        )}
+        {bindings.length > 0 &&
+          ((Number(draft.discount?.replace(",", ".")) || 0) > 0 ||
+            (Number(draft.shipping?.replace(",", ".")) || 0) > 0) && (
+            <p className="no-print">resultado global não apurado nesta etapa</p>
+          )}
+        <p>
+          <strong>Total: R$ {total}</strong>
+        </p>
+        <FormSection
+          id="document-conditions"
+          title="Pagamento e notas internas"
+          collapsible
+          defaultOpen={false}
+          hasErrors={!!error}
+          summary={
+            draft.paymentTerms
+              ? "Condições preenchidas"
+              : "Pode preencher antes de confirmar"
+          }
+        >
+          <Label>
+            Condições de pagamento
+            <Textarea
+              maxLength={2000}
+              value={draft.paymentTerms ?? ""}
+              onChange={(e) =>
+                update({ paymentTerms: e.target.value || undefined })
+              }
+            />
+          </Label>
+          <Label>
+            Notas internas
+            <Textarea
+              maxLength={2000}
+              value={draft.internalNotes ?? ""}
+              onChange={(e) => update({ internalNotes: e.target.value })}
+            />
+          </Label>
+        </FormSection>
+        <p>
+          {saveDraft
+            ? "A venda será salva como rascunho. Revise o parcelamento antes de confirmar."
+            : "Salvar mantém o rascunho. A emissão exige cliente, itens, validade e condições de pagamento."}
+        </p>
+      </TaskLayout>
       <div className="form-actions">
         <Button variant="default" size="sm" className="" disabled={busy}>
           {busy ? "Salvando…" : "Salvar rascunho"}
@@ -311,6 +357,6 @@ export function QuoteForm({
           Cancelar
         </Button>
       </div>
-    </form>
+    </AdminForm>
   );
 }

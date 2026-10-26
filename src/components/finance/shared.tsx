@@ -1,4 +1,7 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
+import { TaskLayout } from "@/components/admin/task-layout";
+import { FormActions } from "@/components/admin/form-actions";
 import { Pagination as PaginationNav } from "@/components/ui/pagination";
 
 import { Label } from "@/components/ui/label";
@@ -49,6 +52,7 @@ export function ActionForm({
   preserveAmbiguous = false,
   revision,
   title,
+  summary,
   children,
   submit = "Salvar",
   onSubmit,
@@ -58,6 +62,7 @@ export function ActionForm({
   preserveAmbiguous?: boolean;
   revision?: string | number;
   title: string;
+  summary?: ReactNode;
   children: ReactNode;
   submit?: string;
   onSubmit: (data: FormData, operationKey: string) => Promise<unknown>;
@@ -116,7 +121,7 @@ export function ActionForm({
   }
   return (
     <Card asChild>
-      <form className="commerce-form" onSubmit={send}>
+      <AdminForm className="commerce-form" onSubmit={send}>
         <h2>{title}</h2>
         {error && <Notice>{error}</Notice>}
         {uncertain && (
@@ -126,8 +131,8 @@ export function ActionForm({
           </Notice>
         )}
         <fieldset disabled={busy}>
-          {children}
-          <div className="finance-actions">
+          <TaskLayout summary={summary}>{children}</TaskLayout>
+          <FormActions>
             <Button variant="default" size="sm" className="">
               {busy ? "Salvando…" : submit}
             </Button>
@@ -142,9 +147,9 @@ export function ActionForm({
                 Voltar
               </Button>
             )}
-          </div>
+          </FormActions>
         </fieldset>
-      </form>
+      </AdminForm>
     </Card>
   );
 }

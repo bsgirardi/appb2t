@@ -31,6 +31,20 @@ export function OrderForm({
   return (
     <ActionForm
       title={order ? "Editar rascunho" : "Nova ordem de produção"}
+      submit="Salvar ordem"
+      summary={
+        <section className="admin-summary-card">
+          <h3>Ordem de produção</h3>
+          <p>
+            {rows.length} itens ·{" "}
+            {origin === "SALE" ? "Para venda" : "Para estoque"}
+          </p>
+          <p>
+            Salvar mantém o rascunho. Confira as metas antes de liberar a
+            produção.
+          </p>
+        </section>
+      }
       revision={order?.version}
       onDone={onDone}
       onCancel={onCancel}

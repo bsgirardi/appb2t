@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
 
 import { Label } from "@/components/ui/label";
@@ -68,7 +69,7 @@ export function QuotePanel({
           onSaved={(q) => router.push(`/orcamentos/${q.id}`)}
         />
       )}
-      <form className="commerce-filters" onSubmit={filter}>
+      <AdminForm className="commerce-filters" onSubmit={filter}>
         <Label>
           Buscar
           <Input
@@ -106,7 +107,7 @@ export function QuotePanel({
         <Button variant="outline" size="sm" className="">
           Filtrar
         </Button>
-      </form>
+      </AdminForm>
       <Card asChild>
         <div className="table-scroll">
           <Table>

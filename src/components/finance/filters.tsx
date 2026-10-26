@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/admin-form";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ export function FinanceFilters({
 }) {
   return (
     <Card asChild>
-      <form action={action} className="commerce-form">
+      <AdminForm action={action} className="commerce-form">
         <div className="form-grid">
           <Label className="field">
             Buscar
@@ -103,7 +104,7 @@ export function FinanceFilters({
           movimentos. Por conta, previsões incluem obrigações que já tiveram
           baixa nessa conta.
         </small>
-      </form>
+      </AdminForm>
     </Card>
   );
 }

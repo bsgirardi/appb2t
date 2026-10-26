@@ -155,6 +155,279 @@
   .admin-ui .admin-menu-toggle {
     display: none;
   }
+  /* Task workspaces: readable controls, visible requirements and nearby actions. */
+  .field-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .field-required {
+    display: none;
+  }
+  .admin-ui .field-required {
+    display: inline;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .admin-ui .field-required-generated::after {
+    content: "Obrigatório";
+  }
+  .admin-ui .field-error {
+    color: var(--destructive);
+  }
+  .admin-ui .field [aria-invalid="true"] {
+    border-color: var(--destructive);
+  }
+  .admin-ui
+    .field:not([data-required-label]):has(
+      > :is(input, select, textarea):required
+    )::before,
+  .admin-ui
+    .field:has(> label + :is(input, select, textarea):required)::before {
+    content: "Obrigatório";
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    color: var(--muted-foreground);
+    font-size: 11px;
+  }
+  .admin-ui
+    label:not(.field):not([data-required-label]):has(
+      > :is(input, select, textarea):required
+    )::before {
+    content: "Obrigatório";
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 400;
+  }
+  .admin-ui .field,
+  .admin-ui label:has(> :is(input, select, textarea):required) {
+    position: relative;
+  }
+  .admin-ui .field label {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .admin-ui .field small {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .admin-ui
+    .field
+    :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+    font-size: 14px;
+    height: 40px;
+  }
+  .admin-ui textarea {
+    font-size: 14px;
+    min-height: 76px;
+  }
+  .admin-ui [data-slot="button"] {
+    font-size: 13px;
+    min-height: 38px;
+  }
+  .admin-ui .admin-task-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
+  }
+  .admin-ui .admin-task-single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-ui .admin-task-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .admin-ui .admin-operation-fields {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .admin-ui .admin-task-summary {
+    position: sticky;
+    top: 16px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-ui .admin-form-section {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+  }
+  .admin-ui .admin-section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    list-style: none;
+  }
+  .admin-ui summary.admin-section-heading {
+    cursor: pointer;
+  }
+  .admin-ui summary.admin-section-heading::-webkit-details-marker {
+    display: none;
+  }
+  .admin-ui .admin-section-heading > :is(small, span:not(:first-child)) {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    font-weight: 400;
+  }
+  .admin-ui .admin-section-heading svg {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+  }
+  .admin-ui details[open] > .admin-section-heading svg {
+    transform: rotate(180deg);
+  }
+  .admin-ui .admin-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 16px 16px;
+  }
+  .admin-ui .admin-section-description {
+    color: var(--muted-foreground);
+    font-size: 13px;
+    margin: 0;
+  }
+  .admin-ui .admin-form-actions,
+  .admin-ui form > :is(.product-actions, .form-actions, .finance-actions),
+  .admin-ui
+    form
+    > fieldset
+    > :is(.product-actions, .form-actions, .finance-actions) {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    padding: 12px 0;
+    margin-top: 16px;
+    isolation: isolate;
+  }
+  .admin-ui form {
+    scroll-margin-bottom: 90px;
+  }
+  .admin-ui :is(input, select, textarea) {
+    scroll-margin-block: 80px;
+  }
+  .admin-ui .admin-form-note {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    margin: 0 0 12px;
+  }
+  .admin-ui .admin-required-guide {
+    display: none;
+  }
+  .admin-ui form:has(:required) > .admin-required-guide {
+    display: block;
+  }
+  .admin-ui form.product-form {
+    gap: 12px;
+  }
+  .admin-ui .product-toolbar {
+    margin-bottom: 0;
+  }
+  .admin-ui .admin-task-content > .product-form {
+    gap: 12px;
+  }
+  .admin-ui .admin-task-summary .result-column {
+    position: static;
+  }
+  .admin-ui .admin-task-summary .price-card {
+    padding: 20px;
+  }
+  .admin-ui .admin-task-summary .sale-price {
+    font-size: 36px;
+  }
+  .admin-ui .admin-task-summary .price-stats {
+    gap: 12px;
+  }
+  .admin-ui .admin-summary-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-ui .admin-summary-card dl {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    margin: 0;
+  }
+  .admin-ui .admin-summary-card dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+  .admin-ui .admin-summary-card dt {
+    color: var(--muted-foreground);
+  }
+  .admin-ui .admin-summary-card p {
+    margin: 0;
+  }
+  .admin-ui .admin-essential-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+  }
+  .admin-ui .admin-essential-grid > .admin-wide {
+    grid-column: 1 / -1;
+  }
+  .admin-ui .admin-discard-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .admin-context-editor {
+    width: min(100%, 640px);
+    max-width: 640px;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .admin-context-editor > [data-slot="sheet-close"] {
+    position: absolute;
+  }
+  .admin-context-editor > :is(h2, p) {
+    margin-bottom: 12px;
+    padding-right: 40px;
+  }
+  .admin-context-editor .product-form {
+    border: 0;
+    padding: 0;
+  }
+  @media (max-width: 1100px) {
+    .admin-ui .admin-task-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .admin-ui .admin-task-summary {
+      position: static;
+    }
+  }
   @media (max-width: 767px) {
     .admin-ui {
       display: block;
@@ -220,6 +493,15 @@
     }
     .admin-ui textarea {
       font-size: 16px;
+    }
+    .admin-ui .admin-essential-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .admin-ui .admin-essential-grid > .admin-wide {
+      grid-column: auto;
+    }
+    .admin-context-editor {
+      padding: 20px 16px;
     }
   }
 }

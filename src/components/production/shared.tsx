@@ -1,5 +1,6 @@
 "use client";
 import type { ComponentProps } from "react";
+import { useState } from "react";
 import { ActionForm as BaseActionForm } from "@/components/finance/shared";
 export function ActionForm(props: ComponentProps<typeof BaseActionForm>) {
   return <BaseActionForm {...props} preserveAmbiguous />;
@@ -32,6 +33,8 @@ export const names: Record<string, string> = {
   ADJUSTMENT: "Ajuste",
 };
 export function DateReason({ required = false }: { required?: boolean }) {
+  const today = todaySaoPaulo(new Date());
+  const [date, setDate] = useState(today);
   return (
     <>
       <Field
@@ -39,12 +42,13 @@ export function DateReason({ required = false }: { required?: boolean }) {
         name="effectiveDate"
         type="date"
         required
-        defaultValue={todaySaoPaulo(new Date())}
+        value={date}
+        onChange={(event) => setDate(event.target.value)}
       />
       <Field
         label="Justificativa"
         name="reason"
-        required={required}
+        required={required || (!!date && date < today)}
         minLength={3}
         maxLength={2000}
         hint="Obrigatória para falhas, correções, falta de material e datas anteriores."

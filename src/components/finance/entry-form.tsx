@@ -24,6 +24,19 @@ export function EntryForm({
   return (
     <ActionForm
       title={entry ? "Editar lançamento" : "Novo lançamento"}
+      submit="Salvar lançamento"
+      summary={
+        <section className="admin-summary-card">
+          <h3>{kind === "PAYABLE" ? "Conta a pagar" : "Conta a receber"}</h3>
+          <p>
+            O lançamento registra uma previsão. O saldo das contas muda somente
+            ao registrar o pagamento ou recebimento.
+          </p>
+          <p className="admin-form-note">
+            Confira valor, categoria e vencimento antes de salvar.
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(data, operationKey) => {
