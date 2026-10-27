@@ -13,6 +13,9 @@ COPY . .
 RUN npm run build
 
 FROM build AS tools
+# COPY preserves host modes, including 0600 files from restrictive umasks.
+# The migration/admin user must own the sources and generated dependencies.
+RUN chown -R node:node /app
 USER node
 CMD ["npm", "run", "db:migrate"]
 
