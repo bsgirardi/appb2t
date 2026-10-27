@@ -14,6 +14,7 @@ import { siteThemeVariables } from "@/domain/appearance/theme";
 import type { SiteColors } from "@/domain/appearance/site-colors";
 import { InquiryLink } from "./inquiry-link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import type { CatalogCommercialFilters } from "@/domain/products/catalog-commercial-filters";
 
 export function StorefrontShell({
   identity,
@@ -21,6 +22,7 @@ export function StorefrontShell({
   search = "",
   collection = "",
   order = "nome",
+  commercial = {},
 }: {
   identity: CompanyIdentityDTO &
     Pick<PublicAppearanceDTO, "storefront"> &
@@ -29,6 +31,7 @@ export function StorefrontShell({
   search?: string;
   collection?: string;
   order?: string;
+  commercial?: CatalogCommercialFilters;
 }) {
   const contact = whatsappLink(
     identity.phone,
@@ -78,6 +81,27 @@ export function StorefrontShell({
             )}
             {collection && (
               <input type="hidden" name="colecao" value={collection} />
+            )}
+            {commercial.priceMin && (
+              <input
+                type="hidden"
+                name="precoMin"
+                value={commercial.priceMin}
+              />
+            )}
+            {commercial.priceMax && (
+              <input
+                type="hidden"
+                name="precoMax"
+                value={commercial.priceMax}
+              />
+            )}
+            {commercial.availability && (
+              <input
+                type="hidden"
+                name="disponibilidade"
+                value={commercial.availability}
+              />
             )}
             <Input
               key={`${search}:${collection}`}

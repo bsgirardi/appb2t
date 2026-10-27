@@ -1,9 +1,11 @@
+import { catalogAvailability } from "@/domain/products/catalog-commercial-filters";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Shapes, X } from "lucide-react";
 import type { PublicCollectionDTO } from "@/domain/collections/types";
 import {
   catalogPath,
+  catalogContextPath,
   type CatalogFilters,
 } from "@/domain/products/catalog-navigation";
 
@@ -77,7 +79,7 @@ export function CollectionNavigation({
   return (
     <nav className="store-categories" aria-label="Categorias">
       <Link
-        href={catalogPath("", context.search, context.order)}
+        href={catalogContextPath(context, { collection: "", page: 1 })}
         aria-current={!context.collection ? "page" : undefined}
       >
         Todos os produtos
@@ -85,7 +87,10 @@ export function CollectionNavigation({
       {collections.map((collection) => (
         <Link
           key={collection.id}
-          href={catalogPath(collection.id, context.search, context.order)}
+          href={catalogContextPath(context, {
+            collection: collection.id,
+            page: 1,
+          })}
           aria-current={
             context.collection === collection.id ? "page" : undefined
           }
@@ -104,7 +109,14 @@ export function ActiveCatalogFilters({
   context: CatalogFilters;
   collectionName?: string;
 }) {
-  if (!context.collection && !context.search) return null;
+  if (
+    !context.collection &&
+    !context.search &&
+    !context.priceMin &&
+    !context.priceMax &&
+    !context.availability
+  )
+    return null;
   return (
     <nav
       aria-label="Filtros ativos"
@@ -114,7 +126,7 @@ export function ActiveCatalogFilters({
       {context.collection && (
         <Link
           aria-label={`Remover coleção ${collectionName ?? "selecionada"}`}
-          href={catalogPath("", context.search, context.order)}
+          href={catalogContextPath(context, { collection: "", page: 1 })}
           className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-accent px-4 py-2"
         >
           <span className="min-w-0 break-words">
@@ -126,13 +138,32 @@ export function ActiveCatalogFilters({
       {context.search && (
         <Link
           aria-label={`Remover busca ${context.search}`}
-          href={catalogPath(context.collection, "", context.order)}
+          href={catalogContextPath(context, { search: "", page: 1 })}
           className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-accent px-4 py-2"
         >
           <span className="min-w-0 break-words">“{context.search}”</span>
           <X size={14} className="shrink-0" aria-hidden="true" />
         </Link>
       )}
+      {(["priceMin", "priceMax", "availability"] as const)
+        .filter((key) => context[key])
+        .map((key) => (
+          <Link
+            key={key}
+            aria-label={`Remover ${key === "priceMin" ? "preço mínimo" : key === "priceMax" ? "preço máximo" : "disponibilidade"}`}
+            href={catalogContextPath(context, { [key]: undefined, page: 1 })}
+            className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-accent px-4 py-2"
+          >
+            <span className="min-w-0 break-words">
+              {key === "availability"
+                ? (catalogAvailability[
+                    context.availability as keyof typeof catalogAvailability
+                  ] ?? "Disponibilidade inválida")
+                : `${key === "priceMin" ? "A partir de" : "Até"} R$ ${context[key]}`}
+            </span>
+            <X size={14} className="shrink-0" aria-hidden="true" />
+          </Link>
+        ))}
       <Link
         href="/#all-products"
         className="px-2 py-3 font-semibold text-primary underline underline-offset-4"

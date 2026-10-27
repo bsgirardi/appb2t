@@ -15,7 +15,7 @@ import { appUrl } from "@/lib/env";
 import { ProductExperience } from "@/components/products/product-experience";
 import {
   catalogFilters,
-  catalogPath,
+  catalogContextPath,
   productBrowsePath,
   type CatalogQuery,
 } from "@/domain/products/catalog-navigation";
@@ -54,13 +54,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
     context.collection = "";
     context.page = 1;
   }
-  const backHref =
-    catalogPath(
-      context.collection,
-      context.search,
-      context.order,
-      context.page,
-    ) + "#all-products";
+  const backHref = catalogContextPath(context) + "#all-products";
   const path = productPath(product);
   if (path !== `/portfolio/produto/${encodeURIComponent(id)}/${slug}`)
     permanentRedirect(productBrowsePath(product, context));
@@ -90,6 +84,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
       search={context.search}
       collection={context.collection}
       order={context.order}
+      commercial={context}
     >
       <CollectionNavigation collections={collections} context={context} />
       <script

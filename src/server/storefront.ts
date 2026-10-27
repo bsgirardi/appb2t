@@ -5,6 +5,10 @@ import {
 import { cache } from "react";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
+import {
+  parseCatalogCommercialFilters,
+  type CatalogCommercialFilters,
+} from "@/domain/products/catalog-commercial-filters";
 import { appUrl } from "@/lib/env";
 import { productPath, summary } from "@/domain/products/storefront";
 import type { PublicProductDTO } from "@/domain/products/types";
@@ -42,9 +46,27 @@ export async function catalogPage(
   search: string,
   order: string,
   page: number,
+  commercial: CatalogCommercialFilters = {},
 ) {
+  const criteria = parseCatalogCommercialFilters(commercial);
+  const hasPriceRange =
+    criteria.priceMin !== undefined || criteria.priceMax !== undefined;
   const where = {
     active: true,
+    ...(criteria.availability ? { availability: criteria.availability } : {}),
+    ...(criteria.priceMin !== undefined || criteria.priceMax !== undefined
+      ? {
+          publicPriceMode: "REFERENCE",
+          price: {
+            ...(criteria.priceMin !== undefined
+              ? { gte: criteria.priceMin }
+              : {}),
+            ...(criteria.priceMax !== undefined
+              ? { lte: criteria.priceMax }
+              : {}),
+          },
+        }
+      : {}),
     ...(collectionId
       ? {
           collections: { some: { collectionId, collection: { active: true } } },
@@ -85,7 +107,7 @@ export async function catalogPage(
             })
           : [];
         const consulted =
-          knownTake < 12
+          knownTake < 12 && !hasPriceRange
             ? await tx.product.findMany({
                 where: consultWhere,
                 select,

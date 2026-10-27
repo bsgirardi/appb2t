@@ -13,6 +13,43 @@ import {
 import { ProductCatalog } from "@/components/products/product-catalog";
 import { productDTO } from "../fixtures/product";
 afterEach(cleanup);
+it.each([
+  { priceMin: "0", priceMax: "1" },
+  { availability: "UNAVAILABLE" },
+  { collection: "c1", priceMin: "999" },
+])(
+  "explains empty commercial results instead of claiming an unpublished catalog: %j",
+  (commercial) => {
+    render(
+      <ProductCatalog
+        products={[]}
+        context={{
+          collection: "",
+          search: "",
+          order: "nome",
+          page: 1,
+          ...commercial,
+        }}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Nenhum produto encontrado." }),
+    ).toBeTruthy();
+    expect(screen.queryByText("Nenhum produto publicado ainda.")).toBeNull();
+    expect(screen.queryByText("Esta coleção está sendo preparada.")).toBeNull();
+    expect(
+      screen
+        .getByRole("link", { name: "Ver todos os produtos" })
+        .getAttribute("href"),
+    ).toBe("/#all-products");
+  },
+);
+it("keeps the unpublished message for an unfiltered empty catalog", () => {
+  render(<ProductCatalog products={[]} />);
+  expect(
+    screen.getByRole("heading", { name: "Nenhum produto publicado ainda." }),
+  ).toBeTruthy();
+});
 const context = {
   collection: "c1",
   search: "vaso & decoração",

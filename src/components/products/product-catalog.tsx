@@ -20,25 +20,31 @@ export function ProductCatalog({
   products: PublicProductDTO[];
   context?: CatalogFilters;
 }) {
+  const hasSearchCriteria = !!(
+    context?.search ||
+    context?.priceMin?.trim() ||
+    context?.priceMax?.trim() ||
+    context?.availability
+  );
   if (!products.length)
     return (
       <div className="store-empty">
         <Box size={36} aria-hidden="true" />
         <h2>
-          {context?.search
+          {hasSearchCriteria
             ? "Nenhum produto encontrado."
             : context?.collection
               ? "Esta coleção está sendo preparada."
               : "Nenhum produto publicado ainda."}
         </h2>
         <p>
-          {context?.search
+          {hasSearchCriteria
             ? "Tente outro termo ou remova os filtros para explorar o catálogo."
             : context?.collection
               ? "Explore outras coleções para conhecer as peças disponíveis."
               : "Estamos preparando novas peças. Volte em breve para conhecer nossa coleção."}
         </p>
-        {(context?.search || context?.collection) && (
+        {(hasSearchCriteria || context?.collection) && (
           <Button asChild variant="outline">
             <Link href="/#all-products">Ver todos os produtos</Link>
           </Button>

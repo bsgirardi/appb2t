@@ -1,7 +1,7 @@
 "use client";
 import { replaceInquiryItem } from "@/domain/products/inquiry-draft";
 
-import { productBrowsePath } from "@/domain/products/catalog-navigation";
+import { productEditPath } from "@/domain/products/catalog-navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -469,7 +469,11 @@ export function InquiryPanel() {
                         href={
                           item.kitInstanceId
                             ? `/portfolio/conjuntos/${encodeURIComponent(selection.groups.find((g) => g.instanceId === item.kitInstanceId)!.kitId)}?montagem=${encodeURIComponent(item.kitInstanceId)}`
-                            : `${productBrowsePath({ id: item.productId, name: line.name }, item.catalogContext)}${item.catalogContext && (item.catalogContext.collection || item.catalogContext.search || item.catalogContext.order !== "nome" || item.catalogContext.page > 1) ? "&" : "?"}editar=${encodeURIComponent(item.lineId)}`
+                            : productEditPath(
+                                { id: item.productId, name: line.name },
+                                item.catalogContext,
+                                item.lineId,
+                              )
                         }
                       >
                         Editar configuração
