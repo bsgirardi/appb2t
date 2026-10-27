@@ -38,3 +38,11 @@ Integrações de banco não executadas, pois não há mudança de fonte, persist
 - E2 permanece parcial: componentes/falhas detalhados, rankings por produto/cliente/canal e critérios de recorrência/revisão humana da ficha continuam em E2.2–E2.4. E1 permanece independente e parcial, conforme acompanhamento; não foi alterada ou integrada.
 - Versão mantida em **1.5.1**, pois não há PR entregue. Antes de uma futura PR autorizada: reconsultar main/E1, aplicar incremento MINOR uma única vez, sincronizar manifestos e notas em português, conferir APP_VERSION nos rodapés e página Atualizações.
 - **Sem PR, push, merge, publicação, migração, atualização de contêineres ou alteração operacional.** Trabalho preservado em branch local para revisão.
+
+## Preparação da PR autorizada em 27/10/2026
+
+O usuário autorizou abrir PR após a entrega local. Versão incrementada uma única vez de 1.5.1 para 1.6.0 (MINOR), comparada à main remota `d74ee75`; package.json e os dois campos de package-lock.json sincronizados. Notas em português adicionadas no início de releases.ts, preservando as anteriores.
+
+Revalidação da versão: 37 testes em 8 arquivos aprovados, incluindo consistência dos manifestos/histórico, rodapé real do login, rodapé administrativo e Atualizações para ADMIN e OPERATOR. Tipagem e build aprovados novamente; lint registrado junto à preparação. A limitação da suíte completa permanece como descrita acima, sem nova alegação de aprovação integral.
+
+PR preparada em rascunho por esse limite. A PR E1 #19 também propõe 1.6.0 sobre a mesma main: antes de qualquer merge, reconsultar main e reconciliar versão/notas conforme a ordem de integração, sem incrementar novamente apenas para finalizar esta mesma PR. Publicação e merge continuam sem autorização.

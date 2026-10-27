@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.6.0",
+    date: "2026-10-27",
+    title: "Entenda as mudanças na rentabilidade da venda",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "O detalhe da rentabilidade mostra a contribuição e a margem na receita da memória de preço, na venda negociada e no resultado realizado.",
+          "Veja separadamente os efeitos do preço praticado, desconto, frete cobrado e taxas, além das diferenças do custo produtivo, encargos e frete pago, com origem por linha da venda.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "A explicação informa quando faltam dados ou os custos ainda são provisórios e só confirma a reconciliação quando os valores fecham com as fontes disponíveis.",
+          "A referência passa a ser identificada como receita da memória, inclusive quando o preço foi informado pelo operador, sem presumir um histórico de negociação.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.5.1",
     date: "2026-10-27",
     title: "Correção das permissões na atualização do servidor",

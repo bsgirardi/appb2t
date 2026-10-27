@@ -215,3 +215,9 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - Merge em main:
 - Publicação e migrações/configurações:
 - Próxima ação concreta:
+
+### 27/10/2026 — preparação da PR E2.1 autorizada
+
+- Usuário autorizou abrir a PR. Versão 1.6.0 (MINOR) comparada à main 1.5.1 (`d74ee75`), manifestos sincronizados e notas em português adicionadas.
+- Revalidação: 37 testes em 8 arquivos, incluindo rodapés/login/Atualizações e acesso ADMIN/OPERATOR; tipagem e build aprovados. Limite conhecido da suíte completa preservado no relatório; PR em rascunho.
+- E1 #19 também propõe 1.6.0; conferir main e reconciliar versão/histórico conforme ordem dos merges. Nenhum merge ou publicação autorizado/executado.
