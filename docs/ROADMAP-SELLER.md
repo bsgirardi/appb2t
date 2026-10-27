@@ -221,3 +221,5 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - Usuário autorizou abrir a PR. Versão 1.6.0 (MINOR) comparada à main 1.5.1 (`d74ee75`), manifestos sincronizados e notas em português adicionadas.
 - Revalidação: 37 testes em 8 arquivos, incluindo rodapés/login/Atualizações e acesso ADMIN/OPERATOR; tipagem e build aprovados. Limite conhecido da suíte completa preservado no relatório; PR em rascunho.
 - E1 #19 também propõe 1.6.0; conferir main e reconciliar versão/histórico conforme ordem dos merges. Nenhum merge ou publicação autorizado/executado.
+
+PR criada: [#21 em rascunho](https://github.com/bsgirardi/appb2t/pull/21), branch `codex/e2-reconciliacao`, versão 1.6.0; implementação `d55c309` e preparo da versão `c4227cf`. Sem merge ou publicação. Tipagem, lint, build e os 37 testes relacionados aprovados na preparação.

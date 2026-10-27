@@ -46,3 +46,5 @@ O usuário autorizou abrir PR após a entrega local. Versão incrementada uma ú
 Revalidação da versão: 37 testes em 8 arquivos aprovados, incluindo consistência dos manifestos/histórico, rodapé real do login, rodapé administrativo e Atualizações para ADMIN e OPERATOR. Tipagem e build aprovados novamente; lint registrado junto à preparação. A limitação da suíte completa permanece como descrita acima, sem nova alegação de aprovação integral.
 
 PR preparada em rascunho por esse limite. A PR E1 #19 também propõe 1.6.0 sobre a mesma main: antes de qualquer merge, reconsultar main e reconciliar versão/notas conforme a ordem de integração, sem incrementar novamente apenas para finalizar esta mesma PR. Publicação e merge continuam sem autorização.
+
+PR criada: [#21 em rascunho](https://github.com/bsgirardi/appb2t/pull/21), versão 1.6.0, implementação `d55c309` e preparo `c4227cf`. Lint também aprovado novamente na preparação. Sem merge ou publicação.
