@@ -1,5 +1,11 @@
 # appb2t — estado e pendências
 
+## Roadmap de evolução aprovado em 27/10/2026
+
+O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; o detalhamento e a implementação de cada etapa continuam pendentes. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.
+
+E1.1: desenho aprovado e comparação ampliada de lotes implementada na branch isolada `codex/e1-comparacao-lotes`, versão 1.6.0. Validação focada, tipagem, lint e build aprovados; suíte unitária completa continua limitada pela recursão do transporte do Vitest. Sem merge/publicação. Canais, descontos e comparação de memórias continuam pendentes na E1. [Verificação e limites](docs/superpowers/reviews/2026-10-27-e1-comparacao-lotes.md).
+
 Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
 ## Desenvolvimento concluído
