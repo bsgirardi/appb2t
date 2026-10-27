@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { catalogQuantitySchema, CATALOG_MAX_LINES } from "./quantity";
 import {
   configurationAnswersSchema,
   normalizeConfigurationText,
@@ -21,7 +22,7 @@ export const inquiryItemSchema = z
     productId: z.string().min(1).max(100),
     color: z.string().max(60).default(""),
     size: z.string().max(60).default(""),
-    quantity: z.number().int().min(1).max(99),
+    quantity: catalogQuantitySchema,
     catalogContext: z
       .object({
         collection: z.string().max(100),
@@ -76,7 +77,7 @@ export const inquiryKey = (
   ]);
 export const inquiryItemsSchema = z
   .array(inquiryItemSchema)
-  .max(20)
+  .max(CATALOG_MAX_LINES)
   .refine(
     (items) => new Set(items.map(inquiryKey)).size === items.length,
     "Itens repetidos.",
@@ -108,6 +109,7 @@ export function mergeInquiryItem(
   return parsed.data;
 }
 export interface InquiryLine extends InquiryItem {
+  minimumQuantity?: number;
   name: string;
   sku: string;
   path: string | null;

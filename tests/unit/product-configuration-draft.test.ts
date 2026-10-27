@@ -19,7 +19,7 @@ it("keeps the latest session draft when quota blocks replacing an old value", ()
   clearConfigurationDraft(id);
 });
 it("preserves unfinished text while quantity is empty, decimal or out of range", () => {
-  for (const quantity of [NaN, 0, 1.5, 100]) {
+  for (const quantity of [NaN, 0, 1.5, 100001]) {
     const id = `unfinished-${String(quantity)}`;
     writeConfigurationDraft(id, {
       productId: "p",

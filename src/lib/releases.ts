@@ -8,6 +8,36 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.3.0",
+    date: "2026-10-27",
+    title: "Catálogo mais claro e quantidades flexíveis",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Quantidade mínima por configuração de produto, aplicada também aos componentes dos kits.",
+          "Quantidades de até 100.000 unidades por configuração, com cálculo automático dos preços de referência e das faixas de desconto.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Preço de referência por unidade, aviso sobre adicionais e prazo de produção mais claros nos produtos do catálogo.",
+          "Disponibilidade, prazo e condições de pagamento reunidos perto das opções de personalização.",
+          "Tabela de preços por quantidade mantém todas as faixas visíveis e indica a faixa aplicada, com adicionais separados do preço-base.",
+          "Descrições das coleções ajudam a escolher quais produtos explorar.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Escolhas sob consulta ocultam preços por quantidade mesmo quando ainda faltam informações da personalização.",
+          "Ações do cabeçalho se ajustam a telas estreitas para manter a lista de orçamento acessível.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.2.1",
     date: "2026-10-26",
     title: "Instalação e atualização mais simples",

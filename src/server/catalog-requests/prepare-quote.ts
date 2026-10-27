@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import { validateProductQuantity } from "@/domain/products/quantity";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
@@ -96,7 +97,7 @@ export async function prepareRequestQuote(
       );
       const activeProducts = await tx.product.findMany({
         where: { id: { in: ids }, active: true },
-        select: { id: true },
+        select: { id: true, minimumQuantity: true },
       });
       const items = input.document.items.map((item) => {
         const source = input.sources.find((s) => s.lineId === item.lineId);
@@ -108,6 +109,14 @@ export async function prepareRequestQuote(
         const active = activeProducts.some(
           (product) => product.id === line.productId,
         );
+        const currentProduct = activeProducts.find(
+          (product) => product.id === line.productId,
+        );
+        if (currentProduct)
+          validateProductQuantity(
+            item.quantity,
+            currentProduct.minimumQuantity,
+          );
         if (
           active
             ? item.productId !== line.productId || source.standalone

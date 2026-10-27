@@ -11,6 +11,7 @@ import type { PublicProductDTO } from "@/domain/products/types";
 import { availabilityLabels } from "@/domain/products/commercial";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ProductProductionTime } from "./product-production-time";
 
 export function ProductCatalog({
   products,
@@ -88,6 +89,12 @@ export function ProductCatalog({
               {!!product.configuration?.fields.length && (
                 <span className="store-personalizable">Personalizável</span>
               )}
+              {(product.minimumQuantity ?? 1) > 1 && (
+                <p className="text-xs leading-5 break-words text-muted-foreground">
+                  Mínimo de {product.minimumQuantity!.toLocaleString("pt-BR")}{" "}
+                  unidades por configuração.
+                </p>
+              )}
               <div className="mt-auto pt-2">
                 <strong className="text-xl font-bold">
                   {product.price === null
@@ -95,8 +102,20 @@ export function ProductCatalog({
                     : formatBRL(product.price)}
                 </strong>
                 {product.price !== null && (
-                  <p className="store-price-nature">Referência por unidade</p>
+                  <div className="store-price-nature">
+                    <p>Referência por unidade</p>
+                    {!!product.configuration?.fields.length && (
+                      <p>
+                        Adicionais, quando aplicáveis, dependem das escolhas.
+                      </p>
+                    )}
+                  </div>
                 )}
+                {product.leadTimeDays ? (
+                  <div className="mt-3 text-xs leading-5 break-words text-muted-foreground">
+                    <ProductProductionTime days={product.leadTimeDays} />
+                  </div>
+                ) : null}
                 <p className="mt-1 text-xs leading-5 break-words text-muted-foreground">
                   {product.paymentTerms}
                 </p>

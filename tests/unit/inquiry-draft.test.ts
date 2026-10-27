@@ -31,7 +31,7 @@ it("edits atomically and preserves the destination line when merging", () => {
   ]);
   expect(() =>
     replaceInquiryItem(
-      [{ ...item(), quantity: 99 }, item("Bia", "b")],
+      [{ ...item(), quantity: 100000 }, item("Bia", "b")],
       "b",
       item(),
     ),

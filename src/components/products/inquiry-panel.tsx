@@ -14,7 +14,7 @@ import {
 import { KitSummary } from "@/components/kits/kit-summary";
 import type { KitSelection, KitGroupReview } from "@/domain/kits/types";
 import { Label } from "@/components/ui/label";
-import { NativeSelect } from "@/components/ui/native-select";
+import { CatalogQuantityInput } from "./catalog-quantity-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
 import {
@@ -52,6 +52,12 @@ export function InquiryPanel() {
   }>();
   const [mergeLine, setMergeLine] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [invalidQuantities, setInvalidQuantities] = useState<
+    Record<string, boolean>
+  >({});
+  const quantityInvalid = items.some(
+    (item, index) => invalidQuantities[item.lineId ?? String(index)],
+  );
   const [notice, setNotice] = useState("");
   const [recovery, setRecovery] = useState("");
   const [resetConfirm, setResetConfirm] = useState(false);
@@ -109,8 +115,10 @@ export function InquiryPanel() {
       writeInquiry(next);
       setPrepared(undefined);
       setNotice("");
+      return true;
     } catch (error) {
       setNotice((error as Error).message);
+      return false;
     }
   }
   function confirmLine(line: InquiryLine, index: number, combine = false) {
@@ -140,7 +148,7 @@ export function InquiryPanel() {
     }
   }
   async function prepare() {
-    if (busy) return;
+    if (busy || quantityInvalid) return;
     setBusy(true);
     setPrepared(undefined);
     setResult(undefined);
@@ -289,11 +297,15 @@ export function InquiryPanel() {
         </Button>
       </div>
       {storage}
-      <Button asChild>
-        <Link href="/portfolio/checkout">
-          Continuar para compra ou conferência
-        </Link>
-      </Button>
+      {quantityInvalid ? (
+        <Button disabled>Continuar para compra ou conferência</Button>
+      ) : (
+        <Button asChild>
+          <Link href="/portfolio/checkout">
+            Continuar para compra ou conferência
+          </Link>
+        </Button>
+      )}
       <p className="store-note">
         A lista fica salva neste navegador. Preparar contato não envia a
         solicitação nem reserva estoque.
@@ -426,27 +438,28 @@ export function InquiryPanel() {
                 )}
                 <div className="store-inquiry-line-actions">
                   <Label htmlFor={`quantity-${index}`}>Quantidade</Label>
-                  <NativeSelect
+                  <CatalogQuantityInput
                     id={`quantity-${index}`}
-                    aria-label={`Quantidade de ${line?.name ?? `produto ${index + 1}`}, item ${index + 1}`}
+                    ariaLabel={`Quantidade de ${line?.name ?? `produto ${index + 1}`}, item ${index + 1}`}
                     value={item.quantity}
+                    minimumQuantity={line?.minimumQuantity}
                     disabled={busy}
-                    onChange={(e) =>
+                    onValidityChange={(valid) =>
+                      setInvalidQuantities((previous) => {
+                        const key = item.lineId ?? String(index);
+                        return previous[key] === !valid
+                          ? previous
+                          : { ...previous, [key]: !valid };
+                      })
+                    }
+                    onValueChange={(quantity) =>
                       update(
                         items.map((row, i) =>
-                          i === index
-                            ? { ...row, quantity: Number(e.target.value) }
-                            : row,
+                          i === index ? { ...row, quantity } : row,
                         ),
                       )
                     }
-                  >
-                    {Array.from({ length: 99 }, (_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                  />
                   {line?.subtotal && (
                     <strong>{formatBRL(line.subtotal)}</strong>
                   )}
@@ -513,16 +526,18 @@ export function InquiryPanel() {
             Frete e condições finais a combinar. Esta lista não confirma um
             pedido.
           </p>
-          <RequestSubmit
-            groups={selection.groups}
-            onClearSubmittedSelection={clearSent}
-            items={items}
-            review={review}
-            onReviewRequired={prepare}
-            onClearSubmitted={(sent) =>
-              update(clearSubmittedLines(readInquiry(), sent))
-            }
-          />
+          <fieldset disabled={quantityInvalid} className="min-w-0">
+            <RequestSubmit
+              groups={selection.groups}
+              onClearSubmittedSelection={clearSent}
+              items={items}
+              review={review}
+              onReviewRequired={prepare}
+              onClearSubmitted={(sent) =>
+                update(clearSubmittedLines(readInquiry(), sent))
+              }
+            />
+          </fieldset>
           {review && !review.ready && (
             <Alert>
               Revise ou confirme os itens sinalizados para continuar.
@@ -531,7 +546,7 @@ export function InquiryPanel() {
           <Button
             type="button"
             className="w-full"
-            disabled={busy}
+            disabled={busy || quantityInvalid}
             onClick={prepare}
           >
             {busy
@@ -540,7 +555,7 @@ export function InquiryPanel() {
                 ? "Conferir novamente"
                 : "Conferir e preparar contato"}
           </Button>
-          {preparedReview?.ready && (
+          {preparedReview?.ready && !quantityInvalid && (
             <div className="store-prepared">
               <p role="status">
                 Mensagem preparada. Confira os detalhes e envie pelo seu canal

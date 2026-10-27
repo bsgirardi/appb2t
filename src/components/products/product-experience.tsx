@@ -4,6 +4,7 @@ import type { PublicProductDTO } from "@/domain/products/types";
 import { availabilityLabels } from "@/domain/products/commercial";
 import { ProductCarousel } from "./product-carousel";
 import { ProductContact } from "./product-contact";
+import { ProductProductionTime } from "./product-production-time";
 export function ProductExperience({
   product,
   phone,
@@ -60,24 +61,30 @@ export function ProductExperience({
               {product.shortDescription}
             </p>
           )}
-          <div className="store-commercial-notes">
+          <section
+            className="store-commercial-notes"
+            aria-label="Condições da peça"
+          >
+            <h2 className="font-semibold">Condições da peça</h2>
             <p
               className="store-availability"
               data-availability={product.availability ?? "CONSULT"}
             >
               {availabilityLabels[product.availability ?? "CONSULT"]}
             </p>
-            {product.leadTimeDays && (
+            <ProductProductionTime days={product.leadTimeDays} />
+            {(product.minimumQuantity ?? 1) > 1 && (
               <p>
-                Produção em até {product.leadTimeDays}{" "}
-                {product.leadTimeDays === 1 ? "dia útil" : "dias úteis"}.
-                Transporte à parte.
+                Mínimo de {product.minimumQuantity!.toLocaleString("pt-BR")}{" "}
+                unidades por configuração. Cores, tamanhos ou personalizações
+                diferentes não se somam.
               </p>
             )}
             {product.configuration?.leadTimeCondition && (
               <p>{product.configuration.leadTimeCondition}</p>
             )}
-          </div>
+            {product.paymentTerms && <p>{product.paymentTerms}</p>}
+          </section>
         </header>
         <ProductContact
           product={product}
@@ -88,7 +95,6 @@ export function ProductExperience({
           backHref={backHref}
           onOptionImage={setSelectedImageId}
         />
-        <p className="store-note">{product.paymentTerms}</p>
       </div>
     </article>
   );

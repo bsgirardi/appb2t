@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { catalogQuantitySchema } from "./quantity";
 export const availabilityLabels = {
   CONSULT: "Consulte disponibilidade",
   AVAILABLE: "Disponível",
@@ -7,6 +8,7 @@ export const availabilityLabels = {
 } as const;
 export type Availability = keyof typeof availabilityLabels;
 export interface CommercialFields {
+  minimumQuantity?: number;
   sku?: string;
   shortDescription?: string;
   specifications?: string;
@@ -26,6 +28,7 @@ const options = z
     "Opções repetidas.",
   );
 export const commercialShape = {
+  minimumQuantity: catalogQuantitySchema.optional(),
   sku: z
     .string()
     .trim()

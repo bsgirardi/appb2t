@@ -44,7 +44,7 @@ it("validates_boundaries_and_geometry", () => {
     { ...valid, items: [] },
     { ...valid, groups: [group(), group()] },
     { ...valid, groups: [{ ...group(), placements: [] }] },
-    { ...valid, items: [{ ...item("Ana", "k1"), quantity: 100 }] },
+    { ...valid, items: [{ ...item("Ana", "k1"), quantity: 100001 }] },
     { ...valid, items: [...valid.items, ...valid.items] },
   ])
     expect(() => parseKitSelection(bad)).toThrow();

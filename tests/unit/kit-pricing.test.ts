@@ -104,7 +104,7 @@ it("rounds_half_up_and_rejects_excessive_discounts", () => {
 it("validates_kit_tier_and_definition_boundaries", () => {
   for (const row of [
     { minQuantity: 0, kind: "FIXED", amount: "1" },
-    { minQuantity: 1981, kind: "FIXED", amount: "1" },
+    { minQuantity: 2000001, kind: "FIXED", amount: "1" },
     { minQuantity: 1, kind: "PERCENT", percent: "1.005" },
     { minQuantity: 1, kind: "PERCENT", percent: "100" },
     { minQuantity: 1, kind: "FIXED", amount: "0" },

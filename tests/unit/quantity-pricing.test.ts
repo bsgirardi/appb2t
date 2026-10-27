@@ -69,7 +69,7 @@ it("chooses_largest_eligible_minimum_not_lowest_price", () => {
 it("rejects_invalid_individual_tiers_and_money", () => {
   for (const rows of [
     [{ minQuantity: 0, baseUnitPrice: "1" }],
-    [{ minQuantity: 100, baseUnitPrice: "1" }],
+    [{ minQuantity: 100001, baseUnitPrice: "1" }],
     [...tiers, ...tiers],
     [{ minQuantity: 1, baseUnitPrice: "0" }],
     [{ minQuantity: 1, baseUnitPrice: "1.005" }],

@@ -1,8 +1,9 @@
 import Decimal from "decimal.js";
+import { CATALOG_MAX_KIT_QUANTITY } from "@/domain/products/quantity";
 import { z } from "zod";
 import { checkoutPolicySchema } from "@/domain/checkout/policy";
 import { positiveCatalogMoney } from "@/domain/products/quantity-pricing";
-const minQuantity = z.number().int().min(1).max(1980);
+const minQuantity = z.number().int().min(1).max(CATALOG_MAX_KIT_QUANTITY);
 export const kitDiscountTierSchema = z.discriminatedUnion("kind", [
   z
     .object({

@@ -4,11 +4,15 @@ import { readProductConfiguration } from "@/domain/products/configuration";
 import { AppError } from "@/lib/errors";
 import { quantityTiersSchema } from "@/domain/products/quantity-pricing";
 import { readCheckoutPolicy } from "@/domain/checkout/policy";
+import { catalogQuantitySchema } from "@/domain/products/quantity";
 export function productConfigurationForSave(
   input: ProductInput,
   existing: string[],
   old?: Product,
 ) {
+  input.minimumQuantity = catalogQuantitySchema.parse(
+    input.minimumQuantity ?? old?.minimumQuantity ?? 1,
+  );
   const config = readProductConfiguration(
     input.configuration ?? old?.configuration,
   );
@@ -55,6 +59,7 @@ export function nextCommercialRevision(old: Product, input: ProductInput) {
     };
   };
   const keys = [
+    "minimumQuantity",
     "active",
     "name",
     "sku",

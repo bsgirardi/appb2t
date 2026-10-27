@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/ui/field";
+import { CATALOG_MAX_QUANTITY } from "@/domain/products/quantity";
 import {
   availabilityLabels,
   type Availability,
@@ -20,6 +21,22 @@ export function ProductCommercialEditor({
     <Card asChild>
       <section className="">
         <h2>Informações para venda</h2>
+        <Field
+          label="Quantidade mínima por configuração"
+          type="number"
+          min={1}
+          max={CATALOG_MAX_QUANTITY}
+          step={1}
+          value={
+            Number.isNaN(value.minimumQuantity)
+              ? ""
+              : (value.minimumQuantity ?? 1)
+          }
+          onChange={(e) =>
+            onChange({ ...value, minimumQuantity: e.target.valueAsNumber })
+          }
+          hint="Cada cor, tamanho e personalização tem seu próprio mínimo, inclusive nos conjuntos. Use 1 para permitir peças avulsas."
+        />
         <Field
           label="Código do produto (SKU)"
           value={value.sku ?? ""}

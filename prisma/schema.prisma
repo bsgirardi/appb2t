@@ -89,6 +89,7 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+ minimumQuantity Int @default(1)
  checkoutPolicy Json?
   quantityTiers Json @default("[]")
   compositionImageId String?

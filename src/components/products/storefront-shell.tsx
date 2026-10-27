@@ -93,7 +93,7 @@ export function StorefrontShell({
               Buscar
             </Button>
           </form>
-          <div className="ml-auto flex items-center gap-3 md:ml-0">
+          <div className="ml-auto flex max-w-full flex-wrap items-center gap-3 md:ml-0">
             <ThemeToggle />
             <InquiryLink />
             {contact && (

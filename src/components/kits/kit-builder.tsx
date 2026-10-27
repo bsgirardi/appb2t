@@ -4,6 +4,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { CatalogQuantityInput } from "@/components/products/catalog-quantity-input";
 import { Alert } from "@/components/ui/alert";
 import type { PublicProductDTO } from "@/domain/products/types";
 import type { KitDTO, KitGroupReview, KitSelection } from "@/domain/kits/types";
@@ -93,6 +94,12 @@ function Builder({ kit, products, initialInstanceId }: Props) {
     members = selection.items.filter((i) => i.kitInstanceId === instanceId),
     itemsStamp = JSON.stringify(members),
     stamp = JSON.stringify({ items: members, group });
+  const [invalidQuantities, setInvalidQuantities] = useState<
+    Record<string, boolean>
+  >({});
+  const quantityInvalid = members.some(
+    (item) => invalidQuantities[item.lineId!],
+  );
   const pricingStamp = JSON.stringify([
     kit.id,
     instanceId,
@@ -137,6 +144,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
                 configuration: p.configuration ?? emptyProductConfiguration,
                 answers: item.answers,
                 quantity: item.quantity,
+                minimumQuantity: p.minimumQuantity,
               }),
             };
           }),
@@ -169,15 +177,17 @@ function Builder({ kit, products, initialInstanceId }: Props) {
     try {
       controller.commit(next);
       setNotice(message);
+      return true;
     } catch (error) {
       setNotice((error as Error).message);
+      return false;
     }
   }
   function transformGroup(
     change: (selection: KitSelection) => KitSelection,
     message?: string,
   ) {
-    commit(change(readKitSelection()), message);
+    return commit(change(readKitSelection()), message);
   }
   function move(lineId: string, x: number, y: number) {
     transformGroup(
@@ -495,18 +505,25 @@ function Builder({ kit, products, initialInstanceId }: Props) {
                   <Label htmlFor={`kit-quantity-${item.lineId}`}>
                     Quantidade de {p?.name ?? "peça"}
                   </Label>
-                  <NativeSelect
+                  <CatalogQuantityInput
                     id={`kit-quantity-${item.lineId}`}
-                    className="min-h-11"
                     value={item.quantity}
-                    onChange={(e) =>
+                    minimumQuantity={p?.minimumQuantity}
+                    onValidityChange={(valid) =>
+                      setInvalidQuantities((previous) =>
+                        previous[item.lineId!] === !valid
+                          ? previous
+                          : { ...previous, [item.lineId!]: !valid },
+                      )
+                    }
+                    onValueChange={(quantity) =>
                       transformGroup((current) => ({
                         ...current,
                         items: current.items.map((i) =>
                           i.lineId === item.lineId
                             ? {
                                 ...i,
-                                quantity: Number(e.target.value),
+                                quantity,
                                 seenPrice: null,
                               }
                             : i,
@@ -518,13 +535,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
                         ),
                       }))
                     }
-                  >
-                    {Array.from({ length: 99 }, (_, i) => (
-                      <option key={i} value={i + 1}>
-                        {i + 1}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                  />
                   <div className="flex flex-wrap gap-2">
                     <Button
                       type="button"
@@ -565,7 +576,13 @@ function Builder({ kit, products, initialInstanceId }: Props) {
           <Button
             type="button"
             className="min-h-11 w-full"
-            disabled={!group || !members.length || busy || !!localPrice.problem}
+            disabled={
+              !group ||
+              !members.length ||
+              busy ||
+              quantityInvalid ||
+              !!localPrice.problem
+            }
             onClick={review}
           >
             {busy ? "Conferindo…" : "Revisar conjunto"}
@@ -580,6 +597,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
                 className="min-h-11"
                 disabled={
                   !!currentReview.groups?.[0]?.problem ||
+                  quantityInvalid ||
                   currentReview.lines.some((l) => !!l.problem)
                 }
                 onClick={confirm}
@@ -588,7 +606,7 @@ function Builder({ kit, products, initialInstanceId }: Props) {
               </Button>
             </>
           )}
-          {currentReview?.ready && (
+          {currentReview?.ready && !quantityInvalid && (
             <Button asChild className="min-h-11">
               <Link href="/portfolio/orcamento">Continuar para a lista</Link>
             </Button>

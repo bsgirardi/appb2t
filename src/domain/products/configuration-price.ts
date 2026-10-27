@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { z } from "zod";
+import { validateProductQuantity } from "./quantity";
 import { quantityBasePrice, type QuantityTier } from "./quantity-pricing";
 import {
   validateAnswers,
@@ -17,8 +17,12 @@ export function configuredPrice(input: {
   answers: ConfigurationAnswer[];
   quantity: number;
   quantityTiers?: QuantityTier[];
+  minimumQuantity?: number;
 }): ConfiguredPrice {
-  const quantity = z.number().int().min(1).max(99).parse(input.quantity);
+  const quantity = validateProductQuantity(
+    input.quantity,
+    input.minimumQuantity,
+  );
   const answers = validateAnswers(input.configuration, input.answers);
   const effects = answers.map((a) => {
     const f = input.configuration.fields.find((f) => f.id === a.fieldId)!;
