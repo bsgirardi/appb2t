@@ -1,9 +1,9 @@
 import { Pagination } from "@/components/ui/pagination";
-import { Label } from "@/components/ui/label";
-import { NativeSelect } from "@/components/ui/native-select";
+import { CatalogFilterForm } from "@/components/products/catalog-filter-form";
+import { catalogCommercialErrors } from "@/domain/products/catalog-commercial-filters";
+import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
 import { StoreWelcome } from "@/components/products/store-welcome";
-import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { getPublicAppearance } from "@/server/appearance";
 import { listPublicCollections } from "@/server/collections";
@@ -25,6 +25,7 @@ import { summary } from "@/domain/products/storefront";
 import { listPublicKits } from "@/server/kits/queries";
 export const dynamic = "force-dynamic";
 import {
+  catalogContextPath,
   catalogFilters as filters,
   catalogPath as path,
   type CatalogQuery as Query,
@@ -54,7 +55,14 @@ export async function generateMetadata({ searchParams }: Props) {
     path(f.collection, "", "nome", f.page),
     collection?.imageUrl || identity.logoUrl || undefined,
   );
-  if (f.search || f.order !== "nome" || (f.collection && !collection))
+  if (
+    f.search ||
+    f.priceMin ||
+    f.priceMax ||
+    f.availability ||
+    f.order !== "nome" ||
+    (f.collection && !collection)
+  )
     metadata.robots = { index: false, follow: true };
   return metadata;
 }
@@ -67,15 +75,26 @@ export default async function PortfolioPage({ searchParams }: Props) {
   ]);
   const collection = collections.find((c) => c.id === f.collection);
   if (f.collection && !collection) notFound();
-  const data = await catalogPage(
-    f.collection || undefined,
-    f.search,
-    f.order,
-    f.page,
-  );
-  if (f.page > 1 && f.page > data.pages) notFound();
+  const invalid = Object.keys(catalogCommercialErrors(f)).length > 0;
+  const data = invalid
+    ? { products: [], total: 0, pages: 0 }
+    : await catalogPage(
+        f.collection || undefined,
+        f.search,
+        f.order,
+        f.page,
+        f,
+      );
+  if (!invalid && f.page > 1 && f.page > data.pages) notFound();
   const config = identity.storefront ?? defaultStorefront;
-  const home = !f.collection && !f.search && f.order === "nome" && f.page === 1;
+  const home =
+    !f.collection &&
+    !f.search &&
+    !f.priceMin &&
+    !f.priceMax &&
+    !f.availability &&
+    f.order === "nome" &&
+    f.page === 1;
   const featured = home
     ? await featuredCollections(config.featuredCollectionIds)
     : [];
@@ -93,47 +112,33 @@ export default async function PortfolioPage({ searchParams }: Props) {
           <p>{collection?.description || identity.slogan}</p>
         </div>
         <span>
-          {data.total} {data.total === 1 ? "produto" : "produtos"}
+          {invalid
+            ? "Corrija os filtros"
+            : `${data.total} ${data.total === 1 ? "produto" : "produtos"}`}
         </span>
       </div>
       <ActiveCatalogFilters context={f} collectionName={collection?.name} />
-      <form className="store-sort" action="/">
-        {f.collection && (
-          <input type="hidden" name="colecao" value={f.collection} />
-        )}
-        {f.search && <input type="hidden" name="busca" value={f.search} />}
-        <Label htmlFor="catalog-order" className="shrink-0">
-          Ordenar por
-        </Label>
-        <NativeSelect
-          id="catalog-order"
-          name="ordem"
-          defaultValue={f.order}
-          className="sm:w-auto sm:min-w-48"
-        >
-          <option value="nome">Nome</option>
-          <option value="recentes">Mais recentes</option>
-          <option value="menor-preco">Menor preço</option>
-          <option value="maior-preco">Maior preço</option>
-        </NativeSelect>
-        <Button type="submit" variant="outline">
-          Aplicar
-        </Button>
-      </form>
+      <CatalogFilterForm context={f} collections={collections} />
       {(f.order === "menor-preco" || f.order === "maior-preco") && (
         <p className="store-note">
-          Ordenação pelo preço base. Adicionais dependem das escolhas; produtos
-          sob consulta aparecem ao final.
+          Ordenação pelo preço-base. Adicionais dependem das escolhas.
+          {!f.priceMin?.trim() &&
+            !f.priceMax?.trim() &&
+            " Produtos com preço sob consulta aparecem ao final."}
         </p>
       )}
-      <ProductCatalog products={data.products} context={f} />
+      {invalid ? (
+        <Alert>Corrija os filtros acima para consultar os produtos.</Alert>
+      ) : (
+        <ProductCatalog products={data.products} context={f} />
+      )}
       {data.pages > 1 && (
         <Pagination
           className="store-pagination"
           aria-label="Páginas do catálogo"
         >
           {f.page > 1 && (
-            <Link href={path(f.collection, f.search, f.order, f.page - 1)}>
+            <Link href={catalogContextPath(f, { page: f.page - 1 })}>
               ← Anterior
             </Link>
           )}
@@ -141,7 +146,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
             Página {f.page} de {data.pages}
           </span>
           {f.page < data.pages && (
-            <Link href={path(f.collection, f.search, f.order, f.page + 1)}>
+            <Link href={catalogContextPath(f, { page: f.page + 1 })}>
               Próxima →
             </Link>
           )}
@@ -161,6 +166,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
       search={f.search}
       collection={f.collection}
       order={f.order}
+      commercial={f}
     >
       {home &&
         (config.banners.some(

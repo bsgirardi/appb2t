@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { catalogQuantitySchema, CATALOG_MAX_LINES } from "./quantity";
+import { catalogCommercialShape } from "./catalog-commercial-filters";
 import {
   configurationAnswersSchema,
   normalizeConfigurationText,
@@ -25,6 +26,7 @@ export const inquiryItemSchema = z
     quantity: catalogQuantitySchema,
     catalogContext: z
       .object({
+        ...catalogCommercialShape,
         collection: z.string().max(100),
         search: z.string().max(100),
         order: z.enum(["nome", "recentes", "menor-preco", "maior-preco"]),

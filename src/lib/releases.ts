@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.4.0",
+    date: "2026-10-27",
+    title: "Encontre produtos com filtros comerciais",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Filtros combinados de categoria, busca, disponibilidade e faixa de preço-base de referência por unidade.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Filtros acompanham a navegação, a paginação e a edição de itens da lista de orçamento.",
+          "Critérios ativos podem ser removidos individualmente; valores inválidos permanecem visíveis para correção, com mensagens junto aos campos.",
+          "Produtos sob consulta continuam disponíveis no catálogo geral e ficam fora de faixas de preço por não terem referência pública.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.3.0",
     date: "2026-10-27",
     title: "Catálogo mais claro e quantidades flexíveis",
