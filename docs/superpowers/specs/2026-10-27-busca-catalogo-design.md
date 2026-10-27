@@ -1,6 +1,6 @@
 # Busca do catálogo — acentos, palavras e erros leves
 
-Estado: desenho para aprovação. Base: main 1.4.0, PR #16 integrada e publicada localmente. O usuário autorizou iniciar e solicitou explicitamente tolerância a erros de digitação; os limites e o comportamento abaixo são propostas do implementador para revisão.
+Estado: aprovado pelo usuário em 27/10/2026, com autorização para implementar. Base: main 1.4.0, PR #16 integrada e publicada localmente.
 
 ## Objetivo
 
