@@ -1,5 +1,7 @@
 # appb2t — build e instalação em outro servidor
 
+Para atualizar uma instalação Linux em execução: `bash scripts/atualizar-projeto.sh` e depois `bash scripts/atualizar-docker.sh`, dentro da pasta do projeto. [Guia dos dois comandos](INSTALACAO_SERVIDOR.md#3-atualizar-em-dois-comandos).
+
 Para instalar e atualizar o servidor, use [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md). O código, `.env`, `dados/postgres_data` e `backups` ficam juntos em `/etc/docker/appb2t`. Dentro dessa pasta, use `docker compose up -d` para subir o sistema; após baixar código novo, reconstrua as imagens conforme o guia. Não é necessária função auxiliar nem configuração fora da pasta do projeto.
 
 As seções abaixo são referência técnica e histórica, incluindo restauração de dados e configuração da instalação local. Não substituem o fluxo simplificado do guia do servidor. `dados/`, `backups/` e `.env` são privados e ficam excluídos do Git e do build Docker.

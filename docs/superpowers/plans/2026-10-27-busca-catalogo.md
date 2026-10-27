@@ -1,6 +1,6 @@
 # Busca do catálogo Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking.
 
 **Goal:** Implementar a busca aprovada, com palavras em qualquer ordem, acentos e aproximações conservadoras.
 
@@ -17,7 +17,7 @@
 - Comprimento 4–8: uma edição ou transposição adjacente; 9+: até duas edições.
 - Não carregar catálogo ou todos os IDs na aplicação; limite de busca 100 caracteres.
 - MINOR 1.5.0 se main continuar 1.4.0; manifestos, rodapés e atualizações coerentes.
-- Implementar no worktree; não publicar, integrar ou alterar a instalação operacional.
+- Implementar no worktree; autorização posterior de 27/10 permite abrir PR e integrar. Não publicar nem alterar a instalação operacional.
 
 ## Review Focus
 

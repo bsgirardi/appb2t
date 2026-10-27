@@ -1,6 +1,6 @@
 # Validação da busca do catálogo — 1.5.0
 
-Implementação no ramo `codex/busca-catalogo`, a partir de main 1.4.0 (`a7ad9e9`). Desenho aprovado em `specs/2026-10-27-busca-catalogo-design.md`. Esta entrega não integra nem publica a versão; a instalação operacional permanece na 1.4.0.
+Implementação no ramo `codex/busca-catalogo`, a partir de main 1.4.0 (`a7ad9e9`). Desenho aprovado em `specs/2026-10-27-busca-catalogo-design.md`. A implementação foi entregue localmente antes da autorização posterior para abrir a PR e integrar, em 27/10/2026. A publicação continua pendente por solicitação do usuário; a instalação operacional permanece na 1.4.0.
 
 ## Comportamento verificado
 
@@ -32,6 +32,16 @@ Após a correção, os 11 testes integrados de busca, filtros e vitrine foram re
 Benchmark final de consultas quentes com 5000 produtos fictícios: **80 ms** para busca exata, **200 ms** para aproximação e **100 ms** sem resultados. Medição da chamada de catálogo, não do carregamento completo da página; não é garantia de desempenho para qualquer servidor ou volume.
 
 Registros locais em `test-results/busca-full-unit-summary.log`, `busca-full-integration.log`, `busca-isolated-fix-green.log`, `busca-ligature-red.log`, `busca-ligature-green.log`, `busca-review-lint.log` e `busca-review-build.log`. Imagens: `busca-aproximada-desktop.png` e `busca-sem-resultados-mobile.png`. Esses artefatos locais não integram o código publicado.
+
+## Conferência de tarefas antes da integração
+
+- [x] Consulta, migração aditiva, interface e navegação implementadas conforme desenho aprovado.
+- [x] Revisão independente tratada, incluindo regressão Unicode.
+- [x] Main 1.4.1 incorporada antes da PR; scripts e histórico dessa versão preservados. Esta funcionalidade mantém o incremento MINOR para 1.5.0, sem segundo incremento na mesma PR.
+- [x] Após incorporar main: 21 testes focados, 11 integrados de catálogo em banco fictício isolado, lint e compilação de produção aprovados; oito cenários dos scripts de atualização aprovados com comandos simulados, sem publicação real.
+- [ ] Publicação operacional, backup e migração de produção: aguardar autorização específica. Nenhum script de publicação foi executado nesta integração.
+
+O acompanhamento local de evolução comercial (`docs/ROADMAP-SELLER.md`) permanece separado: E1–E6 ainda estão pendentes no registro consultado. Nenhuma etapa desse roadmap foi incluída ou marcada como entregue nesta PR.
 
 ## Publicação futura
 
