@@ -53,5 +53,5 @@ e memórias reproduzíveis comparáveis ainda precisam dos próximos incrementos
 
 ## Estado de integração
 
-PR deve permanecer em rascunho com o limite da suíte completa explícito.
+[PR #19](https://github.com/bsgirardi/appb2t/pull/19) criada em rascunho com o limite da suíte completa explícito. Implementação em `dff8fd7`.
 Sem merge em main, sem publicação e sem migrações. Não há tag automática.

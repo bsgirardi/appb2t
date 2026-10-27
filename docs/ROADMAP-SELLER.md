@@ -175,7 +175,7 @@ Esses itens devem ser incorporados a uma etapa quando necessários ou receber pr
 - Validação: 78 testes relacionados em nove arquivos aprovados; tipagem, lint e build aprovados; prévia desktop e 375 px sem rolagem horizontal. Revisão independente sem achados pendentes, incluindo normalização de vírgula decimal.
 - Limite: suíte unitária completa reproduziu `Maximum call stack size exceeded` no transporte do Vitest e foi interrompida sem resumo conclusivo. Integrações de banco não executadas. [Relatório](superpowers/reviews/2026-10-27-e1-comparacao-lotes.md).
 - Versão: 1.6.0, manifestos sincronizados e notas em português; teste confirma login, painel e Atualizações para ADMIN/OPERATOR.
-- Branch: `codex/e1-comparacao-lotes`; PR em preparação como rascunho para registrar a limitação de validação. Merge em main: não realizado.
+- Branch: `codex/e1-comparacao-lotes`; [PR #19](https://github.com/bsgirardi/appb2t/pull/19) em rascunho para registrar a limitação de validação; implementação em `dff8fd7`. Merge em main: não realizado.
 - Publicação: não realizada. Instalação operacional permanece na 1.4.0 conforme contexto recebido; nenhuma migração ou atualização de contêineres.
 - Próxima ação: revisar E1.1 e resolver/aceitar explicitamente o limite da suíte completa antes de integrar; detalhar E1.2 separadamente, sem publicar ou integrar sem autorização.
 
