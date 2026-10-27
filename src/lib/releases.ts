@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.5.0",
+    date: "2026-10-27",
+    title: "Busca mais flexível no catálogo",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Busca por todas as palavras em qualquer ordem, sem depender de acentos ou maiúsculas, em nome, código e descrição.",
+          "Quando não há correspondências exatas, erros leves no nome podem trazer resultados aproximados, identificados com um aviso. Códigos, números e termos curtos permanecem exatos.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Categorias, preços, disponibilidade, ordenação e paginação continuam respeitados nos resultados aproximados.",
+          "Orientações para ajustar a busca e opção de remover somente o texto pesquisado, mantendo os demais filtros.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.4.1",
     date: "2026-10-27",
     title: "Atualização do servidor simplificada",

@@ -12,6 +12,8 @@ import {
 import { appUrl } from "@/lib/env";
 import { productPath, summary } from "@/domain/products/storefront";
 import type { PublicProductDTO } from "@/domain/products/types";
+import { searchTerms } from "@/domain/products/catalog-search";
+import { searchCatalog } from "./catalog-search";
 
 export const publicProduct = cache(async (id: string) => {
   const row = await db.product.findFirst({
@@ -49,6 +51,8 @@ export async function catalogPage(
   commercial: CatalogCommercialFilters = {},
 ) {
   const criteria = parseCatalogCommercialFilters(commercial);
+  if (searchTerms(search).length)
+    return searchCatalog(collectionId, search, order, page, criteria);
   const hasPriceRange =
     criteria.priceMin !== undefined || criteria.priceMax !== undefined;
   const where = {
@@ -70,15 +74,6 @@ export async function catalogPage(
     ...(collectionId
       ? {
           collections: { some: { collectionId, collection: { active: true } } },
-        }
-      : {}),
-    ...(search
-      ? {
-          OR: [
-            { sku: { contains: search, mode: "insensitive" as const } },
-            { name: { contains: search, mode: "insensitive" as const } },
-            { description: { contains: search, mode: "insensitive" as const } },
-          ],
         }
       : {}),
   };
@@ -120,6 +115,7 @@ export async function catalogPage(
           products: [...known, ...consulted].map(present),
           total,
           pages: Math.ceil(total / 12),
+          approximate: false,
         };
       },
       { isolationLevel: "RepeatableRead" },
@@ -143,7 +139,12 @@ export async function catalogPage(
     }),
     db.product.count({ where }),
   ]);
-  return { products: rows.map(present), total, pages: Math.ceil(total / 12) };
+  return {
+    products: rows.map(present),
+    total,
+    pages: Math.ceil(total / 12),
+    approximate: false,
+  };
 }
 export async function featuredCollections(ids: string[]) {
   if (!ids.length) return [];

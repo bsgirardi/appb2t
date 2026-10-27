@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Box, ArrowUpRight } from "lucide-react";
 import {
+  catalogContextPath,
   productBrowsePath,
   type CatalogFilters,
 } from "@/domain/products/catalog-navigation";
@@ -38,16 +39,29 @@ export function ProductCatalog({
               : "Nenhum produto publicado ainda."}
         </h2>
         <p>
-          {hasSearchCriteria
-            ? "Tente outro termo ou remova os filtros para explorar o catálogo."
-            : context?.collection
-              ? "Explore outras coleções para conhecer as peças disponíveis."
-              : "Estamos preparando novas peças. Volte em breve para conhecer nossa coleção."}
+          {context?.search
+            ? "Confira a grafia ou tente menos palavras. Você também pode remover apenas a busca e manter os outros filtros."
+            : hasSearchCriteria
+              ? "Tente outro termo ou remova os filtros para explorar o catálogo."
+              : context?.collection
+                ? "Explore outras coleções para conhecer as peças disponíveis."
+                : "Estamos preparando novas peças. Volte em breve para conhecer nossa coleção."}
         </p>
         {(hasSearchCriteria || context?.collection) && (
-          <Button asChild variant="outline">
-            <Link href="/#all-products">Ver todos os produtos</Link>
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3">
+            {context?.search && (
+              <Button asChild variant="outline">
+                <Link
+                  href={catalogContextPath(context, { search: "", page: 1 })}
+                >
+                  Remover apenas a busca
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="outline">
+              <Link href="/#all-products">Ver todos os produtos</Link>
+            </Button>
+          </div>
         )}
       </div>
     );

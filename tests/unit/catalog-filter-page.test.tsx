@@ -20,6 +20,25 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
 });
+it("labels approximate results accessibly and explains search behavior", async () => {
+  vi.mocked(catalogPage).mockResolvedValueOnce({
+    products: [],
+    total: 1,
+    pages: 1,
+    approximate: true,
+  });
+  render(
+    await Page({ searchParams: Promise.resolve({ busca: "chavero azul" }) }),
+  );
+  expect(screen.getByRole("status").textContent).toContain(
+    "Resultados aproximados para “chavero azul”",
+  );
+  const search = screen.getByLabelText("Buscar no catálogo");
+  expect(
+    document.getElementById(search.getAttribute("aria-describedby")!)
+      ?.textContent,
+  ).toContain("qualquer ordem");
+});
 it("keeps invalid prices visible and never fetches unfiltered results", async () => {
   render(
     await Page({

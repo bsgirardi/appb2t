@@ -77,7 +77,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
   if (f.collection && !collection) notFound();
   const invalid = Object.keys(catalogCommercialErrors(f)).length > 0;
   const data = invalid
-    ? { products: [], total: 0, pages: 0 }
+    ? { products: [], total: 0, pages: 0, approximate: false }
     : await catalogPage(
         f.collection || undefined,
         f.search,
@@ -119,6 +119,12 @@ export default async function PortfolioPage({ searchParams }: Props) {
       </div>
       <ActiveCatalogFilters context={f} collectionName={collection?.name} />
       <CatalogFilterForm context={f} collections={collections} />
+      {data.approximate && (
+        <Alert role="status" className="mb-6">
+          Resultados aproximados para “{f.search}”. Não encontramos uma
+          correspondência exata; todos os filtros foram mantidos.
+        </Alert>
+      )}
       {(f.order === "menor-preco" || f.order === "maior-preco") && (
         <p className="store-note">
           Ordenação pelo preço-base. Adicionais dependem das escolhas.
