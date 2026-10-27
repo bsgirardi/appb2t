@@ -49,7 +49,8 @@ export async function searchCatalog(
         if (!approximate || !distance) return exact;
         return Prisma.sql`(${exact} OR EXISTS (
       SELECT 1 FROM regexp_split_to_table(n, '[^[:alpha:]]+') AS words(word)
-      WHERE CASE WHEN char_length(word) BETWEEN 1 AND 255 THEN
+      WHERE CASE WHEN char_length(word) BETWEEN 1 AND 255
+        AND char_length(${normalized}) BETWEEN 1 AND 255 THEN
         public.levenshtein_less_equal(word, ${normalized}, ${distance}::int) <= ${distance}::int
         ${
           distance === 1

@@ -173,8 +173,17 @@ it("handles Unicode, ignorable characters and overlong stored words without broa
     "\\",
     "🧡",
     "z".repeat(100),
+    "\uFB03".repeat(86),
   ])
     expect((await catalogPage(undefined, term, "nome", 1)).total).toBe(0);
+  const expanded = await make("Ligaturas", { description: "ffi".repeat(86) });
+  expect(
+    await catalogPage(undefined, "\uFB03".repeat(86), "nome", 1),
+  ).toMatchObject({
+    total: 1,
+    approximate: false,
+    products: [{ id: expanded.id }],
+  });
 });
 it("keeps warm exact and approximate searches below one second on 5000 fictitious products", async () => {
   await db.product.createMany({

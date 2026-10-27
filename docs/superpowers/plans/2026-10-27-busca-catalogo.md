@@ -1,6 +1,6 @@
 # Busca do catálogo Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Implementar a busca aprovada, com palavras em qualquer ordem, acentos e aproximações conservadoras.
 
@@ -33,13 +33,13 @@
 
 **Interfaces:** `searchTerms(search: string): string[]`; `searchCatalog(collectionId, search, order, page, criteria)` retorna `{ products, total, pages, approximate: boolean }`. A busca vazia mantém o caminho existente.
 
-- [ ] Escrever testes de normalização, espaços, termos repetidos, limites e orçamentos de edição; executar e observar falha.
-- [ ] Implementar segmentação e elegibilidade, mantendo pontuação literal.
-- [ ] Escrever integração de palavras distribuídas, acentos, transposição, edição, códigos, publicação, coleção, preço, ordenação e paginação; observar falha no comportamento atual.
-- [ ] Criar migração aditiva unaccent/fuzzystrmatch; aplicar somente no banco de testes.
-- [ ] Implementar consulta parametrizada, contagens e IDs limitados em snapshot; hidratar a página com seleção pública existente.
-- [ ] Executar testes até passar; medir buscas quentes num conjunto fictício de 5000 produtos, meta 1 segundo.
-- [ ] Registrar evidências e commit da consulta.
+- [x] Escrever testes de normalização, espaços, termos repetidos, limites e orçamentos de edição; executar e observar falha.
+- [x] Implementar segmentação e elegibilidade, mantendo pontuação literal.
+- [x] Escrever integração de palavras distribuídas, acentos, transposição, edição, códigos, publicação, coleção, preço, ordenação e paginação; observar falha no comportamento atual.
+- [x] Criar migração aditiva unaccent/fuzzystrmatch; aplicar somente no banco de testes.
+- [x] Implementar consulta parametrizada, contagens e IDs limitados em snapshot; hidratar a página com seleção pública existente.
+- [x] Executar testes até passar; medir buscas quentes num conjunto fictício de 5000 produtos, meta 1 segundo.
+- [x] Registrar evidências e commit da consulta.
 
 ### Task 2: Orientação e estados da interface
 
@@ -47,19 +47,19 @@
 
 **Interfaces:** campo `approximate` da consulta; `catalogContextPath(context, { search: "", page: 1 })` limpa somente busca.
 
-- [ ] Escrever teste para aviso acessível de aproximação e ação que remove só busca preservando os demais filtros; observar falha.
-- [ ] Adicionar ajuda curta, aviso com texto original e orientação sem resultados; preservar navegação e formulário.
-- [ ] Executar testes de interface e navegação; verificar visualmente em banco fictício separado.
-- [ ] Registrar evidências e commit da interface.
+- [x] Escrever teste para aviso acessível de aproximação e ação que remove só busca preservando os demais filtros; observar falha.
+- [x] Adicionar ajuda curta, aviso com texto original e orientação sem resultados; preservar navegação e formulário.
+- [x] Executar testes de interface e navegação; verificar visualmente em banco fictício separado.
+- [x] Registrar evidências e commit da interface.
 
 ### Task 3: Versão e entrega verificável
 
 **Files:** `package.json`, `package-lock.json`, `src/lib/releases.ts`; notas desta entrega e testes apropriados.
 
-- [ ] Conferir versão de origin/main e incrementar uma vez para 1.5.0; registrar Novidades/Melhorias em português.
-- [ ] Verificar APP_VERSION nos dois rodapés e `/atualizacoes` para ADMIN e OPERATOR.
-- [ ] Executar lint, tipos, testes unitários/integrados e build; documentar limites do ambiente.
-- [ ] Solicitar uma revisão final independente, corrigir problemas importantes com teste vermelho/verde e repetir verificações afetadas.
-- [ ] Commit final e entrega local; informar que PR, merge e publicação não foram realizados nesta etapa.
+- [x] Conferir versão de origin/main e incrementar uma vez para 1.5.0; registrar Novidades/Melhorias em português.
+- [x] Verificar APP_VERSION nos dois rodapés e `/atualizacoes` para ADMIN e OPERATOR.
+- [x] Executar lint, tipos, testes unitários/integrados e build; documentar limites do ambiente.
+- [x] Solicitar uma revisão final independente, corrigir problemas importantes com teste vermelho/verde e repetir verificações afetadas.
+- [x] Commit final e entrega local; informar que PR, merge e publicação não foram realizados nesta etapa.
 
 Execução direta preservada da autorização anterior; aprovação explícita do desenho e implementação nesta mensagem dispensa nova pausa de planejamento. Auto-revisão: requisitos do desenho cobertos pelas três tarefas; casos do Review Focus pertencem à tarefa 1.
