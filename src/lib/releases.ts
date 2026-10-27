@@ -13,6 +13,12 @@ export const releases: Release[] = [
     title: "Encontre produtos com filtros comerciais",
     sections: [
       {
+        title: "Correções",
+        items: [
+          "Filtros sem resultados explicam que não há produtos para os critérios escolhidos, sem indicar que o catálogo ou a coleção ainda não foram publicados.",
+        ],
+      },
+      {
         title: "Novidades",
         items: [
           "Filtros combinados de categoria, busca, disponibilidade e faixa de preço-base de referência por unidade.",

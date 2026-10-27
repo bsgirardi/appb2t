@@ -64,3 +64,12 @@
 - Navegador real Next em porta3118 e banco separado b2t_filtros_preview, com dados fictícios: 13 resultados na faixa exata20,50; segunda página preservada; produto, canônica limpa, inclusão na lista e link de edição com todos os filtros; faixa invertida mostra erro sem listagem; mínimo0 exclui preço sob consulta e sua remoção o recupera; formulário e marcadores preservam os demais critérios. Temas claro/escuro e larguras320/390/1440 sem extravasamento da página. Rolagem própria de categorias mantida.
 - Evidências locais em test-results/filtros-*.png e logs correspondentes. Prévia encerrada e arquivo Next gerado restaurado. A instalação operacional localhost:3000 continua exibindo1.3.0; dados e chaves não alterados nesta etapa.
 - origin/main confirmado em1.3.0. Entrega preparada em1.4.0, manifestos/histórico sincronizados e notas anteriores preservadas. Commit local em codex/filtros-catalogo; sem PR, merge, tag ou publicação desta etapa.
+
+## Homologação da PR #16 — 27/10/2026
+
+- Conferido o head8308356 contra mainb9f59b6: PR aberta e sem conflitos. Nenhuma autorização de merge/publicação usada nesta etapa.
+- Nova revisão independente encontrou um P2: resultado vazio de preço/disponibilidade reutilizava a mensagem de catálogo ou coleção não publicados. Causa localizada no componente ProductCatalog, que considerava somente busca e coleção.
+- Três cenários comerciais falharam antes da correção; passaram depois. A mensagem de catálogo realmente vazio, sem filtros, permanece preservada. Acrescentadas4 regressões e nota de Correções na mesma versão1.4.0, sem novo incremento por ser a mesma PR.
+- Revalidação direcionada:37 testes de unidade/interface/versão em6 arquivos e4 de integração em2 arquivos, todos aprovados. A suíte completa820 foi executada na implementação original; não é apresentada como uma nova execução completa após esta correção localizada.
+- Navegador real na prévia fictícia: faixa inválida editável; faixa0–0 informa nenhum produto encontrado e oferece acesso ao catálogo; combinação retornou13 itens e manteve filtros na segunda página e no link de produto. Dimensões320/390/1440 e temas claro/escuro conferidos. Captura da correção: test-results/homologacao16-vazio-desktop.png.
+- Verificações finais de tipagem, lint e build registradas em test-results/homologacao16-*.log. Prévia encerrada; operação permanece1.3.0, sem mudança de banco ou chaves. Atualização da PR mantém merge/publicação pendentes.
