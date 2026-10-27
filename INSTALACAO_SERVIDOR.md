@@ -90,55 +90,58 @@ docker compose logs --tail 100 app migrate
 
 Para parar apenas a aplicação: `docker compose stop app`. Para conferir a saúde: `curl -f http://127.0.0.1:1992/api/health`.
 
-## 3. Atualizar para uma nova versão
+## 3. Atualizar em dois comandos
 
-Abra uma janela de manutenção. Os blocos abaixo são executados **no mesmo terminal Bash**, em ordem, e param em caso de erro. O banco permanece em execução; a aplicação fica parada durante o backup e o build. Preserve o `.env` e não altere `POSTGRES_DATA_PATH` de uma instalação existente.
-
-### Salvar a versão anterior e fazer backup
+No servidor Linux, entre na pasta do projeto:
 
 ```bash
-set -euo pipefail
-umask 077
 cd /etc/docker/appb2t
-git switch main
-git diff --exit-code
-git diff --cached --exit-code
-stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-backup_dir="$PWD/backups/$stamp"
-mkdir -p "$backup_dir"
-chmod 700 "$backup_dir"
-cp .env "$backup_dir/ambiente.env"
-cp compose.yaml "$backup_dir/compose-anterior.yaml"
-git rev-parse HEAD > "$backup_dir/commit-anterior.txt"
-old_image="$(docker inspect --format '{{.Image}}' "$(docker compose ps -q app)")"
-docker tag "$old_image" "appb2t-app:antes-$stamp"
-printf '%s\n' "$old_image" > "$backup_dir/imagem-anterior.txt"
-docker compose stop app
-docker compose exec -T db pg_dump -U b2t -d b2t -Fc -f /tmp/appb2t-predeploy.dump
-docker compose exec -T db pg_restore --list /tmp/appb2t-predeploy.dump > /dev/null
-docker compose cp db:/tmp/appb2t-predeploy.dump "$backup_dir/banco.dump"
-sha256sum "$backup_dir/banco.dump" > "$backup_dir/banco.dump.sha256"
 ```
 
-O dump é copiado como arquivo binário, sem passar por redirecionamento de terminal. A leitura confirma o formato do backup; mantenha também uma rotina de restauração em banco isolado e cópia fora do servidor.
+**1. Baixar o código do GitHub:**
 
-### Baixar, construir e subir
+```bash
+bash scripts/atualizar-projeto.sh
+```
+
+**2. Reconstruir os contêineres e subir a nova versão:**
+
+```bash
+bash scripts/atualizar-docker.sh
+```
+
+Execute o segundo comando somente se o primeiro terminar sem erro. Requisitos: Bash, Git, util-linux (flock), sha256sum e Docker Compose v2 com suporte a --wait. Use um usuário com acesso ao Docker e permissão de escrita na pasta. Não é necessário instalar Node.js no servidor.
+
+### Primeira atualização com os novos comandos
+
+Se os scripts ainda não existirem no servidor, baixe-os uma única vez com:
 
 ```bash
 git pull --ff-only origin main
-git rev-parse HEAD > "$backup_dir/commit-novo.txt"
-docker compose config --quiet
-COMPOSE_PARALLEL_LIMIT=1 docker compose build app migrate
-docker compose up -d --wait
-docker compose ps
-curl -f http://127.0.0.1:1992/api/health
 ```
 
-Confira login, a versão no rodapé, a página **Atualizações** e os fluxos usados pela equipe. As migrações são aplicadas pelo Compose; não execute `db push`, reset ou limpeza de tabelas. Se mudar a porta, ajuste a URL da verificação.
+Depois execute o segundo comando acima. Nas próximas atualizações, use os dois scripts normalmente. O servidor deve estar na branch main, sem alterações locais; confira com git status. Se houver conflitos ou alterações, revise-os antes de prosseguir: os scripts não descartam arquivos.
 
-Se algum comando falhar, interrompa e consulte `docker compose logs --tail 100 app migrate db`. A aplicação pode permanecer parada. Não ignore falha de backup ou migração para continuar. A imagem anterior foi preservada, mas voltar a ela após uma migração exige confirmar compatibilidade com o banco; não restaure backup antigo sobre registros novos.
+### O que acontece automaticamente
 
-Não copie novamente o `.env.example`, não gere outras chaves e não recrie o administrador em cada atualização. O banco continua em `dados/postgres_data`, mesmo quando os contêineres são recriados.
+O primeiro comando atualiza somente o código, sem reiniciar o sistema. O segundo constrói as imagens enquanto a aplicação continua disponível. Depois preserva a imagem anterior e a configuração, para a aplicação, gera e verifica o formato do backup PostgreSQL, aplica as migrações e inicia a aplicação aguardando sua saúde por até 180 segundos. O banco permanece em execução.
+
+A pausa do atendimento começa no backup e termina quando a nova aplicação está saudável. Use uma janela de manutenção. O comando atualiza os contêineres do projeto; não atualiza o Docker Engine nem o sistema operacional. Não altera .env, chaves, usuários, porta ou localização do banco. Ambos os scripts impedem execuções simultâneas.
+
+Os backups ficam em backups/atualizacao-DATA-ID/, com banco.dump, checksum, ambiente privado, identificação da imagem anterior e do código novo. A configuração do contêiner anterior também fica preservada; esses arquivos contêm informações privadas. A verificação de formato não substitui testes de restauração e cópia externa dos backups.
+
+### Se falhar
+
+O script interrompe na etapa que falhou e informa o caminho do backup, quando criado. Falha de build mantém a aplicação anterior em execução. Falha após a parada pode deixá-la indisponível. Consulte:
+
+```bash
+docker compose logs --tail 100 app migrate db
+docker compose ps
+```
+
+Corrija a causa antes de repetir o segundo comando. Se a aplicação estiver parada, o script recusará uma nova atualização: avalie o estado das migrações antes de iniciá-la. Não há rollback automático: migrações podem impedir o uso da imagem antiga. Não restaure backup antigo sobre registros novos, não apague volumes e não execute db push.
+
+Ao concluir, confira login, rodapé, página **Atualizações** e os fluxos usados pela equipe. Não recrie o administrador nem copie novamente o .env.example.
 
 ## 4. Recuperar a senha de um administrador
 
