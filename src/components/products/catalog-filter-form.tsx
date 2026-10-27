@@ -26,7 +26,7 @@ export function CatalogFilterForm({
       method="get"
       className="mb-6 grid min-w-0 gap-4 rounded-xl border border-border bg-background p-4"
     >
-      <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid min-w-0 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="grid min-w-0 gap-2">
           <Label htmlFor="catalog-search">Buscar no catálogo</Label>
           <Input
@@ -35,7 +35,13 @@ export function CatalogFilterForm({
             type="search"
             maxLength={100}
             defaultValue={context.search}
+            aria-describedby="catalog-search-help"
           />
+          <p id="catalog-search-help" className="text-xs text-muted-foreground">
+            Palavras em qualquer ordem, com ou sem acentos. Se não houver
+            resultados exatos, buscamos erros leves no nome. Códigos permanecem
+            exatos.
+          </p>
         </div>
         <div className="grid min-w-0 gap-2">
           <Label htmlFor="catalog-collection">Categoria</Label>

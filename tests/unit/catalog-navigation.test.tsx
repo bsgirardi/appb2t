@@ -13,6 +13,43 @@ import {
 import { ProductCatalog } from "@/components/products/product-catalog";
 import { productDTO } from "../fixtures/product";
 afterEach(cleanup);
+it("offers removing only search with spelling advice and all commercial filters retained", () => {
+  render(
+    <ProductCatalog
+      products={[]}
+      context={{
+        collection: "c1",
+        search: "chavero",
+        order: "maior-preco",
+        page: 3,
+        priceMin: "20",
+        priceMax: "50",
+        availability: "AVAILABLE",
+      }}
+    />,
+  );
+  expect(screen.getByText(/Confira a grafia/)).toBeTruthy();
+  const url = new URL(
+    screen
+      .getByRole("link", { name: "Remover apenas a busca" })
+      .getAttribute("href")!,
+    "https://example.test",
+  );
+  expect(catalogFilters(Object.fromEntries(url.searchParams))).toEqual({
+    collection: "c1",
+    search: "",
+    order: "maior-preco",
+    page: 1,
+    priceMin: "20",
+    priceMax: "50",
+    availability: "AVAILABLE",
+  });
+  expect(
+    screen
+      .getByRole("link", { name: "Ver todos os produtos" })
+      .getAttribute("href"),
+  ).toBe("/#all-products");
+});
 it.each([
   { priceMin: "0", priceMax: "1" },
   { availability: "UNAVAILABLE" },
