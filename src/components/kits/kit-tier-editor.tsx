@@ -1,6 +1,7 @@
 "use client";
 import { useId } from "react";
 import { Field } from "@/components/ui/field";
+import { CATALOG_MAX_KIT_QUANTITY } from "@/domain/products/quantity";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function KitTierEditor({
             label={`Quantidade mínima do kit na faixa ${index + 1}`}
             type="number"
             min={1}
-            max={1980}
+            max={CATALOG_MAX_KIT_QUANTITY}
             step={1}
             className="min-h-11"
             value={Number.isNaN(tier.minQuantity) ? "" : tier.minQuantity}
@@ -106,7 +107,7 @@ export function KitTierEditor({
             ...value,
             {
               minQuantity:
-                Array.from({ length: 1980 }, (_, i) => i + 1).find(
+                Array.from({ length: value.length + 1 }, (_, i) => i + 1).find(
                   (n) => !value.some((v) => v.minQuantity === n),
                 ) ?? 1,
               kind: "PERCENT",

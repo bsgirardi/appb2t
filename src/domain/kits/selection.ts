@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CATALOG_MAX_KIT_QUANTITY } from "@/domain/products/quantity";
 import { inquiryItemsSchema } from "@/domain/products/inquiry";
 import { kitDiscountTierSchema } from "./validation";
 import { kitPlacementSchema, validatePlacements } from "./composition";
@@ -7,7 +8,7 @@ const money = z.string().regex(/^\d{1,16}\.\d{2}$/);
 export const kitPriceSchema = z
   .object({
     kind: z.enum(["REFERENCE", "CONSULT"]),
-    quantity: z.number().int().min(1).max(1980),
+    quantity: z.number().int().min(1).max(CATALOG_MAX_KIT_QUANTITY),
     knownSubtotal: money,
     subtotal: money.nullable(),
     discount: money.nullable(),

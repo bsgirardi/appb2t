@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { catalogQuantitySchema } from "@/domain/products/quantity";
 import { configurationAnswersSchema } from "@/domain/products/configuration";
 const id = z.string().min(1).max(100);
 const money = z
@@ -28,7 +29,7 @@ export const catalogLineSnapshotSchema = z
           .strict(),
       )
       .max(8),
-    quantity: z.number().int().min(1).max(99),
+    quantity: catalogQuantitySchema,
     priceKind: z.enum(["REFERENCE", "CONSULT"]),
     unitPrice: money,
     subtotal: money,

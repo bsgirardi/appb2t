@@ -1,5 +1,6 @@
 "use client";
 import { Field } from "@/components/ui/field";
+import { CATALOG_MAX_QUANTITY } from "@/domain/products/quantity";
 import { Button } from "@/components/ui/button";
 import type { QuantityTier } from "@/domain/products/quantity-pricing";
 export function QuantityTierEditor({
@@ -25,7 +26,7 @@ export function QuantityTierEditor({
             label={`Quantidade mínima da faixa ${index + 1}`}
             type="number"
             min={1}
-            max={99}
+            max={CATALOG_MAX_QUANTITY}
             step={1}
             className="min-h-11"
             value={Number.isNaN(tier.minQuantity) ? "" : tier.minQuantity}
@@ -74,7 +75,7 @@ export function QuantityTierEditor({
             ...value,
             {
               minQuantity:
-                Array.from({ length: 99 }, (_, i) => i + 1).find(
+                Array.from({ length: value.length + 1 }, (_, i) => i + 1).find(
                   (n) => !value.some((v) => v.minQuantity === n),
                 ) ?? 1,
               baseUnitPrice: "",

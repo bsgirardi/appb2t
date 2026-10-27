@@ -184,7 +184,7 @@ describe("configured reference pricing", () => {
     ).toEqual({ kind: "CONSULT", unit: null, subtotal: null });
   });
   it("rejects invalid quantities and monetary overflow", () => {
-    for (const quantity of [0, 100, 1.5])
+    for (const quantity of [0, 100001, 1.5])
       expect(() => configuredPrice({ ...input(), quantity })).toThrow();
     expect(() =>
       configuredPrice({ ...input(), basePrice: "9999999999999999.99" }),

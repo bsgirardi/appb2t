@@ -73,6 +73,13 @@ export function ProductExperience({
               {availabilityLabels[product.availability ?? "CONSULT"]}
             </p>
             <ProductProductionTime days={product.leadTimeDays} />
+            {(product.minimumQuantity ?? 1) > 1 && (
+              <p>
+                Mínimo de {product.minimumQuantity!.toLocaleString("pt-BR")}{" "}
+                unidades por configuração. Cores, tamanhos ou personalizações
+                diferentes não se somam.
+              </p>
+            )}
             {product.configuration?.leadTimeCondition && (
               <p>{product.configuration.leadTimeCondition}</p>
             )}

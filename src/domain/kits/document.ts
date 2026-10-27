@@ -1,5 +1,9 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import {
+  catalogQuantitySchema,
+  CATALOG_MAX_KIT_QUANTITY,
+} from "@/domain/products/quantity";
 import type { DocumentItemInput } from "@/domain/commerce/types";
 import type { RequestQuoteInput } from "@/domain/catalog-requests/types";
 import type { KitGroupSnapshot } from "./types";
@@ -14,7 +18,7 @@ export const preparedKitCalculationSchema = z
   .object({
     instanceId: id,
     lineIds: z.array(id).min(1).max(20),
-    quantity: z.number().int().min(1).max(1980),
+    quantity: z.number().int().min(1).max(CATALOG_MAX_KIT_QUANTITY),
     subtotal: positiveCatalogMoney,
     discount: money,
     total: positiveCatalogMoney,
@@ -123,7 +127,7 @@ export function calculatePreparedKitDiscount(
         item = items.find((i) => i.lineId === source?.lineId);
       if (!item)
         throw new Error("Um componente recebido não está no orçamento.");
-      const quantity = z.number().int().min(1).max(99).parse(item.quantity),
+      const quantity = catalogQuantitySchema.parse(item.quantity),
         unit = positiveCatalogMoney.parse(
           item.unitPrice.trim().replace(",", "."),
         );

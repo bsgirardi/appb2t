@@ -56,7 +56,7 @@ describe("catalog request contracts", () => {
         })),
       }),
     ).toThrow();
-    for (const quantity of [0, 100])
+    for (const quantity of [0, 100001])
       expect(() =>
         parse({ items: [{ ...requestSubmission.items[0], quantity }] }),
       ).toThrow();

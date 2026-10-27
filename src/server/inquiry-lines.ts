@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { validateProductQuantity } from "@/domain/products/quantity";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { appUrl } from "@/lib/env";
@@ -42,6 +43,7 @@ export async function reviewProductLinesWithClient(
         publicPriceMode: true,
         commercialRevision: true,
         quantityTiers: true,
+        minimumQuantity: true,
       },
     }),
     getPublicAppearance(tx),
@@ -66,6 +68,7 @@ export async function reviewProductLinesWithClient(
     const fieldErrors: Record<string, string> = {};
     if (product && !problem)
       try {
+        validateProductQuantity(item.quantity, product.minimumQuantity);
         const definition = readProductConfiguration(product.configuration);
         answers = validateAnswers(definition, item.answers);
         labels = answerLabels(definition, answers);
@@ -98,6 +101,7 @@ export async function reviewProductLinesWithClient(
         item.seenPrice.unit !== price?.unit);
     return {
       ...item,
+      minimumQuantity: product?.minimumQuantity ?? 1,
       answers,
       answerLabels: labels,
       name: product?.name ?? "Produto não disponível",

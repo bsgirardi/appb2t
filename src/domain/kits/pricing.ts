@@ -1,5 +1,9 @@
 import DecimalJS from "decimal.js";
 import { z } from "zod";
+import {
+  catalogQuantitySchema,
+  CATALOG_MAX_LINES,
+} from "@/domain/products/quantity";
 import type { ConfiguredPrice } from "@/domain/products/configuration-price";
 import { positiveCatalogMoney } from "@/domain/products/quantity-pricing";
 import { kitDiscountTiersSchema } from "./validation";
@@ -13,13 +17,13 @@ export function calculateKitPrice(
   lines: { quantity: number; price: ConfiguredPrice }[],
   tiers: KitDiscountTier[],
 ): KitPrice {
-  z.array(z.unknown()).min(1).max(20).parse(lines);
+  z.array(z.unknown()).min(1).max(CATALOG_MAX_LINES).parse(lines);
   const rules = kitDiscountTiersSchema.parse(tiers);
   let quantity = 0,
     known = new Decimal(0),
     consult = false;
   for (const line of lines) {
-    quantity += z.number().int().min(1).max(99).parse(line.quantity);
+    quantity += catalogQuantitySchema.parse(line.quantity);
     if (line.price.kind === "CONSULT") {
       if (line.price.unit !== null || line.price.subtotal !== null)
         throw new Error("Valor sob consulta inválido.");

@@ -103,6 +103,7 @@ export function ProductForm({
     product
       ? {
           name: product.name,
+          minimumQuantity: product.minimumQuantity ?? 1,
           checkoutPolicy: readCheckoutPolicy(product.checkoutPolicy),
           configuration: product.configuration ?? emptyProductConfiguration,
           publicPriceMode: product.publicPriceMode ?? "REFERENCE",
@@ -131,6 +132,7 @@ export function ProductForm({
         }
       : {
           name: "",
+          minimumQuantity: 1,
           seoTitle: "",
           seoDescription: "",
           price: "",

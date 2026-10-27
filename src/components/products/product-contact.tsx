@@ -5,7 +5,6 @@ import { z } from "zod";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { PublicProductDTO } from "@/domain/products/types";
 import { whatsappLink } from "@/domain/products/storefront";
@@ -33,6 +32,8 @@ import {
 } from "@/lib/product-configuration-draft";
 import { ProductConfigurationFields } from "./product-configuration-fields";
 import { ProductPriceSummary } from "./product-price-summary";
+import { CatalogQuantityInput } from "./catalog-quantity-input";
+import { CATALOG_MAX_QUANTITY } from "@/domain/products/quantity";
 type Props = {
   product: PublicProductDTO;
   phone: string;
@@ -82,7 +83,7 @@ function ContactForm({
           productId: product.id,
           color: "",
           size: "",
-          quantity: 1,
+          quantity: product.minimumQuantity ?? 1,
           answers: [],
         }
       );
@@ -91,7 +92,7 @@ function ContactForm({
         productId: product.id,
         color: "",
         size: "",
-        quantity: 1,
+        quantity: product.minimumQuantity ?? 1,
         answers: [],
       };
     }
@@ -112,6 +113,7 @@ function ContactForm({
     if (initialImage) onOptionImage?.(initialImage);
   }, [initialImage, onOptionImage]);
   const [notice, setNotice] = useState("");
+  const [quantityInvalid, setQuantityInvalid] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [mergePending, setMergePending] = useState(false);
   const unavailable = product.availability === "UNAVAILABLE";
@@ -133,6 +135,7 @@ function ContactForm({
       configuration,
       answers: draft.answers ?? [],
       quantity: draft.quantity,
+      minimumQuantity: product.minimumQuantity,
       quantityTiers: kitContext ? [] : (product.quantityTiers ?? []),
     });
   } catch {}
@@ -157,6 +160,7 @@ function ContactForm({
     }
   }
   function save(confirmMerge = false) {
+    if (quantityInvalid) return;
     try {
       const answers = validateAnswers(configuration, draft.answers ?? []);
       if (!ready) throw new Error("Escolha cor e tamanho disponíveis.");
@@ -166,6 +170,7 @@ function ContactForm({
         configuration,
         answers,
         quantity: draft.quantity,
+        minimumQuantity: product.minimumQuantity,
         quantityTiers: kitContext ? [] : (product.quantityTiers ?? []),
       });
       const item = {
@@ -357,16 +362,12 @@ function ContactForm({
           />
           <div className="field">
             <Label htmlFor="inquiry-quantity">Quantidade para orçamento</Label>
-            <Input
+            <CatalogQuantityInput
               id="inquiry-quantity"
-              type="number"
-              min={1}
-              max={99}
-              step={1}
-              value={Number.isNaN(draft.quantity) ? "" : draft.quantity}
-              onChange={(e) =>
-                change({ ...draft, quantity: e.target.valueAsNumber })
-              }
+              minimumQuantity={product.minimumQuantity}
+              value={draft.quantity}
+              onValueChange={(quantity) => change({ ...draft, quantity })}
+              onValidityChange={(valid) => setQuantityInvalid(!valid)}
             />
           </div>
           <ProductPriceSummary
@@ -386,9 +387,10 @@ function ContactForm({
               className="w-full"
               disabled={
                 !ready ||
+                quantityInvalid ||
                 !Number.isInteger(draft.quantity) ||
-                draft.quantity < 1 ||
-                draft.quantity > 99
+                draft.quantity < (product.minimumQuantity ?? 1) ||
+                draft.quantity > CATALOG_MAX_QUANTITY
               }
               onClick={() => save()}
             >
@@ -412,7 +414,11 @@ function ContactForm({
                 Esta configuração já está na lista. Deseja somar as quantidades
                 em uma única linha?
               </p>
-              <Button type="button" onClick={() => save(true)}>
+              <Button
+                type="button"
+                disabled={quantityInvalid}
+                onClick={() => save(true)}
+              >
                 Confirmar e combinar
               </Button>
               <Button

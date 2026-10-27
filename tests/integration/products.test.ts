@@ -26,6 +26,7 @@ it.each(["ADMIN", "OPERATOR"] as const)(
     expect(Object.keys(publicProducts[0]).sort()).toEqual(
       [
         "id",
+        "minimumQuantity",
         "checkoutPolicy",
         "name",
         "description",

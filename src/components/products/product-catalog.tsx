@@ -89,6 +89,12 @@ export function ProductCatalog({
               {!!product.configuration?.fields.length && (
                 <span className="store-personalizable">Personalizável</span>
               )}
+              {(product.minimumQuantity ?? 1) > 1 && (
+                <p className="text-xs leading-5 break-words text-muted-foreground">
+                  Mínimo de {product.minimumQuantity!.toLocaleString("pt-BR")}{" "}
+                  unidades por configuração.
+                </p>
+              )}
               <div className="mt-auto pt-2">
                 <strong className="text-xl font-bold">
                   {product.price === null

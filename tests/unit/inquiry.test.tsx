@@ -51,7 +51,9 @@ it("merges only identical options and enforces line/quantity limits", () => {
   expect(mergeInquiryItem([item], { ...item, color: "Branco" })).toHaveLength(
     2,
   );
-  expect(() => mergeInquiryItem([{ ...item, quantity: 99 }], item)).toThrow();
+  expect(() =>
+    mergeInquiryItem([{ ...item, quantity: 100000 }], item),
+  ).toThrow();
   expect(() =>
     mergeInquiryItem(
       Array.from({ length: 20 }, (_, i) => ({ ...item, productId: String(i) })),

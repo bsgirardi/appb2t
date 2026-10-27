@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import { catalogQuantitySchema } from "./quantity";
 export const positiveCatalogMoney = z
   .string()
   .regex(/^\d{1,16}(\.\d{1,2})?$/)
@@ -12,7 +13,7 @@ export const quantityTiersSchema = z
   .array(
     z
       .object({
-        minQuantity: z.number().int().min(1).max(99),
+        minQuantity: catalogQuantitySchema,
         baseUnitPrice: positiveCatalogMoney,
       })
       .strict(),
@@ -29,7 +30,7 @@ export function quantityBasePrice(
   tiers: QuantityTier[],
 ): string {
   const price = positiveCatalogMoney.parse(base);
-  z.number().int().min(1).max(99).parse(quantity);
+  catalogQuantitySchema.parse(quantity);
   return (
     quantityTiersSchema
       .parse(tiers)
