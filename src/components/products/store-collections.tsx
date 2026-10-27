@@ -51,6 +51,11 @@ export function StoreCollections({
               <strong className="block text-sm break-words">
                 {collection.name}
               </strong>
+              {collection.description.trim() && (
+                <span className="mt-1 block text-xs leading-5 break-words text-muted-foreground">
+                  {collection.description}
+                </span>
+              )}
               <span className="mt-2 flex items-center gap-2 text-xs text-primary">
                 Explorar <ArrowRight size={14} aria-hidden="true" />
               </span>

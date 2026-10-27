@@ -8,6 +8,29 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.2.2",
+    date: "2026-10-27",
+    title: "Ofertas mais claras no catálogo",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Preço de referência por unidade, aviso sobre adicionais e prazo de produção mais claros nos produtos do catálogo.",
+          "Disponibilidade, prazo e condições de pagamento reunidos perto das opções de personalização.",
+          "Tabela de preços por quantidade mantém todas as faixas visíveis e indica a faixa aplicada, com adicionais separados do preço-base.",
+          "Descrições das coleções ajudam a escolher quais produtos explorar.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Escolhas sob consulta ocultam preços por quantidade mesmo quando ainda faltam informações da personalização.",
+          "Ações do cabeçalho se ajustam a telas estreitas para manter a lista de orçamento acessível.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.2.1",
     date: "2026-10-26",
     title: "Instalação e atualização mais simples",

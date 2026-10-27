@@ -1062,6 +1062,11 @@
 .store-config-price > span:last-of-type strong {
   font-size: 24px;
 }
+.store-config-price,
+.store-quantity-prices {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .store-config-back {
   font-size: 14px;
   padding: 12px 0;

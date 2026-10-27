@@ -115,6 +115,16 @@ function ContactForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [mergePending, setMergePending] = useState(false);
   const unavailable = product.availability === "UNAVAILABLE";
+  const consultationRequested = configuration.fields.some((field) => {
+    const answer = draft.answers?.find((a) => a.fieldId === field.id);
+    if (!answer?.value.trim()) return false;
+    return field.type === "SINGLE_CHOICE"
+      ? field.options.some(
+          (option) =>
+            option.id === answer.value && option.effect.kind === "CONSULT",
+        )
+      : field.effect.kind === "CONSULT";
+  });
   let price: ConfiguredPrice | null = null;
   try {
     price = configuredPrice({
@@ -364,6 +374,11 @@ function ContactForm({
             quantity={draft.quantity}
             quantityTiers={product.quantityTiers}
             inKit={!!kitContext}
+            priceMode={
+              consultationRequested
+                ? "CONSULT"
+                : (product.publicPriceMode ?? "REFERENCE")
+            }
           />
           <div className="store-config-action">
             <Button

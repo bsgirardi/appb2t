@@ -1,13 +1,23 @@
 // @vitest-environment jsdom
 import { it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  within,
+} from "@testing-library/react";
 import { ProductContact } from "@/components/products/product-contact";
 import { productDTO } from "../fixtures/product";
 import { readInquiry, writeInquiry } from "@/lib/inquiry-store";
 import { emptyProductConfiguration } from "@/domain/products/configuration";
+import { ProductPriceSummary } from "@/components/products/product-price-summary";
+import type { ConfigurationField } from "@/domain/products/configuration";
+import { clearConfigurationDraft } from "@/lib/product-configuration-draft";
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
+  clearConfigurationDraft(`${productDTO.id}:new`);
   writeInquiry([]);
 });
 afterEach(cleanup);
@@ -15,7 +25,10 @@ it("uses_individual_tier_outside_kit_and_only_base_inside_kit", () => {
   const product = {
     ...productDTO,
     price: "20.00",
-    quantityTiers: [{ minQuantity: 10, baseUnitPrice: "18.00" }],
+    quantityTiers: [
+      { minQuantity: 25, baseUnitPrice: "16.00" },
+      { minQuantity: 10, baseUnitPrice: "18.00" },
+    ],
     configuration: {
       ...emptyProductConfiguration,
       fields: [
@@ -39,15 +52,39 @@ it("uses_individual_tier_outside_kit_and_only_base_inside_kit", () => {
       url="http://localhost/p"
     />,
   );
+  expect(
+    screen.getByRole("table", { name: "Preços por quantidade" }),
+  ).toBeTruthy();
+  expect(screen.queryByText(/Faixa aplicada/)).toBeNull();
   fireEvent.change(screen.getByLabelText(/Nome/), { target: { value: "Ana" } });
+  expect(screen.queryByText(/Faixa aplicada/)).toBeNull();
+  expect(
+    screen.getByRole("table", { name: "Preços por quantidade" }),
+  ).toBeTruthy();
   fireEvent.change(screen.getByLabelText("Quantidade para orçamento"), {
     target: { value: "10" },
   });
   expect(screen.getByText(/Faixa aplicada/)).toBeTruthy();
+  const table = screen.getByRole("table", { name: "Preços por quantidade" });
+  const rows = within(table).getAllByRole("row");
+  expect(rows).toHaveLength(3);
+  expect(rows[1].textContent).toContain("10 un.");
+  expect(rows[1].textContent).toContain("R$ 18,00");
+  expect(rows[1].textContent).toContain("Faixa aplicada");
+  expect(rows[2].textContent).toContain("25 un.");
+  expect(rows[2].textContent).toContain("R$ 16,00");
+  expect(rows[2].textContent).not.toContain("Faixa aplicada");
+  expect(screen.getByText("R$ 200,00")).toBeTruthy();
   fireEvent.click(
     screen.getByRole("button", { name: "Adicionar à lista de orçamento" }),
   );
   expect(readInquiry()[0].seenPrice?.unit).toBe("20.00");
+  fireEvent.change(screen.getByLabelText("Quantidade para orçamento"), {
+    target: { value: "25" },
+  });
+  expect(rows[1].textContent).not.toContain("Faixa aplicada");
+  expect(rows[2].textContent).toContain("Faixa aplicada");
+  expect(screen.getByText("R$ 450,00")).toBeTruthy();
   view.unmount();
   const selected: unknown[] = [];
   render(
@@ -69,7 +106,135 @@ it("uses_individual_tier_outside_kit_and_only_base_inside_kit", () => {
     seenPrice: { unit: "22.00" },
   });
   expect(readInquiry()).toHaveLength(1);
+  expect(
+    screen.queryByRole("table", { name: "Preços por quantidade" }),
+  ).toBeNull();
 });
+it("does not advertise numeric tiers for a configured quote-only price", () => {
+  render(
+    <ProductPriceSummary
+      price={{ kind: "CONSULT", unit: null, subtotal: null }}
+      quantity={10}
+      quantityTiers={[{ minQuantity: 10, baseUnitPrice: "18.00" }]}
+    />,
+  );
+  expect(screen.queryByRole("table")).toBeNull();
+  expect(screen.queryByText(/18,00/)).toBeNull();
+  expect(screen.getByText("Valor sob consulta")).toBeTruthy();
+});
+it("does not create a tier table when no tiers are registered", () => {
+  render(
+    <ProductPriceSummary
+      price={{ kind: "REFERENCE", unit: "20.00", subtotal: "20.00" }}
+      quantity={1}
+    />,
+  );
+  expect(screen.queryByRole("table")).toBeNull();
+});
+it("keeps quote-only tiers hidden while required answers are still missing", () => {
+  render(
+    <ProductContact
+      product={{
+        ...productDTO,
+        publicPriceMode: "CONSULT",
+        price: null,
+        quantityTiers: [{ minQuantity: 10, baseUnitPrice: "18.00" }],
+        configuration: {
+          ...emptyProductConfiguration,
+          fields: [
+            {
+              id: "name",
+              label: "Nome",
+              help: "",
+              required: true,
+              type: "SHORT_TEXT",
+              maxLength: 120,
+              effect: { kind: "NONE" },
+            },
+          ],
+        },
+      }}
+      phone=""
+      email=""
+      url="http://localhost/p"
+    />,
+  );
+  expect(screen.queryByRole("table")).toBeNull();
+  expect(screen.queryByText(/18,00/)).toBeNull();
+});
+it.each(["SHORT_TEXT", "SINGLE_CHOICE"] as const)(
+  "hides tiers immediately when a %s answer requests consultation before completing other fields",
+  (type) => {
+    const field: ConfigurationField =
+      type === "SHORT_TEXT"
+        ? {
+            id: "special",
+            label: "Projeto especial",
+            help: "",
+            required: false,
+            type,
+            maxLength: 120,
+            effect: { kind: "CONSULT" },
+          }
+        : {
+            id: "special",
+            label: "Projeto especial",
+            help: "",
+            required: false,
+            type,
+            options: [
+              {
+                id: "custom",
+                label: "Modelo exclusivo",
+                effect: { kind: "CONSULT" },
+                imageId: null,
+              },
+            ],
+          };
+    render(
+      <ProductContact
+        product={{
+          ...productDTO,
+          quantityTiers: [{ minQuantity: 10, baseUnitPrice: "18.00" }],
+          configuration: {
+            ...emptyProductConfiguration,
+            fields: [
+              field,
+              {
+                id: "name",
+                label: "Nome",
+                help: "",
+                required: true,
+                type: "SHORT_TEXT",
+                maxLength: 120,
+                effect: { kind: "NONE" },
+              },
+            ],
+          },
+        }}
+        phone=""
+        email=""
+        url="http://localhost/p"
+      />,
+    );
+    expect(
+      screen.getByRole("table", { name: "Preços por quantidade" }),
+    ).toBeTruthy();
+    expect((screen.getByLabelText(/Nome/) as HTMLInputElement).value).toBe("");
+    fireEvent.change(screen.getByLabelText(/Projeto especial/), {
+      target: { value: type === "SHORT_TEXT" ? "Modelo exclusivo" : "custom" },
+    });
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.queryByText(/18,00/)).toBeNull();
+    expect(screen.getByText("Valor sob consulta")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(/Projeto especial/), {
+      target: { value: "" },
+    });
+    expect(
+      screen.getByRole("table", { name: "Preços por quantidade" }),
+    ).toBeTruthy();
+  },
+);
 it("keeps different personalized names as separate saved lines", () => {
   render(
     <ProductContact
