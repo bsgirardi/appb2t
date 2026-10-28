@@ -6,6 +6,8 @@ import { QuoteForm } from "@/components/commerce/quote-form";
 import { EntryForm } from "@/components/finance/entry-form";
 import { SettingsPanel } from "@/components/settings/settings-panel";
 import { CustomerPanel } from "@/components/customers/customer-panel";
+import { CalculatorWorkspace } from "@/components/pricing/calculator-workspace";
+import { pricingCatalog } from "./fixtures/pricing-catalog";
 import { Button } from "@/components/ui/button";
 import { calculatorData, productDTO } from "./fixtures/product";
 import "@/app/design.css";
@@ -29,6 +31,7 @@ function Preview() {
         <strong>Prévia local · dados de teste</strong>
         {[
           "Produtos",
+          "Calculadora",
           "Orçamentos",
           "Financeiro",
           "Configurações",
@@ -84,6 +87,13 @@ function Preview() {
               <p>Revisão visual com os componentes reais do administrativo.</p>
             </div>
           </div>
+          {view === "Calculadora" && (
+            <CalculatorWorkspace
+              data={calculatorData}
+              catalog={pricingCatalog}
+              role="ADMIN"
+            />
+          )}
           {view === "Produtos" && (
             <ProductForm
               product={productDTO}

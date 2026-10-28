@@ -7,6 +7,7 @@ export const sectionNames = {
 } as const;
 export const storefrontSchema = z
   .object({
+    showHero: z.boolean().default(true),
     seoTitle: z.string().trim().max(70).default(""),
     seoDescription: z.string().trim().max(170).default(""),
     faq: z

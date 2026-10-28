@@ -19,3 +19,7 @@ Antes de finalizar e integrar qualquer PR, atualizar a versão do sistema e regi
 - A página `/atualizacoes` deve mostrar a versão atual e o histórico e continuar disponível para administradores e operadores autenticados. Não incluir credenciais, dados de clientes ou logs internos nas notas.
 - Atualizar a versão uma vez por PR entregue, e não uma vez por commit ou pela criação do commit de merge. Se a PR já contém o incremento e suas notas, não incrementar novamente só para finalizar a mesma PR.
 - Antes do merge, conferir consistência entre manifestos, rodapés e histórico e executar as verificações apropriadas à alteração. Ao entregar, informar a versão e o estado da publicação/merge.
+
+## Interface visual com shadcn/ui
+
+Usar sempre a skill `shadcn` deste projeto (`.agents/skills/shadcn/SKILL.md`) em alterações visuais. Reutilizar os componentes instalados e seguir seus padrões de composição e acessibilidade.

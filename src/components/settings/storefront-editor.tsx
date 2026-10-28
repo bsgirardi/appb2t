@@ -73,6 +73,20 @@ export function StorefrontEditor({
         Organize a vitrine da sua loja. As alterações são publicadas ao salvar
         aparência.
       </p>
+      <Label className="flex items-center gap-2">
+        <Checkbox
+          checked={value.showHero}
+          onChange={(event) =>
+            onChange({ ...value, showHero: event.target.checked })
+          }
+          aria-describedby="store-hero-help"
+        />
+        Exibir banner inicial
+      </Label>
+      <p id="store-hero-help">
+        Desative para ocultar o destaque do início da loja, incluindo a mensagem
+        de boas-vindas.
+      </p>
       <h3>Banners</h3>
       <p className="muted">
         Até 3 banners. A imagem vem da capa da coleção ou de um produto ativo
