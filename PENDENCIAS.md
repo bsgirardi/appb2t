@@ -4,11 +4,11 @@
 
 O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; o detalhamento e a implementação de cada etapa continuam pendentes. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.
 
-Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
+Atualizado em 28/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
 ## Estado da integração E1–E4 em 28/10/2026
 
-PRs #19, #21, #22 e #23 reconciliadas para integração, versões 1.7.0 a 1.10.0. Todos os unitários foram cobertos em lotes e checkout principal; integrações gerais, E3 exclusiva e E4/migração passaram. A limitação monolítica do Vitest continua pendente. Publicação e migração operacional não executadas. [Relatório atual](docs/superpowers/reviews/2026-10-28-integracao-prs.md). As notas abaixo preservam a preparação histórica; próximos incrementos E1–E4 continuam pendentes.
+PRs #19, #21, #22 e #23 integradas na main local e no GitHub, versões 1.7.0 a 1.10.0. A manutenção 1.10.1 na PR #25 corrigiu a recursão da validação de formulários, a descoberta de testes e a observação de concorrência em pools pequenos. CI completo aprovado, incluindo 925 testes padrão, 29 E3 e 21 E4. Versão 1.10.1 publicada na instalação local, com backup, restauração, migrações e 103 projeções legadas preservadas. [Publicação e limites atuais](docs/superpowers/2026-10-28-publicacao-1.10.1.md). [Relatório atual](docs/superpowers/reviews/2026-10-28-integracao-prs.md). As notas abaixo preservam a preparação histórica; próximos incrementos E1–E4 continuam pendentes.
 
 ## E4 — registro anterior à integração
 
@@ -37,11 +37,11 @@ Não há módulo de negócio obrigatório por desenvolver no escopo aprovado at�
 
 ## Pendências técnicas e de validação
 
-1. **Estabilizar a execução completa do Vitest.** A validação da revisão administrativa teve 446 testes aprovados em grupos; na preparação do PR, 267 testes de domínio/upload e 41 testes focados de interface passaram novamente. O grupo completo de interface e a execução conjunta reproduziram recursão no transporte de erros. Investigar a causa e obter uma execução completa reproduzível, sem suprimir erros.
-2. **Validar a revisão administrativa com integrações de banco.** Executar somente no banco dedicado `localhost:55432/b2t_test`, pois o preparo dos testes limpa tabelas. Não usar o banco operacional. Esta validação não foi feita para a revisão de interface; validações anteriores de C5 e de recuperação de administrador não a substituem.
-3. **Conferir os fluxos reais com a equipe.** Validar cadastro de produto, orçamento/venda, apontamento de produção, recebimento de estoque e lançamento financeiro com dados representativos. As verificações visuais automatizadas desta revisão usaram fixtures; ajustes de usabilidade devem partir das dificuldades reproduzidas no uso.
-4. **Integrar e disponibilizar a recuperação de senha administrativa.** A implementação está preparada em branch/PR própria, separada do PR #9: comando de console para ADMIN ativo, revogação de sessões e limpeza do bloqueio de login. Revalidação em 26/10/2026: 12 testes focados de integração aprovados em banco descartável dedicado, tipagem e lint aprovados. A integração na main e a atualização da ferramenta no servidor permanecem pendentes; nenhuma senha operacional foi alterada.
-5. **Adicionar verificações automáticas no GitHub.** Não há workflow de CI/publicação configurado no repositório. Definir verificações de tipagem, lint e testes reproduzíveis; publicação automática precisa de destino e configuração próprios. Não é uma funcionalidade de negócio já contratada.
+1. **Resolvido no ambiente de referência: execução completa do Vitest.** A consulta CSS `:invalid` durante o tratamento de `invalid` provocava validação recursiva no jsdom. A leitura de `willValidate`/`validity` evita novos eventos e preserva os campos elegíveis e o foco. Descoberta limitada aos testes atuais; observadores de concorrência reutilizam a conexão reservada e atualizam o snapshot PostgreSQL. A suíte padrão inteira passou em uma execução Linux/Node 22 no [CI](https://github.com/bsgirardi/appb2t/actions/runs/40724120597): 925 testes em 275 arquivos. E3 e E4 completam a cobertura em bancos exclusivos; não há erros suprimidos nem upgrade do Vitest. Uma rodada Windows/Node 24 sob carga teve timeout de PDF e inicialização de worker, sem a antiga recursão; esse resultado não é apresentado como suíte Windows aprovada. Os dois arquivos afetados passaram novamente em execução isolada (oito testes), sem alterar limites de segurança ou tempo.
+2. **Resolvido: integrações de banco da revisão administrativa.** A suíte padrão inclui as 304 integrações gerais no banco dedicado; E3 usa outra instância e passou 29 testes, E4 passou 21 com migração real e concorrência. Não foram usados dados ou banco operacional nos testes.
+3. **Pendente com a equipe: conferir os fluxos reais.** Cadastro, orçamento/venda, apontamento de produção, estoque e financeiro precisam ser acompanhados com dados representativos do uso humano. Publicação validada por saúde/versão/rotas/permissões e preservação dos dados; não foram criadas operações fictícias no banco publicado para substituir essa conferência.
+4. **Resolvido: disponibilizar recuperação de senha administrativa.** Implementação integrada e presente na imagem tools/admin 1.10.1, com acesso pelo usuário sem privilégios. Procedimento em INSTALACAO_SERVIDOR.md. Nenhuma senha operacional foi alterada ou usuário recriado.
+5. **Resolvido: verificações automáticas no GitHub.** Workflow `.github/workflows/ci.yml` verifica tipagem, lint, build e todas as suítes com PostgreSQL 17 exclusivo em PRs e pushes da main. Linux/Node 22 coincide com o Docker; não configura publicação automática.
 
 ## Configuração e operação pelo responsável
 

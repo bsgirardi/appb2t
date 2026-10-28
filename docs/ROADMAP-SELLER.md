@@ -307,3 +307,7 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 ### 28/10/2026 — integração autorizada das quatro PRs
 
 PRs #19, #21, #22 e #23 reconciliadas nas versões 1.7.0, 1.8.0, 1.9.0 e 1.10.0. Os registros acima são históricos da preparação. A validação atual cobre todos os unitários em lotes e checkout principal, regressão geral PostgreSQL, E3 exclusiva, migração/concorrência E4 e build/tipos/lint. [Evidências e limites](superpowers/reviews/2026-10-28-integracao-prs.md). Publicação e migração operacional permanecem separadas; E1–E4 amplas continuam parciais.
+
+### 28/10/2026 — manutenção e publicação local 1.10.1
+
+E1.1–E4.1 integradas e disponíveis na instalação local com suas migrações. PR #25 resolve descoberta de testes, recursão de validação e observação de concorrência em pool pequeno, acrescenta CI real e publica a versão 1.10.1 com 103 projeções legadas preservadas. [Registro de publicação e limites](superpowers/2026-10-28-publicacao-1.10.1.md). A validação humana com a equipe e os próximos incrementos de cada etapa continuam pendentes; domínio externo e backup externo não foram configurados.
