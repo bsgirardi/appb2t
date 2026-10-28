@@ -154,7 +154,7 @@ Instale os containers em um servidor acessível pela equipe. A configuração pa
 
 ## Desenvolvimento local
 
-Node.js 22.20 ou superior compatível, npm e PostgreSQL 17+.
+Node.js 22 (conforme `.nvmrc` e Docker), npm e PostgreSQL 17+. O ambiente de referência dos testes completos é Linux/Node 22, também usado pelo CI.
 
 ```sh
 npm ci
@@ -198,6 +198,13 @@ export DATABASE_URL='postgresql://b2t_test:b2t_test_local_only@127.0.0.1:55432/b
 npm run db:migrate
 npm test
 ```
+
+`npm test` executa todos os testes unitários e de integração padrão em uma única execução do Vitest. A descoberta considera apenas os arquivos atuais em `tests/unit` e `tests/integration`; cópias em `.superpowers` ficam fora. As suítes exclusivas abaixo completam a cobertura e são executadas separadamente pelo CI, sem suprimir falhas:
+
+- E3: PostgreSQL descartável exclusivo em `127.0.0.1:55433/b2t_e3_test`. Defina `DATABASE_URL` com essa conexão, aplique `npm run db:migrate` e execute `npm run test:e3`.
+- E4: PostgreSQL descartável exclusivo em `127.0.0.1:55434/b2t_e4_test`. Defina `E4_TEST_DATABASE_URL` com essa conexão. Em banco vazio, execute `npm run test:e4:migration`, que aplica a base, valida a migração e preservação de registros sintéticos; depois `npm run test:e4`. Para banco de teste E4 já preparado, aplique as migrações pendentes usando `DATABASE_URL` e não repita o ensaio que exige banco vazio.
+
+Esses bancos não podem ser compartilhados entre execuções simultâneas. GitHub Actions cria PostgreSQL 17 novo para cada suíte e verifica também tipagem, lint e build em PRs e pushes para `main`. O workflow não publica a aplicação. Configuração baseada na [documentação oficial de serviços PostgreSQL](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers) e [setup-node](https://github.com/actions/setup-node).
 
 **Os testes de integração limpam as tabelas de `b2t_test`.** O código recusa outra combinação de host/banco antes da limpeza. Nunca use a URL de produção para testes. A senha em `compose.test.yaml` serve exclusivamente para o banco local descartável.
 

@@ -8,6 +8,26 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.10.1",
+    date: "2026-10-28",
+    title: "Verificações automáticas e atualização mais confiável",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Alterações passam por verificações automáticas de testes, tipagem, qualidade e compilação no GitHub para reduzir regressões nas próximas atualizações.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Formulários administrativos localizam e focam campos obrigatórios sem disparar validações repetidas ao abrir seções com pendências.",
+          "A validação considera somente os testes atuais e separa os bancos exclusivos de planejamento e negociações, evitando cópias antigas e conflitos entre ambientes.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.10.0",
     date: "2026-10-28",
     title: "Negociações e próximos contatos",

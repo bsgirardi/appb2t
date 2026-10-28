@@ -3,6 +3,7 @@ import { afterEach, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Field } from "@/components/ui/field";
 import { FormSection } from "@/components/admin/form-section";
+import { AdminForm } from "@/components/admin/admin-form";
 import { revealAndFocusInvalid } from "@/components/admin/form-errors";
 afterEach(cleanup);
 
@@ -63,4 +64,44 @@ it("keeps a section with pending requirements expanded", () => {
   );
   expect(screen.getByText("Venda").closest("details")?.open).toBe(true);
   fireEvent.click(screen.getByText("Venda"));
+});
+
+it("reveals native invalid fields without dispatching validation recursively", () => {
+  const view = render(
+    <AdminForm>
+      <FormSection id="native-required" title="Dados nativos" collapsible defaultOpen={false}>
+        <Field label="Nome obrigatório" required />
+      </FormSection>
+    </AdminForm>,
+  );
+  const input = screen.getByLabelText("Nome obrigatório");
+  let invalidEvents = 0;
+  // Bound the regression on the old implementation instead of overflowing the runner.
+  const observe = (event: Event) => {
+    invalidEvents++;
+    if (invalidEvents > 1) event.stopPropagation();
+  };
+  window.addEventListener("invalid", observe, true);
+  try {
+    fireEvent.invalid(input);
+    expect(invalidEvents).toBe(1);
+    expect(view.container.querySelector("details")?.open).toBe(true);
+    expect(document.activeElement).toBe(input);
+  } finally {
+    window.removeEventListener("invalid", observe, true);
+  }
+});
+
+it("skips controls barred from native validation when choosing the first error", () => {
+  const view = render(
+    <form>
+      <Field label="Campo desabilitado" disabled />
+      <Field label="Campo somente leitura" readOnly />
+      <Field label="Campo pendente" required />
+    </form>,
+  );
+  (screen.getByLabelText("Campo desabilitado") as HTMLInputElement).setCustomValidity("Erro antigo");
+  (screen.getByLabelText("Campo somente leitura") as HTMLInputElement).setCustomValidity("Erro antigo");
+  revealAndFocusInvalid(view.container.querySelector("form")!);
+  expect(document.activeElement).toBe(screen.getByLabelText("Campo pendente"));
 });

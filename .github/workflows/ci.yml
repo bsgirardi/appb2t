@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Tipagem, lint e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://unused:unused@127.0.0.1:55432/b2t_test
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+
+  tests:
+    name: Testes (${{ matrix.suite }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: padrao
+            database: b2t_test
+            port: 55432
+            command: npm test
+          - suite: e3
+            database: b2t_e3_test
+            port: 55433
+            command: npm run test:e3
+          - suite: e4
+            database: b2t_e4_test
+            port: 55434
+            command: npm run test:e4
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: b2t_test
+          POSTGRES_PASSWORD: b2t_test_local_only
+          POSTGRES_DB: ${{ matrix.database }}
+        ports:
+          - ${{ matrix.port }}:5432
+        options: >-
+          --health-cmd "pg_isready -U b2t_test -d ${{ matrix.database }}"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+      E4_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Validar upgrade em banco E4 vazio
+        if: matrix.suite == 'e4'
+        run: npm run test:e4:migration
+      - name: Aplicar migrações de teste
+        if: matrix.suite != 'e4'
+        run: npm run db:migrate
+      - run: ${{ matrix.command }}

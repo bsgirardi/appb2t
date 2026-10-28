@@ -131,11 +131,16 @@ it("reads dependencies after locking when a sale reserves during cancellation", 
       where: { id: stock.id },
     });
   let unlock!: () => void, locked!: () => void;
+  let observeWaiters!: () => Promise<{ n: bigint }[]>;
   const gate = new Promise<void>((r) => (unlock = r)),
     ready = new Promise<void>((r) => (locked = r));
   const blocker = db.$transaction(
     async (tx) => {
       await tx.$queryRaw`SELECT id FROM "FinishedStock" WHERE id=${stock.id} FOR UPDATE`;
+      observeWaiters = async () => {
+        await tx.$executeRaw`SELECT pg_stat_clear_snapshot()`;
+        return tx.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND (query LIKE '%FinishedStock%' OR query LIKE '%PlanningState%')`;
+      };
       locked();
       await gate;
     },
@@ -144,15 +149,14 @@ it("reads dependencies after locking when a sale reserves during cancellation", 
   await ready;
   const waitBlocked = async (n: number) => {
     for (let i = 0; i < 100; i++) {
-      const rows = await db.$queryRaw<
-        { n: bigint }[]
-      >`SELECT count(*) AS n FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND (query LIKE '%FinishedStock%' OR query LIKE '%PlanningState%')`;
+      const rows = await observeWaiters();
       if (Number(rows[0].n) >= n) return;
       await new Promise((r) => setTimeout(r, 20));
     }
     throw Error("Expected waiting transactions");
   };
   let outcomes: PromiseSettledResult<unknown>[] = [];
+  let pending: Promise<PromiseSettledResult<unknown>[]> | undefined;
   try {
     const reserve = reserveFinished(a, {
       ...meta(current.version),
@@ -163,6 +167,7 @@ it("reads dependencies after locking when a sale reserves during cancellation", 
       units: 1,
       originAllocations: [{ originId: origin.id, units: 1 }],
     });
+    pending = Promise.allSettled([reserve]);
     await waitBlocked(1);
     const cancel = cancelOrderRemainder(a, {
       ...meta(o.version),
@@ -176,14 +181,18 @@ it("reads dependencies after locking when a sale reserves during cancellation", 
       ],
       reason: "Perda em conferência",
     });
-    const both = Promise.allSettled([reserve, cancel]);
+    const both = pending = Promise.allSettled([reserve, cancel]);
     await waitBlocked(2);
     unlock();
     await blocker;
     outcomes = await both;
   } finally {
     unlock();
-    await blocker;
+    try {
+      await blocker;
+    } finally {
+      await pending;
+    }
   }
   expect(outcomes.map((x) => x.status)).toEqual(["fulfilled", "rejected"]);
   expect(
