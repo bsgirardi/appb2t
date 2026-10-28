@@ -1,3 +1,4 @@
+import { assertOpportunityQuoteOpen } from "@/server/opportunities/commerce";
 import type { Actor } from "@/server/auth/session";
 import type {
   CheckoutPrincipal,
@@ -63,6 +64,7 @@ export async function publishCheckoutQuote(
           "Prepare e emita o orçamento pelo atendimento.",
         );
       await lockCommerce(tx, { quoteId });
+      await assertOpportunityQuoteOpen(tx, quoteId);
       const q = await tx.quote.findUniqueOrThrow({ where: { id: quoteId } });
       if (
         q.version !== input.expectedQuoteVersion ||

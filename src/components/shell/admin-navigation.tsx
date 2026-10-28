@@ -37,6 +37,7 @@ const groups: { label: string; items: Item[]; admin?: boolean }[] = [
     items: [
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/solicitacoes", label: "Solicitações", icon: FileText },
+      { href: "/negociacoes", label: "Negociações", icon: Users },
       { href: "/orcamentos", label: "Orçamentos", icon: FileText },
       { href: "/vendas", label: "Vendas", icon: ShoppingCart },
       { href: "/produtos", label: "Produtos", icon: Boxes },
