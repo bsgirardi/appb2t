@@ -1,4 +1,5 @@
 "use client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { AdminForm } from "@/components/admin/admin-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,34 +30,40 @@ export function RequestPanel({
     <div className="commerce-page request-page">
       <h1>Solicitações</h1>
       <p>Revise as seleções recebidas antes de preparar um orçamento.</p>
-      <AdminForm
-        className="commerce-filters"
-        onSubmit={(e) => {
-          e.preventDefault();
-          router.push(
-            `/solicitacoes?${new URLSearchParams(new FormData(e.currentTarget) as never)}`,
-          );
-        }}
+      <FilterPanel
+        activeCount={
+          Object.values(filters).filter((v) => v && v !== "all").length
+        }
       >
-        <Field
-          label="Buscar por protocolo ou nome"
-          name="search"
-          defaultValue={filters.search}
-          maxLength={160}
-        />
-        <Label>
-          Estado
-          <NativeSelect name="state" defaultValue={filters.state}>
-            <option value="all">Todos</option>
-            {Object.entries(requestStateLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Button type="submit">Filtrar</Button>
-      </AdminForm>
+        <AdminForm
+          className="commerce-filters"
+          onSubmit={(e) => {
+            e.preventDefault();
+            router.push(
+              `/solicitacoes?${new URLSearchParams(new FormData(e.currentTarget) as never)}`,
+            );
+          }}
+        >
+          <Field
+            label="Buscar por protocolo ou nome"
+            name="search"
+            defaultValue={filters.search}
+            maxLength={160}
+          />
+          <Label>
+            Estado
+            <NativeSelect name="state" defaultValue={filters.state}>
+              <option value="all">Todos</option>
+              {Object.entries(requestStateLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Button type="submit">Filtrar</Button>
+        </AdminForm>
+      </FilterPanel>
       <div className="request-inbox">
         {initial.items.map((item) => (
           <article key={item.id} className="request-inbox-item">

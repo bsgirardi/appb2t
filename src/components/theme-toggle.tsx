@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   currentTheme,
@@ -19,7 +20,7 @@ export function ThemeController() {
   useEffect(watchTheme, []);
   return null;
 }
-export function ThemeToggle() {
+export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const preference = useSyncExternalStore(
     subscribeTheme,
     currentTheme,
@@ -31,12 +32,18 @@ export function ThemeToggle() {
     <Button
       type="button"
       variant="outline"
-      className="theme-toggle"
+      className={cn("theme-toggle", compact && "min-w-11")}
+      size={compact ? "icon" : "default"}
+      title={
+        compact
+          ? `Tema: ${labels[preference]}. Alterar para ${labels[next[preference]]}.`
+          : undefined
+      }
       aria-label={`Tema atual: ${labels[preference]}. Alterar para ${labels[next[preference]]}.`}
       onClick={() => setTheme(next[preference])}
     >
       <Icon data-icon="inline-start" aria-hidden="true" />
-      <span>Tema: {labels[preference]}</span>
+      {!compact && <span>Tema: {labels[preference]}</span>}
     </Button>
   );
 }

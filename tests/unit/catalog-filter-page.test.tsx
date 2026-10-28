@@ -1,11 +1,15 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import Page, { generateMetadata } from "@/app/page";
+import { getPublicAppearance } from "@/server/appearance";
 import { catalogPage } from "@/server/storefront";
 import { defaultAppearance } from "@/domain/appearance/validation";
 vi.mock("@/server/appearance", () => ({
-  getPublicAppearance: async () => ({ ...defaultAppearance, logoUrl: null }),
+  getPublicAppearance: vi.fn(async () => ({
+    ...defaultAppearance,
+    logoUrl: null,
+  })),
 }));
 vi.mock("@/server/collections", () => ({
   listPublicCollections: async () => [],
@@ -33,6 +37,7 @@ it("labels approximate results accessibly and explains search behavior", async (
   expect(screen.getByRole("status").textContent).toContain(
     "Resultados aproximados para “chavero azul”",
   );
+  fireEvent.click(screen.getByRole("button", { name: "Filtrar produtos" }));
   const search = screen.getByLabelText("Buscar no catálogo");
   expect(
     document.getElementById(search.getAttribute("aria-describedby")!)
@@ -83,3 +88,33 @@ it("passes criteria to the server and keeps filtered canonical URLs clean", asyn
   expect(metadata.robots).toEqual({ index: false, follow: true });
   expect(JSON.stringify(metadata.alternates)).not.toContain("precoMin");
 });
+
+it.each([false, true])(
+  "honors initial banner visibility (configured banner: %s)",
+  async (configured) => {
+    vi.mocked(getPublicAppearance).mockResolvedValueOnce({
+      ...defaultAppearance,
+      logoUrl: null,
+      storefront: {
+        ...defaultAppearance.storefront,
+        showHero: false,
+        banners: configured
+          ? [
+              {
+                title: "Destaque da loja",
+                text: "Texto",
+                collectionId: "",
+                buttonText: "Explorar",
+              },
+            ]
+          : [],
+      },
+    });
+    render(await Page({ searchParams: Promise.resolve({}) }));
+    expect(screen.queryByText("Destaque da loja")).toBeNull();
+    expect(screen.queryByText("Sua ideia.")).toBeNull();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Conheça nossa coleção" }),
+    ).toBeTruthy();
+  },
+);
