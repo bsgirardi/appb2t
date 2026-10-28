@@ -1,7 +1,7 @@
 # E3.1 — Calendário visual e simulação da fila
 
 Data: 27/10/2026, America/Sao_Paulo.
-Estado: recorte e desenho aprovados pelo usuário em 27/10/2026 (“Aprovado”). Plano elaborado em `../plans/2026-10-27-e3-fila-visual.md`, aguardando revisão; implementação não iniciada.
+Estado: recorte, desenho e plano aprovados pelo usuário em 27/10/2026 (“Aprovado”). Implementação local em `codex/e3-fila-visual`, validação focada e limites registrados em `../reviews/2026-10-27-e3-fila-visual.md`; sem integração/publicação.
 
 ## Intenção e base conferida
 
@@ -61,4 +61,4 @@ Esses itens continuam pendentes em E3, sem refazer módulos nem reabrir a ordem 
 
 ## Estado de entrega
 
-Desenho aprovado e plano preparado; nenhum teste funcional executado. Sem código, PR, push, merge, publicação, migração, banco ou contêiner alterado. Não há incremento de versão nesta entrega documental local. Futura PR exige versão e notas conforme AGENTS.md, reconciliadas com main e PRs concorrentes. Próxima ação: revisar plano e escolher método de execução em isolamento.
+Desenho e plano aprovados e implementados localmente. Relatório distingue validação focada, revisão independente, prévia sintética e limites de suíte completa/banco. Versão 1.5.1 mantida por não haver PR entregue. Sem push, merge, publicação, migração, banco ou contêiner alterado. Futura PR exige autorização específica, versão e notas conforme AGENTS.md, reconciliadas com main e PRs concorrentes.
