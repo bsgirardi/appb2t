@@ -8,6 +8,7 @@ export async function createDocumentSnapshot(
   input: DocumentInput,
   logoUrl: string,
   owner?: { quoteId: string } | { saleId: string },
+  options: { consignmentCustody?: boolean } = {},
 ): Promise<{
   snapshot: DocumentSnapshot;
   logo: { bytes: Uint8Array; mimeType: string } | null;
@@ -15,7 +16,7 @@ export async function createDocumentSnapshot(
   const customer = await tx.customer.findUnique({
     where: { id: input.customerId },
   });
-  if (!customer?.active)
+  if (!customer || (!customer.active && !options.consignmentCustody))
     throw new AppError("VALIDATION", "Selecione um cliente ativo.");
   const appearance = await tx.companyAppearance.findUnique({
     where: { id: 1 },
@@ -31,7 +32,7 @@ export async function createDocumentSnapshot(
   });
   const items = input.items.map((item) => {
     const p = products.find((p) => p.id === item.productId);
-    if (item.productId && !p?.active)
+    if (item.productId && (!p || (!p.active && !options.consignmentCustody)))
       throw new AppError("VALIDATION", "Um produto não está mais ativo.");
     return {
       ...(item.catalogOrigin ? { catalogOrigin: item.catalogOrigin } : {}),

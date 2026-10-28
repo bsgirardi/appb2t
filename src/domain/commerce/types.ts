@@ -83,6 +83,7 @@ export interface QuoteDTO {
   saleId: string | null;
 }
 export interface ReceiptSummary {
+  consignment?: import("@/server/consignment/finance").ConsignmentReceiptSummary;
   total: string;
   received: string;
   pending: string;
@@ -90,7 +91,7 @@ export interface ReceiptSummary {
 }
 export interface SaleDTO {
   art?: import("@/domain/art/types").DocumentArtDTO[];
-  fulfillmentMode?: "LEGACY" | "U3";
+  fulfillmentMode?: "LEGACY" | "U3" | "CONSIGNMENT";
   costs?: DocumentCostsDTO | null;
   id: string;
   number: string;

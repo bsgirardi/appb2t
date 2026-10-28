@@ -18,6 +18,7 @@ import { lockCommerce } from "../commerce/locks";
 import { runFinanceCommand } from "./commands";
 import { audit } from "./audit";
 import { cancelSale } from "../sales";
+import { assertStandaloneEntry, readConsignmentReceiptSummary } from "../consignment/finance";
 import type {
   DocumentSnapshot,
   DocumentTotals,
@@ -224,6 +225,7 @@ export async function updateEntry(
     .parse(raw);
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
+    await assertStandaloneEntry(tx, id);
     const old = await entryRow(tx, id);
     if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
       throw new AppError(
@@ -278,6 +280,7 @@ export async function cancelEntry(
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
   const origin = await entryRow(db, id);
+  await assertStandaloneEntry(db, id);
   if (origin.saleInstallment) {
     await cancelSale(
       actor,
@@ -290,6 +293,7 @@ export async function cancelEntry(
   }
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
+    await assertStandaloneEntry(tx, id);
     const old = await entryRow(tx, id);
     if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
       throw new AppError(
@@ -405,6 +409,8 @@ export async function getSaleReceiptSummary(
   tx: Prisma.TransactionClient,
   saleId: string,
 ): Promise<ReceiptSummary> {
+  const consignment = await readConsignmentReceiptSummary(tx, saleId);
+  if (consignment) return {total:consignment.gross,received:consignment.receivedRepayment,pending:consignment.pendingRepayment,overdue:consignment.overdue,consignment};
   const sale = await tx.sale.findUniqueOrThrow({ where: { id: saleId } });
   const entries = await tx.financialEntry.findMany({
     where: { saleInstallment: { saleId }, canceledAt: null },
