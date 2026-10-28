@@ -21,6 +21,7 @@ export const releases: Release[] = [
       {
         title: "Correções",
         items: [
+          "Formulários administrativos localizam e focam campos obrigatórios sem disparar validações repetidas ao abrir seções com pendências.",
           "A validação considera somente os testes atuais e separa os bancos exclusivos de planejamento e negociações, evitando cópias antigas e conflitos entre ambientes.",
         ],
       },
