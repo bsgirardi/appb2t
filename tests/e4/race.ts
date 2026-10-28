@@ -7,6 +7,7 @@ export async function raceUnderPlanningLock<A, B>(
   let release!: () => void,
     ready!: () => void,
     failReady!: (error: unknown) => void;
+  let observeWaiters!: () => Promise<{ count: bigint }[]>;
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
@@ -17,6 +18,9 @@ export async function raceUnderPlanningLock<A, B>(
   const blocker = db.$transaction(
     async (tx) => {
       await lockPlanning(tx);
+      // The holder plus two contenders can fill a small Prisma pool. Observe
+      // through the already-held connection instead of waiting for a fourth.
+      observeWaiters = () => tx.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE '%PlanningState%'`;
       ready();
       await held;
     },
@@ -32,9 +36,7 @@ export async function raceUnderPlanningLock<A, B>(
     const deadline = Date.now() + 5000;
     let count = 0;
     do {
-      const rows = await db.$queryRaw<
-        { count: bigint }[]
-      >`SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE '%PlanningState%'`;
+      const rows = await observeWaiters();
       count = Number(rows[0].count);
       if (count >= actions.length) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -47,8 +49,13 @@ export async function raceUnderPlanningLock<A, B>(
     failure = error;
   } finally {
     release();
-    await blocker;
+    try {
+      await blocker;
+    } catch (error) {
+      failure ??= error;
+    }
   }
+  // Always drain both commands before the next test can truncate its tables.
   const results = await settled;
   if (failure) throw failure;
   return results as [PromiseSettledResult<A>, PromiseSettledResult<B>];

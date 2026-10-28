@@ -65,7 +65,7 @@ jobs:
         ports:
           - ${{ matrix.port }}:5432
         options: >-
-          --health-cmd "pg_isready -U b2t_test"
+          --health-cmd "pg_isready -U b2t_test -d ${{ matrix.database }}"
           --health-interval 2s
           --health-timeout 3s
           --health-retries 30
