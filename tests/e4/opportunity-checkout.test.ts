@@ -182,3 +182,39 @@ it("rolls back approval, conversion and installments when gain persistence fails
     );
   }
 });
+
+it("blocks loss when the active offer is linked ONLY by catalog request", async () => {
+  const { actor, q, id, opportunity: o } = await linked();
+  const offer = await publishCheckoutQuote(actor, id, {
+    operationKey: key(),
+    expectedQuoteVersion: q.version,
+    installments: installments(),
+  });
+  await db.checkout.update({ where: { id }, data: { quoteId: null } });
+  const beforeEvents = await db.opportunityEvent.count({
+    where: { opportunityId: o.id },
+  });
+  await expect(
+    command(actor, o.id, {
+      action: "LOSE",
+      operationKey: key(),
+      expectedVersion: o.version,
+      reason: "Cliente desistiu",
+    }),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+  expect((await getOpportunity(actor, o.id)).version).toBe(o.version);
+  expect(
+    await db.opportunityEvent.count({ where: { opportunityId: o.id } }),
+  ).toBe(beforeEvents);
+  await withdrawCheckoutOffer(actor, id, offer.version, "Oferta retirada");
+  expect(
+    (
+      await command(actor, o.id, {
+        action: "LOSE",
+        operationKey: key(),
+        expectedVersion: o.version,
+        reason: "Cliente desistiu",
+      })
+    ).stage,
+  ).toBe("PERDIDO");
+});

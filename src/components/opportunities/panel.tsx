@@ -76,7 +76,7 @@ export function OpportunityPanel({
           </CardContent>
         </Card>
       ) : null}
-      <form onSubmit={filter}>
+      <form key={JSON.stringify(filters)} onSubmit={filter}>
         <FieldGroup className="md:grid md:grid-cols-4 md:items-end">
           <Field
             label="Buscar negociação"

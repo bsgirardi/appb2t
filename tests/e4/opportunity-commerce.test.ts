@@ -84,3 +84,63 @@ it("blocks conversion of lost opportunities", async () => {
   ).rejects.toMatchObject({ code: "CONFLICT" });
   expect(await db.sale.count()).toBe(0);
 });
+
+it("links an already converted quote with one version increment and no new commerce events", async () => {
+  const { actor, opportunity: o, quote } = await fixture();
+  const q = await quote();
+  const sale = await convertQuote(
+    actor,
+    q.id,
+    q.version,
+    [{ number: 1, amount: "50.00", dueDate: "2026-10-29" }],
+    key(),
+  );
+  const before = {
+    events: await db.commerceEvent.count(),
+    entries: await db.financialEntry.count(),
+    installments: await db.saleInstallment.count(),
+  };
+  const linked = await command(actor, o.id, {
+    action: "LINK_QUOTE",
+    operationKey: key(),
+    expectedVersion: o.version,
+    quoteId: q.id,
+  });
+  expect(linked.stage).toBe("GANHO");
+  expect(linked.wonSale?.id).toBe(sale.id);
+  expect(linked.version).toBe(o.version + 1);
+  expect(await db.sale.count()).toBe(1);
+  expect(await db.commerceEvent.count()).toBe(before.events);
+  expect(await db.financialEntry.count()).toBe(before.entries);
+  expect(await db.saleInstallment.count()).toBe(before.installments);
+  expect(
+    await db.opportunityEvent.count({ where: { opportunityId: o.id } }),
+  ).toBe(2);
+});
+it("refuses retroactive adoption of a cancelled sale without changing opportunity", async () => {
+  const { actor, opportunity: o, quote } = await fixture();
+  const q = await quote();
+  const sale = await convertQuote(
+    actor,
+    q.id,
+    q.version,
+    [{ number: 1, amount: "50.00", dueDate: "2026-10-29" }],
+    key(),
+  );
+  await db.sale.update({
+    where: { id: sale.id },
+    data: { status: "CANCELADA" },
+  });
+  await expect(
+    command(actor, o.id, {
+      action: "LINK_QUOTE",
+      operationKey: key(),
+      expectedVersion: o.version,
+      quoteId: q.id,
+    }),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+  expect((await getOpportunity(actor, o.id)).version).toBe(o.version);
+  expect(
+    (await db.quote.findUniqueOrThrow({ where: { id: q.id } })).opportunityId,
+  ).toBeNull();
+});
