@@ -98,7 +98,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
   const featured = home
     ? await featuredCollections(config.featuredCollectionIds)
     : [];
-  const CatalogHeading = home ? "h2" : "h1";
+  const CatalogHeading = home && config.showHero ? "h2" : "h1";
   const catalog = (
     <section id="all-products">
       <div className="store-heading">
@@ -175,6 +175,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
       commercial={f}
     >
       {home &&
+        config.showHero &&
         (config.banners.some(
           (b) =>
             !b.collectionId || collections.some((c) => c.id === b.collectionId),

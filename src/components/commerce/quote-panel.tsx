@@ -1,4 +1,5 @@
 "use client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
 
@@ -69,45 +70,51 @@ export function QuotePanel({
           onSaved={(q) => router.push(`/orcamentos/${q.id}`)}
         />
       )}
-      <AdminForm className="commerce-filters" onSubmit={filter}>
-        <Label>
-          Buscar
-          <Input
-            name="search"
-            defaultValue={filters.search}
-            placeholder="Número ou cliente"
-          />
-        </Label>
-        <Label>
-          Estado
-          <NativeSelect name="status" defaultValue={filters.status}>
-            {[
-              "all",
-              "RASCUNHO",
-              "ENVIADO",
-              "APROVADO",
-              "REJEITADO",
-              "EXPIRADO",
-              "CONVERTIDO",
-            ].map((s) => (
-              <option key={s} value={s}>
-                {s === "all" ? "Todos" : s}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Label>
-          De
-          <Input type="date" name="from" defaultValue={filters.from} />
-        </Label>
-        <Label>
-          Até
-          <Input type="date" name="to" defaultValue={filters.to} />
-        </Label>
-        <Button variant="outline" size="sm" className="">
-          Filtrar
-        </Button>
-      </AdminForm>
+      <FilterPanel
+        activeCount={
+          Object.values(filters).filter((v) => v && v !== "all").length
+        }
+      >
+        <AdminForm className="commerce-filters" onSubmit={filter}>
+          <Label>
+            Buscar
+            <Input
+              name="search"
+              defaultValue={filters.search}
+              placeholder="Número ou cliente"
+            />
+          </Label>
+          <Label>
+            Estado
+            <NativeSelect name="status" defaultValue={filters.status}>
+              {[
+                "all",
+                "RASCUNHO",
+                "ENVIADO",
+                "APROVADO",
+                "REJEITADO",
+                "EXPIRADO",
+                "CONVERTIDO",
+              ].map((s) => (
+                <option key={s} value={s}>
+                  {s === "all" ? "Todos" : s}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Label>
+            De
+            <Input type="date" name="from" defaultValue={filters.from} />
+          </Label>
+          <Label>
+            Até
+            <Input type="date" name="to" defaultValue={filters.to} />
+          </Label>
+          <Button variant="outline" size="sm" className="">
+            Filtrar
+          </Button>
+        </AdminForm>
+      </FilterPanel>
       <Card asChild>
         <div className="table-scroll">
           <Table>

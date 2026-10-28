@@ -8,8 +8,8 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
-    version: "1.6.0",
-    date: "2026-10-27",
+    version: "1.7.0",
+    date: "2026-10-28",
     title: "Compare o resultado de diferentes lotes",
     sections: [
       {
@@ -23,6 +23,46 @@ export const releases: Release[] = [
         title: "Melhorias",
         items: [
           "Explicações distinguem cobertura dos custos modelados, meta comercial e despesas fixas da empresa, preservando a decisão de preço da equipe.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.6.0",
+    date: "2026-10-28",
+    title: "Calculadora V3 e cadastro de produtos mais claro",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Calculadora V3 com os mesmos cálculos por lote da V2, entrada de horas e minutos, custos ao lado e ajustes avançados recolhidos. As três calculadoras preservam seus rascunhos ao alternar entre elas.",
+          "Opção Exibir banner inicial em Aparência permite ocultar o destaque de abertura da loja sem apagar seu conteúdo.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Filtros do catálogo recolhidos em Filtrar produtos e seletor de tema compacto no cabeçalho deixam mais espaço para os produtos.",
+          "Filtros das listagens administrativas e período do dashboard ficam recolhidos para destacar os registros. Os valores digitados são preservados ao fechar e reabrir o painel.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "O cadastro de produtos começa com zero horas, permitindo informar impressões de menos de uma hora sem preencher um campo vazio. Pendências de consumo, tempo e custos agora são identificadas junto aos campos, com indicação dos itens obrigatórios. Apenas as seções com pendências são abertas ao validar o cadastro.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.5.1",
+    date: "2026-10-27",
+    title: "Correção das permissões na atualização do servidor",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "Migrações e administração pelo Docker conseguem acessar os arquivos da aplicação mesmo quando o servidor usa permissões restritas ao baixar o projeto.",
         ],
       },
     ],
