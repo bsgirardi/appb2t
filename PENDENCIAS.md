@@ -10,6 +10,10 @@ Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e valid
 
 ## Desenvolvimento concluído
 
+E2.1 entregue na [PR #21 em rascunho](https://github.com/bsgirardi/appb2t/pull/21), versão 1.6.0, sem merge/publicação. Preparação validada com 37 testes relacionados, tipagem, lint e build; limite da suíte completa e pendências E2 mantidos no relatório. A nota de entrega local abaixo registra o estado anterior à autorização da PR.
+
+E2.1 foi implementado localmente em isolamento na branch `codex/e2-reconciliacao`, sobre a main 1.5.1, sem PR, push, merge ou publicação. O detalhe de rentabilidade explica memória de preço → venda negociada → realizado com fontes e cobertura, sem duplicar perdas ou mudar apurações históricas. Validação: 34 testes relacionados, tipagem, lint, build e prévia sintética responsiva aprovados; suíte unitária completa continua limitada pela recursão do Vitest. E2 permanece parcial. [Verificação e limites](docs/superpowers/reviews/2026-10-27-e2-reconciliacao.md).
+
 - Gestão integrada U1–U5, dashboard, catálogo, solicitações, personalização e kits entregues.
 - C4: anexos e aprovação privada de arte, histórico imutável e bloqueios produtivos aplicáveis entregues.
 - C5: compra direta explícita, conferência de frete/consulta, aceite privado de orçamento, venda/parcelas idempotentes e cancelamento entregues. PR #5 integrado e C5 publicado em http://localhost:3000; 95 projeções legadas e volume preservados. [Registro](docs/superpowers/2026-10-23-publicacao-c5.md).

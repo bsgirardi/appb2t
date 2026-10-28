@@ -39,8 +39,8 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 
 | Etapa | Entrega | Situação | Próxima ação |
 | --- | --- | --- | --- |
-| E1 | Calculadora e decisões de preço | Em implementação | E1.1 implementado e validado com limites; detalhar E1.2 de canais e descontos |
-| E2 | Rentabilidade e explicação de desvios | Pendente | Começar após E1 |
+| E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 em rascunho; detalhar E1.2 de canais e descontos |
+| E2 | Rentabilidade e explicação de desvios | Em validação | E2.1 implementado localmente; revisar entrega e limite da suíte completa |
 | E3 | Fila visual e previsão para o comercial | Pendente | Começar após E2 |
 | E4 | Funil de negociações e próximos contatos | Pendente | Começar após E3 |
 | E5 | Pontos de venda e consignação | Pendente | Começar após E4 |
@@ -167,19 +167,41 @@ Esses itens devem ser incorporados a uma etapa quando necessários ou receber pr
 - Publicação: não realizada; instalação operacional permanece na 1.4.0 conforme contexto recebido, sem nova validação operacional. Nenhuma migração ou atualização de contêineres.
 - Próxima ação: aprovar o recorte E1.1, elaborar plano e implementar no isolamento quando disponível.
 
-### 27/10/2026 — E1.1 implementado em isolamento
+### 27/10/2026 — E1.1 entregue para revisão
 
-- Desenho aprovado pelo usuário; [plano](superpowers/plans/2026-10-27-e1-comparacao-lotes.md) executado nesta sessão.
-- Comparação ampliada com custo/preço por peça, receita, contribuição, margem, resultado após depreciação, tempo, consumo individual de materiais e contribuição/hora de máquina. Cobertura de custos e meta comercial têm explicações distintas; nenhum novo preço mínimo foi criado.
-- Motor V2 e memórias históricas preservados. Canais/descontos (E1.2) e biblioteca/comparação de memórias (E1.3) continuam pendentes; a E1 completa não está concluída. Importação G-code/3MF e projeção mensal continuam pendentes em avaliações separadas.
-- Validação: 78 testes relacionados em nove arquivos aprovados; tipagem, lint e build aprovados; prévia desktop e 375 px sem rolagem horizontal. Revisão independente sem achados pendentes, incluindo normalização de vírgula decimal.
-- Limite: suíte unitária completa reproduziu `Maximum call stack size exceeded` no transporte do Vitest e foi interrompida sem resumo conclusivo. Integrações de banco não executadas. [Relatório](superpowers/reviews/2026-10-27-e1-comparacao-lotes.md).
-- Versão: 1.6.0, manifestos sincronizados e notas em português; teste confirma login, painel e Atualizações para ADMIN/OPERATOR.
-- Branch: `codex/e1-comparacao-lotes`; [PR #19](https://github.com/bsgirardi/appb2t/pull/19) em rascunho para registrar a limitação de validação; implementação em `dff8fd7`. Merge em main: não realizado.
-- Publicação: não realizada. Instalação operacional permanece na 1.4.0 conforme contexto recebido; nenhuma migração ou atualização de contêineres.
-- Próxima ação: revisar E1.1 e resolver/aceitar explicitamente o limite da suíte completa antes de integrar; detalhar E1.2 separadamente, sem publicar ou integrar sem autorização.
+- Desenho aprovado, plano executado e implementação na worktree `C:/Users/Administrador/.codex/worktrees/e1-decisoes-preco/appb2t`, branch `codex/e1-comparacao-lotes`.
+- Comparação ampliada com custo/preço por peça, receita, contribuição, margem, resultado após depreciação, tempo, material e contribuição/hora; motor V2 e memórias preservados.
+- Validação: 78 testes relacionados aprovados, teste comercial reforçado repetido (5 aprovados), tipagem, lint e build aprovados, revisão independente sem achados pendentes e prévia desktop/375 px sem rolagem horizontal. Suíte unitária completa reproduziu recursão do Vitest e foi interrompida sem resumo; integrações de banco não executadas.
+- [Desenho](superpowers/specs/2026-10-27-e1-comparacao-lotes-design.md), [plano](superpowers/plans/2026-10-27-e1-comparacao-lotes.md) e [relatório](superpowers/reviews/2026-10-27-e1-comparacao-lotes.md).
+- Versão de desenvolvimento 1.6.0; [PR #19](https://github.com/bsgirardi/appb2t/pull/19) em rascunho, implementação `dff8fd7`, acompanhamento `725e707`. Merge e publicação não realizados. Instalação operacional permanece na 1.4.0 conforme contexto recebido; sem migração ou alteração de contêineres.
+- E1 continua parcial: canais/descontos e comparação de memórias pendentes; importação G-code/3MF e projeção mensal em avaliações separadas. Próxima ação: revisar E1.1 e resolver/aceitar explicitamente o limite de testes antes de integrar; detalhar E1.2 sem publicar nem integrar sem autorização.
 
-### Modelo para próximas atualizações (preenchimento)
+### 27/10/2026 — E2 iniciada: análise e proposta E2.1
+
+- Leitura de AGENTS.md, pendências, roadmap, domínio, fontes, agregação, consulta, detalhe e testes existentes de rentabilidade; acompanhamento e chat E1 conferidos. E1.1 está na PR #19 em rascunho, sem merge/publicação; E1 não foi presumida concluída.
+- [Proposta E2.1](superpowers/specs/2026-10-27-e2-desvios-proposta.md): reconciliar receita da memória → previsto na venda negociada → realizado, no detalhe existente, com fontes, cobertura e critérios numéricos. Abordagem recomendada ainda sujeita à escolha e aprovação; plano executável ainda não elaborado.
+- Dependência: E2.1 pode usar contratos já existentes na main 1.5.0; comparação de simulações de canais/descontos depende dos próximos contratos E1. Não reutilizar a worktree ou banco de E1. Detalhamento por componentes/falhas, rankings e recorrência ficam nos próximos incrementos E2.
+- Validação desta entrega: inspeção estática e conferência de diferenças documentais. Sem testes funcionais, integração, build ou validação operacional; resultados de E1 não são validação de E2.
+- Implementação / PR / merge / publicação: não realizados. Versão inalterada por não haver PR entregue. Nenhuma migração, banco ou contêiner alterado; trabalho local de outros chats preservado.
+- Próxima ação: escolher o recorte e aprovar desenho E2.1, então planejar e executar em isolamento a partir da main atual. PR/merge exigem autorização específica; publicação permanece proibida.
+
+### 27/10/2026 — desenho E2.1 aprovado e plano preparado
+
+- Usuário aprovou o recorte e desenho neste chat. [Plano E2.1](superpowers/plans/2026-10-27-e2-reconciliacao.md) preparado e conferido contra os critérios aprovados.
+- Decisão técnica do plano: projeção pura para apresentação sobre o DTO existente, preservando motor, engineVersion e avaliações históricas. Reconciliação monetária por linha/venda, taxas com precisão compatível e cobertura independente por trecho.
+- Implementação e validação funcional ainda não iniciadas; revisão documental com `git diff --check`. Versão inalterada. Sem PR, merge, publicação, migração ou mudança operacional.
+- Próxima ação: revisão do plano pelo usuário; recomendação de execução direta neste chat, em worktree própria. E1 continua parcial e não foi alterada.
+
+### 27/10/2026 — E2.1 implementado localmente
+
+- Desenho/plano aprovados e execução direta em worktree própria `C:/Users/Administrador/.codex/worktrees/e2-reconciliacao/appb2t`, branch `codex/e2-reconciliacao`, a partir da main 1.5.1 (`d74ee75`). E1 não foi alterada nem presumida concluída.
+- Detalhe da venda agora explica receita da memória → previsto na venda → realizado, com margens por etapa, efeitos comerciais/produtivos agregados, cobertura independente e fontes por linha. Projeção somente de leitura; motor, apurações persistidas e engineVersion preservados. Perdas/complementos não são somados novamente.
+- Validação: 34 testes relacionados em 7 arquivos, tipagem, lint e build aprovados. Revisão independente sem achados acionáveis. Prévia sintética desktop/375 px com estados completo/incompleto/negativo e múltiplas linhas, sem rolagem horizontal da página; tabelas com rolagem local.
+- Limite: suíte unitária completa reproduziu recursão conhecida do Vitest, interrompida sem resumo. Integrações de banco e validação autenticada operacional não executadas. [Relatório e limites](superpowers/reviews/2026-10-27-e2-reconciliacao.md).
+- Versão mantida em 1.5.1: entrega local, sem PR/push/merge/publicação. Nenhuma migração, alteração de banco ou contêiner. Futura PR exige autorização específica e incremento MINOR comparado à main, com notas e manifestos sincronizados.
+- E2 permanece parcial: componentes/falhas detalhados, rankings e recorrência/revisão da ficha pendentes. Próxima ação: revisar E2.1 e resolver/aceitar explicitamente limite da suíte completa antes de eventual integração; detalhar E2.2 quando autorizado. Publicação permanece proibida.
+
+### Modelo para próximas atualizações (preenchimento seguinte)
 
 Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 
@@ -193,3 +215,11 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - Merge em main:
 - Publicação e migrações/configurações:
 - Próxima ação concreta:
+
+### 27/10/2026 — preparação da PR E2.1 autorizada
+
+- Usuário autorizou abrir a PR. Versão 1.6.0 (MINOR) comparada à main 1.5.1 (`d74ee75`), manifestos sincronizados e notas em português adicionadas.
+- Revalidação: 37 testes em 8 arquivos, incluindo rodapés/login/Atualizações e acesso ADMIN/OPERATOR; tipagem e build aprovados. Limite conhecido da suíte completa preservado no relatório; PR em rascunho.
+- E1 #19 também propõe 1.6.0; conferir main e reconciliar versão/histórico conforme ordem dos merges. Nenhum merge ou publicação autorizado/executado.
+
+PR criada: [#21 em rascunho](https://github.com/bsgirardi/appb2t/pull/21), branch `codex/e2-reconciliacao`, versão 1.6.0; implementação `d55c309` e preparo da versão `c4227cf`. Sem merge ou publicação. Tipagem, lint, build e os 37 testes relacionados aprovados na preparação.
