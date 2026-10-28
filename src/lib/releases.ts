@@ -8,6 +8,26 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.7.0",
+    date: "2026-10-28",
+    title: "Compare o resultado de diferentes lotes",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Comparação de quantidades com custo e preço por peça, receita, contribuição, margem efetiva e resultado após depreciação de cada lote.",
+          "Tempo de máquina, contribuição estimada por hora e consumo de cada material, incluindo desperdício fixo, para apoiar a escolha da quantidade.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Explicações distinguem cobertura dos custos modelados, meta comercial e despesas fixas da empresa, preservando a decisão de preço da equipe.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.6.0",
     date: "2026-10-28",
     title: "Calculadora V3 e cadastro de produtos mais claro",
