@@ -74,6 +74,7 @@ export type ExpectedCost = {
   suggestedRevenue: Money;
 };
 export type ProfitabilityLineInput = {
+  frozenCommission?: Money;
   key: string;
   position: number;
   productId: string | null;
@@ -95,6 +96,7 @@ export type ProfitabilityLineInput = {
   sourceHash: string;
 };
 export type SaleProfitabilityInput = {
+  consignment?: boolean;
   saleId: string;
   number: string;
   version: number;
