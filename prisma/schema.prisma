@@ -14,6 +14,7 @@ enum Technology {
   RESIN
 }
 model User {
+  opportunities Opportunity[]
   artCommands ArtCommand[]
   catalogRequests CatalogRequest[]
   profitabilityRevisions ProfitabilityRevision[]
@@ -188,6 +189,7 @@ enum CustomerType {
  COMPANY
 }
 model Customer {
+ opportunities Opportunity[]
  sales Sale[]
  entries FinancialEntry[]
  quotes Quote[]
@@ -213,6 +215,10 @@ enum QuoteStatus {
  CONVERTIDO
 }
 model Quote {
+ opportunityId String?
+ opportunity Opportunity? @relation("OpportunityQuotes", fields:[opportunityId],references:[id],onDelete:Restrict)
+ primaryFor Opportunity? @relation("OpportunityPrincipal")
+ @@index([opportunityId])
  checkout Checkout?
  artBindings ArtDocumentBinding[]
  catalogRequest CatalogRequest?
@@ -286,6 +292,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ wonOpportunity Opportunity?
  checkout Checkout?
  artBindings ArtDocumentBinding[]
  profitabilityState ProfitabilityState?
@@ -1463,4 +1470,57 @@ model CheckoutQuota {
  key String @id
  count Int @default(0)
  windowStart DateTime @default(now())
+}
+
+enum OpportunityStage {
+ CONTATO
+ LEVANTAMENTO
+ PROPOSTA
+ NEGOCIACAO
+ GANHO
+ PERDIDO
+}
+model Opportunity {
+ id String @id @default(cuid())
+ title String
+ customerId String
+ customer Customer @relation(fields:[customerId],references:[id],onDelete:Restrict)
+ ownerId String
+ owner User @relation(fields:[ownerId],references:[id],onDelete:Restrict)
+ stage OpportunityStage @default(CONTATO)
+ nextAction String?
+ nextContactDate DateTime? @db.Date
+ pendingNotes String @default("")
+ lossReason String?
+ principalQuoteId String? @unique
+ principalQuote Quote? @relation("OpportunityPrincipal",fields:[principalQuoteId],references:[id],onDelete:Restrict)
+ quotes Quote[] @relation("OpportunityQuotes")
+ wonSaleId String? @unique
+ wonSale Sale? @relation(fields:[wonSaleId],references:[id],onDelete:Restrict)
+ version Int @default(1)
+ events OpportunityEvent[]
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([stage,nextContactDate])
+ @@index([ownerId,nextContactDate])
+ @@index([customerId])
+}
+model OpportunityEvent {
+ id String @id @default(cuid())
+ opportunityId String
+ opportunity Opportunity @relation(fields:[opportunityId],references:[id],onDelete:Restrict)
+ type String
+ authorKind String
+ actorId String?
+ actorName String
+ data Json
+ createdAt DateTime @default(now())
+ @@index([opportunityId,createdAt,id])
+}
+model OpportunityOperation {
+ key String @id
+ type String
+ payloadHash String
+ result Json
+ createdAt DateTime @default(now())
 }
