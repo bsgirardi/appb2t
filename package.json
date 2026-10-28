@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -9,6 +9,9 @@
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "test:e3": "vitest run --config vitest.e3.config.ts",
+    "test:e4": "vitest run --config vitest.e4.config.ts",
+    "test:e4:migration": "node --import tsx tests/e4/migration-validation.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "db:migrate": "prisma migrate deploy",
