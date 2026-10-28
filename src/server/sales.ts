@@ -1,3 +1,4 @@
+import { assertOpportunityQuoteOpen, recordOpportunityWon } from "./opportunities/commerce";
 import { projectCheckoutDocument } from "./checkout/document-projection";
 import type { CheckoutReviewContent } from "@/domain/checkout/types";
 import { checkoutFingerprint } from "./checkout/review";
@@ -387,6 +388,7 @@ export async function convertQuoteWithClient(
   input: ConvertQuoteCommand,
 ): Promise<SaleDTO> {
   const { quoteId, expectedVersion, rows } = input;
+  await assertOpportunityQuoteOpen(tx, quoteId);
   await lockCommerce(tx, { quoteId });
   const q = await tx.quote.findUnique({
     where: { id: quoteId },
@@ -463,6 +465,7 @@ export async function convertQuoteWithClient(
     where: { id: quoteId },
     data: { status: "CONVERTIDO", version: { increment: 1 } },
   });
+  await recordOpportunityWon(tx, actor, quoteId, sale.id, "CONVERSION");
   await quoteEvent(tx, actor, quoteId, "CONVERT");
   await event(tx, actor, sale.id, "CONVERT");
   if (actor.kind === "ADMIN") {

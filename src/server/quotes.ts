@@ -1,3 +1,4 @@
+import { assertOpportunityQuoteCustomer } from "./opportunities/commerce";
 import {
   readDocumentCosts,
   readLineItems,
@@ -134,6 +135,7 @@ export async function saveQuoteWithClient(
   if (id) {
     await lock(tx, id);
     const old = await row(tx, id);
+    await assertOpportunityQuoteCustomer(tx, id, input.customerId ?? null);
     previousRevisionId = old.costRevisionId;
     if (old.version !== expectedVersion) throw conflict();
     if (old.status !== "RASCUNHO")
