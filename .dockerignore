@@ -16,3 +16,16 @@ docs/identidade
 docs/superpowers
 AGENTS.md
 CLAUDE.md
+.agents
+.github
+docs
+*.md
+skills-lock.json
+*.log
+*.dump
+# Deployment-only inputs must not invalidate the Next compilation layer.
+# TypeScript tests and their configuration remain in the build context.
+Dockerfile
+compose*.yaml
+scripts/atualizar-*.sh
+tests/shell

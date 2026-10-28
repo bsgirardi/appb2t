@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.10.2",
+    date: "2026-10-28",
+    title: "Atualização manual com melhor reaproveitamento da compilação",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "A atualização reaproveita caches locais e prepara as ferramentas de manutenção sem recompilar a aplicação.",
+          "O procedimento registra o tempo das etapas e confere a imagem instalada antes de informar sucesso.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "As permissões das ferramentas são preparadas durante a cópia, evitando uma operação demorada sobre todos os arquivos.",
+          "Se o backup falhar antes das migrações, o procedimento tenta retomar a aplicação anterior com segurança.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.10.1",
     date: "2026-10-28",
     title: "Verificações automáticas e atualização mais confiável",
