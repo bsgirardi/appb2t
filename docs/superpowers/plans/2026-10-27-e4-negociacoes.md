@@ -139,3 +139,7 @@ Execução ainda não iniciada. Recomendação: execução direta neste chat, em
 ## Registro de execução em 28/10/2026
 
 Execução direta aprovada pelo usuário. Implementação local das tarefas 1–5 realizada; tarefa 6 com 28 testes focados/regressões, tipagem, lint, build e prévia aprovados, revisão independente e correções registradas no [relatório](../reviews/2026-10-28-e4-negociacoes.md). Integrações/migração real não executadas funcionalmente por banco E4 indisponível; suíte completa sem conclusão por recursão Vitest. Checkboxes que incluem essas verificações permanecem abertos; não são autorização para refazer implementação. Retomar pelo relatório e commits da branch `codex/e4-negociacoes`, até `b7a4da2`, sem recriar módulos. Sem PR, merge ou publicação.
+
+### Validação posterior e PR autorizadas em 28/10/2026
+
+Migração real e 21 integrações aprovadas em PostgreSQL E4 descartável; cinco rodadas finais de 10 casos com locks reais aprovadas. 31 testes unitários/UI/regressões, tipagem, lint e build aprovados. PR #23 em rascunho na versão 1.6.0: https://github.com/bsgirardi/appb2t/pull/23. Relatório atualizado em ../reviews/2026-10-28-e4-validacao-pr.md. Banco descartável removido; sem migração operacional, merge ou publicação. Limite de suíte unitária completa por recursão Vitest continua registrado.

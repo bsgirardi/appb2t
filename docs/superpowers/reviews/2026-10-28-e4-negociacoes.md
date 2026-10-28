@@ -1,7 +1,7 @@
 # E4.1 — entrega local e validação
 
 Data: 28/10/2026, America/Sao_Paulo.
-Estado: implementado localmente, validação parcial; não integrado nem publicado. E4 ampla permanece parcial.
+Registro histórico da entrega local. **Atualização posterior:** migração e concorrência validadas em PostgreSQL exclusivo; [PR #23](https://github.com/bsgirardi/appb2t/pull/23) criada em rascunho na 1.6.0. Consulte o [relatório atual](2026-10-28-e4-validacao-pr.md). Sem merge/publicação; E4 ampla permanece parcial.
 
 ## Resultado
 

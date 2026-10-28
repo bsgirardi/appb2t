@@ -46,6 +46,6 @@ Revisão somente leitura dos testes/validador e preparo de versão. Um P2: a dis
 
 ## Estado de entrega
 
-Branch codex/e4-negociacoes, worktree exclusiva. PR autorizada e preparada; registrar URL no acompanhamento após criação. Sem merge, tag, publicação, migração operacional ou atualização de contêineres existentes. A instância descartável será removida após as verificações, sem preservar dados de teste.
+Branch codex/e4-negociacoes, worktree exclusiva. [PR #23 em rascunho](https://github.com/bsgirardi/appb2t/pull/23) criada, aberta e vinculada ao chat. Estado remoto conferido: base main, head codex/e4-negociacoes, sem conflitos reportados na criação. Sem merge, tag, publicação, migração operacional ou atualização de contêineres existentes. A instância descartável foi parada e removida automaticamente após as verificações; dados de teste não foram preservados. A listagem confirmou os três contêineres existentes com suas portas anteriores.
 
 E4 ampla permanece parcial: histórico integral das versões de propostas, alertas de retorno/vencimento, margem global e prazo comercial completo continuam fora de E4.1. Recomparar versão e notas com main antes de eventual merge; outras PRs podem também propor 1.6.0.

@@ -42,7 +42,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 em rascunho; detalhar E1.2 de canais e descontos |
 | E2 | Rentabilidade e explicação de desvios | Em validação | E2.1 implementado localmente; revisar entrega e limite da suíte completa |
 | E3 | Fila visual e previsão para o comercial | Em validação | E3.1 na PR #22 em rascunho; validar banco exclusivo e resolver/aceitar limite do Vitest antes de eventual integração |
-| E4 | Funil de negociações e próximos contatos | Em validação | E4.1 com migração/concorrência aprovadas; PR autorizada em preparo, limite da suíte completa mantido |
+| E4 | Funil de negociações e próximos contatos | Em validação | E4.1 na PR #23 em rascunho; migração/concorrência aprovadas, limite da suíte completa mantido |
 | E5 | Pontos de venda e consignação | Pendente | Começar após E4 |
 | E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
 
@@ -297,3 +297,9 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - 31 testes unitários/UI/regressões, tipagem, lint e build aprovados; manifestos/rodapés/Atualizações conferidos. Revisão independente adicional com um caso condicional separado para garantir disputa aceite/perda em toda execução. [Relatório de validação e preparo da PR](superpowers/reviews/2026-10-28-e4-validacao-pr.md).
 - Versão da branch preparada em 1.6.0 MINOR sobre main remota 1.5.1 (d74ee75), sem alterar dependências ou repetir incremento. PR em preparo; URL será registrada após criação. Merge/publicação/migração operacional não realizados.
 - Limite restante: suíte unitária completa ainda sem resumo por recursão conhecida do Vitest; manter PR em rascunho até resolver/aceitar explicitamente esse limite. E4 ampla permanece parcial: versões integrais, margem, alertas de retorno/vencimento e prazo completo pendentes. Antes do merge reconciliar versão/notas com main e PRs paralelas.
+
+### 28/10/2026 — PR E4.1 criada após validação e autorização
+
+- [PR #23 em rascunho](https://github.com/bsgirardi/appb2t/pull/23), branch codex/e4-negociacoes, versão 1.6.0 sobre main 1.5.1. Implementação/validação até ca7012c; banco E4 descartável removido após verificações, contêineres existentes preservados.
+- Migração real e 21 integrações aprovadas; cinco rodadas finais de 10 casos com disputa real de locks aprovadas. Mais 31 testes unitários/UI/regressões, tipagem, lint e build aprovados. [Relatório atual](superpowers/reviews/2026-10-28-e4-validacao-pr.md).
+- PR vinculada ao chat, aberta em rascunho. Sem merge/publicação/migração operacional. Limite da suíte completa por recursão Vitest mantido explícito para decisão antes de integrar; reconciliar versão/notas com main e PRs paralelas antes do merge. E4 ampla segue parcial.
