@@ -42,3 +42,9 @@ Balcão/feira, portal de parceiro, múltiplos locais, fiscal, pagamento online e
 - `git diff --check`: aprovado antes do commit final.
 
 Os arquivos `regression-*.test.ts` são cópias independentes dos casos legados, executadas com o setup E5. Não redirecionam ou importam o setup geral e não equivalem à execução integral de todas as suítes E1–E4. A instância portátil e a prévia sintética foram encerradas ao concluir. Evidências temporárias permanecem ignoradas no workspace de execução.
+
+## Preparação da PR autorizada — 28/10/2026
+
+Usuário autorizou criar PR. Main remota reconferida em `7fe37d9`, versão 1.10.1; incremento MINOR único para **1.11.0**, com manifestos sincronizados e nova entrada em `src/lib/releases.ts`. Histórico anterior preservado; rodapés usam APP_VERSION e Atualizações permanece acessível a ADMIN/OPERATOR. Os registros de entrega local acima são históricos. Sem autorização para merge/publicação/migração operacional.
+
+Revalidação da preparação 1.11.0: 661 testes unitários/160 arquivos PASS, teste específico de versão/rodapés/Atualizações 3 PASS, lint e build (incluindo tipos) PASS. Manifestos e preservação integral do histórico anterior conferidos; main ainda `7fe37d9`. Integração/migração mantêm os resultados anteriores porque esta preparação alterou somente versão, notas e acompanhamento.

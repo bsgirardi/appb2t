@@ -340,3 +340,7 @@ E1.1–E4.1 integradas e disponíveis na instalação local com suas migrações
 ### 28/10/2026 — E5.1 implementada e validada localmente
 
 E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](superpowers/reviews/2026-10-28-e5-consignacao.md). Versão 1.10.1 preservada; sem PR/push/merge/publicação ou migração operacional. Próxima etapa: revisão humana e preparação de PR quando autorizada. E5 em validação; balcão/feira fora do recorte.
+
+### 28/10/2026 — PR E5.1 autorizada e em preparação
+
+Usuário autorizou criar a PR do ciclo completo. Branch `codex/e5-consignacao` preparada em 1.11.0 MINOR sobre main 1.10.1 (`7fe37d9`), com manifestos e notas sincronizados. Validações da implementação: 661 unitários e 32 integrações/regressões, migração real/reaplicação exclusiva, tipos, lint e build aprovados. Revalidação da preparação: 661 unitários, 3 testes específicos de versão/rodapés, lint e build aprovados. Sem merge/publicação/migração operacional. [Evidências e limites](superpowers/reviews/2026-10-28-e5-consignacao.md).
