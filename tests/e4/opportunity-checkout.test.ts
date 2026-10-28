@@ -112,8 +112,8 @@ it("requires withdrawal before loss and blocks another publication until reopeni
     }),
   ).resolves.toBeTruthy();
 });
-it("serializes loss versus publishing and acceptance without a lost sold opportunity", async () => {
-  const { actor, p, q, id, opportunity: o } = await linked();
+it("serializes loss versus publishing without leaving an active offer on a lost opportunity", async () => {
+  const { actor, q, id, opportunity: o } = await linked();
   const results = await raceUnderPlanningLock([
     () =>
       publishCheckoutQuote(actor, id, {
@@ -135,33 +135,50 @@ it("serializes loss versus publishing and acceptance without a lost sold opportu
       expect(result.reason).toMatchObject({ code: "CONFLICT" });
   const first = results[0];
   if (first.status === "fulfilled") {
-    const offer = first.value;
-    const acceptance = await raceUnderPlanningLock([
-      () =>
-        acceptCheckoutQuote(p, {
-          operationKey: key(),
-          expectedVersion: offer.version,
-          fingerprint: offer.fingerprint,
-          name: "Ana",
-          agreed: true,
-        }),
-      () =>
-        command(actor, o.id, {
-          action: "LOSE",
-          operationKey: key(),
-          expectedVersion: o.version,
-          reason: "Não seguirá",
-        }),
-    ]);
-    expect(acceptance[0].status).toBe("fulfilled");
-    expect(acceptance[1].status).toBe("rejected");
-    if (acceptance[1].status === "rejected")
-      expect(acceptance[1].reason).toMatchObject({ code: "CONFLICT" });
-    expect((await getOpportunity(actor, o.id)).stage).toBe("GANHO");
+    expect((await getOpportunity(actor, o.id)).stage).toBe("CONTATO");
+    expect(
+      await db.checkoutOffer.count({ where: { checkoutId: id, active: true } }),
+    ).toBe(1);
   } else {
     expect((await getOpportunity(actor, o.id)).stage).toBe("PERDIDO");
+    expect(
+      await db.checkoutOffer.count({ where: { checkoutId: id, active: true } }),
+    ).toBe(0);
     expect(await db.sale.count()).toBe(0);
   }
+});
+it("always runs acceptance versus loss on a previously published active offer", async () => {
+  const { actor, p, q, id, opportunity: o } = await linked();
+  const offer = await publishCheckoutQuote(actor, id, {
+    operationKey: key(),
+    expectedQuoteVersion: q.version,
+    installments: installments(),
+  });
+  const acceptance = await raceUnderPlanningLock([
+    () =>
+      acceptCheckoutQuote(p, {
+        operationKey: key(),
+        expectedVersion: offer.version,
+        fingerprint: offer.fingerprint,
+        name: "Ana",
+        agreed: true,
+      }),
+    () =>
+      command(actor, o.id, {
+        action: "LOSE",
+        operationKey: key(),
+        expectedVersion: o.version,
+        reason: "Não seguirá",
+      }),
+  ]);
+  expect(acceptance[0].status).toBe("fulfilled");
+  expect(acceptance[1].status).toBe("rejected");
+  if (acceptance[1].status === "rejected")
+    expect(acceptance[1].reason).toMatchObject({ code: "CONFLICT" });
+  expect((await getOpportunity(actor, o.id)).stage).toBe("GANHO");
+  expect(await db.sale.count()).toBe(1);
+  expect(await db.saleInstallment.count()).toBe(1);
+  expect(await db.financialEntry.count()).toBe(1);
 });
 it("rolls back approval, conversion and installments when gain persistence fails", async () => {
   const { actor, p, q, id, opportunity: o } = await linked();

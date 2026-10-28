@@ -42,7 +42,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 em rascunho; detalhar E1.2 de canais e descontos |
 | E2 | Rentabilidade e explicação de desvios | Em validação | E2.1 implementado localmente; revisar entrega e limite da suíte completa |
 | E3 | Fila visual e previsão para o comercial | Em validação | E3.1 na PR #22 em rascunho; validar banco exclusivo e resolver/aceitar limite do Vitest antes de eventual integração |
-| E4 | Funil de negociações e próximos contatos | Em validação | E4.1 implementado localmente; validar banco exclusivo e resolver/aceitar limite da suíte antes de eventual integração |
+| E4 | Funil de negociações e próximos contatos | Em validação | E4.1 com migração/concorrência aprovadas; PR autorizada em preparo, limite da suíte completa mantido |
 | E5 | Pontos de venda e consignação | Pendente | Começar após E4 |
 | E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
 
@@ -90,14 +90,14 @@ Critério proposto: uma alteração de programação deve indicar pedidos afetad
 
 ## E4 — Negociações
 
-- [ ] Oportunidade com etapas: contato, levantamento, proposta, negociação, ganho e perdido, a confirmar no desenho.
-- [ ] Responsável, próximo contato e pendências.
-- [ ] Histórico de interações e motivos de perda.
+- [x] Oportunidade com etapas contato, levantamento, proposta, negociação, ganho e perdido (E4.1; validação PostgreSQL exclusiva, sem merge/publicação).
+- [x] Responsável, próximo contato e pendências (E4.1; validação focada e PostgreSQL exclusiva, sem merge/publicação).
+- [x] Histórico de interações e motivos de perda (E4.1; sem merge/publicação).
 - [ ] Vínculo com os orçamentos e suas versões.
 - [ ] Margem durante a negociação, incluindo desconto, frete e comissão quando aplicáveis.
 - [ ] Consulta ao prazo produtivo.
 - [ ] Alertas internos de propostas sem retorno ou próximas do vencimento.
-- [ ] Fechamento usando a conversão atual, sem duplicar vendas ou recebíveis.
+- [x] Fechamento usando a conversão atual, sem duplicar vendas ou recebíveis (E4.1; concorrência real e rollback validados em banco exclusivo, sem merge/publicação).
 
 Critério proposto: acompanhar uma oportunidade até a venda ou perda, com histórico e próxima ação claros. Mensagens externas e automações de envio exigem escopo próprio.
 
@@ -288,3 +288,12 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - Limites: PostgreSQL exclusivo `127.0.0.1:55434/b2t_e4_test` indisponível; integração, migração real e concorrência de banco não validadas. Suíte unitária completa reproduziu recursão conhecida do Vitest, interrompida sem resumo. Sem fluxo autenticado operacional. [Relatório e limites](superpowers/reviews/2026-10-28-e4-negociacoes.md).
 - Commits de implementação até `b7a4da2`; versão mantida 1.5.1 nesta entrega local, sem PR/push/merge/publicação, migração real ou atualização de contêineres. Futura PR exige autorização específica e incremento MINOR sobre main atual, manifestos/notas sincronizados.
 - E4 permanece parcial/em validação: vínculo à versão atual implementado, histórico integral de propostas, alertas de retorno/vencimento, margem global e prazo comercial completo continuam pendentes. Caixas amplas não encerradas antes de validação de persistência. Próxima ação: disponibilizar banco E4 por procedimento autorizado e executar integrações, além de resolver/aceitar limite da suíte antes de eventual integração.
+
+### 28/10/2026 — E4.1 validado em PostgreSQL e PR autorizada
+
+- Usuário autorizou validar migração/concorrência e criar PR. Instância PostgreSQL 17 E4 descartável exclusiva, sem volumes persistentes, sem atualizar contêineres existentes e sem usar bancos operacional/compartilhados.
+- Migração real base → E4 aprovada, preservando dados sintéticos em sete tabelas comerciais legadas; reaplicação, ausência de backfill, FK e venda vencedora única conferidos. Validador reproduzível em tests/e4/migration-validation.ts.
+- 21 integrações em 6 arquivos aprovadas. Cenários forçam espera real de dois comandos pelo bloqueio PostgreSQL; cinco rodadas finais de 10 casos aprovadas, incluindo disputa admin/aceite privado, perda/publicação/aceite, vínculo/cliente e rollback. Fixtures corrigidas para os contratos existentes; nenhuma regra de produto flexibilizada.
+- 31 testes unitários/UI/regressões, tipagem, lint e build aprovados; manifestos/rodapés/Atualizações conferidos. Revisão independente adicional com um caso condicional separado para garantir disputa aceite/perda em toda execução. [Relatório de validação e preparo da PR](superpowers/reviews/2026-10-28-e4-validacao-pr.md).
+- Versão da branch preparada em 1.6.0 MINOR sobre main remota 1.5.1 (d74ee75), sem alterar dependências ou repetir incremento. PR em preparo; URL será registrada após criação. Merge/publicação/migração operacional não realizados.
+- Limite restante: suíte unitária completa ainda sem resumo por recursão conhecida do Vitest; manter PR em rascunho até resolver/aceitar explicitamente esse limite. E4 ampla permanece parcial: versões integrais, margem, alertas de retorno/vencimento e prazo completo pendentes. Antes do merge reconciliar versão/notas com main e PRs paralelas.

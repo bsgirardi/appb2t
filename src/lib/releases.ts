@@ -8,6 +8,28 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.6.0",
+    date: "2026-10-28",
+    title: "Negociações e próximos contatos",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Acompanhe oportunidades desde o contato inicial até a venda ou perda, com responsável, próxima ação e pendências.",
+          "Registre interações e motivos de perda em um histórico interno, e encontre contatos atrasados pelos filtros de negociações.",
+          "Vincule os orçamentos da negociação e identifique o principal, mantendo o fechamento pelas rotinas comerciais existentes.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "O fechamento administrativo e o aceite privado do orçamento atualizam a oportunidade sem gerar uma segunda venda para a mesma negociação.",
+          "Ofertas privadas ativas precisam ser retiradas antes de registrar a perda; vendas canceladas continuam identificadas no histórico da oportunidade.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.5.1",
     date: "2026-10-27",
     title: "Correção das permissões na atualização do servidor",

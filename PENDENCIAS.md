@@ -8,7 +8,7 @@ Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e valid
 
 ## E4 — em validação
 
-E4.1 implementado localmente na branch `codex/e4-negociacoes`, base main 1.5.1 (`d74ee75`): oportunidades, responsável, próxima ação, histórico privado e vínculo ao fechamento comercial existente. Validação: 28 testes focados/regressões, tipagem, lint, build e prévia sintética aprovados; revisão independente com correção de filtro e cenários adicionais preparados. PostgreSQL E4 exclusivo indisponível: integrações, migração real e concorrência pendentes; suíte completa limitada por recursão do Vitest. [Relatório e limites](docs/superpowers/reviews/2026-10-28-e4-negociacoes.md). E4 permanece parcial; versão 1.5.1, sem PR/push/merge/publicação ou alteração de contêineres/banco. Próxima ação: validar em banco E4 exclusivo por procedimento autorizado e resolver/aceitar limite da suíte antes de eventual integração.
+E4.1 teve migração real e concorrência aprovadas em PostgreSQL 17 descartável exclusivo: dados sintéticos de sete tabelas legadas preservados, 21 integrações e cinco rodadas finais de 10 casos aprovadas. Mais 31 testes unitários/UI/regressões, tipagem, lint e build aprovados, incluindo versão/rodapés/Atualizações. Branch `codex/e4-negociacoes` preparada na 1.6.0 sobre main 1.5.1; PR autorizada em preparo. Limite da suíte completa por recursão do Vitest continua explícito. [Relatório atual](docs/superpowers/reviews/2026-10-28-e4-validacao-pr.md). Sem merge, publicação, migração operacional ou atualização dos contêineres existentes. E4 ampla continua parcial; próxima ação: criar PR em rascunho e registrar URL, depois resolver/aceitar limite da suíte antes de integração.
 
 ## Desenvolvimento concluído
 
