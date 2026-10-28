@@ -1,10 +1,10 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { seedUser } from "./setup";
 import { saveCustomer } from "@/server/customers";
 import { saveQuote, transitionQuote } from "@/server/quotes";
 import { executeOpportunityCommand } from "@/server/opportunities/commands";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
-export const key = () => randomUUID();
+export const key = () => randomBytes(32).toString("hex");
 export async function fixture() {
   const actor = await seedUser();
   const customer = await saveCustomer(actor, undefined, {
@@ -35,6 +35,7 @@ export async function fixture() {
       discount: "0.00",
       shipping: "0.00",
       paymentTerms: "Pix",
+      internalNotes: "",
       validUntil: todaySaoPaulo(new Date()),
     });
     if (approved) {

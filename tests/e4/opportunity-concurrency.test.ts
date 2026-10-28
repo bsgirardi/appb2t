@@ -1,3 +1,4 @@
+import { raceUnderPlanningLock } from "./race";
 import { expect, it } from "vitest";
 import { setupDatabase } from "./setup";
 import { fixture, key } from "./fixtures";
@@ -22,11 +23,14 @@ it("serializes conversion of different quotes to one winning sale", async () => 
     quoteId: b.id,
   });
   const rows = [{ number: 1, amount: "50.00", dueDate: "2026-10-29" }];
-  const results = await Promise.allSettled([
-    convertQuote(actor, a.id, a.version, rows, key()),
-    convertQuote(actor, b.id, b.version, rows, key()),
+  const results = await raceUnderPlanningLock([
+    () => convertQuote(actor, a.id, a.version, rows, key()),
+    () => convertQuote(actor, b.id, b.version, rows, key()),
   ]);
   expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+  for (const result of results)
+    if (result.status === "rejected")
+      expect(result.reason).toMatchObject({ code: "CONFLICT" });
   expect(await db.sale.count()).toBe(1);
   expect(await db.saleInstallment.count()).toBe(1);
 });
@@ -41,20 +45,25 @@ it("serializes linking with an incompatible edit of the same quote", async () =>
     type: "PERSON",
     active: true,
   });
-  const results = await Promise.allSettled([
-    command(actor, o.id, {
-      action: "LINK_QUOTE",
-      operationKey: key(),
-      expectedVersion: 1,
-      quoteId: q.id,
-    }),
-    saveQuote(actor, q.id, {
-      ...q.input,
-      customerId: other.id,
-      expectedVersion: q.version,
-    }),
+  const results = await raceUnderPlanningLock([
+    () =>
+      command(actor, o.id, {
+        action: "LINK_QUOTE",
+        operationKey: key(),
+        expectedVersion: 1,
+        quoteId: q.id,
+      }),
+    () =>
+      saveQuote(actor, q.id, {
+        ...q.input,
+        customerId: other.id,
+        expectedVersion: q.version,
+      }),
   ]);
   expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+  for (const result of results)
+    if (result.status === "rejected")
+      expect(result.reason).toMatchObject({ code: "CONFLICT" });
   const persisted = await db.quote.findUniqueOrThrow({ where: { id: q.id } });
   expect(
     persisted.opportunityId === o.id
@@ -65,20 +74,22 @@ it("serializes linking with an incompatible edit of the same quote", async () =>
 it("reconciles concurrent legacy conversion and initial opportunity linking", async () => {
   const { actor, opportunity: o, quote } = await fixture();
   const q = await quote();
-  const results = await Promise.allSettled([
-    command(actor, o.id, {
-      action: "LINK_QUOTE",
-      operationKey: key(),
-      expectedVersion: 1,
-      quoteId: q.id,
-    }),
-    convertQuote(
-      actor,
-      q.id,
-      q.version,
-      [{ number: 1, amount: "50.00", dueDate: "2026-10-29" }],
-      key(),
-    ),
+  const results = await raceUnderPlanningLock([
+    () =>
+      command(actor, o.id, {
+        action: "LINK_QUOTE",
+        operationKey: key(),
+        expectedVersion: 1,
+        quoteId: q.id,
+      }),
+    () =>
+      convertQuote(
+        actor,
+        q.id,
+        q.version,
+        [{ number: 1, amount: "50.00", dueDate: "2026-10-29" }],
+        key(),
+      ),
   ]);
   expect(results.every((r) => r.status === "fulfilled")).toBe(true);
   const persisted = await db.opportunity.findUniqueOrThrow({

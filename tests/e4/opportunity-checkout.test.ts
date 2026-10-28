@@ -1,3 +1,6 @@
+import { raceUnderPlanningLock } from "./race";
+import { saveQuote, transitionQuote } from "@/server/quotes";
+import { convertQuote } from "@/server/sales";
 import { expect, it } from "vitest";
 import { setupDatabase } from "./setup";
 import { quoteFixture } from "./checkout-quote-fixture";
@@ -111,38 +114,49 @@ it("requires withdrawal before loss and blocks another publication until reopeni
 });
 it("serializes loss versus publishing and acceptance without a lost sold opportunity", async () => {
   const { actor, p, q, id, opportunity: o } = await linked();
-  const results = await Promise.allSettled([
-    publishCheckoutQuote(actor, id, {
-      operationKey: key(),
-      expectedQuoteVersion: q.version,
-      installments: installments(),
-    }),
-    command(actor, o.id, {
-      action: "LOSE",
-      operationKey: key(),
-      expectedVersion: o.version,
-      reason: "Não seguirá",
-    }),
-  ]);
-  expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-  const first = results[0];
-  if (first.status === "fulfilled") {
-    const offer = first.value;
-    await Promise.allSettled([
-      acceptCheckoutQuote(p, {
+  const results = await raceUnderPlanningLock([
+    () =>
+      publishCheckoutQuote(actor, id, {
         operationKey: key(),
-        expectedVersion: offer.version,
-        fingerprint: offer.fingerprint,
-        name: "Ana",
-        agreed: true,
+        expectedQuoteVersion: q.version,
+        installments: installments(),
       }),
+    () =>
       command(actor, o.id, {
         action: "LOSE",
         operationKey: key(),
         expectedVersion: o.version,
         reason: "Não seguirá",
       }),
+  ]);
+  expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+  for (const result of results)
+    if (result.status === "rejected")
+      expect(result.reason).toMatchObject({ code: "CONFLICT" });
+  const first = results[0];
+  if (first.status === "fulfilled") {
+    const offer = first.value;
+    const acceptance = await raceUnderPlanningLock([
+      () =>
+        acceptCheckoutQuote(p, {
+          operationKey: key(),
+          expectedVersion: offer.version,
+          fingerprint: offer.fingerprint,
+          name: "Ana",
+          agreed: true,
+        }),
+      () =>
+        command(actor, o.id, {
+          action: "LOSE",
+          operationKey: key(),
+          expectedVersion: o.version,
+          reason: "Não seguirá",
+        }),
     ]);
+    expect(acceptance[0].status).toBe("fulfilled");
+    expect(acceptance[1].status).toBe("rejected");
+    if (acceptance[1].status === "rejected")
+      expect(acceptance[1].reason).toMatchObject({ code: "CONFLICT" });
     expect((await getOpportunity(actor, o.id)).stage).toBe("GANHO");
   } else {
     expect((await getOpportunity(actor, o.id)).stage).toBe("PERDIDO");
@@ -217,4 +231,43 @@ it("blocks loss when the active offer is linked ONLY by catalog request", async 
       })
     ).stage,
   ).toBe("PERDIDO");
+});
+
+it("keeps a single sale when administrative conversion competes with private acceptance", async () => {
+  const { actor, p, q, id, opportunity: o } = await linked();
+  let second = await saveQuote(actor, undefined, q.input);
+  second = await transitionQuote(actor, second.id, second.version, "ISSUE");
+  second = await transitionQuote(actor, second.id, second.version, "APPROVE");
+  const linkedSecond = await command(actor, o.id, {
+    action: "LINK_QUOTE",
+    operationKey: key(),
+    expectedVersion: o.version,
+    quoteId: second.id,
+  });
+  const offer = await publishCheckoutQuote(actor, id, {
+    operationKey: key(),
+    expectedQuoteVersion: q.version,
+    installments: installments(),
+  });
+  const results = await raceUnderPlanningLock([
+    () => convertQuote(actor, second.id, second.version, installments(), key()),
+    () =>
+      acceptCheckoutQuote(p, {
+        operationKey: key(),
+        expectedVersion: offer.version,
+        fingerprint: offer.fingerprint,
+        name: "Ana",
+        agreed: true,
+      }),
+  ]);
+  expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+  for (const result of results)
+    if (result.status === "rejected")
+      expect(result.reason).toMatchObject({ code: "CONFLICT" });
+  const won = await getOpportunity(actor, o.id);
+  expect(won.stage).toBe("GANHO");
+  expect(won.version).toBe(linkedSecond.version + 1);
+  expect(await db.sale.count()).toBe(1);
+  expect(await db.saleInstallment.count()).toBe(1);
+  expect(await db.financialEntry.count()).toBe(1);
 });
