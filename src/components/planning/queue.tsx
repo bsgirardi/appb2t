@@ -1,12 +1,11 @@
 "use client";
-import { useRef, useState } from "react";
 import type { BatchDTO } from "@/domain/planning/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/field";
-import { planningCommand } from "@/lib/planning-client";
-import { meta, states, instantLabel, type PlanningData } from "./shared";
+import { states, instantLabel, type PlanningData } from "./shared";
+import { QueueSimulationFlow } from "./queue-simulation";
 const reasons = {
   MISSING_DATA: "Configure horários e dados do lote.",
   NO_WINDOW: "Sem janela contínua nos próximos 90 dias.",
@@ -24,32 +23,11 @@ export function Queue({
   onSelect: (id: string) => void;
   onDone: () => void;
 }) {
-  const [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
-  const retry = useRef<{ signature: string; key: string } | null>(null);
-  async function reorder(printerId: string, ids: string[]) {
-    const signature = JSON.stringify([data.revision, printerId, ids]);
-    if (retry.current?.signature !== signature)
-      retry.current = { signature, key: crypto.randomUUID() };
-    setBusy(true);
-    try {
-      await planningCommand("QUEUE_REORDER", {
-        ...meta(data, retry.current.key),
-        printerId,
-        batchIds: ids,
-      });
-      retry.current = null;
-      setError("");
-      onDone();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
-    <div className="flex flex-col gap-3">
-      {error && <Notice>{error}</Notice>}
+    <QueueSimulationFlow key={`${data.revision}:${data.asOf}`} data={data} onDone={onDone}>
+      {({ propose, busy }) => {
+        const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
+        return <div className="flex flex-col gap-3">
       {!batches.length && <p>Nenhum lote nesta seleção.</p>}
       {data.printers
         .filter((p) => batches.some((b) => b.printerId === p.id))
@@ -97,7 +75,7 @@ export function Queue({
                       )
                     }
                   >
-                    Aplicar ordem por prazo
+                    Simular ordem por prazo
                   </Button>
                 )}
                 <ol className="flex flex-col gap-4">
@@ -193,6 +171,8 @@ export function Queue({
             </Card>
           );
         })}
-    </div>
+    </div>;
+      }}
+    </QueueSimulationFlow>
   );
 }
