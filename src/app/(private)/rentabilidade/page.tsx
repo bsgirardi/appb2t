@@ -1,3 +1,4 @@
+import { FilterPanel } from "@/components/admin/filter-panel";
 import Link from "next/link";
 import { requireAdmin } from "@/server/auth/guards";
 import { requireProfitabilityAdmin } from "@/server/profitability/authorization";
@@ -57,74 +58,82 @@ export default async function ProfitabilityPage({
     <section className="flex min-w-0 flex-col gap-4">
       <h1>Rentabilidade operacional</h1>
       <p>Vendas confirmadas no período — resultado acumulado atualizado</p>
-      <form className="flex flex-wrap items-end gap-3">
-        <Field
-          label="Confirmação de"
-          name="from"
-          type="date"
-          defaultValue={params.from ?? period.from}
-        />
-        <Field
-          label="Confirmação até"
-          name="to"
-          type="date"
-          defaultValue={params.to ?? period.to}
-        />
-        <Label className="flex items-center gap-2">
-          <input
-            name="undated"
-            type="checkbox"
-            value="true"
-            defaultChecked={params.undated === "true"}
+      <FilterPanel>
+        <form className="flex flex-wrap items-end gap-3">
+          <Field
+            label="Confirmação de"
+            name="from"
+            type="date"
+            defaultValue={params.from ?? period.from}
           />
-          Sem data de confirmação
-        </Label>
-        <Label className="field">
-          Situação
-          <NativeSelect
-            name="situation"
-            defaultValue={params.situation ?? "NORMAL"}
-          >
-            <option value="NORMAL">Vendas normais</option>
-            <option value="EXCEPTIONS">Canceladas / pendências</option>
-          </NativeSelect>
-        </Label>
-        <Label className="field">
-          Produto
-          <NativeSelect name="productId" defaultValue={params.productId ?? ""}>
-            <option value="">Todos</option>
-            <option value="__none__">Sem produto vinculado</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Label className="field">
-          Canal
-          <NativeSelect name="channelId" defaultValue={params.channelId ?? ""}>
-            <option value="">Todos</option>
-            <option value="__none__">Não informado</option>
-            {channels.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Label className="field">
-          Cobertura realizada
-          <NativeSelect name="coverage" defaultValue={params.coverage ?? ""}>
-            <option value="">Todas</option>
-            <option value="UNAVAILABLE">Indisponível</option>
-            <option value="PARTIAL">Parcial</option>
-            <option value="PROVISIONAL">Provisória</option>
-            <option value="COMPLETE">Completa</option>
-          </NativeSelect>
-        </Label>
-        <Button>Atualizar visão</Button>
-      </form>
+          <Field
+            label="Confirmação até"
+            name="to"
+            type="date"
+            defaultValue={params.to ?? period.to}
+          />
+          <Label className="flex items-center gap-2">
+            <input
+              name="undated"
+              type="checkbox"
+              value="true"
+              defaultChecked={params.undated === "true"}
+            />
+            Sem data de confirmação
+          </Label>
+          <Label className="field">
+            Situação
+            <NativeSelect
+              name="situation"
+              defaultValue={params.situation ?? "NORMAL"}
+            >
+              <option value="NORMAL">Vendas normais</option>
+              <option value="EXCEPTIONS">Canceladas / pendências</option>
+            </NativeSelect>
+          </Label>
+          <Label className="field">
+            Produto
+            <NativeSelect
+              name="productId"
+              defaultValue={params.productId ?? ""}
+            >
+              <option value="">Todos</option>
+              <option value="__none__">Sem produto vinculado</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Label className="field">
+            Canal
+            <NativeSelect
+              name="channelId"
+              defaultValue={params.channelId ?? ""}
+            >
+              <option value="">Todos</option>
+              <option value="__none__">Não informado</option>
+              {channels.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Label className="field">
+            Cobertura realizada
+            <NativeSelect name="coverage" defaultValue={params.coverage ?? ""}>
+              <option value="">Todas</option>
+              <option value="UNAVAILABLE">Indisponível</option>
+              <option value="PARTIAL">Parcial</option>
+              <option value="PROVISIONAL">Provisória</option>
+              <option value="COMPLETE">Completa</option>
+            </NativeSelect>
+          </Label>
+          <Button>Atualizar visão</Button>
+        </form>
+      </FilterPanel>
       <Notice kind="info">
         O período seleciona a confirmação das vendas. Custos posteriores entram
         na visão atual. O filtro de produto inclui os pedidos inteiros que
@@ -150,24 +159,26 @@ export default async function ProfitabilityPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="flex flex-wrap items-end gap-3">
-            {Object.entries(filter).map(([k, v]) => (
-              <input key={k} type="hidden" name={k} value={v} />
-            ))}
-            <Field
-              label="Perdas de"
-              name="lossFrom"
-              type="date"
-              defaultValue={lossFrom ?? period.from}
-            />
-            <Field
-              label="Perdas até"
-              name="lossTo"
-              type="date"
-              defaultValue={lossTo ?? period.to}
-            />
-            <Button variant="outline">Filtrar perdas</Button>
-          </form>
+          <FilterPanel>
+            <form className="flex flex-wrap items-end gap-3">
+              {Object.entries(filter).map(([k, v]) => (
+                <input key={k} type="hidden" name={k} value={v} />
+              ))}
+              <Field
+                label="Perdas de"
+                name="lossFrom"
+                type="date"
+                defaultValue={lossFrom ?? period.from}
+              />
+              <Field
+                label="Perdas até"
+                name="lossTo"
+                type="date"
+                defaultValue={lossTo ?? period.to}
+              />
+              <Button variant="outline">Filtrar perdas</Button>
+            </form>
+          </FilterPanel>
           {!losses.total ? (
             <p>Nenhuma perda encontrada neste período.</p>
           ) : (

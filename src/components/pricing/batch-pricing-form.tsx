@@ -1,44 +1,20 @@
 "use client";
+import { usePricingDraft } from "./use-pricing-draft";
 import { FormSection } from "@/components/admin/form-section";
 
-import { useState, useRef, useId } from "react";
 import type {
   PricingCatalogDTO,
   PricingRequest,
   PricingV2Input,
 } from "@/domain/pricing/types";
-import { z } from "zod";
-import { AppError } from "@/lib/errors";
-import { calculateV2 } from "@/domain/pricing/calculate";
-import {
-  resolveCatalogPricing,
-  requestFromInput,
-} from "@/domain/pricing/resolve";
 import { Button } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
-import { api } from "@/lib/client-api";
+import { PricingReferenceReview } from "./pricing-reference-review";
 import { PricingResult } from "./pricing-result";
 import { PricingScenarios } from "./pricing-scenarios";
 const emptyRef = { id: "", version: 1 };
-function initial(c: PricingCatalogDTO): PricingRequest {
-  return {
-    technology: "FDM",
-    quantity: 1,
-    materials: [{ ref: emptyRef, consumptionPerUnit: "", fixedWaste: "0" }],
-    printerRef: emptyRef,
-    machineFixedMinutes: "",
-    machineMinutesPerUnit: "0",
-    setupMinutes: "0",
-    finishingMinutesPerUnit: "0",
-    extras: [],
-    channelRef: emptyRef,
-    mode: "MARKUP",
-    informedUnitPrice: "0",
-    expectedSettingsVersion: c.settings?.version ?? 1,
-  };
-}
 export function BatchPricingForm({
   catalog,
   initialInput,
@@ -54,137 +30,34 @@ export function BatchPricingForm({
   applyLabel?: string;
   fixedQuantity?: number;
 }) {
-  const [current, setCurrent] = useState(catalog),
-    [review, setReview] = useState<PricingCatalogDTO | null>(null);
-  const [draftState, setDraft] = useState<PricingRequest>(
-    () =>
-      initialRequest ??
-      (initialInput
-        ? requestFromInput(initialInput, catalog.settings?.version ?? 1)
-        : initial(catalog)),
-  );
-  const draft =
-    fixedQuantity === undefined
-      ? draftState
-      : { ...draftState, quantity: fixedQuantity };
-  const [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [touched, setTouched] = useState(!!initialInput || !!initialRequest);
-  const lock = useRef(false);
-  const errorPrefix = useId();
-  const patch = (next: Partial<PricingRequest>) => {
-    setTouched(true);
-    setDraft((d) => ({ ...d, ...next }));
-  };
-  let input: PricingV2Input | null = null,
-    result: ReturnType<typeof calculateV2> | null = null;
-  const fieldErrors: Record<string, string> = {};
-  let validationMessage = "";
-  try {
-    input = resolveCatalogPricing(current, draft);
-    result = calculateV2(input);
-  } catch (e) {
-    if (e instanceof z.ZodError) {
-      for (const issue of e.issues) {
-        let path = issue.path
-          .join(".")
-          .replace(/^printer\.ref/, "printerRef")
-          .replace(/^channel\.ref/, "channelRef")
-          .replace(/\.(id|version)$/, "");
-        if (path === "materials") path = "materials.0.consumptionPerUnit";
-        const message =
-          path.endsWith(".ref") ||
-          path === "printerRef" ||
-          path === "channelRef"
-            ? "Selecione uma referência válida."
-            : issue.code === "too_big"
-              ? `Use um valor de até ${issue.maximum}.`
-              : issue.code === "too_small"
-                ? `Use um valor a partir de ${issue.minimum}.`
-                : issue.code === "invalid_type"
-                  ? "Informe um valor válido."
-                  : issue.message;
-        fieldErrors[path] = fieldErrors[path] ?? message;
-      }
-    } else if (e instanceof AppError && e.fields) {
-      Object.assign(fieldErrors, e.fields);
-    } else
-      validationMessage =
-        e instanceof Error
-          ? e.message
-          : "Não foi possível calcular. Revise os dados.";
-  }
-  const fieldProps = (path: string) => ({
-    "aria-invalid": (touched && !!fieldErrors[path]) || undefined,
-    hint: touched ? fieldErrors[path] : undefined,
+  const {
+    current,
+    review,
+    setReview,
+    draft,
+    busy,
+    error,
+    touched,
+    patch,
+    input,
+    result,
+    validationMessage,
+    fieldProps,
+    selectProps,
+    hint,
+    unit,
+    materials,
+    printers,
+    apply,
+    refresh,
+    accept,
+  } = usePricingDraft({
+    catalog,
+    initialInput,
+    initialRequest,
+    onApply,
+    fixedQuantity,
   });
-  const selectProps = (path: string) => ({
-    "aria-invalid": (touched && !!fieldErrors[path]) || undefined,
-    "aria-describedby":
-      touched && fieldErrors[path] ? `${errorPrefix}-${path}` : undefined,
-  });
-  const hint = (path: string) =>
-    touched && fieldErrors[path] ? (
-      <small
-        id={`${errorPrefix}-${path}`}
-        className="text-destructive"
-        role="alert"
-      >
-        {fieldErrors[path]}
-      </small>
-    ) : null;
-  const unit = draft.technology === "FDM" ? "g" : "ml";
-  const materials = current.materials.filter(
-      (m) => m.technology === draft.technology,
-    ),
-    printers = current.printers.filter(
-      (p) => p.technology === draft.technology,
-    );
-  async function apply() {
-    if (lock.current || !result) return;
-    lock.current = true;
-    setBusy(true);
-    setError("");
-    try {
-      await onApply(draft);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-      lock.current = false;
-    }
-  }
-  async function refresh() {
-    setError("");
-    try {
-      setReview(await api<PricingCatalogDTO>("/api/pricing/catalog"));
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
-  function accept() {
-    if (!review) return;
-    const ref = (list: { id: string; version: number }[], id: string) => {
-      const row = list.find((r) => r.id === id);
-      return row ? { id: row.id, version: row.version } : emptyRef;
-    };
-    setDraft((d) => ({
-      ...d,
-      expectedSettingsVersion: review.settings?.version ?? 1,
-      materials: d.materials.map((m) => ({
-        ...m,
-        ref: ref(review.materials, m.ref.id),
-      })),
-      printerRef: ref(review.printers, d.printerRef.id),
-      extras: d.extras.map((e) => ({
-        ...e,
-        ref: ref(review.extras, e.ref.id),
-      })),
-      channelRef: ref(review.channels, d.channelRef.id),
-    }));
-    setCurrent(review);
-    setReview(null);
-  }
   return (
     <section className="space-y-5" aria-label="Cálculo por lote">
       <h2>Cálculo por lote</h2>
@@ -568,116 +441,13 @@ export function BatchPricingForm({
             na impressora.
           </p>
         </details>
-        <Button type="button" variant="outline" onClick={refresh}>
-          Revisar parâmetros atuais
-        </Button>
-        {review && (
-          <section className="rounded-lg border p-4 space-y-3">
-            <h3>Revisar alterações antes de aplicar</h3>
-            <p>
-              Energia: {current.settings?.energyRate ?? "não configurada"} →{" "}
-              {review.settings?.energyRate ?? "não configurada"} R$/kWh.
-              Trabalho: {current.settings?.laborPerHour ?? "não configurado"} →{" "}
-              {review.settings?.laborPerHour ?? "não configurado"} R$/hora.
-            </p>
-            <p>
-              Manutenção: {current.settings?.maintenancePerHour ?? "—"} →{" "}
-              {review.settings?.maintenancePerHour ?? "—"}. Falhas:{" "}
-              {current.settings?.failurePercent ?? "—"} →{" "}
-              {review.settings?.failurePercent ?? "—"}%. Markup:{" "}
-              {current.settings?.markupPercent ?? "—"} →{" "}
-              {review.settings?.markupPercent ?? "—"}%. Margem:{" "}
-              {current.settings?.targetMarginPercent ?? "—"} →{" "}
-              {review.settings?.targetMarginPercent ?? "—"}%.
-            </p>
-            <ul>
-              {review.materials.map((m) => (
-                <li key={m.id}>
-                  {m.name}:{" "}
-                  {current.materials.find((x) => x.id === m.id)?.price ??
-                    "novo"}{" "}
-                  → {m.price} R$/kg ou litro.
-                </li>
-              ))}
-            </ul>
-            <ul>
-              {current.materials
-                .filter((m) => !review.materials.some((n) => n.id === m.id))
-                .map((m) => (
-                  <li key={m.id}>{m.name}: indisponível no catálogo atual.</li>
-                ))}
-            </ul>
-            <ul>
-              {review.printers.map((p) => {
-                const old = current.printers.find((x) => x.id === p.id);
-                return (
-                  <li key={p.id}>
-                    {p.name} — Potência: {old?.watts ?? "novo"} → {p.watts} W.
-                    Aquisição: {old?.acquisitionCost ?? "—"} →{" "}
-                    {p.acquisitionCost}. Meses: {old?.amortizationMonths ?? "—"}{" "}
-                    → {p.amortizationMonths}. Dias/mês:{" "}
-                    {old?.daysPerMonth ?? "—"} → {p.daysPerMonth}. Horas/dia:{" "}
-                    {old?.hoursPerDay ?? "—"} → {p.hoursPerDay}.
-                  </li>
-                );
-              })}
-            </ul>
-            <ul>
-              {review.extras.map((x) => (
-                <li key={x.id}>
-                  {x.name}:{" "}
-                  {current.extras.find((e) => e.id === x.id)?.unitCost ??
-                    "novo"}{" "}
-                  → {x.unitCost} R$.
-                </li>
-              ))}
-            </ul>
-            <ul>
-              {review.channels.map((c) => {
-                const old = current.channels.find((x) => x.id === c.id);
-                return (
-                  <li key={c.id}>
-                    {c.name} — Custo fixo: {old?.fixedCost ?? "novo"} →{" "}
-                    {c.fixedCost}. Taxas:{" "}
-                    {old?.fees
-                      .map((f) => `${f.label}: ${f.percent}%`)
-                      .join(", ") || "nenhuma"}{" "}
-                    →{" "}
-                    {c.fees
-                      .map((f) => `${f.label}: ${f.percent}%`)
-                      .join(", ") || "nenhuma"}
-                    .
-                  </li>
-                );
-              })}
-            </ul>
-            <ul>
-              {[...current.printers, ...current.extras, ...current.channels]
-                .filter(
-                  (x) =>
-                    ![
-                      ...review.printers,
-                      ...review.extras,
-                      ...review.channels,
-                    ].some((n) => n.id === x.id),
-                )
-                .map((x) => (
-                  <li key={x.id}>{x.name}: indisponível no catálogo atual.</li>
-                ))}
-            </ul>
-            <p>Referências indisponíveis precisarão ser substituídas.</p>
-            <Button type="button" onClick={accept}>
-              Aplicar parâmetros revisados
-            </Button>{" "}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setReview(null)}
-            >
-              Manter parâmetros anteriores
-            </Button>
-          </section>
-        )}
+        <PricingReferenceReview
+          current={current}
+          review={review}
+          refresh={refresh}
+          accept={accept}
+          onKeep={() => setReview(null)}
+        />
         {result && input ? (
           <>
             <PricingResult input={input} result={result} />

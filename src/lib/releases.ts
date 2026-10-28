@@ -8,8 +8,8 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
-    version: "1.6.0",
-    date: "2026-10-27",
+    version: "1.8.0",
+    date: "2026-10-28",
     title: "Entenda as mudanças na rentabilidade da venda",
     sections: [
       {
@@ -24,6 +24,53 @@ export const releases: Release[] = [
         items: [
           "A explicação informa quando faltam dados ou os custos ainda são provisórios e só confirma a reconciliação quando os valores fecham com as fontes disponíveis.",
           "A referência passa a ser identificada como receita da memória, inclusive quando o preço foi informado pelo operador, sem presumir um histórico de negociação.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.7.0",
+    date: "2026-10-28",
+    title: "Compare o resultado de diferentes lotes",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Comparação de quantidades com custo e preço por peça, receita, contribuição, margem efetiva e resultado após depreciação de cada lote.",
+          "Tempo de máquina, contribuição estimada por hora e consumo de cada material, incluindo desperdício fixo, para apoiar a escolha da quantidade.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Explicações distinguem cobertura dos custos modelados, meta comercial e despesas fixas da empresa, preservando a decisão de preço da equipe.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.6.0",
+    date: "2026-10-28",
+    title: "Calculadora V3 e cadastro de produtos mais claro",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Calculadora V3 com os mesmos cálculos por lote da V2, entrada de horas e minutos, custos ao lado e ajustes avançados recolhidos. As três calculadoras preservam seus rascunhos ao alternar entre elas.",
+          "Opção Exibir banner inicial em Aparência permite ocultar o destaque de abertura da loja sem apagar seu conteúdo.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Filtros do catálogo recolhidos em Filtrar produtos e seletor de tema compacto no cabeçalho deixam mais espaço para os produtos.",
+          "Filtros das listagens administrativas e período do dashboard ficam recolhidos para destacar os registros. Os valores digitados são preservados ao fechar e reabrir o painel.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "O cadastro de produtos começa com zero horas, permitindo informar impressões de menos de uma hora sem preencher um campo vazio. Pendências de consumo, tempo e custos agora são identificadas junto aos campos, com indicação dos itens obrigatórios. Apenas as seções com pendências são abertas ao validar o cadastro.",
         ],
       },
     ],
