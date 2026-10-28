@@ -62,3 +62,26 @@ it("labels unavailable forecasts separately from deadline compliance", async () 
   fireEvent.click(screen.getByRole("button", { name: "Descer lote 97" }));
   expect(await screen.findByText(/Previsão indisponível: configure/)).toBeTruthy();
 });
+it("replays the same confirmation after losing the committed response body", async () => {
+  const { data, preview } = fixture(); api.mockResolvedValue(preview);
+  command.mockRejectedValueOnce(new TypeError("Connection lost while reading response")).mockResolvedValueOnce({ revision: 5 });
+  render(<Queue data={data} batches={data.batches} onSelect={() => {}} onDone={() => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Descer lote 97" }));
+  await screen.findByRole("heading", { name: "Simulação da fila" });
+  fireEvent.click(screen.getByRole("button", { name: "Revisar para confirmar" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Confirmar nova ordem" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Repetir confirmação" }));
+  await waitFor(() => expect(command).toHaveBeenCalledTimes(2));
+  expect(command.mock.calls[1]).toEqual(command.mock.calls[0]);
+});
+it("accumulates successive moves in the staged queue before any write", async () => {
+  const { data, preview } = fixture(); api.mockResolvedValue(preview);
+  data.batches.push({ ...data.batches[0], id: "d", sequence: 100, position: 3 });
+  render(<Queue data={data} batches={data.batches} onSelect={() => {}} onDone={() => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Descer lote 97" }));
+  await screen.findByRole("heading", { name: "Simulação da fila" });
+  fireEvent.click(screen.getByRole("button", { name: "Descer lote 97" }));
+  await waitFor(() => expect(api).toHaveBeenCalledTimes(2));
+  expect(api.mock.calls[1][1]).toEqual({ printerId: "p", batchIds: ["b", "d", "a"] });
+  expect(command).not.toHaveBeenCalled();
+});

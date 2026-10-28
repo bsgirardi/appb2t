@@ -22,7 +22,7 @@ export function Queue(props: QueueProps) {
   return <QueueBody key={`${props.data.revision}:${props.data.asOf}`} {...props} />;
 }
 function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
-  const { panel, propose, busy } = useQueueSimulation(data, onDone);
+  const { panel, propose, busy, staged } = useQueueSimulation(data, onDone);
   const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
   return (
     <div className="flex min-w-0 flex-col gap-3">
@@ -31,7 +31,6 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
       {data.printers
         .filter((p) => batches.some((b) => b.printerId === p.id))
         .map((printer) => {
-          const visible = batches.filter((b) => b.printerId === printer.id);
           const future = (data.batches ?? batches)
             .filter(
               (b) =>
@@ -39,8 +38,14 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
                 ["PENDING", "SCHEDULED"].includes(b.state),
             )
             .sort(
-              (a, b) => a.position - b.position || a.id.localeCompare(b.id),
+              (a, b) => staged?.printerId === printer.id
+                ? staged.batchIds.indexOf(a.id) - staged.batchIds.indexOf(b.id)
+                : a.position - b.position || a.id.localeCompare(b.id),
             );
+          const positions = new Map(future.map((b, index) => [b.id, index]));
+          const visible = batches.filter(b => b.printerId === printer.id).sort((a,b) =>
+            (positions.get(a.id) ?? -1) - (positions.get(b.id) ?? -1),
+          );
           const move = (index: number, direction: number) => {
             const ids = future.map((b) => b.id);
             [ids[index], ids[index + direction]] = [

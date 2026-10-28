@@ -38,3 +38,12 @@ it("compares deadline risk for all participants of a mixed batch", () => {
   expect(result.impacts.find(i => i.batchId === "a")?.participants).toHaveLength(2);
   expect(result.impacts.find(i => i.batchId === "a")?.after.late).toBe(true);
 });
+it("shows a new late batch and a resolved delay when the shorter batch moves first", () => {
+  const input = scenarioInput(); input.asOf = "2026-10-28T01:00:00Z";
+  const result = simulateQueue(input, { printerId: "p", batchIds: ["b", "a"] });
+  expect(result.impacts.find(i => i.batchId === "b")).toMatchObject({ before: { late: true }, after: { late: false } });
+  input.machines[0].batches[0].durationMinutes = "60";
+  input.machines[0].batches[1].durationMinutes = "120";
+  const second = simulateQueue(input, { printerId: "p", batchIds: ["b", "a"] });
+  expect(second.impacts.find(i => i.batchId === "a")).toMatchObject({ before: { late: false }, after: { late: true } });
+});

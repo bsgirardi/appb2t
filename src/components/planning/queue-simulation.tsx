@@ -105,7 +105,9 @@ export function useQueueSimulation(data: PlanningData, onDone: () => void) {
       await planningCommand("QUEUE_REORDER", retry.current);
       applying.current = false; cancel(); onDone();
     } catch (e) {
-      const network = (e as { code?: string }).code === "NETWORK";
+      const code = (e as { code?: string }).code;
+      // A response-body failure can happen after the server committed the command.
+      const network = !code || code === "NETWORK" || code === "INTERNAL";
       setUncertain(network); setError(`${(e as Error).message}${network ? " Repita a confirmação para conferir o resultado da mesma operação." : " Atualize e simule novamente."}`);
       if (!network) { retry.current = null; setReady(false); }
     } finally { applying.current = false; setBusy(false); }
@@ -117,5 +119,5 @@ export function useQueueSimulation(data: PlanningData, onDone: () => void) {
         onCancel={cancel} onRefresh={() => void request(scenario, true)} onConfirm={() => void confirm()} />
     </>}
   </div>;
-  return { panel, busy, propose: (next: QueueScenario) => { void request(next); } };
+  return { panel, busy, staged: scenario, propose: (next: QueueScenario) => { void request(next); } };
 }
