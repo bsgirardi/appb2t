@@ -86,3 +86,30 @@ it("uses the storefront foreground color in its site preview", () => {
   const swatches = site.querySelectorAll<HTMLElement>(".appearance-swatch");
   expect(swatches[1].style.color).toBe("rgb(13, 43, 82)");
 });
+
+it("saves the choice to hide the initial banner without clearing its content", async () => {
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: { ...defaultAppearance, logoUrl: null, version: 1 },
+      }),
+    } as Response);
+  render(
+    <AppearancePanel
+      initial={{ ...defaultAppearance, logoUrl: null, version: 0 }}
+    />,
+  );
+  const toggle = screen.getByRole("checkbox", {
+    name: "Exibir banner inicial",
+  });
+  expect((toggle as HTMLInputElement).checked).toBe(true);
+  fireEvent.click(toggle);
+  fireEvent.click(screen.getByRole("button", { name: "Salvar aparência" }));
+  await screen.findByText("Aparência do site e do administrativo atualizada.");
+  const body = fetch.mock.calls[0][1]!.body as FormData;
+  expect(JSON.parse(body.get("data") as string).storefront.showHero).toBe(
+    false,
+  );
+});

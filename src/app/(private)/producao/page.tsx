@@ -1,3 +1,4 @@
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { NativeSelect } from "@/components/ui/native-select";
 import Link from "next/link";
 import { requireActor } from "@/server/auth/guards";
@@ -68,67 +69,76 @@ export default async function ProductionPage({
       {!parsed.success && (
         <Notice>Filtros inválidos. Exibindo a primeira página.</Notice>
       )}
-      <form className="admin-filter-grid">
-        <input type="hidden" name="view" value={view} />
-        {saleId && <input type="hidden" name="saleId" value={saleId} />}
-        <Field label="Buscar item" name="query" defaultValue={filter.query} />
-        {view === "orders" && (
-          <>
-            <label className="field">
-              Responsável
-              <NativeSelect
-                name="responsibleId"
-                defaultValue={filter.responsibleId ?? ""}
-              >
-                <option value="">Todos</option>
-                {options.users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </NativeSelect>
-            </label>
-            <Field
-              label="Prazo a partir de"
-              name="dueFrom"
-              type="date"
-              defaultValue={filter.dueFrom ?? ""}
-            />
-            <Field
-              label="Prazo até"
-              name="dueTo"
-              type="date"
-              defaultValue={filter.dueTo ?? ""}
-            />
-            <label className="field">
-              Estado
-              <NativeSelect name="status" defaultValue={filter.status ?? ""}>
-                <option value="">Todos</option>
-                {[
-                  ["RASCUNHO", "Rascunho"],
-                  ["LIBERADA", "Liberada"],
-                  ["EM_EXECUCAO", "Em execução"],
-                  ["CONCLUIDA", "Concluída"],
-                  ["CANCELADA", "Cancelada"],
-                ].map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </NativeSelect>
-            </label>
-            <label className="field">
-              Destino
-              <NativeSelect name="origin" defaultValue={filter.origin ?? ""}>
-                <option value="">Todos</option>
-                <option value="SALE">Venda</option>
-                <option value="STOCK">Estoque</option>
-              </NativeSelect>
-            </label>
-          </>
-        )}
-        <Button>Filtrar</Button>
-      </form>
+      <FilterPanel
+        activeCount={
+          Object.entries(filter).filter(
+            ([k, v]) => v && !["page", "pageSize", "saleId"].includes(k),
+          ).length
+        }
+        hasErrors={!parsed.success}
+      >
+        <form className="admin-filter-grid">
+          <input type="hidden" name="view" value={view} />
+          {saleId && <input type="hidden" name="saleId" value={saleId} />}
+          <Field label="Buscar item" name="query" defaultValue={filter.query} />
+          {view === "orders" && (
+            <>
+              <label className="field">
+                Responsável
+                <NativeSelect
+                  name="responsibleId"
+                  defaultValue={filter.responsibleId ?? ""}
+                >
+                  <option value="">Todos</option>
+                  {options.users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </label>
+              <Field
+                label="Prazo a partir de"
+                name="dueFrom"
+                type="date"
+                defaultValue={filter.dueFrom ?? ""}
+              />
+              <Field
+                label="Prazo até"
+                name="dueTo"
+                type="date"
+                defaultValue={filter.dueTo ?? ""}
+              />
+              <label className="field">
+                Estado
+                <NativeSelect name="status" defaultValue={filter.status ?? ""}>
+                  <option value="">Todos</option>
+                  {[
+                    ["RASCUNHO", "Rascunho"],
+                    ["LIBERADA", "Liberada"],
+                    ["EM_EXECUCAO", "Em execução"],
+                    ["CONCLUIDA", "Concluída"],
+                    ["CANCELADA", "Cancelada"],
+                  ].map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </label>
+              <label className="field">
+                Destino
+                <NativeSelect name="origin" defaultValue={filter.origin ?? ""}>
+                  <option value="">Todos</option>
+                  <option value="SALE">Venda</option>
+                  <option value="STOCK">Estoque</option>
+                </NativeSelect>
+              </label>
+            </>
+          )}
+          <Button>Filtrar</Button>
+        </form>
+      </FilterPanel>
       <ProductionPanel
         key={`${view}:${saleId ?? ""}`}
         orders={orders.items}

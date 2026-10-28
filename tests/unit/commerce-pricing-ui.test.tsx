@@ -184,4 +184,5 @@ it("line editor fixes quantity to the commercial item", () => {
   expect(
     (screen.getByLabelText("Quantidade do lote") as HTMLInputElement).readOnly,
   ).toBe(true);
+  expect(screen.queryByText("Comparar quantidades")).toBeNull();
 });

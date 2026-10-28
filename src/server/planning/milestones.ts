@@ -16,6 +16,8 @@ import {
   findContinuousSlot,
 } from "@/domain/planning/calendar";
 import type { CalendarDTO } from "@/domain/planning/types";
+import { loadPlanningInput } from "./forecast-input";
+import { assertPreviewCurrent } from "./preview-validity";
 const instant = z.iso.datetime({ offset: true });
 const marker = z
   .object({
@@ -227,6 +229,8 @@ const reorder = z
     ...planningMeta,
     printerId: z.string(),
     batchIds: z.array(z.string()).max(10000),
+    previewAsOf: z.iso.datetime({ offset: true }),
+    previewFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   })
   .strict();
 export async function reorderQueue(
@@ -235,6 +239,8 @@ export async function reorderQueue(
 ): Promise<{ revision: number }> {
   const v = reorder.parse(raw);
   return runPlanningCommand(actor, "QUEUE_ORDER", v, async (tx) => {
+    const input = await loadPlanningInput(tx, actor, v.previewAsOf);
+    assertPreviewCurrent(input, v, { asOf: v.previewAsOf, fingerprint: v.previewFingerprint }, new Date().toISOString());
     const rows = await tx.planningBatch.findMany({
       where: {
         printerId: v.printerId,

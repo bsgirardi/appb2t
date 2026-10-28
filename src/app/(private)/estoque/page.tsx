@@ -1,3 +1,4 @@
+import { FilterPanel } from "@/components/admin/filter-panel";
 import Link from "next/link";
 import { requireActor } from "@/server/auth/guards";
 import {
@@ -90,16 +91,21 @@ export default async function StockPage({
       {!parsed.success && (
         <Notice>Filtros inválidos. Exibindo a primeira página.</Notice>
       )}
-      <form className="admin-filter-grid">
-        <input type="hidden" name="view" value={view} />
-        {saleId && <input type="hidden" name="saleId" value={saleId} />}
-        <Field
-          label={view === "receipts" ? "Buscar fornecedor" : "Buscar item"}
-          name="query"
-          defaultValue={filter.query}
-        />
-        <Button>Filtrar</Button>
-      </form>
+      <FilterPanel
+        activeCount={filter.query ? 1 : 0}
+        hasErrors={!parsed.success}
+      >
+        <form className="admin-filter-grid">
+          <input type="hidden" name="view" value={view} />
+          {saleId && <input type="hidden" name="saleId" value={saleId} />}
+          <Field
+            label={view === "receipts" ? "Buscar fornecedor" : "Buscar item"}
+            name="query"
+            defaultValue={filter.query}
+          />
+          <Button>Filtrar</Button>
+        </form>
+      </FilterPanel>
       <StockPanel
         admin={actor.role === "ADMIN"}
         items={stock.items}

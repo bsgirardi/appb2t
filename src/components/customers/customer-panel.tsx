@@ -1,4 +1,5 @@
 "use client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { ContextEditor } from "@/components/admin/context-editor";
 
 import { AdminForm } from "@/components/admin/admin-form";
@@ -79,28 +80,32 @@ export function CustomerPanel({
         )}
       </ContextEditor>
       <>
-        <AdminForm onSubmit={filter} className="product-toolbar">
-          <Field
-            label="Buscar cliente"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <div className="field">
-            <Label htmlFor="customer-active-filter">Situação</Label>
-            <NativeSelect
-              id="customer-active-filter"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            >
-              <option value="all">Todos</option>
-              <option value="true">Ativos</option>
-              <option value="false">Inativos</option>
-            </NativeSelect>
-          </div>
-          <Button variant="outline" size="sm" className="">
-            Buscar
-          </Button>
-        </AdminForm>
+        <FilterPanel
+          activeCount={Number(!!search) + Number(!!active && active !== "all")}
+        >
+          <AdminForm onSubmit={filter} className="product-toolbar">
+            <Field
+              label="Buscar cliente"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="field">
+              <Label htmlFor="customer-active-filter">Situação</Label>
+              <NativeSelect
+                id="customer-active-filter"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
+                <option value="all">Todos</option>
+                <option value="true">Ativos</option>
+                <option value="false">Inativos</option>
+              </NativeSelect>
+            </div>
+            <Button variant="outline" size="sm" className="">
+              Buscar
+            </Button>
+          </AdminForm>
+        </FilterPanel>
         <Card asChild>
           <div className="table-scroll">
             <Table>

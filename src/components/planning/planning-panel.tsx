@@ -9,6 +9,7 @@ import { BatchForm } from "./batch-form";
 import { BatchDetail } from "./batch-detail";
 import { CalendarForm } from "./calendar-form";
 import { Queue } from "./queue";
+import { QueueCalendar } from "./queue-calendar";
 import { Suggestions } from "./suggestions";
 import { states, instantLabel, type PlanningData } from "./shared";
 export function PlanningPanel({ initial }: { initial: PlanningData }) {
@@ -18,6 +19,7 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
     [view, setView] = useState("queue"),
     [id, setId] = useState(""),
     [suggestion, setSuggestion] = useState<Suggestion | undefined>();
+  const [presentation, setPresentation] = useState("list");
   const [printer, setPrinter] = useState(""),
     [state, setState] = useState(""),
     [responsible, setResponsible] = useState(""),
@@ -187,7 +189,15 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
                 </p>
               ))}
           </div>
-          <Queue
+          <label className="field">
+            Visualização da fila
+            <NativeSelect value={presentation} onChange={e => setPresentation(e.target.value)}>
+              <option value="list">Lista e simulação</option>
+              <option value="calendar">Calendário por impressora</option>
+            </NativeSelect>
+          </label>
+          <p>A retirada prevista não inclui acabamento, inspeção, embalagem ou transporte. Previsão não é garantia de entrega.</p>
+          {presentation === "calendar" ? <QueueCalendar data={data} batches={batches} onSelect={batchId => { setId(batchId); setView("detail"); }} /> : <Queue
             data={data}
             batches={batches}
             onSelect={(batchId) => {
@@ -195,7 +205,7 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
               setView("detail");
             }}
             onDone={done}
-          />
+          />}
         </>
       )}
     </div>

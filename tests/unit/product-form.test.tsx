@@ -241,3 +241,136 @@ it("preserves negotiated price through recalculation and copies suggestion only 
   fireEvent.change(price, { target: { value: "1" } });
   expect(screen.getByText(/abaixo do custo/)).toBeTruthy();
 });
+
+it("starts new products at zero hours and explains the required production inputs", () => {
+  render(
+    <ProductForm
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  expect((screen.getByLabelText("Horas") as HTMLInputElement).value).toBe("0");
+  expect(
+    screen.getByLabelText("Consumo de material").hasAttribute("required"),
+  ).toBe(true);
+  expect(
+    screen.getByText(/Para 30 minutos, informe 0 horas e 30 minutos/),
+  ).toBeTruthy();
+});
+it("marks zero production time next to its field without sending a request", () => {
+  const fetch = vi.spyOn(globalThis, "fetch");
+  render(
+    <ProductForm
+      product={{
+        ...productDTO,
+        calculation: { ...productDTO.calculation, hours: 0, minutes: 0 },
+      }}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
+  expect(screen.getByLabelText("Horas").getAttribute("aria-invalid")).toBe(
+    "true",
+  );
+  expect(screen.getByText(/Informe um tempo maior que zero/)).toBeTruthy();
+  expect(
+    screen.getByText(/Preencha ou corrija:.*Tempo de impressão/),
+  ).toBeTruthy();
+  expect(
+    (
+      screen
+        .getByText("Detalhes para venda")
+        .closest("details") as HTMLDetailsElement
+    ).open,
+  ).toBe(false);
+  expect(
+    (
+      screen
+        .getByText("Personalização do produto")
+        .closest("details") as HTMLDetailsElement
+    ).open,
+  ).toBe(false);
+  expect(fetch).not.toHaveBeenCalled();
+});
+it("saves a product taking less than one hour with its actual duration", async () => {
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(new Response(JSON.stringify({ data: productDTO })));
+  const onSaved = vi.fn();
+  render(
+    <ProductForm
+      product={{
+        ...productDTO,
+        calculation: { ...productDTO.calculation, hours: 0, minutes: 30 },
+      }}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={onSaved}
+      onCancel={vi.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
+  await waitFor(() => expect(onSaved).toHaveBeenCalled());
+  const body = fetch.mock.calls[0][1]?.body as FormData;
+  expect(JSON.parse(body.get("data") as string).calculation).toMatchObject({
+    hours: 0,
+    minutes: 30,
+  });
+});
+
+it("creates a new product using minutes only after selecting references", async () => {
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    value: vi.fn(() => "blob:new-photo"),
+  });
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    value: vi.fn(),
+  });
+  const fetch = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(new Response(JSON.stringify({ data: productDTO })));
+  const onSaved = vi.fn();
+  render(
+    <ProductForm
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={onSaved}
+      onCancel={vi.fn()}
+    />,
+  );
+  for (const [label, value] of [
+    ["Nome do produto", "Peça rápida"],
+    ["Descrição", "Peça de teste"],
+    ["Formas de pagamento", "Pix"],
+    ["Preço final de venda", "25"],
+    ["Consumo de material", "10"],
+    ["Minutos", "30"],
+  ]) {
+    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  }
+  fireEvent.change(screen.getByLabelText("Material de referência"), {
+    target: { value: "m" },
+  });
+  fireEvent.change(screen.getByLabelText("Impressora de referência"), {
+    target: { value: "p" },
+  });
+  fireEvent.change(screen.getByLabelText("Fotos do produto"), {
+    target: {
+      files: [new File(["photo"], "piece.png", { type: "image/png" })],
+    },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
+  await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+  expect(fetch.mock.calls[0][1]?.method).toBe("POST");
+  const body = fetch.mock.calls[0][1]?.body as FormData;
+  expect(JSON.parse(body.get("data") as string).calculation).toMatchObject({
+    hours: 0,
+    minutes: 30,
+  });
+});

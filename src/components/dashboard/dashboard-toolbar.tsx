@@ -1,4 +1,5 @@
 "use client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
@@ -137,51 +138,53 @@ export function DashboardToolbar({
           <ToggleGroupItem value="90">90 dias</ToggleGroupItem>
         </ToggleGroup>
       </div>
-      <form
-        key={`${f.from}-${f.to}-${f.margin ?? ""}`}
-        onSubmit={apply}
-        className="flex flex-wrap items-end gap-3"
-      >
-        <FieldGroup className="dashboard-date-fields flex-row flex-wrap items-end">
-          <Field
-            label="Início"
-            name="from"
-            type="date"
-            defaultValue={f.from}
-            max={f.today}
-            required
-            disabled={pending}
-          />
-          <Field
-            label="Fim"
-            name="to"
-            type="date"
-            defaultValue={f.to}
-            max={f.today}
-            required
-            disabled={pending}
-          />
-          {f.panel === "profitability" && (
+      <FilterPanel title="Período e filtros">
+        <form
+          key={`${f.from}-${f.to}-${f.margin ?? ""}`}
+          onSubmit={apply}
+          className="flex flex-wrap items-end gap-3"
+        >
+          <FieldGroup className="dashboard-date-fields flex-row flex-wrap items-end">
             <Field
-              label="Referência de margem (%)"
-              name="margin"
-              type="number"
-              min="-100"
-              max="100"
-              step="0.01"
-              defaultValue={f.margin}
-              hint="Opcional; vazio destaca margens negativas."
+              label="Início"
+              name="from"
+              type="date"
+              defaultValue={f.from}
+              max={f.today}
+              required
               disabled={pending}
             />
-          )}
-        </FieldGroup>
-        <Button type="submit" variant="outline" disabled={pending}>
-          {pending && (
-            <LoaderCircle data-icon="inline-start" className="animate-spin" />
-          )}
-          Aplicar período
-        </Button>
-      </form>
+            <Field
+              label="Fim"
+              name="to"
+              type="date"
+              defaultValue={f.to}
+              max={f.today}
+              required
+              disabled={pending}
+            />
+            {f.panel === "profitability" && (
+              <Field
+                label="Referência de margem (%)"
+                name="margin"
+                type="number"
+                min="-100"
+                max="100"
+                step="0.01"
+                defaultValue={f.margin}
+                hint="Opcional; vazio destaca margens negativas."
+                disabled={pending}
+              />
+            )}
+          </FieldGroup>
+          <Button type="submit" variant="outline" disabled={pending}>
+            {pending && (
+              <LoaderCircle data-icon="inline-start" className="animate-spin" />
+            )}
+            Aplicar período
+          </Button>
+        </form>
+      </FilterPanel>
       {error && (
         <Alert variant="destructive" role="alert">
           {error}

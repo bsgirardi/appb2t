@@ -45,3 +45,13 @@ it("preserves alpha while resizing logos and rejects excess bytes", async () => 
     }),
   ).rejects.toThrow();
 });
+
+it("defaults the initial banner to visible for older saved settings", () => {
+  const oldSettings = { ...defaultAppearance.storefront, showHero: undefined };
+  const parsed = appearanceSchema.parse({
+    ...defaultAppearance,
+    storefront: oldSettings,
+    expectedVersion: 0,
+  });
+  expect(parsed.storefront?.showHero).toBe(true);
+});

@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/field";
+import { ProfitabilityReconciliation } from "./reconciliation";
+import { moneyText, coverageNames } from "./format";
+export { moneyText, coverageNames } from "./format";
 import {
   Table,
   TableHeader,
@@ -21,17 +24,6 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-export const coverageNames = {
-  UNAVAILABLE: "Indisponível",
-  PARTIAL: "Parcial",
-  PROVISIONAL: "Provisório",
-  COMPLETE: "Completo",
-};
-export function moneyText(v: string | null) {
-  if (v === null) return "Indisponível";
-  const [whole, fraction] = new D(v).toFixed(2).split(".");
-  return `R$ ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${fraction}`;
-}
 function Value({ metric }: { metric: Metric }) {
   return (
     <>
@@ -182,6 +174,7 @@ export function ProfitabilityDetail({
           </p>
         </CardContent>
       </Card>
+      <ProfitabilityReconciliation value={v} />
       {v.lines.map((l) => (
         <Card key={l.key}>
           <CardHeader>
@@ -204,7 +197,7 @@ export function ProfitabilityDetail({
             </p>
             {l.expected ? (
               <p>
-                Preço sugerido original do lote:{" "}
+                Receita original da memória:{" "}
                 {moneyText(l.expected.suggestedRevenue)}. Taxas previstas sobre
                 produtos após desconto, sem frete cobrado.
               </p>

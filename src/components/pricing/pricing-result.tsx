@@ -30,7 +30,10 @@ export function PricingResult({
   }[input.mode];
   return (
     <section className="card space-y-4" aria-label="Resultado do lote">
-      <h3>Resultado para {input.quantity} peças</h3>
+      <h3>
+        Resultado para {input.quantity}{" "}
+        {input.quantity === 1 ? "peça" : "peças"}
+      </h3>
       <dl className="grid gap-3 sm:grid-cols-2">
         {(
           [
