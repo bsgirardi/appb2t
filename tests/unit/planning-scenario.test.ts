@@ -28,6 +28,9 @@ it("reports no impact for the same order and retains missing forecasts and absen
   expect(result.impacts).toEqual([]);
   expect(result.after.batches[0]).toMatchObject({ reason: "MATERIAL_PENDING", removal: null, dueDate: null, late: false });
 });
+it("returns a validation error for an invalid queue instead of classifying it as request size", () => {
+  expect(() => simulateQueue(scenarioInput(), { printerId: "missing", batchIds: [] })).toThrowError(expect.objectContaining({ code: "VALIDATION" }));
+});
 it("compares deadline risk for all participants of a mixed batch", () => {
   const input = scenarioInput();
   input.machines[0].batches[0].participants.push({ ...input.machines[0].batches[0].participants[0], id: "other", lineId: "other", dueDate: "2026-10-26" });

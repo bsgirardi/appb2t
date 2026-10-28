@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BatchForecast } from "@/domain/planning/types";
 import type { QueuePreview, QueueScenario } from "@/domain/planning/scenario";
 import { api } from "@/lib/client-api";
@@ -66,10 +66,7 @@ export function QueueSimulationPanel({ preview, data, busy, error, expired, read
   </section>;
 }
 
-export function QueueSimulationFlow({ data, onDone, children }: {
-  data: PlanningData; onDone: () => void;
-  children: (state: { propose: (scenario: QueueScenario) => void; busy: boolean }) => ReactNode;
-}) {
+export function useQueueSimulation(data: PlanningData, onDone: () => void) {
   const [scenario, setScenario] = useState<QueueScenario | null>(null);
   const [preview, setPreview] = useState<QueuePreview | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -113,12 +110,12 @@ export function QueueSimulationFlow({ data, onDone, children }: {
       if (!network) { retry.current = null; setReady(false); }
     } finally { applying.current = false; setBusy(false); }
   }
-  return <div className="flex min-w-0 flex-col gap-4">
+  const panel = <div className="flex min-w-0 flex-col gap-4">
     {scenario && <>
       <p>Nova ordem: {scenario.batchIds.map(id => `Lote ${data.batches.find(b => b.id === id)?.sequence ?? id}`).join(" → ")}</p>
       <QueueSimulationPanel data={data} preview={preview} busy={busy} error={error} expired={!!preview && now >= deadline} ready={ready} uncertain={uncertain}
         onCancel={cancel} onRefresh={() => void request(scenario, true)} onConfirm={() => void confirm()} />
     </>}
-    {children({ propose: next => { void request(next); }, busy })}
   </div>;
+  return { panel, busy, propose: (next: QueueScenario) => { void request(next); } };
 }

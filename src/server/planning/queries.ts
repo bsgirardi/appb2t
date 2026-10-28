@@ -7,7 +7,6 @@ import { forecast } from "@/domain/planning/scheduler";
 import { suggestBatches } from "@/domain/planning/suggestions";
 import { allocationRemaining } from "@/server/production/reservations";
 import { batchDTO, unclaimed } from "./batch-read";
-import type { Prisma } from "@prisma/client";
 import { planningTimeSummary } from "./time-summary";
 import { outstandingCoverage } from "./coverage";
 

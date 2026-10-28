@@ -1,5 +1,6 @@
 import type { BatchDTO, BatchForecast, Forecast, PlanningInput } from "./types";
 import { forecast } from "./scheduler";
+import { AppError } from "@/lib/errors";
 export type QueueScenario = { printerId: string; batchIds: string[] };
 export type QueueSimulation = {
   before: Forecast;
@@ -13,7 +14,7 @@ export function validateQueue(input: PlanningInput, scenario: QueueScenario): vo
   const machine = input.machines.find(m => m.id === scenario.printerId);
   const future = machine?.batches.filter(b => ["PENDING", "SCHEDULED"].includes(b.state));
   if (!future || future.length !== scenario.batchIds.length || new Set(scenario.batchIds).size !== future.length || future.some(b => !scenario.batchIds.includes(b.id)))
-    throw new RangeError("Informe toda a fila futura uma única vez.");
+    throw new AppError("VALIDATION", "Informe toda a fila futura uma única vez.");
 }
 export function simulateQueue(input: PlanningInput, scenario: QueueScenario): QueueSimulation {
   validateQueue(input, scenario);

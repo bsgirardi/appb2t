@@ -5,29 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/field";
 import { states, instantLabel, type PlanningData } from "./shared";
-import { QueueSimulationFlow } from "./queue-simulation";
+import { useQueueSimulation } from "./queue-simulation";
 const reasons = {
   MISSING_DATA: "Configure horários e dados do lote.",
   NO_WINDOW: "Sem janela contínua nos próximos 90 dias.",
   UNCONFIRMED_END: "Confirme o término real ou informe o tempo restante.",
   MATERIAL_PENDING: "Resolva as pendências de material e confirmação.",
 };
-export function Queue({
-  data,
-  batches,
-  onSelect,
-  onDone,
-}: {
+type QueueProps = {
   data: PlanningData;
   batches: BatchDTO[];
   onSelect: (id: string) => void;
   onDone: () => void;
-}) {
+};
+export function Queue(props: QueueProps) {
+  return <QueueBody key={`${props.data.revision}:${props.data.asOf}`} {...props} />;
+}
+function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
+  const { panel, propose, busy } = useQueueSimulation(data, onDone);
+  const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
   return (
-    <QueueSimulationFlow key={`${data.revision}:${data.asOf}`} data={data} onDone={onDone}>
-      {({ propose, busy }) => {
-        const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
-        return <div className="flex flex-col gap-3">
+    <div className="flex min-w-0 flex-col gap-3">
+      {panel}
       {!batches.length && <p>Nenhum lote nesta seleção.</p>}
       {data.printers
         .filter((p) => batches.some((b) => b.printerId === p.id))
@@ -171,8 +170,6 @@ export function Queue({
             </Card>
           );
         })}
-    </div>;
-      }}
-    </QueueSimulationFlow>
+    </div>
   );
 }
