@@ -1,6 +1,6 @@
 # B2T — evolução de preço, produção e vendas
 
-Atualizado em: 27/10/2026.
+Atualizado em: 28/10/2026.
 
 ## Como continuar em outro chat
 
@@ -39,10 +39,10 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 
 | Etapa | Entrega | Situação | Próxima ação |
 | --- | --- | --- | --- |
-| E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 em rascunho; detalhar E1.2 de canais e descontos |
-| E2 | Rentabilidade e explicação de desvios | Em validação | E2.1 implementado localmente; revisar entrega e limite da suíte completa |
-| E3 | Fila visual e previsão para o comercial | Em validação | E3.1 na PR #22 em rascunho; validar banco exclusivo e resolver/aceitar limite do Vitest antes de eventual integração |
-| E4 | Funil de negociações e próximos contatos | Em validação | E4.1 na PR #23 em rascunho; migração/concorrência aprovadas, limite da suíte completa mantido |
+| E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 (1.7.0); detalhar E1.2 de canais e descontos |
+| E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 entregue na PR #21 (1.8.0); próximos componentes e rankings pendentes |
+| E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
+| E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
 | E5 | Pontos de venda e consignação | Pendente | Começar após E4 |
 | E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
 
@@ -303,3 +303,7 @@ Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
 - [PR #23 em rascunho](https://github.com/bsgirardi/appb2t/pull/23), branch codex/e4-negociacoes, versão 1.6.0 sobre main 1.5.1. Implementação/validação até ca7012c; banco E4 descartável removido após verificações, contêineres existentes preservados.
 - Migração real e 21 integrações aprovadas; cinco rodadas finais de 10 casos com disputa real de locks aprovadas. Mais 31 testes unitários/UI/regressões, tipagem, lint e build aprovados. [Relatório atual](superpowers/reviews/2026-10-28-e4-validacao-pr.md).
 - PR vinculada ao chat, aberta em rascunho. Sem merge/publicação/migração operacional. Limite da suíte completa por recursão Vitest mantido explícito para decisão antes de integrar; reconciliar versão/notas com main e PRs paralelas antes do merge. E4 ampla segue parcial.
+
+### 28/10/2026 — integração autorizada das quatro PRs
+
+PRs #19, #21, #22 e #23 reconciliadas nas versões 1.7.0, 1.8.0, 1.9.0 e 1.10.0. Os registros acima são históricos da preparação. A validação atual cobre todos os unitários em lotes e checkout principal, regressão geral PostgreSQL, E3 exclusiva, migração/concorrência E4 e build/tipos/lint. [Evidências e limites](superpowers/reviews/2026-10-28-integracao-prs.md). Publicação e migração operacional permanecem separadas; E1–E4 amplas continuam parciais.

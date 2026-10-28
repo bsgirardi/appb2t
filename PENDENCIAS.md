@@ -6,7 +6,11 @@ O acompanhamento das melhorias de calculadora, rentabilidade, produção, negoci
 
 Atualizado em 26/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
 
-## E4 — em validação
+## Estado da integração E1–E4 em 28/10/2026
+
+PRs #19, #21, #22 e #23 reconciliadas para integração, versões 1.7.0 a 1.10.0. Todos os unitários foram cobertos em lotes e checkout principal; integrações gerais, E3 exclusiva e E4/migração passaram. A limitação monolítica do Vitest continua pendente. Publicação e migração operacional não executadas. [Relatório atual](docs/superpowers/reviews/2026-10-28-integracao-prs.md). As notas abaixo preservam a preparação histórica; próximos incrementos E1–E4 continuam pendentes.
+
+## E4 — registro anterior à integração
 
 E4.1 teve migração real e concorrência aprovadas em PostgreSQL 17 descartável exclusivo: dados sintéticos de sete tabelas legadas preservados, 21 integrações e cinco rodadas finais de 10 casos aprovadas. Mais 31 testes unitários/UI/regressões, tipagem, lint e build aprovados, incluindo versão/rodapés/Atualizações. Branch `codex/e4-negociacoes` preparada na 1.6.0 sobre main 1.5.1; [PR #23 em rascunho](https://github.com/bsgirardi/appb2t/pull/23) criada após autorização. Limite da suíte completa por recursão do Vitest continua explícito. [Relatório atual](docs/superpowers/reviews/2026-10-28-e4-validacao-pr.md). Sem merge, publicação, migração operacional ou atualização dos contêineres existentes. E4 ampla continua parcial; próxima ação: revisar a PR e resolver/aceitar limite da suíte antes de eventual integração; banco descartável removido após validação.
 
