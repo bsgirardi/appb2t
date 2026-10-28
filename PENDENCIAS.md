@@ -12,7 +12,7 @@ PRs #19, #21, #22 e #23 integradas na main local e no GitHub, versões 1.7.0 a 1
 
 ## E5 — iniciada em 28/10/2026
 
-Usuário aprovou o [desenho completo E5.1](docs/superpowers/specs/2026-10-28-e5-consignacao-design.md), com ambos os modelos de comissão, parceiro devedor, local único e correção comercial integral. [Plano de sete tarefas](docs/superpowers/plans/2026-10-28-e5-consignacao.md) preparado e autorrevisado: custódia, venda/financeiro, custos, comissões, acertos, reposição e resultado. Prevê worktree exclusiva e E5_TEST_DATABASE_URL limitada a localhost/127.0.0.1:55435/b2t_e5_test, sem setup/banco alheio ou alteração de contêineres. Implementação não iniciada; validação apenas estática/documental, sem teste funcional/build/banco. Versão 1.10.1 preservada; sem PR, merge, publicação ou migração. Próxima ação: revisar plano e escolher método; recomendada execução direta neste chat com revisão independente final. E5 permanece em detalhamento.
+E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](docs/superpowers/reviews/2026-10-28-e5-consignacao.md). Versão 1.10.1 preservada; sem PR/push/merge/publicação ou migração operacional. Próxima etapa: revisão humana e preparação de PR quando autorizada. E5 em validação; balcão/feira fora do recorte.
 
 ## E4 — registro anterior à integração
 

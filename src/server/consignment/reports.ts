@@ -50,7 +50,10 @@ export async function getConsignmentReport(actor: Actor, raw: unknown) {
         },
         include: {
           partner: { include: { customer: { select: { name: true } } } },
-          lines: { orderBy:{id:"asc"}, include: { product: { select: { name: true } } } },
+          lines: {
+            orderBy: { id: "asc" },
+            include: { product: { select: { name: true } } },
+          },
         },
         orderBy: { id: "asc" },
       });
@@ -90,17 +93,27 @@ export async function getConsignmentReport(actor: Actor, raw: unknown) {
       for (const sale of sales) {
         const costs = await readConsignmentSaleCost(tx, sale.saleId!),
           finance = await readConsignmentReceiptSummary(tx, sale.saleId!);
-        const weights = sale.lines.map((l, i) => ({
-          key: l.id,
-          position: i,
-          weight: l.gross?.toFixed() ?? "0",
-        }));
+        const weights = (kind: "repayment" | "commission") =>
+          sale.lines.map((l, i) => ({
+            key: l.id,
+            position: i,
+            weight:
+              kind === "commission"
+                ? l.commission!.toFixed()
+                : sale.model === "RETIDA"
+                  ? l.gross!.minus(l.commission!).toFixed()
+                  : l.gross!.toFixed(),
+          }));
         const received = allocate(
             finance?.receivedRepayment ?? "0",
-            weights,
+            weights("repayment"),
             2,
           ),
-          paid = allocate(finance?.commissionPaid ?? "0", weights, 2);
+          paid = allocate(
+            finance?.commissionPaid ?? "0",
+            weights("commission"),
+            2,
+          );
         for (const [i, l] of sale.lines.entries()) {
           if (f.productId && l.productId !== f.productId) continue;
           const r = get(

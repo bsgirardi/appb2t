@@ -135,3 +135,9 @@ Cobertura: parceiros/condições (1/2), origem/remessas/retornos/perdas (1/2), v
 
 Recomendada execução direta neste chat com `executing-plans` e revisão independente do conjunto ao final: as tarefas compartilham transações e alocações de origem, exigindo continuidade entre estoque, comercial e financeiro. Alternativa: implementação por subagentes com revisão por tarefa, de maior custo de contexto. Aguardar revisão do plano e escolha do método conforme writing-plans; aprovação do desenho não foi registrada como aprovação automática deste plano.
 
+
+## Execução local — 28/10/2026
+
+As sete tarefas de implementação foram executadas em `codex/e5-consignacao`. Entrega local validada com 661 testes unitários, 32 integrações/regressões E5, migração real/reaplicação, tipos, lint e build. Revisão independente identificou dois P2, reproduzidos e corrigidos com regressões. [Relatório final e limites de cobertura](../reviews/2026-10-28-e5-consignacao.md).
+
+A lista detalhada acima permanece como referência dos critérios originais: alguns cenários específicos de teste não foram automatizados individualmente, conforme relatório, portanto suas caixas não foram marcadas em bloco. Isso não deve ser interpretado como implementação não iniciada. Não houve PR/push/merge/publicação/migração operacional. Versão local 1.10.1; futuro MINOR será calculado na preparação de PR sobre main vigente.

@@ -114,3 +114,82 @@ it("creates a complementary statement for a late report and requires removing th
     }),
   ).toBe(1);
 });
+it("allows compensating receipt after canceling its sale", async () => {
+  const f = await readyFixture();
+  const sale = await f.makeSale(8);
+  const receipt = f.shipment.events.find((e) => e.kind === "RECEIVE")!;
+  const command = {
+    type: "COMPENSATE" as const,
+    operationKey: key(),
+    id: f.shipment.id,
+    expectedVersion: f.shipment.version,
+    sourceId: receipt.id,
+    effectiveDate: "2026-10-28",
+    reason: "Correção conferida",
+    allocations: [{ shipmentAllocationId: f.allocationId, units: 8 }],
+  };
+  await expect(executeCustodyCommand(f.actor, command)).rejects.toThrow();
+  await executeConsignmentSaleCommand(f.actor, {
+    type: "CANCEL",
+    operationKey: key(),
+    id: sale.id,
+    expectedVersion: sale.version,
+    reason: "Correção",
+  });
+  await executeCustodyCommand(f.actor, { ...command, operationKey: key() });
+  expect(await allocationBalance(db, f.allocationId)).toMatchObject({
+    outbound: 8,
+    partner: 0,
+    sold: 0,
+  });
+});
+it("allows receipt correction after loss reversal and independent later receipt", async () => {
+  const f = await readyFixture("RETIDA", 4);
+  const receipt = f.shipment.events.find((e) => e.kind === "RECEIVE")!;
+  let s = await executeCustodyCommand(f.actor, {
+    type: "LOSS",
+    operationKey: key(),
+    id: f.shipment.id,
+    expectedVersion: f.shipment.version,
+    effectiveDate: "2026-10-28",
+    stage: "partner",
+    reason: "Perda",
+    allocations: [{ shipmentAllocationId: f.allocationId, units: 4 }],
+  });
+  const loss = s.events.find((e) => e.kind === "LOSS")!;
+  s = await executeCustodyCommand(f.actor, {
+    type: "COMPENSATE",
+    operationKey: key(),
+    id: s.id,
+    expectedVersion: s.version,
+    sourceId: loss.id,
+    effectiveDate: "2026-10-28",
+    reason: "Correção perda",
+    allocations: [{ shipmentAllocationId: f.allocationId, units: 4 }],
+  });
+  s = await executeCustodyCommand(f.actor, {
+    type: "RECEIVE",
+    operationKey: key(),
+    id: s.id,
+    expectedVersion: s.version,
+    effectiveDate: "2026-10-28",
+    receiver: "Loja",
+    reason: "",
+    allocations: [{ shipmentAllocationId: f.allocationId, units: 4 }],
+  });
+  await executeCustodyCommand(f.actor, {
+    type: "COMPENSATE",
+    operationKey: key(),
+    id: s.id,
+    expectedVersion: s.version,
+    sourceId: receipt.id,
+    effectiveDate: "2026-10-28",
+    reason: "Correção recebimento",
+    allocations: [{ shipmentAllocationId: f.allocationId, units: 4 }],
+  });
+  expect(await allocationBalance(db, f.allocationId)).toMatchObject({
+    partner: 4,
+    outbound: 4,
+    lost: 0,
+  });
+});

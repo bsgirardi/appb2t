@@ -90,7 +90,7 @@ export async function readyFixture(
     reason: "",
     allocations: [{ shipmentAllocationId: allocationId, units: received }],
   });
-  async function draftSale(quantity = 1, reference = key()) {
+  async function draftSale(quantity = 1, reference: string = key()) {
     return executeConsignmentSaleCommand(f.actor, {
       type: "SAVE_DRAFT",
       operationKey: key(),
@@ -114,7 +114,7 @@ export async function readyFixture(
       ],
     });
   }
-  async function makeSale(quantity = 1, reference = key()) {
+  async function makeSale(quantity = 1, reference: string = key()) {
     const draft = await draftSale(quantity, reference);
     return executeConsignmentSaleCommand(f.actor, {
       type: "CONFIRM",

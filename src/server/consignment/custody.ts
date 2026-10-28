@@ -314,16 +314,6 @@ export async function executeCustodyCommand(
             a.units > original.units - (compensated._sum.units ?? 0)
           )
             invalid("Compensação excede movimento líquido.");
-          if (
-            source!.kind !== "LOSS" &&
-            (await tx.consignmentEventAllocation.findFirst({
-              where: {
-                shipmentAllocationId: a.shipmentAllocationId,
-                event: { sequence: { gt: source!.sequence }, sourceId: null },
-              },
-            }))
-          )
-            invalid("Resolva os movimentos dependentes antes de compensar.");
         }
       }
     }

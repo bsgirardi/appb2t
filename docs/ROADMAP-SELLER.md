@@ -43,7 +43,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 entregue na PR #21 (1.8.0); próximos componentes e rankings pendentes |
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
-| E5 | Pontos de venda e consignação | Em detalhamento | Desenho do ciclo completo aprovado; plano E5.1 preparado para revisão e escolha do método |
+| E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
 | E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
@@ -335,3 +335,8 @@ PRs #19, #21, #22 e #23 reconciliadas nas versões 1.7.0, 1.8.0, 1.9.0 e 1.10.0.
 ### 28/10/2026 — manutenção e publicação local 1.10.1
 
 E1.1–E4.1 integradas e disponíveis na instalação local com suas migrações. PR #25 resolve descoberta de testes, recursão de validação e observação de concorrência em pool pequeno, acrescenta CI real e publica a versão 1.10.1 com 103 projeções legadas preservadas. [Registro de publicação e limites](superpowers/2026-10-28-publicacao-1.10.1.md). A validação humana com a equipe e os próximos incrementos de cada etapa continuam pendentes; domínio externo e backup externo não foram configurados.
+
+
+### 28/10/2026 — E5.1 implementada e validada localmente
+
+E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](superpowers/reviews/2026-10-28-e5-consignacao.md). Versão 1.10.1 preservada; sem PR/push/merge/publicação ou migração operacional. Próxima etapa: revisão humana e preparação de PR quando autorizada. E5 em validação; balcão/feira fora do recorte.
