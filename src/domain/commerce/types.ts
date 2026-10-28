@@ -2,7 +2,12 @@ import type { DocumentCostsDTO } from "@/domain/pricing/types";
 import type { CompanyIdentityDTO } from "@/domain/appearance/types";
 import type { CatalogLineOrigin } from "@/domain/catalog-requests/types";
 export type QuoteStatus =
-  "RASCUNHO" | "ENVIADO" | "APROVADO" | "REJEITADO" | "EXPIRADO" | "CONVERTIDO";
+  | "RASCUNHO"
+  | "ENVIADO"
+  | "APROVADO"
+  | "REJEITADO"
+  | "EXPIRADO"
+  | "CONVERTIDO";
 export type SaleStatus =
   | "RASCUNHO"
   | "CONFIRMADA"
@@ -90,6 +95,7 @@ export interface ReceiptSummary {
   overdue: string;
 }
 export interface SaleDTO {
+  consignmentPartnerId?: string | null;
   art?: import("@/domain/art/types").DocumentArtDTO[];
   fulfillmentMode?: "LEGACY" | "U3" | "CONSIGNMENT";
   costs?: DocumentCostsDTO | null;

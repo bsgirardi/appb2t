@@ -134,8 +134,15 @@ export function calculateSale(
         ? metric(new D(allocate(v.value, base, 2)[i].value).toFixed())
         : metric(null, [label]),
     );
-  const shipping = input.consignment ? lines.map(()=>metric("0")) : declared(a?.shipping, "Frete efetivo não informado"),
-    fees = declared(a?.fees, "Encargos efetivos não informados").map((fee,i)=>lines[i].frozenCommission!==undefined?metric(lines[i].frozenCommission!):fee),
+  const shipping = input.consignment
+      ? lines.map(() => metric("0"))
+      : declared(a?.shipping, "Frete efetivo não informado"),
+    fees = declared(a?.fees, "Encargos efetivos não informados").map(
+      (fee, i) =>
+        lines[i].frozenCommission !== undefined
+          ? metric(lines[i].frozenCommission!)
+          : fee,
+    ),
     expectedShipping = declared(
       a?.expectedShipping,
       "Frete previsto não informado",
@@ -167,7 +174,8 @@ export function calculateSale(
     );
     const missing = [...l.actual.missing];
     if (l.actual.delivered !== l.quantity) missing.push("Entrega incompleta");
-    if (!review && !input.consignment) missing.push("Extras precisam de conferência");
+    if (!review && !input.consignment)
+      missing.push("Extras precisam de conferência");
     for (const extra of e?.extras ?? [])
       if (
         !a?.confirmations.some(

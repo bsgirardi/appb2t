@@ -150,9 +150,13 @@ export async function readProductionCost(
           id: origin.id,
           units: Number(state.available),
         });
-      const external=await readConsignmentCostBuckets(tx,origin.id);
+      const external = await readConsignmentCostBuckets(tx, origin.id);
       buckets.push(...external);
-      if(external.length)assertCostPartition(weights[index],buckets.map(b=>b.units));
+      if (external.length)
+        assertCostPartition(
+          weights[index],
+          buckets.map((b) => b.units),
+        );
       const allocated = apportionProductionCost(
         values[index],
         buckets.map((b) => b.units),

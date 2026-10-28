@@ -47,7 +47,7 @@ export async function readOpeningCost(
     .filter((m) => ["OPENING", "ADJUSTMENT_IN"].includes(m.kind))
     .reduce((s, m) => s + m.units, 0);
   const external = await readConsignmentCostBuckets(tx, originId);
-  buckets.push(...external.map(b=>({...b,value:null})));
+  buckets.push(...external.map((b) => ({ ...b, value: null })));
   const available = initial - buckets.reduce((s, b) => s + b.units, 0);
   if (available > 0)
     buckets.push({
@@ -57,7 +57,11 @@ export async function readOpeningCost(
       value: null,
     });
   buckets.sort((a, b) => a.id.localeCompare(b.id));
-  if(external.length)assertCostPartition(initial,buckets.map(b=>b.units));
+  if (external.length)
+    assertCostPartition(
+      initial,
+      buckets.map((b) => b.units),
+    );
   if (origin.initialValue !== null && initial > 0) {
     const allocated = allocate(
       origin.initialValue.toFixed(),

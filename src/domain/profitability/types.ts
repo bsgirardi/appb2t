@@ -2,7 +2,8 @@ import type { DocumentTotals, SaleStatus } from "@/domain/commerce/types";
 export type Money = string;
 export type Coverage = "UNAVAILABLE" | "PARTIAL" | "PROVISIONAL" | "COMPLETE";
 export type DeclaredAmount =
-  { state: "UNKNOWN" } | { state: "DECLARED"; value: Money };
+  | { state: "UNKNOWN" }
+  | { state: "DECLARED"; value: Money };
 export type Metric = {
   value: Money | null;
   knownValue: Money;

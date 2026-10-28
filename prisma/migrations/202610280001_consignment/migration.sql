@@ -343,6 +343,14 @@ ALTER TABLE "ConsignmentStatementLine" ADD CONSTRAINT "ConsignmentStatementLine_
 ALTER TABLE "ConsignmentStatementLine" ADD CONSTRAINT "ConsignmentStatementLine_consignmentSaleId_fkey" FOREIGN KEY ("consignmentSaleId") REFERENCES "ConsignmentSale"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- Guards for cross-command invariants.
+ALTER TABLE "Sale" DROP CONSTRAINT "Sale_fulfillment_check";
+ALTER TABLE "Sale" ADD CONSTRAINT "Sale_fulfillment_check" CHECK ("fulfillmentMode" IN ('LEGACY','U3','CONSIGNMENT'));
+ALTER TABLE "FinishedMovement" DROP CONSTRAINT "FinishedMovement_sign_check";
+ALTER TABLE "FinishedMovement" ADD CONSTRAINT "FinishedMovement_sign_check" CHECK (
+  (kind IN ('PRODUCTION','OPENING','LEGACY','ADJUSTMENT_IN','UNDO_DELIVERY') AND units >= 0)
+  OR (kind IN ('DELIVERY','LOSS','ADJUSTMENT_OUT','CORRECTION','CONSIGNMENT_OUT') AND units < 0)
+  OR (kind = 'CONSIGNMENT_RETURN' AND units > 0)
+);
 CREATE UNIQUE INDEX "ConsignmentStatementLine_active_sale_key" ON "ConsignmentStatementLine" ("consignmentSaleId") WHERE active;
 ALTER TABLE "Partner" ADD CONSTRAINT "Partner_terms_check" CHECK (percent BETWEEN 0 AND 100 AND "dueDay" BETWEEN 1 AND 28);
 ALTER TABLE "PartnerProductCondition" ADD CONSTRAINT "PartnerProductCondition_terms_check" CHECK ((percent IS NULL OR percent BETWEEN 0 AND 100) AND (minimum IS NULL OR minimum >= 0));

@@ -6,7 +6,9 @@ export const password = "Teste-interno-123!";
 export function setupDatabase() {
   beforeEach(async () => {
     assertE5DatabaseUrl(process.env.DATABASE_URL ?? "");
-    await db.$executeRawUnsafe('TRUNCATE "ConsignmentCommand", "ConsignmentStatement", "ConsignmentSale", "ConsignmentEvent", "ConsignmentShipment", "Partner" CASCADE');
+    await db.$executeRawUnsafe(
+      'TRUNCATE "ConsignmentCommand", "ConsignmentStatement", "ConsignmentSale", "ConsignmentEvent", "ConsignmentShipment", "Partner" CASCADE',
+    );
     await db.$executeRawUnsafe(
       'TRUNCATE "OpportunityOperation", "OpportunityEvent", "Opportunity" CASCADE',
     );
@@ -60,4 +62,3 @@ export async function seedUser(
     },
   });
 }
-

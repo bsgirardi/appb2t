@@ -8,6 +8,7 @@ import {
   currentBindingState,
 } from "@/components/pricing/line-cost-summary";
 import { Card } from "@/components/ui/card";
+import { Section, money } from "@/components/consignment/shared";
 import { KitDocumentHistory } from "./kit-document-history";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -105,6 +106,53 @@ export function SaleDetail({
       setBusy(false);
     }
   }
+  if (sale.fulfillmentMode === "CONSIGNMENT")
+    return (
+      <div className="commerce-page">
+        <Link href="/vendas">← Vendas</Link>
+        <h1>{sale.number}</h1>
+        <Section
+          title="Venda de consignação"
+          description="As peças foram vendidas no parceiro. Correções e acertos são feitos em Pontos de venda."
+        >
+          <p>
+            Estado:{" "}
+            {sale.status === "CANCELADA"
+              ? "Cancelada"
+              : "Entregue ao consumidor pela loja"}
+          </p>
+          <p>Venda bruta: {money(sale.totals.total)}</p>
+          {sale.receiptSummary.consignment && (
+            <>
+              <p>
+                Comissão: {money(sale.receiptSummary.consignment.commission)}
+              </p>
+              <p>
+                Repasse esperado:{" "}
+                {money(sale.receiptSummary.consignment.expectedRepayment)} ·
+                Recebido:{" "}
+                {money(sale.receiptSummary.consignment.receivedRepayment)} ·
+                Pendente:{" "}
+                {money(sale.receiptSummary.consignment.pendingRepayment)}
+              </p>
+            </>
+          )}
+          {sale.consignmentPartnerId && (
+            <Link href={`/pontos-de-venda/${sale.consignmentPartnerId}`}>
+              Abrir parceiro, comissões e acertos
+            </Link>
+          )}
+        </Section>
+        {sale.snapshot && (
+          <DocumentPrint
+            number={sale.number}
+            snapshot={sale.snapshot}
+            totals={sale.totals}
+            paymentTerms={sale.document.paymentTerms}
+          />
+        )}
+      </div>
+    );
   return (
     <div className="commerce-page">
       <Link href="/vendas">← Vendas</Link>

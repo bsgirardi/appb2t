@@ -213,8 +213,17 @@ export async function listUnassignedLosses(
           reason: "Produção encerrada sem peças boas e sem venda vinculada",
         });
       }
-      for(const loss of await readConsignmentLossCosts(tx,{from:f.from??period.from,to:f.to??period.to,productId:f.productId}))
-        items.push({sourceId:loss.id,effectiveDate:loss.date,value:loss.value,reason:`Perda em consignação: ${loss.reason}`});
+      for (const loss of await readConsignmentLossCosts(tx, {
+        from: f.from ?? period.from,
+        to: f.to ?? period.to,
+        productId: f.productId,
+      }))
+        items.push({
+          sourceId: loss.id,
+          effectiveDate: loss.date,
+          value: loss.value,
+          reason: `Perda em consignação: ${loss.reason}`,
+        });
       const filtered = items.filter(
         (i) =>
           i.effectiveDate >= (f.from ?? period.from) &&

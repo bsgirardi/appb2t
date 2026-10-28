@@ -86,7 +86,10 @@ export async function readSaleSources(
   const readAt = new Date().toISOString();
   const output: SaleProfitabilityInput[] = [];
   for (const sale of sales) {
-    const consignmentCost=sale.fulfillmentMode==="CONSIGNMENT"?await readConsignmentSaleCost(tx,sale.id):null;
+    const consignmentCost =
+      sale.fulfillmentMode === "CONSIGNMENT"
+        ? await readConsignmentSaleCost(tx, sale.id)
+        : null;
     const commercial = revisions.find(
       (r) => r.id === sale.costRevisionId && r.saleId === sale.id && r.frozenAt,
     );
@@ -285,8 +288,17 @@ export async function readSaleSources(
               "LOSS",
             );
         }
-      const cc=consignmentCost?.lines.find(l=>l.lineId===key);
-      if(cc){actual.total=cc.total;actual.knownTotal=cc.knownTotal;actual.components=cc.components;actual.provisional=cc.provisional;actual.delivered=cc.delivered;actual.missing=cc.missing;actual.sources=cc.sources;hashes.push(cc.hash);}
+      const cc = consignmentCost?.lines.find((l) => l.lineId === key);
+      if (cc) {
+        actual.total = cc.total;
+        actual.knownTotal = cc.knownTotal;
+        actual.components = cc.components;
+        actual.provisional = cc.provisional;
+        actual.delivered = cc.delivered;
+        actual.missing = cc.missing;
+        actual.sources = cc.sources;
+        hashes.push(cc.hash);
+      }
       if (!actual.sources.length) {
         actual.total = null;
         actual.components = null;
@@ -300,7 +312,7 @@ export async function readSaleSources(
         hashes,
       });
       lines.push({
-        ...(cc?{frozenCommission:cc.commission}:{}),
+        ...(cc ? { frozenCommission: cc.commission } : {}),
         key,
         position: item.position,
         productId: item.productId,
@@ -314,7 +326,7 @@ export async function readSaleSources(
     }
     const receipt = await getSaleReceiptSummary(tx, sale.id);
     const base = {
-      consignment:sale.fulfillmentMode==="CONSIGNMENT",
+      consignment: sale.fulfillmentMode === "CONSIGNMENT",
       saleId: sale.id,
       number: String(sale.sequence),
       version: sale.version,
