@@ -20,7 +20,11 @@ export async function raceUnderPlanningLock<A, B>(
       await lockPlanning(tx);
       // The holder plus two contenders can fill a small Prisma pool. Observe
       // through the already-held connection instead of waiting for a fourth.
-      observeWaiters = () => tx.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE '%PlanningState%'`;
+      observeWaiters = async () => {
+        // PostgreSQL otherwise reuses this transaction's first activity snapshot.
+        await tx.$executeRaw`SELECT pg_stat_clear_snapshot()`;
+        return tx.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE '%PlanningState%'`;
+      };
       ready();
       await held;
     },
