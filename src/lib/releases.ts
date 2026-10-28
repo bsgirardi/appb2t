@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.6.0",
+    date: "2026-10-27",
+    title: "Calendário de produção e simulação da fila",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Calendário semanal por impressora com preparação, impressão, espera pela equipe e retirada prevista.",
+          "Simulação de mudanças na fila antes de confirmar, com comparação dos horários e das ordens de produção afetadas, inclusive em outras máquinas.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Movimentos sucessivos podem ser avaliados na mesma simulação; a confirmação confere se os dados e a previsão continuam atuais.",
+          "Lotes sem previsão completa mostram o motivo e permitem acessar os detalhes. A previsão de retirada não inclui acabamento, embalagem ou transporte e não garante entrega.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.5.1",
     date: "2026-10-27",
     title: "Correção das permissões na atualização do servidor",

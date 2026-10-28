@@ -55,4 +55,8 @@ Outras decisões: fluxo de UI encapsulado em hook para manter interface existent
 
 ## Versão e publicação
 
-Versão mantida em **1.5.1**: entrega local sem PR, push, merge ou publicação. Main remota reconsultada em 27/10/2026: `d74ee75`. E1/E2 continuam independentes e parciais, sem alteração de seus chats/worktrees. Futura PR requer autorização específica e incremento MINOR em relação à main vigente, manifestos/notas sincronizados e verificação dos rodapés/Atualizações conforme AGENTS.md. Não criar tag. Nenhum banco, dado operacional ou contêiner alterado.
+A entrega local inicial manteve **1.5.1**, sem PR/push. Após autorização específica do usuário em 27/10/2026 (“Faça a PR”), preparação para PR em rascunho com **1.6.0** (MINOR) sobre main remota `d74ee75` / 1.5.1, reconsultada nesta preparação. Manifestos sincronizados e notas em português adicionadas, mantendo histórico anterior e APP_VERSION como fonte dos rodapés.
+
+Revalidação para PR: 46 testes aprovados em execuções separadas (35 domínio/guarda, 6 simulação, 2 calendário e 3 versão/rodapés/Atualizações ADMIN/OPERATOR), tipagem, lint e build. Os limites da suíte completa e do banco permanecem abertos; a criação da PR não equivale a aceitá-los para merge. E1 #19 e E2 #21 também propõem 1.6.0; reconciliar versão/notas com a main vigente conforme a ordem de integração, sem incrementar novamente apenas para finalizar a mesma PR.
+
+Sem merge, publicação, tag, migração ou alteração de banco/contêineres. E1/E2 continuam independentes e parciais, sem mudança de seus chats/worktrees. PR vinculada no acompanhamento da pasta original após criação; esta autorização cobre somente envio da branch e abertura da PR.
