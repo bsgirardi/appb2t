@@ -1,16 +1,11 @@
 import { beforeEach, afterAll } from "vitest";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/server/auth/password";
+import { assertTestDatabase } from "./database-target";
 export const password = "Teste-interno-123!";
-export function setupDatabase() {
+export function setupDatabase(target?: "e3") {
   beforeEach(async () => {
-    const url = new URL(process.env.DATABASE_URL || "http://missing");
-    if (
-      url.pathname !== "/b2t_test" ||
-      url.port !== "55432" ||
-      !["localhost", "127.0.0.1"].includes(url.hostname)
-    )
-      throw new Error("Tests require local b2t_test database");
+    assertTestDatabase(process.env.DATABASE_URL, target === "e3" || process.env.E3_TEST_DATABASE === "1");
     await db.$executeRawUnsafe(
       'TRUNCATE "Checkout", "CheckoutSession", "CheckoutQuota" CASCADE',
     );

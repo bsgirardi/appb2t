@@ -1,3 +1,4 @@
+import { previewQueue } from "@/server/planning/queue-preview";
 import { afterEach, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import { setupDatabase } from "./setup";
@@ -133,8 +134,10 @@ it("executes a mixed overnight batch and another machine, reconciles failed piec
     batchId: a.id,
   });
   let b = await scheduledBatch({ ...f, printer: p2, ...third });
+  const queuePreview = await previewQueue(f.actor, { printerId: f.printer.id, batchIds: [a.id] });
   await reorderQueue(f.actor, {
     ...(await planningMeta()),
+    previewAsOf: queuePreview.asOf, previewFingerprint: queuePreview.fingerprint,
     printerId: f.printer.id,
     batchIds: [a.id],
   });

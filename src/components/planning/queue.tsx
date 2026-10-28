@@ -1,60 +1,36 @@
 "use client";
-import { useRef, useState } from "react";
 import type { BatchDTO } from "@/domain/planning/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/field";
-import { planningCommand } from "@/lib/planning-client";
-import { meta, states, instantLabel, type PlanningData } from "./shared";
+import { states, instantLabel, type PlanningData } from "./shared";
+import { useQueueSimulation } from "./queue-simulation";
 const reasons = {
   MISSING_DATA: "Configure horários e dados do lote.",
   NO_WINDOW: "Sem janela contínua nos próximos 90 dias.",
   UNCONFIRMED_END: "Confirme o término real ou informe o tempo restante.",
   MATERIAL_PENDING: "Resolva as pendências de material e confirmação.",
 };
-export function Queue({
-  data,
-  batches,
-  onSelect,
-  onDone,
-}: {
+type QueueProps = {
   data: PlanningData;
   batches: BatchDTO[];
   onSelect: (id: string) => void;
   onDone: () => void;
-}) {
-  const [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
-  const retry = useRef<{ signature: string; key: string } | null>(null);
-  async function reorder(printerId: string, ids: string[]) {
-    const signature = JSON.stringify([data.revision, printerId, ids]);
-    if (retry.current?.signature !== signature)
-      retry.current = { signature, key: crypto.randomUUID() };
-    setBusy(true);
-    try {
-      await planningCommand("QUEUE_REORDER", {
-        ...meta(data, retry.current.key),
-        printerId,
-        batchIds: ids,
-      });
-      retry.current = null;
-      setError("");
-      onDone();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
+};
+export function Queue(props: QueueProps) {
+  return <QueueBody key={`${props.data.revision}:${props.data.asOf}`} {...props} />;
+}
+function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
+  const { panel, propose, busy, staged } = useQueueSimulation(data, onDone);
+  const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
   return (
-    <div className="flex flex-col gap-3">
-      {error && <Notice>{error}</Notice>}
+    <div className="flex min-w-0 flex-col gap-3">
+      {panel}
       {!batches.length && <p>Nenhum lote nesta seleção.</p>}
       {data.printers
         .filter((p) => batches.some((b) => b.printerId === p.id))
         .map((printer) => {
-          const visible = batches.filter((b) => b.printerId === printer.id);
           const future = (data.batches ?? batches)
             .filter(
               (b) =>
@@ -62,8 +38,14 @@ export function Queue({
                 ["PENDING", "SCHEDULED"].includes(b.state),
             )
             .sort(
-              (a, b) => a.position - b.position || a.id.localeCompare(b.id),
+              (a, b) => staged?.printerId === printer.id
+                ? staged.batchIds.indexOf(a.id) - staged.batchIds.indexOf(b.id)
+                : a.position - b.position || a.id.localeCompare(b.id),
             );
+          const positions = new Map(future.map((b, index) => [b.id, index]));
+          const visible = batches.filter(b => b.printerId === printer.id).sort((a,b) =>
+            (positions.get(a.id) ?? -1) - (positions.get(b.id) ?? -1),
+          );
           const move = (index: number, direction: number) => {
             const ids = future.map((b) => b.id);
             [ids[index], ids[index + direction]] = [
@@ -97,7 +79,7 @@ export function Queue({
                       )
                     }
                   >
-                    Aplicar ordem por prazo
+                    Simular ordem por prazo
                   </Button>
                 )}
                 <ol className="flex flex-col gap-4">

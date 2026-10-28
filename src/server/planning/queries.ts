@@ -1,23 +1,16 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { AppError } from "@/lib/errors";
 import type { Actor } from "@/server/auth/session";
-import type { CalendarDTO } from "@/domain/planning/types";
 import { batchStateSchema } from "@/domain/planning/validation";
 import { civilDateSchema } from "@/domain/commerce/validation";
 import { forecast } from "@/domain/planning/scheduler";
 import { suggestBatches } from "@/domain/planning/suggestions";
 import { allocationRemaining } from "@/server/production/reservations";
 import { batchDTO, unclaimed } from "./batch-read";
-import type { Prisma } from "@prisma/client";
 import { planningTimeSummary } from "./time-summary";
 import { outstandingCoverage } from "./coverage";
 
-async function authorize(tx: Prisma.TransactionClient, actor: Actor) {
-  const user = await tx.user.findUnique({ where: { id: actor.id } });
-  if (!user?.active || user.role !== actor.role)
-    throw new AppError("FORBIDDEN", "Acesso não autorizado.");
-}
+import { authorizePlanning, loadPlanningSource } from "./forecast-input";
 const filters = z
   .object({
     printerId: z.string().min(1).optional(),
@@ -32,58 +25,10 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
   const f = filters.parse(raw);
   return db.$transaction(
     async (tx) => {
-      await authorize(tx, actor);
       const asOf = new Date().toISOString();
-      const revision =
-        (await tx.planningState.findUnique({ where: { id: 1 } }))?.revision ??
-        0;
-      const calendarRows = await tx.planningCalendar.findMany({
-        orderBy: { id: "asc" },
-      });
-      const calendars: CalendarDTO[] = calendarRows.map((c) => ({
-        id: c.id,
-        version: c.version,
-        weekly: c.weekly as CalendarDTO["weekly"],
-        exceptions: c.exceptions as CalendarDTO["exceptions"],
-      }));
-      const printerRows = await tx.printer.findMany({
-        select: {
-          id: true,
-          name: true,
-          technology: true,
-          active: true,
-          planningSettings: true,
-        },
-        orderBy: { name: "asc" },
-      });
-      const printers = printerRows.map((p) => ({
-        id: p.id,
-        name: p.name,
-        technology: p.technology,
-        active: p.active,
-        settings: p.planningSettings
-          ? {
-              version: p.planningSettings.version,
-              prepareMinutes: p.planningSettings.prepareMinutes.toFixed(),
-              removeMinutes: p.planningSettings.removeMinutes.toFixed(),
-            }
-          : null,
-      }));
-      const batchIds = await tx.planningBatch.findMany({
-        select: { id: true },
-        orderBy: [{ position: "asc" }, { id: "asc" }],
-      });
-      const all = await Promise.all(batchIds.map((b) => batchDTO(tx, b.id)));
-      const projection = forecast({
-        asOf,
-        revision,
-        team: calendars.find((c) => c.id === "TEAM") ?? null,
-        machines: printers.map((p) => ({
-          id: p.id,
-          calendar: calendars.find((c) => c.id === `PRINTER:${p.id}`) ?? null,
-          batches: all.filter((b) => b.printerId === p.id),
-        })),
-      });
+      const { input, all, calendars, printers } = await loadPlanningSource(tx, actor, asOf);
+      const revision = input.revision;
+      const projection = forecast(input);
       const lineRows = await tx.productionLine.findMany({
         where: { order: { status: { in: ["LIBERADA", "EM_EXECUCAO"] } } },
         include: { order: true },
@@ -249,7 +194,7 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
 export async function getBatch(actor: Actor, id: string) {
   return db.$transaction(
     async (tx) => {
-      await authorize(tx, actor);
+      await authorizePlanning(tx, actor);
       return batchDTO(tx, id);
     },
     { isolationLevel: "RepeatableRead" },

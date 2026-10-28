@@ -1,3 +1,4 @@
+import { previewQueue } from "@/server/planning/queue-preview";
 import { expect, it } from "vitest";
 import { db } from "@/lib/db";
 import { setupDatabase } from "./setup";
@@ -113,10 +114,13 @@ it("reorders only a complete future queue and cancellation preserves stock reser
       ...(await planningMeta()),
       printerId: f.printer.id,
       batchIds: [a.id],
+      previewAsOf: new Date().toISOString(), previewFingerprint: "0".repeat(64),
     }),
   ).rejects.toThrow();
+  const queuePreview = await previewQueue(f.actor, { printerId: f.printer.id, batchIds: [b.id, a.id] });
   await reorderQueue(f.actor, {
     ...(await planningMeta()),
+    previewAsOf: queuePreview.asOf, previewFingerprint: queuePreview.fingerprint,
     printerId: f.printer.id,
     batchIds: [b.id, a.id],
   });
