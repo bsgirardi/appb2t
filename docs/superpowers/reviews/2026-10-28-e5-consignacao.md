@@ -48,3 +48,5 @@ Os arquivos `regression-*.test.ts` são cópias independentes dos casos legados,
 Usuário autorizou criar PR. Main remota reconferida em `7fe37d9`, versão 1.10.1; incremento MINOR único para **1.11.0**, com manifestos sincronizados e nova entrada em `src/lib/releases.ts`. Histórico anterior preservado; rodapés usam APP_VERSION e Atualizações permanece acessível a ADMIN/OPERATOR. Os registros de entrega local acima são históricos. Sem autorização para merge/publicação/migração operacional.
 
 Revalidação da preparação 1.11.0: 661 testes unitários/160 arquivos PASS, teste específico de versão/rodapés/Atualizações 3 PASS, lint e build (incluindo tipos) PASS. Manifestos e preservação integral do histórico anterior conferidos; main ainda `7fe37d9`. Integração/migração mantêm os resultados anteriores porque esta preparação alterou somente versão, notas e acompanhamento.
+
+PR criada: [#26 — ciclo completo de consignação e acertos](https://github.com/bsgirardi/appb2t/pull/26), base main, branch codex/e5-consignacao, versão 1.11.0. Aberta para revisão e vinculada ao chat. CI iniciado, ainda sem resultado final nesta entrega. Sem merge/publicação/migração operacional.

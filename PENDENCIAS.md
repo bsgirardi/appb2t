@@ -12,7 +12,7 @@ PRs #19, #21, #22 e #23 integradas na main local e no GitHub, versões 1.7.0 a 1
 
 ## E5 — iniciada em 28/10/2026
 
-E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](docs/superpowers/reviews/2026-10-28-e5-consignacao.md). PR autorizada e em preparação na versão 1.11.0, MINOR sobre main 1.10.1, com manifestos e notas sincronizados. Sem merge/publicação ou migração operacional. E5 em validação; balcão/feira fora do recorte.
+E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](docs/superpowers/reviews/2026-10-28-e5-consignacao.md). [PR #26](https://github.com/bsgirardi/appb2t/pull/26) aberta na versão 1.11.0, MINOR sobre main 1.10.1, com manifestos e notas sincronizados. CI pendente. Sem merge/publicação ou migração operacional. E5 em validação; balcão/feira fora do recorte.
 
 ## E4 — registro anterior à integração
 
