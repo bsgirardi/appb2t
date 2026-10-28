@@ -1,4 +1,5 @@
 "use client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
 
@@ -79,64 +80,70 @@ export function SalePanel({
           onSaved={(s) => router.push(`/vendas/${s.id}`)}
         />
       )}
-      <AdminForm className="commerce-filters" onSubmit={filter}>
-        <Label>
-          Buscar
-          <Input
-            name="search"
-            defaultValue={filters.search}
-            placeholder="Número ou cliente"
-          />
-        </Label>
-        <Label>
-          Estado
-          <NativeSelect name="status" defaultValue={filters.status}>
-            {[
-              "all",
-              "realizadas",
-              "RASCUNHO",
-              "CONFIRMADA",
-              "EM_PRODUCAO",
-              "PRONTA",
-              "ENTREGUE",
-              "CANCELADA",
-            ].map((s) => (
-              <option key={s} value={s}>
-                {s === "all"
-                  ? "Todos"
-                  : s === "realizadas"
-                    ? "Vendas efetivadas"
-                    : s}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Label>
-          Cliente
-          <NativeSelect
-            name="customerId"
-            defaultValue={filters.customerId ?? ""}
-          >
-            <option value="">Todos</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </Label>
-        <Label>
-          De
-          <Input type="date" name="from" defaultValue={filters.from} />
-        </Label>
-        <Label>
-          Até
-          <Input type="date" name="to" defaultValue={filters.to} />
-        </Label>
-        <Button variant="outline" size="sm" className="">
-          Filtrar
-        </Button>
-      </AdminForm>
+      <FilterPanel
+        activeCount={
+          Object.values(filters).filter((v) => v && v !== "all").length
+        }
+      >
+        <AdminForm className="commerce-filters" onSubmit={filter}>
+          <Label>
+            Buscar
+            <Input
+              name="search"
+              defaultValue={filters.search}
+              placeholder="Número ou cliente"
+            />
+          </Label>
+          <Label>
+            Estado
+            <NativeSelect name="status" defaultValue={filters.status}>
+              {[
+                "all",
+                "realizadas",
+                "RASCUNHO",
+                "CONFIRMADA",
+                "EM_PRODUCAO",
+                "PRONTA",
+                "ENTREGUE",
+                "CANCELADA",
+              ].map((s) => (
+                <option key={s} value={s}>
+                  {s === "all"
+                    ? "Todos"
+                    : s === "realizadas"
+                      ? "Vendas efetivadas"
+                      : s}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Label>
+            Cliente
+            <NativeSelect
+              name="customerId"
+              defaultValue={filters.customerId ?? ""}
+            >
+              <option value="">Todos</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </Label>
+          <Label>
+            De
+            <Input type="date" name="from" defaultValue={filters.from} />
+          </Label>
+          <Label>
+            Até
+            <Input type="date" name="to" defaultValue={filters.to} />
+          </Label>
+          <Button variant="outline" size="sm" className="">
+            Filtrar
+          </Button>
+        </AdminForm>
+      </FilterPanel>
       <Card asChild>
         <div className="table-scroll">
           <Table>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CatalogFilterForm } from "@/components/products/catalog-filter-form";
 import {
   ActiveCatalogFilters,
@@ -25,6 +25,10 @@ it("renders a combined GET form without carrying pagination", () => {
       collections={[{ id: "c", name: "Presentes" }]}
     />,
   );
+  const trigger = screen.getByRole("button", { name: "Filtrar produtos" });
+  expect(trigger.getAttribute("aria-expanded")).toBe("false");
+  fireEvent.click(trigger);
+  expect(trigger.getAttribute("aria-expanded")).toBe("true");
   const form = screen.getByRole("form", {
     name: "Filtrar produtos",
   }) as HTMLFormElement;
@@ -50,6 +54,11 @@ it("preserves invalid input and explains the reversed interval", () => {
   expect(
     (screen.getByLabelText("Preço mínimo (R$)") as HTMLInputElement).value,
   ).toBe("21");
+  expect(
+    screen
+      .getByRole("button", { name: "Filtrar produtos" })
+      .getAttribute("aria-expanded"),
+  ).toBe("true");
   expect(screen.getByRole("alert").textContent).toContain("maior ou igual");
 });
 it("removes one marker without losing the other criteria", () => {
@@ -84,6 +93,9 @@ it("keeps commercial filters in collection navigation and header search", () => 
       <p>Catálogo</p>
     </StorefrontShell>,
   );
+  const theme = screen.getByRole("button", { name: /Tema atual:/ });
+  expect(theme.textContent).toBe("");
+  expect(theme.getAttribute("title")).toContain("Alterar para");
   const form = screen.getByRole("search") as HTMLFormElement;
   expect(new FormData(form).get("precoMax")).toBe("20,50");
 });

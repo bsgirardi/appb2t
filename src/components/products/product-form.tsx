@@ -35,6 +35,7 @@ import {
   parseFinalPrice,
   suggestedProductPrice,
 } from "@/domain/products/validation";
+import { calculationSchema } from "@/domain/calculation/validation";
 import { calculate, formatBRL } from "@/domain/calculation/calculate";
 import { api } from "@/lib/client-api";
 import { saveProductRequest } from "@/lib/product-client";
@@ -54,7 +55,7 @@ function initialCalculation(data: CalculatorData): CalculationInput {
   return {
     technology: "FDM",
     consumption: "",
-    hours: NaN,
+    hours: 0,
     minutes: 0,
     materialPrice: "",
     printer: {
@@ -151,6 +152,10 @@ export function ProductForm({
   );
   const pending = useRef(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const hasFieldErrors = (...prefixes: string[]) =>
+    Object.keys(fieldErrors).some((key) =>
+      prefixes.some((prefix) => key === prefix || key.startsWith(`${prefix}.`)),
+    );
   const [saving, setSaving] = useState(false),
     [refreshing, setRefreshing] = useState(false),
     [error, setError] = useState(""),
@@ -236,34 +241,71 @@ export function ProductForm({
       ),
     });
     if (!parsed.success) {
-      setFieldErrors(
-        Object.fromEntries(
-          parsed.error.issues.map((issue) => [
-            String(issue.path[0]),
-            issue.message,
-          ]),
+      // The union used for stored calculations hides nested errors behind "calculation".
+      // Validate the editable legacy branch directly to retain the actual field paths.
+      const calculationCheck = pricingSnapshot
+        ? null
+        : calculationSchema.safeParse(draft.calculation);
+      const issues = [
+        ...parsed.error.issues.filter(
+          (issue) => issue.path[0] !== "calculation",
         ),
-      );
-      const commercialLabels: Record<string, string> = {
+        ...(calculationCheck && !calculationCheck.success
+          ? calculationCheck.error.issues.map((issue) => ({
+              ...issue,
+              path: ["calculation", ...issue.path],
+            }))
+          : parsed.error.issues.filter(
+              (issue) => issue.path[0] === "calculation",
+            )),
+      ];
+      const labels: Record<string, string> = {
+        checkoutPolicy: "Entrega e pagamento da compra direta",
+        quantityTiers: "Faixas de preço por quantidade",
+        minimumQuantity: "Quantidade mínima",
+        seoTitle: "Título para buscadores",
+        seoDescription: "Descrição para buscadores",
+        name: "Nome do produto",
+        description: "Descrição",
+        paymentTerms: "Formas de pagamento",
+        price: "Preço final de venda",
+        images: "Pelo menos uma foto",
+        "calculation.consumption": "Consumo de material",
+        "calculation.materialPrice": "Preço do material",
+        "calculation.hours": "Tempo de impressão (horas)",
+        "calculation.minutes": "Tempo de impressão (minutos)",
+        "calculation.printer": "Custos da impressora",
+        "calculation.settings": "Custos e acréscimo",
         sku: "Código do produto",
-        configuration:
-          "Personalização: revise rótulos, limites e valores dos campos",
+        configuration: "Personalização",
         publicPriceMode: "Preço no catálogo",
         shortDescription: "Descrição curta",
         specifications: "Especificações",
-        colors: "Cores (até 30 opções únicas, com até 60 caracteres cada)",
-        sizes: "Tamanhos (até 30 opções únicas, com até 60 caracteres cada)",
+        colors: "Cores",
+        sizes: "Tamanhos",
         availability: "Disponibilidade",
-        leadTimeDays: "Prazo de produção (entre 1 e 365 dias inteiros)",
+        leadTimeDays: "Prazo de produção",
       };
-      const invalidCommercial = parsed.error.issues
-        .map((issue) => commercialLabels[String(issue.path[0])])
-        .filter(Boolean);
-      setError(
-        invalidCommercial.length
-          ? `Confira: ${[...new Set(invalidCommercial)].join("; ")}.`
-          : "Confira os campos do produto e da calculadora. Preencha todos os valores; o tempo e o consumo devem ser positivos.",
-      );
+      const errors: Record<string, string> = {};
+      const pendingLabels = new Set<string>();
+      for (const issue of issues) {
+        const path = issue.path.join(".");
+        const group = issue.path.slice(0, 2).join(".");
+        const label =
+          labels[path] ??
+          labels[group] ??
+          labels[String(issue.path[0])] ??
+          "Dados do produto";
+        pendingLabels.add(label);
+        const message =
+          issue.message.startsWith("Invalid") ||
+          issue.message.startsWith("Too ")
+            ? `Preencha ${label.toLocaleLowerCase("pt-BR")} com um valor válido.`
+            : issue.message;
+        errors[path] ??= message;
+      }
+      setFieldErrors(errors);
+      setError(`Preencha ou corrija: ${[...pendingLabels].join("; ")}.`);
       return;
     }
     pending.current = true;
@@ -294,7 +336,10 @@ export function ProductForm({
     <AdminForm
       className="product-form"
       onSubmit={save}
-      onChangeCapture={() => setFieldErrors({})}
+      onChangeCapture={() => {
+        setFieldErrors({});
+        setError("");
+      }}
       noValidate
     >
       <div className="product-toolbar">
@@ -312,6 +357,12 @@ export function ProductForm({
           {product ? "Editar produto" : "Novo produto"}
         </span>
       </div>
+      <p className="admin-form-note">
+        Para salvar: informe nome, descrição, formas de pagamento, preço final,
+        pelo menos uma foto e os dados de produção. Campos marcados como
+        “Obrigatório” precisam estar preenchidos; opções adicionais podem ficar
+        vazias.
+      </p>
       {error && <Notice>{error}</Notice>}
       {info && <Notice kind="info">{info}</Notice>}
       {!ready && (
@@ -540,7 +591,7 @@ export function ProductForm({
               title="Compra e faixas de preço"
               collapsible
               defaultOpen={false}
-              hasErrors={!!error}
+              hasErrors={hasFieldErrors("checkoutPolicy")}
               summary="Compra direta e descontos por quantidade"
             >
               <CheckoutOfferFields
@@ -555,7 +606,7 @@ export function ProductForm({
               title="Personalização do produto"
               collapsible
               defaultOpen={false}
-              hasErrors={!!error}
+              hasErrors={hasFieldErrors("configuration")}
               summary="Opções disponíveis para o cliente"
             >
               <ProductConfigurationEditor
@@ -573,7 +624,7 @@ export function ProductForm({
               title="Preços por quantidade"
               collapsible
               defaultOpen={false}
-              hasErrors={!!error}
+              hasErrors={hasFieldErrors("quantityTiers")}
               summary="Opcional"
             >
               <QuantityTierEditor
@@ -585,6 +636,7 @@ export function ProductForm({
             </FormSection>
             <FormSection
               id="product-kit-image"
+              hasErrors={hasFieldErrors("compositionImageId")}
               title="Imagem para kits"
               collapsible
               defaultOpen={false}
@@ -627,7 +679,16 @@ export function ProductForm({
               title="Detalhes para venda"
               collapsible
               defaultOpen={false}
-              hasErrors={!!error}
+              hasErrors={hasFieldErrors(
+                "sku",
+                "shortDescription",
+                "specifications",
+                "colors",
+                "sizes",
+                "availability",
+                "leadTimeDays",
+                "minimumQuantity",
+              )}
               summary={availabilityLabels[draft.availability ?? "CONSULT"]}
             >
               <ProductCommercialEditor
@@ -637,6 +698,7 @@ export function ProductForm({
             </FormSection>
             <FormSection
               id="product-search"
+              hasErrors={hasFieldErrors("seoTitle", "seoDescription")}
               title="Busca e compartilhamento"
               collapsible
               defaultOpen={false}
@@ -733,7 +795,12 @@ export function ProductForm({
               title="Custos e referências de produção"
               collapsible
               defaultOpen={!product}
-              hasErrors={!!error || (!result && !pricingSnapshot)}
+              hasErrors={
+                Object.keys(fieldErrors).some((key) =>
+                  key.startsWith("calculation"),
+                ) ||
+                (!result && !pricingSnapshot)
+              }
               summary={
                 pricingSnapshot
                   ? "Ficha por lote aplicada"
@@ -878,6 +945,7 @@ export function ProductForm({
                   </Card>
                   <ProductCalculationFields
                     value={draft.calculation}
+                    errors={fieldErrors}
                     onChange={(calculation) =>
                       setDraft({ ...draft, calculation })
                     }
