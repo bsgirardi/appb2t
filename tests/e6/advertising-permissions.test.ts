@@ -10,13 +10,14 @@ import { GET as detail } from "@/app/api/anuncios/[id]/route";
 import { POST as update } from "@/app/api/anuncios/[id]/comandos/route";
 import { POST as copy } from "@/app/api/anuncios/[id]/copiar/route";
 import { GET as products } from "@/app/api/anuncios/produtos/route";
+import { POST as download } from "@/app/api/anuncios/[id]/exportar/route";
 const { auth }=vi.hoisted(()=>({auth:vi.fn()}));
 vi.mock("@/server/auth/guards",()=>({requireActor:auth}));
 setupDatabase(); afterEach(()=>vi.unstubAllEnvs());
 it("requires authentication on every private route and does not expose drafts",async()=>{
   auth.mockRejectedValue(new AppError("UNAUTHENTICATED","Entre na sua conta."));
   const context={params:Promise.resolve({id:"private-id"})}, request=new Request("http://localhost/anuncios");
-  const responses=await Promise.all([GET(request),POST(request),detail(request,context),update(request,context),copy(request,context),products(request)]);
+  const responses=await Promise.all([GET(request),POST(request),detail(request,context),update(request,context),copy(request,context),products(request),download(request,context)]);
   for(const response of responses) {expect(response.status).toBe(401); expect(response.headers.get("Cache-Control")).toBe("no-store");}
 });
 it("validates origin, request limits, source ownership and active actors",async()=>{
