@@ -1,8 +1,8 @@
 # E6.1 — Rascunhos para Instagram e WhatsApp
 
-Estado: desenho para revisão e aprovação. O usuário aprovou priorizar Instagram e WhatsApp e a recomendação de preparar material revisável para publicação manual. Os detalhes deste documento são propostas do implementador, ainda sujeitos à aprovação. Base remota conferida: main 1.11.1, `e273091b0ecb6a4532b5ea7f503bc49873dc2b14`.
+Estado: desenho completo aprovado pelo usuário em 29/10/2026. Canais Instagram e WhatsApp, com preparação de material revisável para publicação manual. Base remota conferida: main 1.11.1, `e273091b0ecb6a4532b5ea7f503bc49873dc2b14`.
 
-Revisão independente de planejamento em 29/10/2026: nenhuma pergunta material pendente (“nothing important left”). Aprovação do desenho completo pelo usuário ainda pendente.
+Revisão independente de planejamento em 29/10/2026: nenhuma pergunta material pendente (“nothing important left”). Próxima etapa: confirmação do plano e execução direta em isolamento.
 
 ## Intenção e situação atual
 

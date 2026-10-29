@@ -44,7 +44,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
 | E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
-| E6 | Conteúdo de anúncios e integrações externas | Em detalhamento | Canais Instagram/WhatsApp aprovados; desenho E6.1 revisado, aguardando aprovação |
+| E6 | Conteúdo de anúncios e integrações externas | Em detalhamento | Desenho E6.1 aprovado; plano preparado para execução direta em isolamento |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
 
@@ -352,3 +352,7 @@ Usuário autorizou criar a PR do ciclo completo. Branch `codex/e5-consignacao` p
 ### 29/10/2026 — E6.1 com canais definidos e desenho preparado
 
 Usuário aprovou Instagram e WhatsApp como primeiros canais e preparação de material para revisão/publicação manual. [Desenho E6.1](superpowers/specs/2026-10-29-e6-anuncios-design.md) preparado: biblioteca privada por produto/canal, textos de campos confirmados, seleção/ordem de fotos, revisão vigente, exportação de texto/fotos e tratamento de alterações da ficha. Revisão independente sem perguntas materiais pendentes. Detalhes são propostas aguardando aprovação do desenho completo; não há código, dependências instaladas, migração ou implementação nesta entrega. IA, marketplaces e integração/postagem automática permanecem pendentes. Base main 1.11.1 (`e273091`), versão preservada; sem PR, push, merge ou publicação. Próxima ação: aprovar desenho e elaborar plano de execução em isolamento. E6 ampla permanece parcial/em detalhamento.
+
+### 29/10/2026 — desenho E6.1 aprovado e plano preparado
+
+Usuário aprovou o desenho completo da biblioteca para Instagram e WhatsApp. [Plano E6.1](superpowers/plans/2026-10-29-e6-anuncios.md) preparado e autorrevisado: seis tarefas de domínio, persistência/API, exportação, interface shadcn, migração/CI e entrega com revisão final independente. Método direto em isolamento preservado; confirmação do plano é a próxima ação antes de implementar. Banco previsto exclusivo em localhost:55436/b2t_e6_test, sem compartilhar bases das outras etapas ou alterar serviços operacionais. Main reconferida em 1.11.1 (`e273091`); versão preservada nesta preparação. Somente documentação e git diff --check; nenhum código, instalação, teste funcional, migração, PR, push, merge ou publicação executados. E6 permanece em detalhamento.
