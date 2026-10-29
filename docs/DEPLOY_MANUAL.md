@@ -59,3 +59,6 @@ Restaurar dump primeiro em PostgreSQL 17 descartável, sem volume/porta de produ
 No Debian: tools 2h04min24s; npm ci 69,2 s; build 2247,3 s; chown 4796,6 s; exportação tools 330,5 s. Contexto 625,58 kB. No dia anterior, chown 4661,8 s. Tools 4,82 GB; runtime 624 MB. Cache global 32,67 GB (não limpo). Checkout 1.10.1, container ativo 1.4.1; 27 migrações registradas e duas ausentes. Essas observações não autorizam migrar ou atualizar produção.
 
 O log Next registrou escrita do cache em 31,8 min sobreposta a outras atividades; não somar esse valor ao tempo de build. Consumo histórico de swap e latência de disco não foram recuperados. Uma medição local não prevê o tempo no Debian.
+
+
+A conferência de versão instalada ocorre antes dos builds: exige imagem app idêntica, revisão OCI correta em app/tools, configuração igual, saúde e Prisma atualizado. Assim uma repetição não recompila nem recria containers por mudança apenas nas atestações do BuildKit. Divergências seguem o fluxo completo.

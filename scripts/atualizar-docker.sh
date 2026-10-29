@@ -25,6 +25,21 @@ publish_aliases() {
   docker tag "appb2t-tools:$revision" appb2t-tools:latest
   docker tag "$candidate" appb2t-app:latest
 }
+already_current() {
+  candidate="$(docker image inspect --format '{{.Id}}' "appb2t-app:$revision" 2>/dev/null)" || return 1
+  [[ "$candidate" == "$old_image" ]] || return 1
+  [[ "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$candidate")" == "$revision" ]] || return 1
+  [[ "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "appb2t-tools:$revision" 2>/dev/null)" == "$revision" ]] || return 1
+  config_hash="$(docker compose config --hash app)" || return 1
+  old_hash="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.config-hash"}}' "$app_id")" || return 1
+  [[ "$config_hash" == "app $old_hash" ]] || return 1
+  [[ "$(docker inspect --format '{{.State.Health.Status}}' "$app_id")" == healthy ]] || return 1
+  docker compose run --rm --no-deps --pull never -T --interactive=false migrate ./node_modules/.bin/prisma migrate status > "$backup_dir/migration-status.log" 2>&1
+}
+finish_current() {
+  publish_aliases
+  echo "A versão candidata já está em execução e sem migrações pendentes. total_s=$((SECONDS-total_started)) indisponibilidade_s=0"
+}
 wait_healthy() {
   local deadline=$((SECONDS+180)) state
   while (( SECONDS < deadline )); do
@@ -83,6 +98,12 @@ exec > >(tee -a "$backup_dir/atualizacao.log") 2>&1
 echo "commit_candidato=$revision imagem_anterior=$old_image"
 end
 
+# Check immutable commit images before rebuilding: attestations may change image IDs.
+if already_current; then
+  finish_current
+  exit 0
+fi
+
 begin build_tools
 docker compose --progress plain build --build-arg "APP_REVISION=$revision" migrate
 docker image inspect "appb2t-tools:$revision" >/dev/null
@@ -94,11 +115,8 @@ candidate="$(docker image inspect --format '{{.Id}}' "appb2t-app:$revision")"
 [[ -n "$candidate" ]]
 config_hash="$(docker compose config --hash app)"
 old_hash="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.config-hash"}}' "$app_id")"
-if [[ "$candidate" == "$old_image" && "$config_hash" == "app $old_hash" ]] \
-  && [[ "$(docker inspect --format '{{.State.Health.Status}}' "$app_id")" == healthy ]] \
-  && docker compose run --rm --no-deps --pull never -T --interactive=false migrate ./node_modules/.bin/prisma migrate status > "$backup_dir/migration-status.log" 2>&1; then
-  publish_aliases
-  echo "A versão candidata já está em execução e sem migrações pendentes. total_s=$((SECONDS-total_started)) indisponibilidade_s=0"
+if already_current; then
+  finish_current
   exit 0
 fi
 
