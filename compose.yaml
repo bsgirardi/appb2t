@@ -16,6 +16,7 @@ services:
       retries: 20
     networks: [appb2t_network]
   migrate:
+    image: appb2t-tools:${APP_IMAGE_TAG:-latest}
     build:
       context: .
       target: tools
@@ -27,6 +28,7 @@ services:
         condition: service_healthy
     networks: [appb2t_network]
   app:
+    image: appb2t-app:${APP_IMAGE_TAG:-latest}
     build:
       context: .
       target: runtime
@@ -58,6 +60,7 @@ services:
       start_period: 30s
     networks: [appb2t_network]
   admin:
+    image: appb2t-tools:${APP_IMAGE_TAG:-latest}
     profiles: [tools]
     build:
       context: .

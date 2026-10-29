@@ -126,6 +126,8 @@ Depois execute o segundo comando acima. Nas próximas atualizações, use os doi
 
 O primeiro comando atualiza somente o código, sem reiniciar o sistema. O segundo constrói as imagens enquanto a aplicação continua disponível. Depois preserva a imagem anterior e a configuração, para a aplicação, gera e verifica o formato do backup PostgreSQL, aplica as migrações e inicia a aplicação aguardando sua saúde por até 180 segundos. O banco permanece em execução.
 
+As ferramentas e a aplicação são construídas em sequência, com caches locais npm e Next. As imagens candidatas usam o commit como tag; ferramentas de migração e administração compartilham a mesma imagem. Cada etapa informa duração, e o sucesso exige conferir a imagem realmente executada e a saúde. Quando imagem, configuração e migrações já correspondem, não há nova parada. Consulte [medição e recuperação do deploy manual](docs/DEPLOY_MANUAL.md).
+
 A pausa do atendimento começa no backup e termina quando a nova aplicação está saudável. Use uma janela de manutenção. O comando atualiza os contêineres do projeto; não atualiza o Docker Engine nem o sistema operacional. Não altera .env, chaves, usuários, porta ou localização do banco. Ambos os scripts impedem execuções simultâneas.
 
 Os backups ficam em backups/atualizacao-DATA-ID/, com banco.dump, checksum, ambiente privado, identificação da imagem anterior e do código novo. A configuração do contêiner anterior também fica preservada; esses arquivos contêm informações privadas. A verificação de formato não substitui testes de restauração e cópia externa dos backups.
@@ -133,6 +135,8 @@ Os backups ficam em backups/atualizacao-DATA-ID/, com banco.dump, checksum, ambi
 ### Se falhar
 
 O script interrompe na etapa que falhou e informa o caminho do backup, quando criado. Falha de build mantém a aplicação anterior em execução. Falha após a parada pode deixá-la indisponível. Consulte:
+
+Se o backup falhar antes de iniciar migrações, o script tenta retomar o container anterior com `start`, sem substituir sua imagem. Depois que uma migração começa, a recuperação exige análise manual de compatibilidade; não há rollback automático do banco.
 
 ```bash
 docker compose logs --tail 100 app migrate db

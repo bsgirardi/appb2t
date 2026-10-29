@@ -12,5 +12,9 @@ trap 'echo "Falha ao atualizar o código. Confira o erro acima; os contêineres 
   echo 'Existem alterações locais. Revise git status antes de atualizar; nenhum arquivo será descartado.' >&2
   exit 1
 }
+started=$SECONDS
+before="$(git rev-parse HEAD)"
+echo 'etapa=git_pull status=inicio'
 git pull --ff-only origin main
+echo "etapa=git_pull status=sucesso duracao_s=$((SECONDS-started)) commit_anterior=$before commit_atual=$(git rev-parse HEAD)"
 echo 'Código atualizado. Para publicar: bash scripts/atualizar-docker.sh'
