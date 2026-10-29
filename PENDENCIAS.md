@@ -76,3 +76,5 @@ Dados de outras instalações não foram importados. .env, chaves, senhas, captu
 ## E1.2 — desenho em revisão em 29/10/2026
 
 Abordagem aprovada pelo usuário: canais/descontos com cenários nomeados e salvos, reutilizando memórias. Desenho em `docs/superpowers/specs/2026-10-29-e1-2-canais-descontos-design.md`, ainda aguardando aprovação dos detalhes. Trabalho isolado sobre main 6e901a7, versão 1.12.0; sem implementação, PR, push, merge, publicação ou migração operacional. Importação e projeção mensal permanecem incrementos separados. Documentos pós-publicação copiados para a worktree sem alterar os originais da pasta operacional.
+
+Desenho E1.2 completo aprovado em 29/10/2026; plano autorrevisado em `docs/superpowers/plans/2026-10-29-e1-2-canais-descontos.md`, aguardando confirmação antes de implementar. Versão permanece 1.12.0; nenhuma ação operacional.

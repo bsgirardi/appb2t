@@ -375,3 +375,7 @@ Lidos os chats E1–E5 e confrontados com PRs e código atual. Corrigidos itens 
 ### 29/10/2026 — E1.2 com abordagem aprovada e desenho em revisão
 
 Usuário aprovou comparar canais/descontos com cenários nomeados e salvos, reaproveitando as memórias existentes. Desenho em `superpowers/specs/2026-10-29-e1-2-canais-descontos-design.md`: bases explícitas de preço, cobertura versus meta, histórico imutável e aplicação humana. Detalhes ainda propostos, sem aprovação do documento completo ou implementação. E1.3 de identificação/recuperação de cenários foi incorporada ao recorte aprovado; importação e projeção mensal continuam separadas. Preparação em worktree isolada sobre main 6e901a7, versão 1.12.0 preservada; registro da worktree no aplicativo pendente. Sem PR/push/merge/publicação, migração ou alteração operacional. Originais locais de acompanhamento/auditoria preservados.
+
+### 29/10/2026 — desenho E1.2 aprovado e plano preparado
+
+Usuário aprovou o desenho completo após revisão independente sem lacunas materiais. Plano em `superpowers/plans/2026-10-29-e1-2-canais-descontos.md`, seis tarefas com banco exclusivo proposto em localhost:55437/b2t_e12_test, autorrevisado e aguardando confirmação do plano/método. Recomendada execução direta neste chat com revisão independente final. Somente documentação, versão 1.12.0 preservada; sem código, instalação de dependências, testes funcionais, migrações ou ações remotas/operacionais.
