@@ -42,6 +42,7 @@ const groups: { label: string; items: Item[]; admin?: boolean }[] = [
       { href: "/vendas", label: "Vendas", icon: ShoppingCart },
       { href: "/pontos-de-venda", label: "Pontos de venda", icon: Package },
       { href: "/produtos", label: "Produtos", icon: Boxes },
+      { href: "/anuncios", label: "Anúncios", icon: FileText },
       { href: "/kits", label: "Kits", icon: Boxes },
       { href: "/colecoes", label: "Coleções", icon: Layers },
     ],

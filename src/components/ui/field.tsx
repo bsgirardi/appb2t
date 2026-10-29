@@ -1,10 +1,26 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useId,
+  type InputHTMLAttributes,
+  type TextareaHTMLAttributes,
+  type ReactNode,
+} from "react";
 import { Input } from "./input";
+import { Textarea } from "./textarea";
 import { Label } from "./label";
 import { Alert } from "./alert";
 import { cn } from "@/lib/utils";
-export function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
-  return <div role="group" data-slot="field-group" className={cn("flex flex-col gap-4", className)} {...props} />;
+export function FieldGroup({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      role="group"
+      data-slot="field-group"
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    />
+  );
 }
 export function Field({
   label,
@@ -76,5 +92,56 @@ export function Notice({
     >
       {children}
     </Alert>
+  );
+}
+
+export function TextareaField({
+  label,
+  hint,
+  error,
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  hint?: string;
+  error?: string;
+}) {
+  const generated = useId(),
+    id = props.id || generated;
+  const described =
+    [
+      props["aria-describedby"],
+      hint ? `${id}-hint` : undefined,
+      error ? `${id}-error` : undefined,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
+  return (
+    <div
+      className="field"
+      data-slot="field"
+      data-invalid={error ? true : undefined}
+      data-disabled={props.disabled || undefined}
+    >
+      <div className="field-heading">
+        <Label htmlFor={id}>{label}</Label>
+        {props.required && (
+          <span className="field-required" aria-hidden="true">
+            Obrigatório
+          </span>
+        )}
+      </div>
+      <Textarea
+        {...props}
+        id={id}
+        aria-invalid={error ? true : props["aria-invalid"]}
+        aria-describedby={described}
+      />
+      {hint && <small id={`${id}-hint`}>{hint}</small>}
+      {error && (
+        <small id={`${id}-error`} className="field-error" role="alert">
+          {error}
+        </small>
+      )}
+    </div>
   );
 }
