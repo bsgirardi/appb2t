@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -18,7 +18,9 @@
     "db:migrate": "prisma migrate deploy",
     "admin:create": "tsx scripts/create-admin.ts",
     "test:e5": "vitest run --config vitest.e5.config.ts",
-    "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts"
+    "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts",
+    "test:e6": "vitest run --config vitest.e6.config.ts",
+    "test:e6:migration": "node --import tsx tests/e6/migration-validation.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -36,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "decimal.js": "^10.6.0",
+    "fflate": "0.8.3",
     "lucide-react": "^1.48.0",
     "next": "16.4.2",
     "prisma": "^6.19.3",

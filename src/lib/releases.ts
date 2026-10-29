@@ -8,6 +8,27 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.12.0",
+    date: "2026-10-29",
+    title: "Rascunhos de anúncios para Instagram e WhatsApp",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Biblioteca da equipe para preparar, revisar e guardar rascunhos por produto e canal, com sugestões baseadas nos dados cadastrados.",
+          "Seleção e ordenação das fotos, cópia do texto revisado e download do material com texto e fotos em JPEG para publicação manual.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Alterações na ficha do produto e fotos removidas pedem nova conferência antes de copiar ou exportar o anúncio.",
+          "Edições simultâneas preservam o texto local para comparar com a versão atual. Arquivar mantém o material para consulta e restauração.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.11.1",
     date: "2026-10-29",
     title: "Dependências e ferramentas de atualização mais leves",

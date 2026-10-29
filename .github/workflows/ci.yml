@@ -59,6 +59,10 @@ jobs:
             database: b2t_e5_test
             port: 55435
             command: npm run test:e5
+          - suite: e6
+            database: b2t_e6_test
+            port: 55436
+            command: npm run test:e6
     services:
       postgres:
         image: postgres:17-alpine
@@ -77,6 +81,7 @@ jobs:
       DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E4_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E5_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+      E6_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -92,9 +97,12 @@ jobs:
         if: matrix.suite == 'e4'
         run: npm run test:e4:migration
       - name: Aplicar migrações de teste
-        if: matrix.suite != 'e4' && matrix.suite != 'e5'
+        if: matrix.suite != 'e4' && matrix.suite != 'e5' && matrix.suite != 'e6'
         run: npm run db:migrate
       - name: Validar upgrade em banco E5 vazio
         if: matrix.suite == 'e5'
         run: npm run test:e5:migration
+      - name: Validar upgrade em banco E6 vazio
+        if: matrix.suite == 'e6'
+        run: npm run test:e6:migration
       - run: ${{ matrix.command }}
