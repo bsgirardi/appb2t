@@ -8,6 +8,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { releases } from "@/lib/releases";
+import { groupReleasesByDate } from "@/lib/release-groups";
 import { APP_VERSION } from "@/lib/version";
 
 export const metadata: Metadata = { title: "Atualizações" };
@@ -24,8 +25,8 @@ export default function UpdatesPage() {
         <Badge variant="secondary">Versão atual: {APP_VERSION}</Badge>
       </div>
       <div className="flex max-w-4xl flex-col gap-6">
-        {releases.map((release) => (
-          <Card asChild key={release.version}>
+        {groupReleasesByDate(releases).map((release) => (
+          <Card asChild key={release.date}>
             <article aria-labelledby={`release-${release.version}`}>
               <CardHeader>
                 <div className="flex flex-wrap items-center gap-3">
@@ -42,8 +43,8 @@ export default function UpdatesPage() {
                 </CardTitle>
                 <CardDescription>
                   {release.version === APP_VERSION
-                    ? "Novidades desta versão do sistema."
-                    : "Histórico de melhorias para sua equipe."}
+                    ? "Novidades, melhorias e correções do dia na versão atual."
+                    : "Novidades, melhorias e correções publicadas neste dia."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-5">

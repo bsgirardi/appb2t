@@ -33,7 +33,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-it("cycles automatic/light/dark, persists and updates every visible control", () => {
+it("toggles only light/dark with icons, persists and updates every visible control", () => {
   render(
     <>
       <ThemeController />
@@ -41,11 +41,10 @@ it("cycles automatic/light/dark, persists and updates every visible control", ()
       <ThemeToggle />
     </>,
   );
-  fireEvent.click(
-    screen.getAllByRole("button", { name: /Tema atual: automático/ })[0],
-  );
-  expect(document.documentElement.dataset.theme).toBe("light");
-  expect(localStorage.getItem("b2t:theme")).toBe("light");
+  for (const button of screen.getAllByRole("button")) {
+    expect(button.textContent).toBe("");
+    expect(button.querySelector("svg")).toBeTruthy();
+  }
   expect(
     screen.getAllByRole("button", { name: /Tema atual: claro/ }),
   ).toHaveLength(2);
@@ -53,10 +52,12 @@ it("cycles automatic/light/dark, persists and updates every visible control", ()
     screen.getAllByRole("button", { name: /Tema atual: claro/ })[0],
   );
   expect(document.documentElement.dataset.theme).toBe("dark");
+  expect(localStorage.getItem("b2t:theme")).toBe("dark");
   fireEvent.click(
     screen.getAllByRole("button", { name: /Tema atual: escuro/ })[0],
   );
-  expect(document.documentElement.dataset.themePreference).toBe("system");
+  expect(document.documentElement.dataset.themePreference).toBe("light");
+  expect(localStorage.getItem("b2t:theme")).toBe("light");
 });
 it("follows system changes only in automatic mode and synchronizes another tab", () => {
   render(
@@ -68,9 +69,7 @@ it("follows system changes only in automatic mode and synchronizes another tab",
   dark = true;
   act(() => change());
   expect(document.documentElement.dataset.theme).toBe("dark");
-  fireEvent.click(
-    screen.getByRole("button", { name: /Tema atual: automático/ }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: /Tema atual: escuro/ }));
   act(() => change());
   expect(document.documentElement.dataset.theme).toBe("light");
   act(() =>
@@ -111,11 +110,9 @@ it("still lets the user switch when storage is blocked", () => {
       <ThemeToggle />
     </>,
   );
-  fireEvent.click(
-    screen.getByRole("button", { name: /Tema atual: automático/ }),
-  );
-  expect(document.documentElement.dataset.theme).toBe("light");
+  fireEvent.click(screen.getByRole("button", { name: /Tema atual: claro/ }));
+  expect(document.documentElement.dataset.theme).toBe("dark");
   expect(
-    screen.getByRole("button", { name: /Tema atual: claro/ }),
+    screen.getByRole("button", { name: /Tema atual: escuro/ }),
   ).toBeTruthy();
 });

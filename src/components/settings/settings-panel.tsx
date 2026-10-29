@@ -285,6 +285,7 @@ export function SettingsPanel({ initialData }: { initialData: AdminData }) {
           >
             {editing && (
               <RecordEditor
+                embedded
                 key={`${tab}-${editing.id ?? "new"}-${resetting}-${reloadKey}`}
                 title={
                   resetting

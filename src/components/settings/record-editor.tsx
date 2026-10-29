@@ -36,6 +36,7 @@ export function RecordEditor({
   onCancel,
   onReload,
   method,
+  embedded = false,
 }: {
   title: string;
   endpoint: string;
@@ -45,6 +46,7 @@ export function RecordEditor({
   onCancel: () => void;
   onReload: () => void;
   method?: string;
+  embedded?: boolean;
 }) {
   const [draft, setDraft] = useState(initial),
     [error, setError] = useState(""),
@@ -114,9 +116,9 @@ export function RecordEditor({
       machineHint = `Amortização calculada: ${formatBRL(r.hourlyMachine)} / hora`;
     } catch {}
   }
-  return (
-    <Card asChild>
-      <section className="editor-card">
+  const editor = (
+    <section className="editor-card">
+      {!embedded && (
         <div className="section-heading">
           <h2>{title}</h2>
           <Button
@@ -131,110 +133,111 @@ export function RecordEditor({
             <X size={20} />
           </Button>
         </div>
-        <AdminForm onSubmit={submit}>
-          <div className="form-grid editor-fields">
-            {fields.map((f) => (
-              <div key={f.key}>
-                {f.kind === "select" ? (
-                  <div className="field">
-                    <Label htmlFor={`edit-${f.key}`}>{f.label}</Label>
-                    <NativeSelect
-                      required
-                      aria-invalid={!!fieldErrors[f.key]}
-                      id={`edit-${f.key}`}
-                      value={String(draft[f.key] ?? "")}
-                      onChange={(e) => update(f.key, e.target.value)}
-                    >
-                      {f.options?.map((o) => (
-                        <option value={o.value} key={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </NativeSelect>
-                  </div>
-                ) : f.kind === "checkbox" ? (
-                  <Label className="checkbox-field">
-                    <Checkbox
-                      checked={!!draft[f.key]}
-                      onChange={(e) => update(f.key, e.target.checked)}
-                    />
-                    {f.label}
-                  </Label>
-                ) : (
-                  <Field
-                    error={fieldErrors[f.key]}
-                    label={f.label}
+      )}
+      <AdminForm onSubmit={submit}>
+        <div className="form-grid editor-fields">
+          {fields.map((f) => (
+            <div key={f.key}>
+              {f.kind === "select" ? (
+                <div className="field">
+                  <Label htmlFor={`edit-${f.key}`}>{f.label}</Label>
+                  <NativeSelect
+                    required
+                    aria-invalid={!!fieldErrors[f.key]}
+                    id={`edit-${f.key}`}
                     value={String(draft[f.key] ?? "")}
                     onChange={(e) => update(f.key, e.target.value)}
-                    type={
-                      f.kind === "password"
-                        ? "password"
-                        : f.kind === "email"
-                          ? "email"
-                          : "text"
-                    }
-                    inputMode={
-                      f.kind === "decimal"
-                        ? "decimal"
-                        : f.kind === "integer"
-                          ? "numeric"
-                          : undefined
-                    }
-                    required
-                    hint={f.hint}
-                    suffix={f.suffix}
-                    autoComplete={
-                      f.kind === "password" ? "new-password" : undefined
-                    }
-                    maxLength={
-                      f.kind === "password"
-                        ? 128
-                        : f.kind === "email"
-                          ? 254
-                          : f.kind === "text"
-                            ? 100
-                            : 24
-                    }
+                  >
+                    {f.options?.map((o) => (
+                      <option value={o.value} key={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </div>
+              ) : f.kind === "checkbox" ? (
+                <Label className="checkbox-field">
+                  <Checkbox
+                    checked={!!draft[f.key]}
+                    onChange={(e) => update(f.key, e.target.checked)}
                   />
-                )}
-                {f.kind === "select" && fieldErrors[f.key] && (
-                  <small className="field-error">{fieldErrors[f.key]}</small>
-                )}
-              </div>
-            ))}
-          </div>
-          {machineHint && <div className="machine-hint">{machineHint}</div>}
-          {error && <Notice>{error}</Notice>}
-          {conflict && (
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              className=""
-              onClick={onReload}
-            >
-              Recarregar registro
-            </Button>
-          )}
-          <div className="form-actions">
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              className=""
-              data-cancel-editor
-              onClick={onCancel}
-              disabled={pending}
-            >
-              Cancelar
-            </Button>
-            <Button variant="default" size="sm" className="" disabled={pending}>
-              <Save size={16} />
-              {pending ? "Salvando…" : "Salvar alterações"}
-            </Button>
-          </div>
-        </AdminForm>
-      </section>
-    </Card>
+                  {f.label}
+                </Label>
+              ) : (
+                <Field
+                  error={fieldErrors[f.key]}
+                  label={f.label}
+                  value={String(draft[f.key] ?? "")}
+                  onChange={(e) => update(f.key, e.target.value)}
+                  type={
+                    f.kind === "password"
+                      ? "password"
+                      : f.kind === "email"
+                        ? "email"
+                        : "text"
+                  }
+                  inputMode={
+                    f.kind === "decimal"
+                      ? "decimal"
+                      : f.kind === "integer"
+                        ? "numeric"
+                        : undefined
+                  }
+                  required
+                  hint={f.hint}
+                  suffix={f.suffix}
+                  autoComplete={
+                    f.kind === "password" ? "new-password" : undefined
+                  }
+                  maxLength={
+                    f.kind === "password"
+                      ? 128
+                      : f.kind === "email"
+                        ? 254
+                        : f.kind === "text"
+                          ? 100
+                          : 24
+                  }
+                />
+              )}
+              {f.kind === "select" && fieldErrors[f.key] && (
+                <small className="field-error">{fieldErrors[f.key]}</small>
+              )}
+            </div>
+          ))}
+        </div>
+        {machineHint && <div className="machine-hint">{machineHint}</div>}
+        {error && <Notice>{error}</Notice>}
+        {conflict && (
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            className=""
+            onClick={onReload}
+          >
+            Recarregar registro
+          </Button>
+        )}
+        <div className="form-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            className=""
+            data-cancel-editor
+            onClick={onCancel}
+            disabled={pending}
+          >
+            Cancelar
+          </Button>
+          <Button variant="default" size="sm" className="" disabled={pending}>
+            <Save size={16} />
+            {pending ? "Salvando…" : "Salvar alterações"}
+          </Button>
+        </div>
+      </AdminForm>
+    </section>
   );
+  return embedded ? editor : <Card asChild>{editor}</Card>;
 }

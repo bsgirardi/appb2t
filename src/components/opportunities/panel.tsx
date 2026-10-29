@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OpportunityForm } from "./form";
+import { FilterPanel } from "@/components/admin/filter-panel";
 export function OpportunityPanel({
   initial,
   filters,
@@ -46,8 +47,8 @@ export function OpportunityPanel({
     );
   }
   return (
-    <div className="flex min-w-0 flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="commerce-page">
+      <div className="page-heading">
         <div>
           <h1>Negociações</h1>
           <p>Próximos contatos e oportunidades da equipe.</p>
@@ -76,59 +77,70 @@ export function OpportunityPanel({
           </CardContent>
         </Card>
       ) : null}
-      <form key={JSON.stringify(filters)} onSubmit={filter}>
-        <FieldGroup className="md:grid md:grid-cols-4 md:items-end">
-          <Field
-            label="Buscar negociação"
-            name="search"
-            defaultValue={filters.search}
-            maxLength={160}
-          />
-          <div data-slot="field">
-            <Label htmlFor="op-owner">Responsável</Label>
-            <NativeSelect
-              id="op-owner"
-              name="owner"
-              defaultValue={filters.owner}
-            >
-              <option value="todos">Todos</option>
-              <option value="eu">Eu</option>
-              {options.owners.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.name}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-          <div data-slot="field">
-            <Label htmlFor="op-stage">Etapa</Label>
-            <NativeSelect
-              id="op-stage"
-              name="stage"
-              defaultValue={filters.stage}
-            >
-              <option value="abertas">Abertas</option>
-              <option value="todas">Todas</option>
-              {Object.entries(stageLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-          <div data-slot="field">
-            <Label htmlFor="op-due">Próxima ação</Label>
-            <NativeSelect id="op-due" name="due" defaultValue={filters.due}>
-              <option value="todas">Todas as datas</option>
-              <option value="atrasadas">Atrasadas</option>
-              <option value="hoje">Hoje</option>
-            </NativeSelect>
-          </div>
-          <Button type="submit" variant="outline">
-            Filtrar negociações
-          </Button>
-        </FieldGroup>
-      </form>
+      <FilterPanel
+        activeCount={
+          [
+            filters.search,
+            filters.owner !== "todos" && filters.owner,
+            filters.stage !== "abertas" && filters.stage,
+            filters.due !== "todas" && filters.due,
+          ].filter(Boolean).length
+        }
+      >
+        <form key={JSON.stringify(filters)} onSubmit={filter}>
+          <FieldGroup className="admin-filter-grid grid">
+            <Field
+              label="Buscar negociação"
+              name="search"
+              defaultValue={filters.search}
+              maxLength={160}
+            />
+            <div data-slot="field">
+              <Label htmlFor="op-owner">Responsável</Label>
+              <NativeSelect
+                id="op-owner"
+                name="owner"
+                defaultValue={filters.owner}
+              >
+                <option value="todos">Todos</option>
+                <option value="eu">Eu</option>
+                {options.owners.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+            <div data-slot="field">
+              <Label htmlFor="op-stage">Etapa</Label>
+              <NativeSelect
+                id="op-stage"
+                name="stage"
+                defaultValue={filters.stage}
+              >
+                <option value="abertas">Abertas</option>
+                <option value="todas">Todas</option>
+                {Object.entries(stageLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+            <div data-slot="field">
+              <Label htmlFor="op-due">Próxima ação</Label>
+              <NativeSelect id="op-due" name="due" defaultValue={filters.due}>
+                <option value="todas">Todas as datas</option>
+                <option value="atrasadas">Atrasadas</option>
+                <option value="hoje">Hoje</option>
+              </NativeSelect>
+            </div>
+            <Button type="submit" variant="outline">
+              Filtrar negociações
+            </Button>
+          </FieldGroup>
+        </form>
+      </FilterPanel>
       <p>{initial.total} oportunidade(s)</p>
       <div className="grid gap-3 lg:grid-cols-2">
         {initial.items.map((o) => (

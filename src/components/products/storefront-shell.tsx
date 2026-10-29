@@ -118,7 +118,7 @@ export function StorefrontShell({
             </Button>
           </form>
           <div className="ml-auto flex max-w-full flex-wrap items-center gap-3 md:ml-0">
-            <ThemeToggle compact />
+            <ThemeToggle />
             <InquiryLink />
             {contact && (
               <Button

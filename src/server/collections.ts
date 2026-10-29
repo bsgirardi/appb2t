@@ -1,3 +1,4 @@
+import { collectionLinks } from "@/domain/collections/navigation";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { AppError, conflict } from "@/lib/errors";
@@ -75,9 +76,9 @@ export async function saveCollection(
 }
 export async function listPublicCollections(): Promise<PublicCollectionDTO[]> {
   const rows = await db.collection.findMany({
-    where: { active: true },
     orderBy: [{ position: "asc" }, { name: "asc" }],
     select: {
+      active: true,
       id: true,
       name: true,
       description: true,
@@ -90,16 +91,19 @@ export async function listPublicCollections(): Promise<PublicCollectionDTO[]> {
       },
     },
   });
-  return rows.map((c) => ({
-    id: c.id,
-    name: c.name,
-    description: c.description,
-    imageUrl: c.image
-      ? `/api/collections/${c.id}/image`
-      : c.products[0]
-        ? `/api/products/${c.products[0].productId}/image`
-        : null,
-  }));
+  return collectionLinks(rows)
+    .filter((c) => c.active)
+    .map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      description: c.description,
+      imageUrl: c.image
+        ? `/api/collections/${c.id}/image`
+        : c.products[0]
+          ? `/api/products/${c.products[0].productId}/image`
+          : null,
+    }));
 }
 export async function getCollectionImage(
   id: string,

@@ -13,6 +13,7 @@ export interface CollectionDTO extends CollectionInput {
   imageUrl: string | null;
 }
 export interface PublicCollectionDTO {
+  slug?: string;
   id: string;
   name: string;
   description: string;

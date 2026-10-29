@@ -28,8 +28,12 @@ export function RequestPanel({
     `/solicitacoes?${new URLSearchParams({ ...filters, page: String(page) })}`;
   return (
     <div className="commerce-page request-page">
-      <h1>Solicitações</h1>
-      <p>Revise as seleções recebidas antes de preparar um orçamento.</p>
+      <div className="page-heading">
+        <div>
+          <h1>Solicitações</h1>
+          <p>Revise as seleções recebidas antes de preparar um orçamento.</p>
+        </div>
+      </div>
       <FilterPanel
         activeCount={
           Object.values(filters).filter((v) => v && v !== "all").length

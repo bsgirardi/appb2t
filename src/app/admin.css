@@ -409,11 +409,10 @@
     overflow-y: auto;
     padding: 24px;
   }
-  .admin-context-editor > [data-slot="sheet-close"] {
+  .admin-context-editor > [data-slot="dialog-close"] {
     position: absolute;
   }
-  .admin-context-editor > :is(h2, p) {
-    margin-bottom: 12px;
+  .admin-context-editor > [data-slot="dialog-header"] {
     padding-right: 40px;
   }
   .admin-context-editor .product-form {

@@ -14,6 +14,7 @@ it("starts collapsed, advertises active filters and preserves drafts across togg
     </FilterPanel>,
   );
   const trigger = screen.getByRole("button", { name: /Filtros/ });
+  expect(trigger.closest('[data-slot="collapsible"]')).toBeTruthy();
   expect(trigger.getAttribute("aria-expanded")).toBe("false");
   expect(screen.queryByRole("textbox")).toBeNull();
   expect(screen.getByText("1 ativos")).toBeTruthy();

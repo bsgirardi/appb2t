@@ -21,7 +21,7 @@ export function CatalogFilterForm({
   collections,
 }: {
   context: CatalogFilters;
-  collections: { id: string; name: string }[];
+  collections: { id: string; name: string; slug?: string }[];
 }) {
   const errors = catalogCommercialErrors(context);
   return (
@@ -72,7 +72,7 @@ export function CatalogFilterForm({
                 >
                   <option value="">Todas as categorias</option>
                   {collections.map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.slug ?? c.id}>
                       {c.name}
                     </option>
                   ))}

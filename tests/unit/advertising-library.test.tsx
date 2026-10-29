@@ -29,6 +29,12 @@ it("explains an empty library and creates an intentional per-channel draft", asy
     />,
   );
   expect(screen.getByText("Nenhum rascunho encontrado")).toBeTruthy();
+  const filterTrigger = screen.getByRole("button", { name: "Filtros" });
+  expect(filterTrigger.getAttribute("aria-expanded")).toBe("false");
+  fireEvent.click(filterTrigger);
+  expect(
+    screen.getByRole("textbox", { name: "Buscar rascunhos" }),
+  ).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Selecionar Peça azul" }));
   fireEvent.click(screen.getByRole("radio", { name: "WhatsApp" }));
   vi.mocked(api).mockResolvedValueOnce({ ...d, channel: "WHATSAPP" });

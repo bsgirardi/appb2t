@@ -1,3 +1,4 @@
+import { resolveCollection } from "@/domain/collections/navigation";
 import { productStructuredData } from "@/domain/products/product-structured-data";
 import { StoreBreadcrumb } from "@/components/products/store-breadcrumb";
 import Link from "next/link";
@@ -47,10 +48,9 @@ export default async function ProductPage({ params, searchParams }: Props) {
     listPublicCollections(),
   ]);
   if (!product) notFound();
-  if (
-    context.collection &&
-    !collections.some((c) => c.id === context.collection)
-  ) {
+  const collection = resolveCollection(collections, context.collection);
+  if (collection) context.collection = collection.slug ?? collection.id;
+  if (context.collection && !collection) {
     context.collection = "";
     context.page = 1;
   }

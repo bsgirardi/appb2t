@@ -1,3 +1,5 @@
+import { listPublicCollections } from "@/server/collections";
+import { catalogPath } from "@/domain/products/catalog-navigation";
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { appUrl } from "@/lib/env";
@@ -10,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { active: true },
       select: { id: true, name: true, updatedAt: true },
     }),
-    db.collection.findMany({ where: { active: true }, select: { id: true } }),
+    listPublicCollections(),
     getPublicAppearance(),
   ]);
   const absolute = (path: string) => new URL(path, appUrl()).href;
@@ -23,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? [{ url: absolute("/portfolio/ajuda") }]
       : []),
     ...collections.map((c) => ({
-      url: absolute(`/?colecao=${encodeURIComponent(c.id)}`),
+      url: absolute(catalogPath(c.slug ?? c.id)),
     })),
     ...products.map((p) => ({
       url: absolute(productPath(p)),

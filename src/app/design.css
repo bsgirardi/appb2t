@@ -52,9 +52,15 @@
     color: var(--muted-foreground);
   }
   @media (max-width: 600px) {
-    .dashboard-toolbar { padding: 16px; }
-    .dashboard-date-fields { width: 100%; }
-    .dashboard-date-fields > [data-slot="field"] { flex: 1 1 130px; }
+    .dashboard-toolbar {
+      padding: 16px;
+    }
+    .dashboard-date-fields {
+      width: 100%;
+    }
+    .dashboard-date-fields > [data-slot="field"] {
+      flex: 1 1 130px;
+    }
   }
 }
 @custom-variant dark {
@@ -99,6 +105,31 @@
   .admin-ui .commerce-page .page-heading {
     margin-bottom: 0;
   }
+  .admin-ui .commerce-page > :is(.table-scroll, .form-actions) {
+    margin-top: 0;
+  }
+  .admin-ui .section-heading,
+  .admin-ui .list-actions {
+    flex-wrap: wrap;
+  }
+  .admin-ui .section-heading > * {
+    min-width: 0;
+  }
+  .admin-ui :is(.field, [data-slot="field"]) {
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  .admin-ui [data-slot="field"] {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .admin-ui .field label {
+    margin-bottom: 0;
+  }
+  .admin-ui :is([data-slot="input"], [data-slot="native-select"]) {
+    min-height: 40px;
+  }
   .admin-ui :is(.commerce-filters, .admin-filter-grid) {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
@@ -122,6 +153,13 @@
   }
   .admin-ui .admin-filter-grid > button {
     justify-self: start;
+  }
+  .admin-ui
+    [data-slot="collapsible-content"]
+    :is(.commerce-filters, .admin-filter-grid) {
+    padding: 0;
+    border: 0;
+    background: transparent;
   }
   .admin-ui .table-scroll {
     max-width: 100%;
@@ -175,6 +213,9 @@
     }
   }
   @media (max-width: 600px) {
+    .admin-ui :is([data-slot="input"], [data-slot="native-select"]) {
+      min-height: 44px;
+    }
     .dashboard-metrics {
       grid-template-columns: minmax(0, 1fr);
     }
