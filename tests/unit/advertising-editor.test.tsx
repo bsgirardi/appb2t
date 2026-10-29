@@ -137,3 +137,37 @@ it("orders photos by keyboard-accessible buttons and escapes text instead of int
     ).disabled,
   ).toBe(false);
 });
+it("keeps the edit base when another operator edits during download", async () => {
+  const d = {
+    ...adDraft(),
+    status: "REVIEWED" as const,
+    reviewIsCurrent: true,
+  };
+  const { downloadDraft } = await import("@/components/advertising/ad-client");
+  vi.mocked(downloadDraft).mockResolvedValueOnce(undefined);
+  vi.mocked(api).mockResolvedValueOnce({
+    ...d,
+    version: 2,
+    body: "EDIÇÃO DE OUTRA PESSOA",
+  });
+  render(<AdEditor initial={d} />);
+  fireEvent.click(screen.getByRole("button", { name: "Baixar material" }));
+  await screen.findByText(
+    "Material preparado. Confira o download no navegador.",
+  );
+  fireEvent.change(screen.getByLabelText("Texto do anúncio"), {
+    target: { value: "MINHA NOVA EDIÇÃO" },
+  });
+  vi.mocked(api).mockRejectedValueOnce(
+    new ApiError("Registro alterado", "CONFLICT"),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Salvar rascunho" }));
+  await screen.findByText("Registro alterado");
+  expect(vi.mocked(api).mock.calls.at(-1)?.[1]).toMatchObject({
+    expectedVersion: 1,
+  });
+});
+vi.mock("@/components/advertising/ad-client", async (original) => ({
+  ...(await original<typeof import("@/components/advertising/ad-client")>()),
+  downloadDraft: vi.fn(),
+}));

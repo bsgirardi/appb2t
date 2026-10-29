@@ -211,6 +211,11 @@ export function AdEditor({ initial }: { initial: AdDraftDTO }) {
           </CardContent>
         </Card>
       )}
+      {draft.currentSource.availability === "UNAVAILABLE" && (
+        <Notice kind="info">
+          Produto indisponível para pedidos. Confira a divulgação planejada.
+        </Notice>
+      )}
       {!draft.currentSource.active && (
         <Notice kind="info">
           Produto não publicado no catálogo. Confira quando e como pretende
@@ -387,7 +392,15 @@ export function AdEditor({ initial }: { initial: AdDraftDTO }) {
             onClick={() =>
               void run(async () => {
                 await downloadDraft(draft.id, draft.version);
-                setDraft(await api<AdDraftDTO>(`/api/anuncios/${draft.id}`));
+                const latest = await api<AdDraftDTO>(
+                  `/api/anuncios/${draft.id}`,
+                );
+                if (latest.version !== draft.version) {
+                  setRemote(latest);
+                  setConflict(true);
+                } else {
+                  setDraft(latest);
+                }
                 setNotice(
                   "Material preparado. Confira o download no navegador.",
                 );
