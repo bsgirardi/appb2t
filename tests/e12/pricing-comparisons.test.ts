@@ -3,6 +3,7 @@ import { expect, it } from "vitest";
 import { setupDatabase } from "./setup";
 import { pricingFixture } from "../fixtures/pricing-db";
 import { db } from "@/lib/db";
+import { PrismaClient } from "@prisma/client";
 import { createPricingComparison } from "@/server/pricing/comparisons/create";
 import { getPricingComparison, listPricingComparisons } from "@/server/pricing/comparisons/read";
 setupDatabase();
@@ -69,4 +70,30 @@ it("paginates deterministically without exposing snapshot payloads in summaries"
   const second = await listPricingComparisons(actor, { limit: 1, cursor: first.nextCursor! });
   expect(second.items[0].id).not.toBe(first.items[0].id);
   expect(second.nextCursor).toBeNull();
+});
+it("observes a real catalog lock and rejects a concurrent changed version", async () => {
+  const { actor, draft } = await fixture();
+  let release!: () => void, ready!: () => void;
+  const gate = new Promise<void>(r => { release = r; });
+  const locked = new Promise<void>(r => { ready = r; });
+  const holding = db.$transaction(async tx => {
+    await tx.$queryRaw`SELECT "id" FROM "PricingSettings" WHERE "id" = 1 FOR UPDATE`;
+    await tx.pricingSettings.update({ where: { id: 1 }, data: { version: { increment: 1 } } });
+    ready(); await gate;
+  }, { timeout: 10000 });
+  await locked;
+  const observer = new PrismaClient();
+  const pending = Promise.allSettled([createPricingComparison(actor, draft, randomUUID())]);
+  let observed = false;
+  try {
+    const start = Date.now();
+    while (Date.now() - start < 4000) {
+      const [state] = await observer.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock'`;
+      if (Number(state.count) >= 1) { observed = true; break; }
+      await new Promise(r => setTimeout(r, 10));
+    }
+  } finally { release(); await holding; await observer.$disconnect(); }
+  expect(observed).toBe(true);
+  expect((await pending)[0]).toMatchObject({ status: "rejected", reason: { code: "CONFLICT" } });
+  expect(await db.pricingSnapshot.count()).toBe(0);
 });

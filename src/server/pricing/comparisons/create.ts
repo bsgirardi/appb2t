@@ -47,7 +47,7 @@ export async function createPricingComparison(actor: Actor, raw: unknown, operat
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") { const winner = await db.pricingComparison.findUnique({ where }); if (winner) return replay(winner); }
-      if (e.code === "P2034") throw conflict();
+      if (e.code === "P2034" || (e.code === "P2010" && e.meta?.code === "40001")) throw conflict();
     }
     throw e;
   }
