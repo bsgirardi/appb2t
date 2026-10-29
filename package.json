@@ -18,7 +18,9 @@
     "db:migrate": "prisma migrate deploy",
     "admin:create": "tsx scripts/create-admin.ts",
     "test:e5": "vitest run --config vitest.e5.config.ts",
-    "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts"
+    "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts",
+    "test:e6": "vitest run --config vitest.e6.config.ts",
+    "test:e6:migration": "node --import tsx tests/e6/migration-validation.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

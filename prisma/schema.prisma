@@ -216,6 +216,10 @@ enum Technology {
   RESIN
 }
 model User {
+  advertisingCreated AdvertisingDraft[] @relation("AdCreated")
+  advertisingUpdated AdvertisingDraft[] @relation("AdUpdated")
+  advertisingReviewed AdvertisingDraft[] @relation("AdReviewed")
+  advertisingExports AdvertisingExport[]
   consignmentPartners Partner[]
   opportunities Opportunity[]
   artCommands ArtCommand[]
@@ -293,6 +297,7 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  advertisingDrafts AdvertisingDraft[]
   partnerConditions PartnerProductCondition[]
   consignmentShipmentLines ConsignmentShipmentLine[]
   consignmentSaleLines ConsignmentSaleLine[]
@@ -1734,4 +1739,54 @@ model OpportunityOperation {
  payloadHash String
  result Json
  createdAt DateTime @default(now())
+}
+
+enum AdChannel {
+ INSTAGRAM
+ WHATSAPP
+}
+enum AdStatus {
+ DRAFT
+ REVIEWED
+ ARCHIVED
+}
+model AdvertisingDraft {
+ id String @id @default(cuid())
+ productId String
+ product Product @relation(fields:[productId],references:[id],onDelete:Restrict)
+ channel AdChannel
+ internalName String
+ title String
+ body String
+ imageIds Json
+ source Json
+ status AdStatus @default(DRAFT)
+ version Int @default(1)
+ reviewedVersion Int?
+ reviewedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ createdById String
+ createdBy User @relation("AdCreated",fields:[createdById],references:[id],onDelete:Restrict)
+ updatedById String
+ updatedBy User @relation("AdUpdated",fields:[updatedById],references:[id],onDelete:Restrict)
+ reviewedById String?
+ reviewedBy User? @relation("AdReviewed",fields:[reviewedById],references:[id],onDelete:Restrict)
+ creationKey String
+ creationHash String
+ exports AdvertisingExport[]
+ @@unique([createdById,creationKey])
+ @@index([channel,status,updatedAt,id])
+ @@index([productId])
+}
+model AdvertisingExport {
+ id String @id @default(cuid())
+ draftId String
+ draft AdvertisingDraft @relation(fields:[draftId],references:[id],onDelete:Restrict)
+ draftVersion Int
+ channel AdChannel
+ createdAt DateTime @default(now())
+ createdById String
+ createdBy User @relation(fields:[createdById],references:[id],onDelete:Restrict)
+ @@index([draftId,createdAt])
 }
