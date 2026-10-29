@@ -30,6 +30,56 @@ export const releases: Release[] = [
     ],
   },
   {
+    version: "1.10.4",
+    date: "2026-10-28",
+    title: "Repetição da atualização sem nova compilação",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "O procedimento reconhece a mesma versão saudável antes de construir imagens, evitando trabalho e interrupções desnecessários.",
+          "A conferência inclui a origem das imagens, a configuração e as migrações do banco.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.10.3",
+    date: "2026-10-28",
+    title: "Compatibilidade e recuperação da atualização manual",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "O procedimento valida as opções do Docker Compose antes da manutenção e executa migrações sem exigir entrada interativa.",
+          "A recuperação anterior às migrações retoma somente a aplicação, sem iniciar serviços dependentes.",
+          "A atualização é interrompida com antecedência quando a imagem instalada não está disponível para recuperação.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.10.2",
+    date: "2026-10-28",
+    title: "Atualização manual com melhor reaproveitamento da compilação",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "A atualização reaproveita caches locais e prepara as ferramentas de manutenção sem recompilar a aplicação.",
+          "O procedimento registra o tempo das etapas e confere a imagem instalada antes de informar sucesso.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "As permissões das ferramentas são preparadas durante a cópia, evitando uma operação demorada sobre todos os arquivos.",
+          "Se o backup falhar antes das migrações, o procedimento tenta retomar a aplicação anterior com segurança.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.10.1",
     date: "2026-10-28",
     title: "Verificações automáticas e atualização mais confiável",

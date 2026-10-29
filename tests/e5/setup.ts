@@ -1,10 +1,13 @@
 import { assertE5DatabaseUrl } from "./database";
-import { beforeEach, afterAll } from "vitest";
+import { beforeEach, afterAll, vi } from "vitest";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/server/auth/password";
 export const password = "Teste-interno-123!";
 export function setupDatabase() {
   beforeEach(async () => {
+    // Fixtures intentionally cover October 2026; only Date is fake, timers stay real.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-28T12:00:00.000Z"));
     assertE5DatabaseUrl(process.env.DATABASE_URL ?? "");
     await db.$executeRawUnsafe(
       'TRUNCATE "ConsignmentCommand", "ConsignmentStatement", "ConsignmentSale", "ConsignmentEvent", "ConsignmentShipment", "Partner" CASCADE',
@@ -46,6 +49,7 @@ export function setupDatabase() {
     });
   });
   afterAll(async () => {
+    vi.useRealTimers();
     await db.$disconnect();
   });
 }

@@ -50,3 +50,8 @@ Usuário autorizou criar PR. Main remota reconferida em `7fe37d9`, versão 1.10.
 Revalidação da preparação 1.11.0: 661 testes unitários/160 arquivos PASS, teste específico de versão/rodapés/Atualizações 3 PASS, lint e build (incluindo tipos) PASS. Manifestos e preservação integral do histórico anterior conferidos; main ainda `7fe37d9`. Integração/migração mantêm os resultados anteriores porque esta preparação alterou somente versão, notas e acompanhamento.
 
 PR criada: [#26 — ciclo completo de consignação e acertos](https://github.com/bsgirardi/appb2t/pull/26), base main, branch codex/e5-consignacao, versão 1.11.0. Aberta para revisão e vinculada ao chat. CI iniciado, ainda sem resultado final nesta entrega. Sem merge/publicação/migração operacional.
+
+
+## Integração autorizada — 29/10/2026
+
+Integrada main c26f4cd (1.10.4), preservando Docker/scripts e histórico. Versão única desta PR continua 1.11.0. Repetidos: 661 testes unitários, 32 testes E5, upgrade aditivo/reaplicação em PostgreSQL17 exclusivo, tipos, lint e build Linux. Dois bloqueios reproduzidos e corrigidos: datas fixas passaram a usar relógio Date determinístico, mantendo timers reais e deadlines monotônicos; heap automático de cerca de 1GB foi insuficiente no TypeScript, sendo configurado 1536MiB apenas no build. O build passou na VM Docker local de aproximadamente2GB; isso não equivale a limite de RSS total nem medição no Debian. Revisão independente da integração e dessas correções sem bloqueadores. Nenhuma alteração em produção.

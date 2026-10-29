@@ -23,38 +23,9 @@ git() {
   esac
   return 0
 }
-docker() {
-  echo "$*" >> "$LOG"
-  case "$*" in
-    'compose ps -q app') echo app ;;
-    'compose ps -q db') echo db ;;
-    'inspect --format {{.Image}} app') echo sha256:old ;;
-    'compose build app migrate') [[ "${CASE:-}" != build ]] ;;
-    *pg_dump*) [[ "${CASE:-}" != dump ]] && echo binary-dump ;;
-    *pg_restore*) cat >/dev/null; [[ "${CASE:-}" != invalid ]] ;;
-    'compose run --rm --no-deps migrate') [[ "${CASE:-}" != migrate ]] ;;
-    'compose up -d --no-deps --wait --wait-timeout 180 app') [[ "${CASE:-}" != health ]] ;;
-  esac
-}
-export -f git docker
-for CASE in success build dump invalid migrate health; do
-  export CASE
-  : > "$LOG"
-  if bash "$work/scripts/atualizar-docker.sh" > "$work/output" 2>&1; then
-    [[ "$CASE" == success ]]
-    grep -q 'Nova versão em execução' "$work/output"
-  else
-    if [[ "$CASE" == success ]]; then cat "$work/output"; fi
-    [[ "$CASE" != success ]]
-    ! grep -q 'Nova versão em execução' "$work/output"
-  fi
-  case "$CASE" in
-    build) ! grep -q 'compose stop app' "$LOG" ;;
-    dump|invalid) ! grep -q 'compose run' "$LOG" ;;
-    migrate) ! grep -q 'compose up' "$LOG" ;;
-  esac
-  echo "PASS docker: $CASE"
-done
+export -f git
+# Os cenários Docker ficam no teste dedicado, com mocks do fluxo atual.
+bash "$repo/tests/shell/deploy-flow.sh"
 export CASE=dirty
 : > "$LOG"
 if bash "$work/scripts/atualizar-projeto.sh" > "$work/output" 2>&1; then exit 1; fi

@@ -40,14 +40,14 @@ export async function raceUnderEntryLock<A, B>(
   );
   let failure: unknown;
   try {
-    const deadline = Date.now() + 5000;
+    const deadline = performance.now() + 5000;
     let count = 0;
     do {
       const rows = await observeWaiters();
       count = Number(rows[0].count);
       if (count >= actions.length) break;
       await new Promise((resolve) => setTimeout(resolve, 10));
-    } while (Date.now() < deadline);
+    } while (performance.now() < deadline);
     if (count < actions.length)
       throw new Error(
         `Expected ${actions.length} contending commands, observed ${count}`,
