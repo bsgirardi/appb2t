@@ -39,7 +39,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 
 | Etapa | Entrega | Situação | Próxima ação |
 | --- | --- | --- | --- |
-| E1 | Calculadora e decisões de preço | Em implementação | E1.1 da PR #19 publicada; detalhar E1.2 de canais e descontos |
+| E1 | Calculadora e decisões de preço | Em implementação | E1.1 publicada; E1.2 implementada localmente em 1.14.0, validada, sem publicação |
 | E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 da PR #21 publicada; abrir componentes de custo e rankings |
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 da PR #22 publicada e concorrência validada; detalhar bloqueios e execução |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 da PR #23 publicada, incluindo orçamentos; detalhar margem, prazo e alertas de proposta |
@@ -55,11 +55,11 @@ Estado consolidado em 29/10/2026: todos os primeiros incrementos E1.1–E6.1 est
 ### Propostas
 
 - [x] Contribuição estimada por hora de impressora, com premissas explícitas (E1.1, PR #19 integrada e publicada).
-- [ ] Comparação simultânea entre canais com taxas configuradas, sem presumir tarifas atuais de marketplaces.
-- [ ] Simulação de descontos e efeito na margem.
-- [ ] Distinguir preço para cobrir os custos modelados de preço para alcançar a meta comercial.
+- [x] Comparação simultânea entre canais com taxas configuradas, sem presumir tarifas atuais de marketplaces. (E1.2 implementada localmente; versão 1.14.0 preparada, sem publicação.)
+- [x] Simulação de descontos e efeito na margem. (E1.2 implementada localmente; versão 1.14.0 preparada, sem publicação.)
+- [x] Distinguir preço para cobrir os custos modelados de preço para alcançar a meta comercial. (E1.2 implementada localmente; versão 1.14.0 preparada, sem publicação.)
 - [x] Ampliar comparação de lotes: custo/preço por peça, contribuição total, tempo e material (E1.1, PR #19 integrada e publicada).
-- [ ] Salvar, identificar e comparar simulações, reaproveitando as memórias já existentes.
+- [x] Salvar, identificar e comparar simulações, reaproveitando as memórias já existentes. (E1.2 implementada localmente; versão 1.14.0 preparada, sem publicação.)
 - [ ] Avaliar importação de G-code/3MF: formatos suportados, dados disponíveis, limites e conferência humana antes de aplicar.
 - [ ] Avaliar projeção mensal limitada por capacidade livre e demanda informada, distinguindo-a de previsão de vendas.
 
@@ -379,3 +379,8 @@ Usuário aprovou comparar canais/descontos com cenários nomeados e salvos, reap
 ### 29/10/2026 — desenho E1.2 aprovado e plano preparado
 
 Usuário aprovou o desenho completo após revisão independente sem lacunas materiais. Plano em `superpowers/plans/2026-10-29-e1-2-canais-descontos.md`, seis tarefas com banco exclusivo proposto em localhost:55437/b2t_e12_test, autorrevisado e aguardando confirmação do plano/método. Recomendada execução direta neste chat com revisão independente final. Somente documentação, versão 1.12.0 preservada; sem código, instalação de dependências, testes funcionais, migrações ou ações remotas/operacionais.
+
+
+### 29/10/2026 — E1.2 implementada em isolamento
+
+Desenho/plano aprovados e execução direta na branch `codex/e1-2-canais-descontos`. Base reconciliada com main `c3b3dae` (1.13.0), versão preparada 1.14.0. Comparação de canais/descontos, cobertura versus meta e biblioteca nomeada imutável, com reutilização após revisão atual e sem aplicar descontos duas vezes. Migração/reaplicação preservaram sete projeções sintéticas; oito testes E12 passaram, bem como tipos/lint/build e suítes E3–E6. Revisão independente teve dois P2 reproduzidos e corrigidos com regressões. Apresentação estática desktop/375 px conferida; prévia autenticada bloqueada pela revisão automática. Suíte padrão completa aprovada: 1.023 testes em 304 arquivos. [Relatório e limites](superpowers/reviews/2026-10-29-e1-2-canais-descontos.md). Sem PR/push/merge/publicação, migração operacional ou atualização de contêineres existentes; E1 ampla continua parcial, com importação e projeção mensal separadas.

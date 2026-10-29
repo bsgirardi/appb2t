@@ -78,3 +78,8 @@ Dados de outras instalações não foram importados. .env, chaves, senhas, captu
 Abordagem aprovada pelo usuário: canais/descontos com cenários nomeados e salvos, reutilizando memórias. Desenho em `docs/superpowers/specs/2026-10-29-e1-2-canais-descontos-design.md`, ainda aguardando aprovação dos detalhes. Trabalho isolado sobre main 6e901a7, versão 1.12.0; sem implementação, PR, push, merge, publicação ou migração operacional. Importação e projeção mensal permanecem incrementos separados. Documentos pós-publicação copiados para a worktree sem alterar os originais da pasta operacional.
 
 Desenho E1.2 completo aprovado em 29/10/2026; plano autorrevisado em `docs/superpowers/plans/2026-10-29-e1-2-canais-descontos.md`, aguardando confirmação antes de implementar. Versão permanece 1.12.0; nenhuma ação operacional.
+
+
+## E1.2 — implementação local em 29/10/2026
+
+Canais, descontos, cobertura/meta e comparações nomeadas imutáveis implementados na branch isolada `codex/e1-2-canais-descontos`, sobre main c3b3dae (1.13.0), versão 1.14.0 preparada. Tipos/lint/build, oito integrações E12, migração/reaplicação com sete projeções legadas e regressões E3–E6 passaram. Revisão independente com achados reproduzidos e corrigidos. Suíte padrão completa aprovada: 1.023 testes em 304 arquivos; [relatório e limites](docs/superpowers/reviews/2026-10-29-e1-2-canais-descontos.md). Sem PR/push/merge/publicação ou ação operacional. Importação, projeção mensal e aceite humano permanecem separados.

@@ -1,7 +1,7 @@
 # E1.2 — Canais, descontos e cenários salvos
 
 Data: 29/10/2026. Base conferida: main local/remota 6e901a7, versão 1.12.0.
-Situação: desenho completo aprovado pelo usuário em 29/10/2026, após revisão independente sem lacunas materiais. Plano em ../plans/2026-10-29-e1-2-canais-descontos.md preparado para revisão; não há implementação.
+Situação: desenho completo aprovado pelo usuário em 29/10/2026, após revisão independente sem lacunas materiais. Plano confirmado e implementação local realizada na versão preparada 1.14.0. Evidências e limites em ../reviews/2026-10-29-e1-2-canais-descontos.md; sem publicação.
 
 ## Intenção e limites
 
