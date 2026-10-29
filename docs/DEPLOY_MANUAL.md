@@ -4,7 +4,15 @@ O fluxo continua: desenvolver → integrar em main → executar manualmente atua
 
 ## Construção
 
-O alvo tools deriva de deps, sem Next. O cliente Prisma é gerado uma vez em deps. COPY --chown prepara a propriedade; não existe chown recursivo. Tools mantém as dependências completas para preservar Prisma, tsx e administração.
+O alvo tools deriva de tools-deps, com Prisma, cliente Prisma, tsx, zod e prompts administrativos. Não inclui Next, lint ou testes. O build da aplicação continua usando deps completo. Cada instalação gera seu próprio cliente Prisma. COPY --chown prepara a propriedade; não existe chown recursivo.
+
+O estágio manifests deriva os arquivos de instalação dos manifestos oficiais. Somente as três versões raiz são normalizadas para 0.0.0; dependências, scripts, configurações e registros transitivos continuam participando do cache. Os arquivos do repositório não são alterados. Build/runtime e tools recebem a versão verdadeira antes da entrega. Se a raiz tiver hooks de instalação, deps preserva também a versão original, pois os hooks podem observá-la.
+
+O lock de tools é reduzido por npm com --package-lock-only --offline --ignore-scripts, usando cache de metadados vazio. Essa preparação não instala pacotes; a instalação efetiva é npm ci com scripts de dependências habilitados. Um verificador rejeita qualquer artefato cuja versão, URL ou integridade não exista no lock original. A lista de dependências diretas fica em scripts/docker/build-manifests.mjs: ao adicionar imports aos comandos administrativos, atualizá-la e testar os comandos reais. Alterações incompatíveis no lock ou workspaces exigem revisão explícita.
+
+Rodar npm run test:docker para os testes de manifestos. Na validação Docker, conferir uma revisão apenas de versão, uma mudança de dependência e contexto com permissões restritivas. Não basta medir uma repetição idêntica. O Next continua compilando quando a versão muda, para atualizar a versão exibida nas telas; a otimização reaproveita a instalação, sem reutilizar indevidamente um bundle de outra versão.
+
+NEXT_BUILD_MAX_OLD_SPACE_SIZE permite ajustar o heap apenas no RUN do Next (padrão 1536 MiB, validado após E5). Não muda runtime nem representa limite de RSS total. Manter verificação de tipos habilitada e medir memória/swap ao alterar esse valor.
 
 O script constrói migrate e app em comandos separados. Imagens usam o commit completo como tag; migrate e admin compartilham appb2t-tools. A revisão OCI identifica a origem. Para administrar a versão publicada, exporte APP_IMAGE_TAG com o commit registrado, confirme a existência da imagem e use `docker compose --profile tools run --rm --no-deps --pull never admin`. Não passar --no-build a compose run: essa opção pertence a up. O script valida o parser da CLI antes de parar app e confirma que a imagem tools existe.
 
