@@ -31,7 +31,7 @@ export function ComparisonEditor({
   catalog,
   onUseOffer,
 }: {
-  input: PricingV2Input;
+  input: PricingV2Input | null;
   request: PricingRequest;
   catalog: PricingCatalogDTO;
   onUseOffer: (ref: Ref, price: string) => void;
@@ -39,26 +39,44 @@ export function ComparisonEditor({
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [kind, setKind] = useState<"CHANNEL" | "COMMON">(
-    input.mode === "INFORMED" ? "COMMON" : "CHANNEL",
+    request.mode === "INFORMED" ? "COMMON" : "CHANNEL",
   );
   const [price, setPrice] = useState(
-    input.mode === "INFORMED" ? input.informedUnitPrice : "",
+    request.mode === "INFORMED" ? request.informedUnitPrice : "",
   );
   const [alternatives, setAlternatives] = useState<ComparisonAlternative[]>([
-    { channelRef: input.channel.ref, discountPercent: "0" },
+    { channelRef: request.channelRef, discountPercent: "0" },
   ]);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [saved, setSaved] = useState<{ id: string; name: string } | null>(null);
   const operation = useRef<{ body: string; key: string } | null>(null),
     lock = useRef(false);
+  const [appliedSource, setAppliedSource] = useState<{
+    body: string;
+    mode: PricingRequest["mode"];
+    informedUnitPrice: string;
+  } | null>(null);
+  const pricingRequest =
+    appliedSource?.body === JSON.stringify(request)
+      ? {
+          ...request,
+          mode: appliedSource.mode,
+          informedUnitPrice: appliedSource.informedUnitPrice,
+        }
+      : request;
   const reference: ComparisonReference =
     kind === "CHANNEL" ? { kind } : { kind, unitPrice: price };
   let preview: ComparisonPreview | null = null,
     invalid = "";
   try {
+    if (!input) throw Error("Premissas produtivas inválidas.");
     preview = previewComparison(
-      input,
+      {
+        ...input,
+        mode: pricingRequest.mode,
+        informedUnitPrice: pricingRequest.informedUnitPrice,
+      },
       catalog.channels,
       reference,
       alternatives,
@@ -67,7 +85,12 @@ export function ComparisonEditor({
     invalid =
       "Revise os canais, o preço comum e os descontos (0 a 100%, até duas casas decimais).";
   }
-  const draft: ComparisonDraft = { name, request, reference, alternatives };
+  const draft: ComparisonDraft = {
+    name,
+    request: pricingRequest,
+    reference,
+    alternatives,
+  };
   const canSave =
     comparisonDraftSchema.safeParse(draft).success &&
     preview?.alternatives.every((r) => r.status === "VALID");
@@ -127,9 +150,9 @@ export function ComparisonEditor({
           </ToggleGroup>
           <p className="muted">
             Política do formulário:{" "}
-            {input.mode === "MARKUP"
+            {pricingRequest.mode === "MARKUP"
               ? "Markup"
-              : input.mode === "CONTRIBUTION"
+              : pricingRequest.mode === "CONTRIBUTION"
                 ? "Meta de contribuição"
                 : "Preço informado"}
             .{" "}
@@ -205,7 +228,7 @@ export function ComparisonEditor({
             onClick={() =>
               setAlternatives((rows) => [
                 ...rows,
-                { channelRef: input.channel.ref, discountPercent: "0" },
+                { channelRef: request.channelRef, discountPercent: "0" },
               ])
             }
           >
@@ -219,12 +242,22 @@ export function ComparisonEditor({
                   key={i}
                   value={r.value}
                   index={i}
-                  onUse={() =>
+                  onUse={() => {
+                    setAppliedSource({
+                      body: JSON.stringify({
+                        ...request,
+                        channelRef: r.value.channelRef,
+                        mode: "INFORMED",
+                        informedUnitPrice: r.value.metrics.finalUnitPrice,
+                      }),
+                      mode: pricingRequest.mode,
+                      informedUnitPrice: pricingRequest.informedUnitPrice,
+                    });
                     onUseOffer(
                       r.value.channelRef,
                       r.value.metrics.finalUnitPrice,
-                    )
-                  }
+                    );
+                  }}
                 />
               ) : (
                 <Notice key={i}>{r.message}</Notice>

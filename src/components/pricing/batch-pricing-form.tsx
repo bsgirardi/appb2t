@@ -41,6 +41,7 @@ export function BatchPricingForm({
     touched,
     patch,
     input,
+    comparisonInput,
     result,
     validationMessage,
     fieldProps,
@@ -452,14 +453,7 @@ export function BatchPricingForm({
         {result && input ? (
           <>
             <PricingResult input={input} result={result} />
-            <ComparisonEditor
-              input={input}
-              request={draft}
-              catalog={current}
-              onUseOffer={(channelRef, informedUnitPrice) =>
-                patch({ channelRef, mode: "INFORMED", informedUnitPrice })
-              }
-            />
+
             {fixedQuantity === undefined && (
               <PricingScenarios
                 input={input}
@@ -475,6 +469,14 @@ export function BatchPricingForm({
             </Notice>
           )
         )}
+        <ComparisonEditor
+          input={comparisonInput}
+          request={draft}
+          catalog={current}
+          onUseOffer={(channelRef, informedUnitPrice) =>
+            patch({ channelRef, mode: "INFORMED", informedUnitPrice })
+          }
+        />
         <Button type="button" disabled={!result || busy} onClick={apply}>
           {busy ? "Aplicando…" : applyLabel}
         </Button>

@@ -11,14 +11,12 @@ export default async function ComparisonPage({
 }) {
   const actor = await requireActor(),
     { id } = await params;
-  try {
-    const [comparison, catalog] = await Promise.all([
-      getPricingComparison(actor, id),
-      getPricingCatalog(actor),
-    ]);
-    return <ComparisonDetail comparison={comparison} catalog={catalog} />;
-  } catch (e) {
+  const [comparison, catalog] = await Promise.all([
+    getPricingComparison(actor, id),
+    getPricingCatalog(actor),
+  ]).catch((e: unknown) => {
     if (e instanceof AppError && e.code === "NOT_FOUND") notFound();
     throw e;
-  }
+  });
+  return <ComparisonDetail comparison={comparison} catalog={catalog} />;
 }

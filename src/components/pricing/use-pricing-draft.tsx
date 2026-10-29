@@ -177,6 +177,15 @@ export function usePricingDraft({
     setCurrent(review);
     setReview(null);
   }
+  let comparisonInput: PricingV2Input | null = null;
+  try {
+    comparisonInput = {
+      ...resolveCatalogPricing(current, { ...draft, mode: "INFORMED" }),
+      mode: draft.mode,
+    };
+  } catch {
+    /* Keep the comparison editor mounted while productive fields are invalid. */
+  }
   return {
     current,
     review,
@@ -187,6 +196,7 @@ export function usePricingDraft({
     touched,
     patch,
     input,
+    comparisonInput,
     result,
     fieldErrors,
     validationMessage,
