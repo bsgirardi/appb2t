@@ -44,7 +44,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
 | E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
-| E6 | Conteúdo de anúncios e integrações externas | Em detalhamento | Desenho E6.1 aprovado; plano preparado para execução direta em isolamento |
+| E6 | Conteúdo de anúncios e integrações externas | Parcial | E6.1 implementada localmente; anúncios manuais para Instagram e WhatsApp; integrações pendentes |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
 
@@ -117,10 +117,10 @@ Critério proposto: rastrear remessa → saldo no parceiro → venda/devolução
 
 ## E6 — Conteúdo de anúncios e integrações
 
-- [ ] Gerar títulos e descrições a partir dos dados confirmados da ficha do produto.
-- [ ] Adaptar conteúdo por canal e permitir revisão.
-- [ ] Organizar fotos e informações para exportação.
-- [ ] Biblioteca de anúncios e rascunhos.
+- [x] Gerar títulos e descrições a partir dos dados confirmados da ficha do produto.
+- [x] Adaptar conteúdo por canal e permitir revisão (Instagram e WhatsApp).
+- [x] Organizar fotos e informações para exportação manual.
+- [x] Biblioteca de anúncios e rascunhos.
 - [ ] Definir provedores, custos, créditos e tratamento de arquivos antes de adotar IA.
 - [ ] Definir integrações reais por marketplace separadamente: autenticação, permissões, publicação, pedidos e sincronização.
 
@@ -356,3 +356,7 @@ Usuário aprovou Instagram e WhatsApp como primeiros canais e preparação de ma
 ### 29/10/2026 — desenho E6.1 aprovado e plano preparado
 
 Usuário aprovou o desenho completo da biblioteca para Instagram e WhatsApp. [Plano E6.1](superpowers/plans/2026-10-29-e6-anuncios.md) preparado e autorrevisado: seis tarefas de domínio, persistência/API, exportação, interface shadcn, migração/CI e entrega com revisão final independente. Método direto em isolamento preservado; confirmação do plano é a próxima ação antes de implementar. Banco previsto exclusivo em localhost:55436/b2t_e6_test, sem compartilhar bases das outras etapas ou alterar serviços operacionais. Main reconferida em 1.11.1 (`e273091`); versão preservada nesta preparação. Somente documentação e git diff --check; nenhum código, instalação, teste funcional, migração, PR, push, merge ou publicação executados. E6 permanece em detalhamento.
+
+### 29/10/2026 — E6.1 implementada em isolamento
+
+Plano aprovado e executado na branch local `codex/e6-anuncios`, sobre main 1.11.1 (`e273091`), com versão 1.12.0 preparada. Biblioteca privada para Instagram/WhatsApp, sugestões determinísticas, revisão vigente, seleção e ordem das fotos, cópia e ZIP para publicação manual, comparação de edições e arquivamento/restauração. Migração real/reaplicação preservou onze projeções legadas; nove testes E6 e regressões E3/E4/E5 aprovados. Ensaio desktop/celular e acesso de administrador/operador confirmados com dados fictícios. Revisão independente encontrou dois problemas, reproduzidos e corrigidos com testes. [Relatório, evidências e limites](superpowers/reviews/2026-10-29-e6-anuncios.md). Verificações gerais finais registradas no relatório. Sem PR, push, merge, publicação ou migração operacional; IA, marketplaces e postagem automática continuam pendentes. A pasta operacional e o trabalho dos demais chats foram preservados.
