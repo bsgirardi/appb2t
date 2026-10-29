@@ -38,7 +38,11 @@ export function CalculatorWorkspace({
         setVisited((previous) => new Set([...previous, value]));
       }}
     >
-      <p className="mb-4"><Link href="/calculadora/cenarios">Comparações de canais e descontos salvas</Link></p>
+      <p className="mb-4">
+        <Link href="/calculadora/cenarios">
+          Comparações de canais e descontos salvas
+        </Link>
+      </p>
       <TabsList
         aria-label="Tipo de cálculo"
         className="mb-5 h-auto flex-wrap justify-start gap-1"

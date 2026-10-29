@@ -586,7 +586,16 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   onSelect={(quantity) => patch({ quantity })}
                 />
               )}
-              {result && input && <ComparisonEditor input={input} request={draft} catalog={current} onUseOffer={(channelRef, informedUnitPrice) => patch({ channelRef, mode: "INFORMED", informedUnitPrice })} />}
+              {result && input && (
+                <ComparisonEditor
+                  input={input}
+                  request={draft}
+                  catalog={current}
+                  onUseOffer={(channelRef, informedUnitPrice) =>
+                    patch({ channelRef, mode: "INFORMED", informedUnitPrice })
+                  }
+                />
+              )}
             </CardContent>
             <CardFooter>
               <Button type="button" disabled={!result || busy} onClick={apply}>

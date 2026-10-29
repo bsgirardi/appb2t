@@ -5,27 +5,83 @@ import { pricingFixture } from "../fixtures/pricing-db";
 import { db } from "@/lib/db";
 import { tokenHash } from "@/server/auth/session";
 const session = vi.hoisted(() => ({ token: undefined as string | undefined }));
-vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => session.token ? { value: session.token } : undefined }) }));
+vi.mock("next/headers", () => ({
+  cookies: async () => ({
+    get: () => (session.token ? { value: session.token } : undefined),
+  }),
+}));
 import { GET, POST } from "@/app/api/pricing/comparisons/route";
 import { GET as detail } from "@/app/api/pricing/comparisons/[id]/route";
 setupDatabase();
-const request = (body: unknown) => new Request("http://localhost:3000/api/pricing/comparisons", { method: "POST", headers: { origin: "http://localhost:3000", "content-type": "application/json" }, body: JSON.stringify(body) });
+const request = (body: unknown) =>
+  new Request("http://localhost:3000/api/pricing/comparisons", {
+    method: "POST",
+    headers: {
+      origin: "http://localhost:3000",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
 it("requires authentication and allows operator create and private reads", async () => {
   process.env.APP_URL = "http://localhost:3000";
   session.token = undefined;
-  expect((await GET(new Request("http://localhost:3000/api/pricing/comparisons"))).status).toBe(401);
+  expect(
+    (await GET(new Request("http://localhost:3000/api/pricing/comparisons")))
+      .status,
+  ).toBe(401);
   expect((await POST(request({}))).status).toBe(401);
   const { actor, request: pricing } = await pricingFixture();
   await db.user.update({ where: { id: actor.id }, data: { role: "OPERATOR" } });
   session.token = "c".repeat(64);
-  await db.session.create({ data: { userId: actor.id, tokenHash: tokenHash(session.token), expiresAt: new Date(Date.now() + 60000) } });
-  const body = { draft: { name: "HTTP", request: pricing, reference: { kind: "CHANNEL" }, alternatives: [{ channelRef: pricing.channelRef, discountPercent: "0" }] }, operationKey: randomUUID() };
+  await db.session.create({
+    data: {
+      userId: actor.id,
+      tokenHash: tokenHash(session.token),
+      expiresAt: new Date(Date.now() + 60000),
+    },
+  });
+  const body = {
+    draft: {
+      name: "HTTP",
+      request: pricing,
+      reference: { kind: "CHANNEL" },
+      alternatives: [{ channelRef: pricing.channelRef, discountPercent: "0" }],
+    },
+    operationKey: randomUUID(),
+  };
   const saved = await POST(request(body));
   expect(saved.status).toBe(200);
   const id = (await saved.json()).data.id;
-  expect((await detail(new Request("http://localhost:3000"), { params: Promise.resolve({ id }) })).status).toBe(200);
-  expect((await detail(new Request("http://localhost:3000"), { params: Promise.resolve({ id: "missing" }) })).status).toBe(404);
-  expect((await GET(new Request("http://localhost:3000/api/pricing/comparisons?limit=51"))).status).toBe(422);
-  expect((await POST(request({ ...body, draft: { ...body.draft, name: "Alterado" } }))).status).toBe(409);
-  expect((await POST(request({ ...body, draft: { ...body.draft, totals: {} } }))).status).toBe(422);
+  expect(
+    (
+      await detail(new Request("http://localhost:3000"), {
+        params: Promise.resolve({ id }),
+      })
+    ).status,
+  ).toBe(200);
+  expect(
+    (
+      await detail(new Request("http://localhost:3000"), {
+        params: Promise.resolve({ id: "missing" }),
+      })
+    ).status,
+  ).toBe(404);
+  expect(
+    (
+      await GET(
+        new Request("http://localhost:3000/api/pricing/comparisons?limit=51"),
+      )
+    ).status,
+  ).toBe(422);
+  expect(
+    (
+      await POST(
+        request({ ...body, draft: { ...body.draft, name: "Alterado" } }),
+      )
+    ).status,
+  ).toBe(409);
+  expect(
+    (await POST(request({ ...body, draft: { ...body.draft, totals: {} } })))
+      .status,
+  ).toBe(422);
 });

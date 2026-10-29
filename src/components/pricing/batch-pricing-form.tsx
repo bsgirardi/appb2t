@@ -452,7 +452,14 @@ export function BatchPricingForm({
         {result && input ? (
           <>
             <PricingResult input={input} result={result} />
-            <ComparisonEditor input={input} request={draft} catalog={current} onUseOffer={(channelRef, informedUnitPrice) => patch({ channelRef, mode: "INFORMED", informedUnitPrice })} />
+            <ComparisonEditor
+              input={input}
+              request={draft}
+              catalog={current}
+              onUseOffer={(channelRef, informedUnitPrice) =>
+                patch({ channelRef, mode: "INFORMED", informedUnitPrice })
+              }
+            />
             {fixedQuantity === undefined && (
               <PricingScenarios
                 input={input}
