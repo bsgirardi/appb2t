@@ -25,12 +25,24 @@ publish_aliases() {
   docker tag "appb2t-tools:$revision" appb2t-tools:latest
   docker tag "$candidate" appb2t-app:latest
 }
+wait_healthy() {
+  local deadline=$((SECONDS+180)) state
+  while (( SECONDS < deadline )); do
+    state="$(docker inspect --format '{{.State.Status}} {{.State.Health.Status}}' "$1")" || return 1
+    case "$state" in
+      'running healthy') return 0 ;;
+      running\ *) sleep 2 ;;
+      *) return 1 ;;
+    esac
+  done
+  return 1
+}
 fail() {
   local code=$?
   trap - ERR
   echo "etapa=$phase status=falha duracao_s=$((SECONDS-phase_started)) backup=${backup_dir:-ausente}" >&2
   if [[ "$stopped" == 1 && "$migration_started" == 0 ]]; then
-    if docker compose start --wait --wait-timeout 180 app; then
+    if docker start "$app_id" >/dev/null && wait_healthy "$app_id"; then
       echo 'Aplicação anterior retomada; nenhuma migração foi iniciada.' >&2
     else
       echo 'Falha ao retomar a aplicação anterior. Intervenção manual necessária.' >&2
@@ -51,12 +63,19 @@ revision="$(git rev-parse HEAD)"
 export APP_IMAGE_TAG="$revision"
 docker compose version >/dev/null
 docker compose config --quiet
+# Parse the actual installed CLI before any build or interruption.
+docker compose run --rm --no-deps --pull never -T --interactive=false --help >/dev/null
+docker compose exec -T --interactive=false --help >/dev/null
 app_id="$(docker compose ps -q app)"
 db_id="$(docker compose ps -q db)"
 [[ -n "$app_id" && -n "$db_id" ]] || {
   echo 'Este comando exige aplicação e banco em execução. Consulte INSTALACAO_SERVIDOR.md.' >&2; exit 1;
 }
 old_image="$(docker inspect --format '{{.Image}}' "$app_id")"
+docker image inspect "$old_image" >/dev/null || {
+  echo 'Imagem da aplicação atual ausente no Docker. Preserve e valide uma imagem de recuperação antes de atualizar; a aplicação não foi parada.' >&2
+  exit 1
+}
 mkdir -p backups
 backup_dir="$(mktemp -d "$PWD/backups/atualizacao-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")"
 # O log público não recebe configuração, inspect ou conteúdo do dump.
@@ -66,6 +85,7 @@ end
 
 begin build_tools
 docker compose --progress plain build --build-arg "APP_REVISION=$revision" migrate
+docker image inspect "appb2t-tools:$revision" >/dev/null
 end
 begin build_app
 docker compose --progress plain build --build-arg "APP_REVISION=$revision" app
@@ -76,7 +96,7 @@ config_hash="$(docker compose config --hash app)"
 old_hash="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.config-hash"}}' "$app_id")"
 if [[ "$candidate" == "$old_image" && "$config_hash" == "app $old_hash" ]] \
   && [[ "$(docker inspect --format '{{.State.Health.Status}}' "$app_id")" == healthy ]] \
-  && docker compose run --rm --no-deps --no-build migrate ./node_modules/.bin/prisma migrate status > "$backup_dir/migration-status.log" 2>&1; then
+  && docker compose run --rm --no-deps --pull never -T --interactive=false migrate ./node_modules/.bin/prisma migrate status > "$backup_dir/migration-status.log" 2>&1; then
   publish_aliases
   echo "A versão candidata já está em execução e sem migrações pendentes. total_s=$((SECONDS-total_started)) indisponibilidade_s=0"
   exit 0
@@ -108,14 +128,14 @@ downtime_started=$SECONDS
 stopped=1
 docker compose stop app
 # Streaming binário e pipefail: falha impede qualquer migração.
-docker compose exec -T db pg_dump -U b2t -d b2t -Fc > "$backup_dir/banco.dump"
+docker compose exec -T --interactive=false db pg_dump -U b2t -d b2t -Fc > "$backup_dir/banco.dump"
 docker compose exec -T db pg_restore --list < "$backup_dir/banco.dump" > /dev/null
 sha256sum "$backup_dir/banco.dump" > "$backup_dir/banco.dump.sha256"
 end
 
 begin migracao
 migration_started=1
-docker compose run --rm --no-deps --no-build migrate
+docker compose run --rm --no-deps --pull never -T --interactive=false migrate
 end
 begin publicacao
 docker compose up -d --no-deps --no-build --wait --wait-timeout 180 app

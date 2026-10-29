@@ -6,7 +6,7 @@ O fluxo continua: desenvolver → integrar em main → executar manualmente atua
 
 O alvo tools deriva de deps, sem Next. O cliente Prisma é gerado uma vez em deps. COPY --chown prepara a propriedade; não existe chown recursivo. Tools mantém as dependências completas para preservar Prisma, tsx e administração.
 
-O script constrói migrate e app em comandos separados. Imagens usam o commit completo como tag; migrate e admin compartilham appb2t-tools. A revisão OCI identifica a origem. Evite usar `admin --build` sem APP_IMAGE_TAG depois da atualização: para administrar a versão publicada, exporte APP_IMAGE_TAG com o commit registrado e use `--no-build`.
+O script constrói migrate e app em comandos separados. Imagens usam o commit completo como tag; migrate e admin compartilham appb2t-tools. A revisão OCI identifica a origem. Para administrar a versão publicada, exporte APP_IMAGE_TAG com o commit registrado, confirme a existência da imagem e use `docker compose --profile tools run --rm --no-deps --pull never admin`. Não passar --no-build a compose run: essa opção pertence a up. O script valida o parser da CLI antes de parar app e confirma que a imagem tools existe.
 
 Depois de confirmar saúde e identidade, o script atualiza também appb2t-app:latest e appb2t-tools:latest para as imagens publicadas. Isso mantém os comandos manuais Compose compatíveis quando a variável exportada no subprocesso termina, sem modificar .env. Uma candidata que falhou não recebe esses aliases. Não manter APP_IMAGE_TAG antigo exportado no terminal para comandos operacionais; usar o commit publicado explicitamente ou o padrão latest verificado.
 
@@ -35,9 +35,11 @@ O registro inclui imagem e hash da configuração do container publicado. Se o c
 ## Falhas e recuperação
 
 1. Falha antes da parada: app anterior continua executando.
-2. Falha no stop/backup/catálogo/checksum, antes de iniciar migração: script tenta `docker compose start --wait --wait-timeout 180 app`, retomando o container existente. Não usa up para essa recuperação, pois up poderia trocar a imagem.
+2. Falha no stop/backup/catálogo/checksum, antes de iniciar migração: script tenta docker start com o ID exato do container anterior e aguarda sua saúde. Não usa compose start, que pode iniciar dependências, nem up, que poderia trocar a imagem.
 3. Assim que migração começa, não existe retorno automático: uma falha pode ter aplicado parte do esquema. Avaliar registros Prisma, SQL e compatibilidade antes de retornar.
 4. Falha na nova aplicação: retornar imagem somente se ela for compatível com o banco atual. A imagem preservada consta em imagem-anterior.txt e possui tag antes-*. Não restaurar banco sobre novas escritas.
+
+Se o container atual ainda executa, mas sua imagem original foi removida do armazenamento, o preflight interrompe antes dos builds. É necessário preservar e ensaiar uma imagem de recuperação em procedimento operacional separado; não há export/import automático. Na publicação de referência, essa condição foi tratada com snapshot sem pausa e ensaio isolado.
 
 Com autorização operacional específica e após confirmar compatibilidade, usar o Compose anterior arquivado com `--project-directory /etc/docker/appb2t`, um override de image apontando ao ID preservado e `up -d --no-deps --no-build --wait app`. Revisar o arquivo privado e os caminhos antes: não executar um exemplo genérico sobre produção. Na primeira entrega otimizada, sem Compose anterior registrado, reconstruir/revisar a configuração a partir do inspect e do histórico antes da recuperação.
 
