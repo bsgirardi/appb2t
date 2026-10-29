@@ -44,7 +44,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
 | E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
-| E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
+| E6 | Conteúdo de anúncios e integrações externas | Em detalhamento | Canais Instagram/WhatsApp aprovados; desenho E6.1 revisado, aguardando aprovação |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
 
@@ -348,3 +348,7 @@ Usuário autorizou criar a PR do ciclo completo. Branch `codex/e5-consignacao` p
 ### 28/10/2026 — PR E5.1 criada
 
 [PR #26](https://github.com/bsgirardi/appb2t/pull/26) aberta para revisão, versão 1.11.0, branch codex/e5-consignacao. Revalidação de preparação aprovada; CI iniciado e resultado ainda pendente. Sem merge/publicação/migração operacional. E5 segue em validação.
+
+### 29/10/2026 — E6.1 com canais definidos e desenho preparado
+
+Usuário aprovou Instagram e WhatsApp como primeiros canais e preparação de material para revisão/publicação manual. [Desenho E6.1](superpowers/specs/2026-10-29-e6-anuncios-design.md) preparado: biblioteca privada por produto/canal, textos de campos confirmados, seleção/ordem de fotos, revisão vigente, exportação de texto/fotos e tratamento de alterações da ficha. Revisão independente sem perguntas materiais pendentes. Detalhes são propostas aguardando aprovação do desenho completo; não há código, dependências instaladas, migração ou implementação nesta entrega. IA, marketplaces e integração/postagem automática permanecem pendentes. Base main 1.11.1 (`e273091`), versão preservada; sem PR, push, merge ou publicação. Próxima ação: aprovar desenho e elaborar plano de execução em isolamento. E6 ampla permanece parcial/em detalhamento.
