@@ -21,6 +21,9 @@ git() {
   esac
   return 0
 }
+assert_absent() {
+  if grep "$@"; then echo 'Unexpected command or content' >&2; exit 1; fi
+}
 docker() {
   echo "$*" >> "$LOG"
   if [[ "$*" == 'compose run '* && "$*" == *'--no-build'* ]]; then
@@ -33,7 +36,7 @@ docker() {
     'compose run --rm --no-deps --pull never -T --interactive=false --help') [[ "${CASE:-}" != cli_incompatible ]] ;;
     'image inspect sha256:old') [[ "${CASE:-}" != missing_image ]] ;;
     'inspect --format {{.Image}} app')
-      if [[ "${CASE:-}" =~ ^(noop|config_change|pending|unhealthy)$ || -f "$work/published" ]]; then echo sha256:new; else echo sha256:old; fi ;;
+      if [[ "${CASE:-}" =~ ^(noop|config_change|pending|unhealthy|tools_missing|revision_mismatch)$ || -f "$work/published" ]]; then echo sha256:new; else echo sha256:old; fi ;;
     'inspect --format {{.State.Health.Status}} app')
       if [[ "${CASE:-}" == unhealthy && ! -f "$work/published" ]]; then echo unhealthy; else echo healthy; fi ;;
     'inspect --format {{.State.Status}} {{.State.Health.Status}} app')
@@ -42,6 +45,10 @@ docker() {
         recovery_inspect) return 1 ;;
         *) echo 'running healthy' ;;
       esac ;;
+    *'org.opencontainers.image.revision'*)
+      [[ "${CASE:-}" != revision_mismatch ]] || { echo other; return 0; }
+      if [[ "${CASE:-}" == tools_missing && "$*" == *appb2t-tools:* ]]; then return 1; fi
+      echo abc123 ;;
     *'com.docker.compose.config-hash'*) echo config123 ;;
     'compose config --hash app')
       if [[ "${CASE:-}" == config_change ]]; then echo 'app config456'; else echo 'app config123'; fi ;;
@@ -52,7 +59,7 @@ docker() {
     'compose stop app') [[ "${CASE:-}" != stop ]] ;;
     *pg_dump*) [[ "${CASE:-}" != dump && "${CASE:-}" != recovery* ]] && echo binary-dump ;;
     *pg_restore*) cat >/dev/null; [[ "${CASE:-}" != invalid ]] ;;
-    *'prisma migrate status'*) [[ "${CASE:-}" == noop ]] ;;
+    *'prisma migrate status'*) [[ "${CASE:-}" =~ ^(noop|tools_missing|revision_mismatch)$ ]] ;;
     'compose run --rm --no-deps --pull never -T --interactive=false migrate') [[ "${CASE:-}" != migrate ]] ;;
     'compose up -d --no-deps --no-build --wait --wait-timeout 180 app')
       [[ "${CASE:-}" != health ]] || return 1
@@ -64,15 +71,15 @@ docker() {
   esac
 }
 export -f git docker
-for CASE in success cli_incompatible missing_image build_tools build_app preserve stop dump invalid recovery recovery_exited recovery_inspect migrate health wrong_image tag_tools tag_app noop config_change pending unhealthy dirty; do
+for CASE in success cli_incompatible missing_image build_tools build_app preserve stop dump invalid recovery recovery_exited recovery_inspect migrate health wrong_image tag_tools tag_app noop config_change pending unhealthy tools_missing revision_mismatch dirty; do
   export CASE
   : > "$LOG"
   rm -f "$work/published"
   if bash "$work/scripts/atualizar-docker.sh" > "$work/output" 2>&1; then
-    [[ "$CASE" =~ ^(success|noop|config_change|pending|unhealthy)$ ]] || { cat "$work/output"; exit 1; }
+    [[ "$CASE" =~ ^(success|noop|config_change|pending|unhealthy|tools_missing|revision_mismatch)$ ]] || { cat "$work/output"; exit 1; }
   else
-    [[ ! "$CASE" =~ ^(success|noop|config_change|pending|unhealthy)$ ]] || { cat "$work/output"; exit 1; }
-    ! grep -q 'Nova versão em execução' "$work/output"
+    [[ ! "$CASE" =~ ^(success|noop|config_change|pending|unhealthy|tools_missing|revision_mismatch)$ ]] || { cat "$work/output"; exit 1; }
+    assert_absent -q 'Nova versão em execução' "$work/output"
   fi
   case "$CASE" in
     success)
@@ -82,27 +89,27 @@ for CASE in success cli_incompatible missing_image build_tools build_app preserv
       tools=$(grep -n '^compose --progress plain build .* migrate$' "$LOG" | cut -d: -f1)
       app=$(grep -n '^compose --progress plain build .* app$' "$LOG" | cut -d: -f1)
       [[ "$tools" -lt "$app" ]] ;;
-    cli_incompatible|missing_image|build_tools|build_app|preserve|dirty) ! grep -q 'compose stop app' "$LOG" ;;
+    cli_incompatible|missing_image|build_tools|build_app|preserve|dirty) assert_absent -q 'compose stop app' "$LOG" ;;
     stop|dump|invalid|recovery|recovery_exited|recovery_inspect)
-      ! grep -q 'compose run --rm --no-deps --pull never -T --interactive=false migrate' "$LOG"
+      assert_absent -q 'compose run --rm --no-deps --pull never -T --interactive=false migrate' "$LOG"
       grep -q '^start app$' "$LOG"
-      ! grep -q 'compose start' "$LOG" ;;
-    migrate|health|wrong_image|tag_tools|tag_app) ! grep -q '^start app$' "$LOG" ;;
-    noop) ! grep -q 'compose stop app' "$LOG"; grep -q 'já está em execução' "$work/output" ;;
-    config_change|pending|unhealthy) grep -q 'compose stop app' "$LOG" ;;
+      assert_absent -q 'compose start' "$LOG" ;;
+    migrate|health|wrong_image|tag_tools|tag_app) assert_absent -q '^start app$' "$LOG" ;;
+    noop) assert_absent -q '^compose --progress plain build' "$LOG"; assert_absent -q 'compose stop app' "$LOG"; grep -q 'já está em execução' "$work/output" ;;
+    config_change|pending|unhealthy|tools_missing|revision_mismatch) grep -q 'compose stop app' "$LOG" ;;
   esac
-  if [[ "$CASE" =~ ^(success|noop|config_change|pending|unhealthy)$ ]]; then
+  if [[ "$CASE" =~ ^(success|noop|config_change|pending|unhealthy|tools_missing|revision_mismatch)$ ]]; then
     grep -q '^tag sha256:new appb2t-app:latest$' "$LOG"
     grep -q '^tag appb2t-tools:abc123 appb2t-tools:latest$' "$LOG"
   elif [[ "$CASE" == tag_tools ]]; then
-    ! grep -q ' appb2t-app:latest$' "$LOG"
+    assert_absent -q ' appb2t-app:latest$' "$LOG"
   elif [[ "$CASE" != tag_app ]]; then
-    ! grep -q ' appb2t-app:latest$' "$LOG"
-    ! grep -q ' appb2t-tools:latest$' "$LOG"
+    assert_absent -q ' appb2t-app:latest$' "$LOG"
+    assert_absent -q ' appb2t-tools:latest$' "$LOG"
   fi
   if [[ "$CASE" == recovery* ]]; then grep -q 'Falha ao retomar' "$work/output"; fi
-  if [[ "$CASE" == cli_incompatible || "$CASE" == missing_image ]]; then ! grep -q '^compose --progress plain build' "$LOG"; fi
-  ! grep -Eq 'compose down|prune|volume rm|systemctl|compose restart' "$LOG"
-  ! grep -q PRIVATE_AUDIT_SENTINEL "$work/output"
+  if [[ "$CASE" == cli_incompatible || "$CASE" == missing_image ]]; then assert_absent -q '^compose --progress plain build' "$LOG"; fi
+  assert_absent -Eq 'compose down|prune|volume rm|systemctl|compose restart' "$LOG"
+  assert_absent -q PRIVATE_AUDIT_SENTINEL "$work/output"
   echo "PASS docker: $CASE"
 done
