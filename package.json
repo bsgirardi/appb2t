@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",

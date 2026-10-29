@@ -136,7 +136,7 @@ Os backups ficam em backups/atualizacao-DATA-ID/, com banco.dump, checksum, ambi
 
 O script interrompe na etapa que falhou e informa o caminho do backup, quando criado. Falha de build mantém a aplicação anterior em execução. Falha após a parada pode deixá-la indisponível. Consulte:
 
-Se o backup falhar antes de iniciar migrações, o script tenta retomar o container anterior com `start`, sem substituir sua imagem. Depois que uma migração começa, a recuperação exige análise manual de compatibilidade; não há rollback automático do banco.
+Se o backup falhar antes de iniciar migrações, o script tenta retomar apenas o container anterior pelo seu ID, sem substituir sua imagem ou iniciar dependências. Depois que uma migração começa, a recuperação exige análise manual de compatibilidade; não há rollback automático do banco.
 
 ```bash
 docker compose logs --tail 100 app migrate db
