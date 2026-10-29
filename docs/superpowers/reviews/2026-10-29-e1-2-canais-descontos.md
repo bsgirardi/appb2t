@@ -27,7 +27,7 @@ Verificação adicional encontrou reaplicação visual do desconto após Usar of
 
 ## Apresentação e limites
 
-Componentes reais renderizados com CSS de produção e dados sintéticos, inspecionados em desktop 1440 px e celular 375 px: largura rolável igual à janela, sem overflow horizontal; Tab alcança a ação Usar oferta 1. Capturas locais ficam no diretório ignorado `.superpowers/sdd/2026-10-29-e1-2-canais-descontos/`.
+Componentes reais renderizados com CSS de produção e dados sintéticos, inspecionados em desktop 1440 px e celular 375 px: largura rolável igual à janela, sem overflow horizontal; Tab alcança a ação Usar oferta 1. Capturas locais ficam no diretório ignorado `.superpowers/evidence/2026-10-29-e1-2-canais-descontos/`.
 
 O início da prévia local autenticada foi rejeitado pela revisão automática de aprovação; a ferramenta retornou apenas “blocked by policy”. Usou-se renderização offline como alternativa; não se afirma validação de fluxo autenticado completo no navegador. Autorização ADMIN/OPERATOR é coberta por testes de serviço/API e dos componentes existentes de versão.
 
