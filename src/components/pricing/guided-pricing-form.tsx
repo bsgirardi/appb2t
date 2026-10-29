@@ -6,6 +6,7 @@ import { PrintingDurationFields } from "./printing-duration-fields";
 import { PricingReferenceReview } from "./pricing-reference-review";
 import { PricingResult } from "./pricing-result";
 import { PricingScenarios } from "./pricing-scenarios";
+import { ComparisonEditor } from "./comparisons/comparison-editor";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import {
   Card,
@@ -585,6 +586,7 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   onSelect={(quantity) => patch({ quantity })}
                 />
               )}
+              {result && input && <ComparisonEditor input={input} request={draft} catalog={current} onUseOffer={(channelRef, informedUnitPrice) => patch({ channelRef, mode: "INFORMED", informedUnitPrice })} />}
             </CardContent>
             <CardFooter>
               <Button type="button" disabled={!result || busy} onClick={apply}>
