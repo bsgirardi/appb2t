@@ -29,3 +29,4 @@ Dockerfile
 compose*.yaml
 scripts/atualizar-*.sh
 tests/shell
+tests/docker

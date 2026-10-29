@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
+    "test:docker": "node --test tests/docker/build-manifests.test.mjs",
     "test:integration": "vitest run tests/integration",
     "test:e3": "vitest run --config vitest.e3.config.ts",
     "test:e4": "vitest run --config vitest.e4.config.ts",

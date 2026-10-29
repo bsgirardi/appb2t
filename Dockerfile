@@ -5,9 +5,19 @@ WORKDIR /app
 RUN chown node:node /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
-FROM base AS deps
+FROM base AS manifests
 USER node
 COPY --chown=node:node package.json package-lock.json ./
+COPY --chown=node:node scripts/docker/build-manifests.mjs /tmp/build-manifests.mjs
+# Lock pruning is offline, uses an empty metadata cache and cannot change artifacts.
+RUN node /tmp/build-manifests.mjs create /app /app/manifests \
+    && cd /app/manifests/tools \
+    && npm install --package-lock-only --offline --ignore-scripts --legacy-peer-deps --no-audit --no-fund --cache /tmp/lock-cache \
+    && node /tmp/build-manifests.mjs finalize /app /app/manifests
+
+FROM base AS deps
+USER node
+COPY --from=manifests --chown=node:node /app/manifests/deps/ ./
 # Match the repository's npm settings without requiring hidden files in the context.
 RUN --mount=type=cache,id=appb2t-npm-node22,target=/home/node/.npm,uid=1000,gid=1000,sharing=locked \
     npm ci --legacy-peer-deps --maxsockets=5
@@ -21,12 +31,21 @@ ARG NEXT_BUILD_MAX_OLD_SPACE_SIZE=1536
 RUN --mount=type=cache,id=appb2t-next-node22-next16,target=/app/.next/cache,uid=1000,gid=1000,sharing=locked \
     NODE_OPTIONS="--max-old-space-size=${NEXT_BUILD_MAX_OLD_SPACE_SIZE}" ./node_modules/.bin/next build
 
-FROM deps AS tools
+FROM base AS tools-deps
+USER node
+COPY --from=manifests --chown=node:node /app/manifests/tools/ ./
+RUN --mount=type=cache,id=appb2t-npm-node22,target=/home/node/.npm,uid=1000,gid=1000,sharing=locked \
+    npm ci --omit=dev --legacy-peer-deps --maxsockets=5
+COPY --chown=node:node prisma/schema.prisma ./prisma/schema.prisma
+RUN ./node_modules/.bin/prisma generate
+
+FROM tools-deps AS tools
 COPY --chown=node:node prisma ./prisma
 COPY --chown=node:node tsconfig.json ./
 COPY --chown=node:node scripts/create-admin.ts scripts/admin-password.ts ./scripts/
 COPY --chown=node:node src/lib/db.ts src/lib/errors.ts ./src/lib/
 COPY --chown=node:node src/server/auth/password.ts src/server/auth/session.ts ./src/server/auth/
+COPY --from=manifests --chown=node:node /app/manifests/tools-runtime/ ./
 ARG APP_REVISION=unknown
 LABEL org.opencontainers.image.revision=$APP_REVISION
 ENV NODE_ENV=production
