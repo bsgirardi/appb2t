@@ -1,6 +1,6 @@
 # B2T — evolução de preço, produção e vendas
 
-Atualizado em: 28/10/2026.
+Atualizado em: 29/10/2026. Auditoria do código, PRs e chats E1–E5 consolidada após a publicação local 1.12.0; registros históricos abaixo preservados.
 
 ## Como continuar em outro chat
 
@@ -39,24 +39,26 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 
 | Etapa | Entrega | Situação | Próxima ação |
 | --- | --- | --- | --- |
-| E1 | Calculadora e decisões de preço | Em implementação | E1.1 entregue na PR #19 (1.7.0); detalhar E1.2 de canais e descontos |
-| E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 entregue na PR #21 (1.8.0); próximos componentes e rankings pendentes |
-| E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
-| E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
-| E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
-| E6 | Conteúdo de anúncios e integrações externas | Parcial | E6.1 implementada localmente; anúncios manuais para Instagram e WhatsApp; integrações pendentes |
+| E1 | Calculadora e decisões de preço | Em implementação | E1.1 da PR #19 publicada; detalhar E1.2 de canais e descontos |
+| E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 da PR #21 publicada; abrir componentes de custo e rankings |
+| E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 da PR #22 publicada e concorrência validada; detalhar bloqueios e execução |
+| E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 da PR #23 publicada, incluindo orçamentos; detalhar margem, prazo e alertas de proposta |
+| E5 | Pontos de venda e consignação | Em implementação | E5.1 da PR #26 publicada na instalação 1.12.0; decidir balcão/feira sem refazer consignação |
+| E6 | Conteúdo de anúncios e integrações externas | Em implementação | E6.1 da PR #31 publicada em 1.12.0; IA e integrações ainda dependem de desenho próprio |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
+
+Estado consolidado em 29/10/2026: todos os primeiros incrementos E1.1–E6.1 estão integrados e disponíveis na instalação local 1.12.0. As etapas amplas permanecem parciais. [Auditoria por chat/PR/código e pendências reais](superpowers/reviews/2026-10-29-roadmap-auditoria.md). [Backup, migração e publicação 1.12.0](superpowers/2026-10-29-publicacao-1.12.0.md). Os registros datados de preparação abaixo são históricos, não impedimentos atuais.
 
 ## E1 — Calculadora e decisões de preço
 
 ### Propostas
 
-- [x] Contribuição estimada por hora de impressora, com premissas explícitas (E1.1; validação focada, sem merge/publicação).
+- [x] Contribuição estimada por hora de impressora, com premissas explícitas (E1.1, PR #19 integrada e publicada).
 - [ ] Comparação simultânea entre canais com taxas configuradas, sem presumir tarifas atuais de marketplaces.
 - [ ] Simulação de descontos e efeito na margem.
 - [ ] Distinguir preço para cobrir os custos modelados de preço para alcançar a meta comercial.
-- [x] Ampliar comparação de lotes: custo/preço por peça, contribuição total, tempo e material (E1.1; validação focada, sem merge/publicação).
+- [x] Ampliar comparação de lotes: custo/preço por peça, contribuição total, tempo e material (E1.1, PR #19 integrada e publicada).
 - [ ] Salvar, identificar e comparar simulações, reaproveitando as memórias já existentes.
 - [ ] Avaliar importação de G-code/3MF: formatos suportados, dados disponíveis, limites e conferência humana antes de aplicar.
 - [ ] Avaliar projeção mensal limitada por capacidade livre e demanda informada, distinguindo-a de previsão de vendas.
@@ -65,20 +67,23 @@ Situações permitidas: Pendente, Em detalhamento, Em implementação, Em valida
 
 Comparar um mesmo produto por quantidade, canal e desconto com memória reproduzível; preservar o motor legado, as estimativas históricas e a decisão comercial do operador. Importação e projeção mensal podem virar incrementos próprios, desde que a decisão e as pendências sejam registradas explicitamente.
 
+Auditoria: o comparador já informa se o preço cobre os custos modelados e distingue contribuição de resultado após depreciação. A comparação dedicada entre preço de cobertura e preço para meta permanece pendente em E1.2; não refazer o aviso existente.
+
 ## E2 — Rentabilidade e explicação de desvios
 
-- [ ] Comparar margem orçada, efeito da negociação e margem realizada.
-- [ ] Explicar diferenças por material, falhas, trabalho, desconto, frete e taxas, conforme as fontes disponíveis.
+- [x] Comparar margem da memória de preço, efeito comercial e margem realizada, sem presumir histórico de negociação (E2.1, PR #21).
+- [x] Explicar preço praticado, desconto, frete e taxas e a variação agregada do custo produtivo (E2.1).
+- [ ] Abrir a variação produtiva por material, falhas e trabalho, conforme rastreabilidade disponível (E2.2).
 - [ ] Ranking por produto, cliente e canal, com período e população definidos.
-- [ ] Manter custos incompletos/provisórios distintos dos resultados completos.
+- [x] Manter custos incompletos/provisórios distintos dos resultados completos (E2.1).
 - [ ] Sugerir revisão da ficha quando houver desvios recorrentes, sem alterar parâmetros automaticamente.
 
 Critério proposto: demonstrar de onde vem cada desvio, reconciliar valores com as fontes e não contar perdas ou despesas duas vezes. Caixa, contribuição e resultado após depreciação permanecem indicadores distintos.
 
 ## E3 — Fila visual e previsão de entrega
 
-- [x] Calendário visual por impressora sobre o planejamento existente (E3.1 local; validação focada, sem integração/publicação).
-- [x] Simular reordenação e mostrar impacto nos prazos antes de aplicar (E3.1 local; confirmação, concorrência de banco ainda sem validação).
+- [x] Calendário visual por impressora sobre o planejamento existente (E3.1, PR #22 integrada e publicada).
+- [x] Simular reordenação e mostrar impacto nos prazos antes de aplicar (E3.1; concorrência validada na suíte E3 exclusiva).
 - [ ] Explicar prioridades e bloqueios com ações para resolvê-los.
 - [ ] Avaliar transferência de lote para máquina compatível.
 - [ ] Apresentar contribuição por hora como apoio, preservando compromissos e prazos assumidos.
@@ -90,14 +95,14 @@ Critério proposto: uma alteração de programação deve indicar pedidos afetad
 
 ## E4 — Negociações
 
-- [x] Oportunidade com etapas contato, levantamento, proposta, negociação, ganho e perdido (E4.1; validação PostgreSQL exclusiva, sem merge/publicação).
-- [x] Responsável, próximo contato e pendências (E4.1; validação focada e PostgreSQL exclusiva, sem merge/publicação).
-- [x] Histórico de interações e motivos de perda (E4.1; sem merge/publicação).
-- [ ] Vínculo com os orçamentos e suas versões.
+- [x] Oportunidade com etapas contato, levantamento, proposta, negociação, ganho e perdido (E4.1, PR #23 integrada e publicada).
+- [x] Responsável, próximo contato e pendências (E4.1; filtros de contato atrasado existentes).
+- [x] Histórico de interações e motivos de perda (E4.1).
+- [x] Vínculo com orçamentos, identificação da versão atual e orçamento principal (E4.1); comparação imutável entre revisões é escopo distinto.
 - [ ] Margem durante a negociação, incluindo desconto, frete e comissão quando aplicáveis.
 - [ ] Consulta ao prazo produtivo.
 - [ ] Alertas internos de propostas sem retorno ou próximas do vencimento.
-- [x] Fechamento usando a conversão atual, sem duplicar vendas ou recebíveis (E4.1; concorrência real e rollback validados em banco exclusivo, sem merge/publicação).
+- [x] Fechamento usando a conversão atual, sem duplicar vendas ou recebíveis (E4.1; concorrência real e rollback validados em banco exclusivo).
 
 Critério proposto: acompanhar uma oportunidade até a venda ou perda, com histórico e próxima ação claros. Mensagens externas e automações de envio exigem escopo próprio.
 
@@ -105,12 +110,12 @@ Critério proposto: acompanhar uma oportunidade até a venda ou perda, com hist�
 
 Prioridade proposta: lojas parceiras e consignação. Atendimento de balcão/feira é uma experiência distinta e precisa ter sua inclusão confirmada no desenho da etapa.
 
-- [ ] Cadastro de parceiros, responsáveis e condições comerciais.
-- [ ] Estoque por local e remessas com confirmação de recebimento.
-- [ ] Registro de vendas, devoluções e perdas.
-- [ ] Comissões, acertos periódicos e valores a receber.
-- [ ] Alertas de reposição e resultado por parceiro/produto.
-- [ ] Rastreabilidade com estoque e financeiro existentes.
+- [x] Cadastro de parceiros, responsáveis e condições comerciais (E5.1, PR #26).
+- [x] Estoque por local e remessas com confirmação de recebimento (um local por parceiro, E5.1).
+- [x] Registro de vendas, devoluções e perdas (E5.1).
+- [x] Comissões nos dois modelos, acertos periódicos e valores a receber (E5.1).
+- [x] Alertas internos por saldo mínimo de reposição e resultado por parceiro/produto (E5.1; sem mensagens externas automáticas).
+- [x] Rastreabilidade com estoque e financeiro existentes (E5.1).
 - [ ] Decidir o escopo do balcão/feira: busca rápida, carrinho, desconto, pagamento, estoque e comprovante.
 
 Critério proposto: rastrear remessa → saldo no parceiro → venda/devolução/perda → comissão → acerto. Remessa em consignação não deve gerar venda ou receita antecipadamente.
@@ -360,3 +365,13 @@ Usuário aprovou o desenho completo da biblioteca para Instagram e WhatsApp. [Pl
 ### 29/10/2026 — E6.1 implementada em isolamento
 
 Plano aprovado e executado na branch local `codex/e6-anuncios`, sobre main 1.11.1 (`e273091`), com versão 1.12.0 preparada. Biblioteca privada para Instagram/WhatsApp, sugestões determinísticas, revisão vigente, seleção e ordem das fotos, cópia e ZIP para publicação manual, comparação de edições e arquivamento/restauração. Migração real/reaplicação preservou onze projeções legadas; nove testes E6 e regressões E3/E4/E5 aprovados. Ensaio desktop/celular e acesso de administrador/operador confirmados com dados fictícios. Revisão independente encontrou dois problemas, reproduzidos e corrigidos com testes. [Relatório, evidências e limites](superpowers/reviews/2026-10-29-e6-anuncios.md). Verificações gerais finais registradas no relatório. Sem PR, push, merge, publicação ou migração operacional; IA, marketplaces e postagem automática continuam pendentes. A pasta operacional e o trabalho dos demais chats foram preservados.
+
+### 29/10/2026 — E6.1 integrada/publicada e roadmap auditado
+
+Usuário autorizou PR, CI, merge e publicação local, seguidos da conferência das pendências dos outros chats. [PR #31](https://github.com/bsgirardi/appb2t/pull/31) integrada, commit `6e901a7`, versão 1.12.0. CI aprovado com 989 testes padrão e suítes E3–E6; backup final restaurado, migrações E5/E6 ensaiadas e aplicadas, 106 projeções legadas e mesmo banco/volume preservados. Login publicado exibe 1.12.0; saúde e proteção das rotas conferidas. [Registro de publicação](superpowers/2026-10-29-publicacao-1.12.0.md).
+
+Lidos os chats E1–E5 e confrontados com PRs e código atual. Corrigidos itens já entregues de E2 (reconciliação/cobertura), E4 (orçamentos) e E5 (ciclo completo), sem apagar o histórico. Antigos limites de Vitest e falta de banco foram resolvidos pela manutenção/CI posteriores. [Auditoria e pendências reais](superpowers/reviews/2026-10-29-roadmap-auditoria.md). Próxima recomendação: E1.2, comparação de canais e descontos. Documentação pós-publicação mantida localmente, sem segunda PR, novo incremento de versão ou publicação; originais preservados em backup/stash.
+
+### 29/10/2026 — E1.2 com abordagem aprovada e desenho em revisão
+
+Usuário aprovou comparar canais/descontos com cenários nomeados e salvos, reaproveitando as memórias existentes. Desenho em `superpowers/specs/2026-10-29-e1-2-canais-descontos-design.md`: bases explícitas de preço, cobertura versus meta, histórico imutável e aplicação humana. Detalhes ainda propostos, sem aprovação do documento completo ou implementação. E1.3 de identificação/recuperação de cenários foi incorporada ao recorte aprovado; importação e projeção mensal continuam separadas. Preparação em worktree isolada sobre main 6e901a7, versão 1.12.0 preservada; registro da worktree no aplicativo pendente. Sem PR/push/merge/publicação, migração ou alteração operacional. Originais locais de acompanhamento/auditoria preservados.

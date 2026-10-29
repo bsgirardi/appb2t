@@ -2,15 +2,21 @@
 
 ## Roadmap de evolução aprovado em 27/10/2026
 
-O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; o detalhamento e a implementação de cada etapa continuam pendentes. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.
+O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; os primeiros incrementos E1.1–E6.1 estão entregues, e as etapas amplas continuam parciais. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.
 
-Atualizado em 28/10/2026. Este arquivo descreve o estado atual; desenhos e validações anteriores são registros históricos.
+Atualizado em 29/10/2026. O estado atual está no registro abaixo; desenhos e validações anteriores são registros históricos.
+
+## Estado atual — 1.12.0 publicada em 29/10/2026
+
+[PR #31](https://github.com/bsgirardi/appb2t/pull/31) integrada na main local e GitHub, commit `6e901a7`; versão 1.12.0 publicada em http://localhost:3000 após backup final, restauração e migração ensaiadas. E5/consignação e E6/anúncios agora disponíveis localmente; 106 projeções legadas e o mesmo banco/volume preservados. CI da PR aprovado: 989 testes padrão, suites E3/E4/E5/E6 e tipos/lint/build. [Publicação e limites](docs/superpowers/2026-10-29-publicacao-1.12.0.md).
+
+[Auditoria dos outros chats, PRs e código](docs/superpowers/reviews/2026-10-29-roadmap-auditoria.md) reconciliou as marcações de E2, E4 e E5 e os antigos impedimentos de testes. Próxima recomendação: E1.2 (canais/descontos/margem). Permanecem detalhamento de custos/rankings, evolução produtiva/prazo comercial, margem e alertas das negociações, decisão de balcão/feira e integrações externas. IA e postagem automática não foram implementadas. Aceite da equipe, domínio/HTTPS e backups externos automáticos seguem pendentes. A documentação desta auditoria é local, posterior à PR integrada.
 
 ## Estado da integração E1–E4 em 28/10/2026
 
 PRs #19, #21, #22 e #23 integradas na main local e no GitHub, versões 1.7.0 a 1.10.0. A manutenção 1.10.1 na PR #25 corrigiu a recursão da validação de formulários, a descoberta de testes e a observação de concorrência em pools pequenos. CI completo aprovado, incluindo 925 testes padrão, 29 E3 e 21 E4. Versão 1.10.1 publicada na instalação local, com backup, restauração, migrações e 103 projeções legadas preservadas. [Publicação e limites atuais](docs/superpowers/2026-10-28-publicacao-1.10.1.md). [Relatório atual](docs/superpowers/reviews/2026-10-28-integracao-prs.md). As notas abaixo preservam a preparação histórica; próximos incrementos E1–E4 continuam pendentes.
 
-## E5 — iniciada em 28/10/2026
+## E5 — registro anterior à integração e publicação
 
 E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](docs/superpowers/reviews/2026-10-28-e5-consignacao.md). [PR #26](https://github.com/bsgirardi/appb2t/pull/26) aberta na versão 1.11.0, MINOR sobre main 1.10.1, com manifestos e notas sincronizados. CI pendente. Sem merge/publicação ou migração operacional. E5 em validação; balcão/feira fora do recorte.
 
@@ -18,7 +24,7 @@ E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-co
 
 E4.1 teve migração real e concorrência aprovadas em PostgreSQL 17 descartável exclusivo: dados sintéticos de sete tabelas legadas preservados, 21 integrações e cinco rodadas finais de 10 casos aprovadas. Mais 31 testes unitários/UI/regressões, tipagem, lint e build aprovados, incluindo versão/rodapés/Atualizações. Branch `codex/e4-negociacoes` preparada na 1.6.0 sobre main 1.5.1; [PR #23 em rascunho](https://github.com/bsgirardi/appb2t/pull/23) criada após autorização. Limite da suíte completa por recursão do Vitest continua explícito. [Relatório atual](docs/superpowers/reviews/2026-10-28-e4-validacao-pr.md). Sem merge, publicação, migração operacional ou atualização dos contêineres existentes. E4 ampla continua parcial; próxima ação: revisar a PR e resolver/aceitar limite da suíte antes de eventual integração; banco descartável removido após validação.
 
-## Desenvolvimento concluído
+## Desenvolvimento concluído — registros históricos anteriores às integrações
 
 E3.1 entregue na [PR #22 em rascunho](https://github.com/bsgirardi/appb2t/pull/22), versão 1.6.0 (MINOR), após autorização específica. Revalidação: 46 testes focados, tipagem, lint e build aprovados, incluindo manifestos, rodapés e Atualizações ADMIN/OPERATOR. Limites de suíte completa/banco mantidos; E3 segue parcial. E1 #19 e E2 #21 também propõem 1.6.0: reconciliar versão/notas conforme a main e a ordem de integração antes de merge. Sem merge, publicação, migração ou alteração de contêineres. A nota abaixo registra a entrega local anterior à PR.
 
@@ -66,3 +72,7 @@ A revisão administrativa passou por build local e Docker, tipagem, lint, revis�
 [Validação C5](docs/superpowers/2026-10-23-catalogo-c5-validacao.md) e [encerramento](docs/superpowers/2026-10-23-tema-e-encerramento.md) distinguem testes, inspeção visual e limites da automação. Relatos antigos de C5 apenas em desenho, administrador inexistente e inspeção restrita ao tema do sistema foram superados. A limitação da automação do campo nativo de data não representa defeito reproduzido no preenchimento humano.
 
 Dados de outras instalações não foram importados. .env, chaves, senhas, capturas, dumps e evidências operacionais permanecem fora do Git.
+
+## E1.2 — desenho em revisão em 29/10/2026
+
+Abordagem aprovada pelo usuário: canais/descontos com cenários nomeados e salvos, reutilizando memórias. Desenho em `docs/superpowers/specs/2026-10-29-e1-2-canais-descontos-design.md`, ainda aguardando aprovação dos detalhes. Trabalho isolado sobre main 6e901a7, versão 1.12.0; sem implementação, PR, push, merge, publicação ou migração operacional. Importação e projeção mensal permanecem incrementos separados. Documentos pós-publicação copiados para a worktree sem alterar os originais da pasta operacional.
