@@ -34,6 +34,8 @@ export interface TransferDTO {
   movements: MovementDTO[];
 }
 export interface EntryDTO extends FinancialEntryDTO {
+  consignmentPartnerId?: string | null;
+  consignmentSaleId?: string | null;
   receiptId?: string | null;
   categoryId: string | null;
   groupId: string | null;

@@ -1,6 +1,8 @@
 import type { Prisma } from "@prisma/client";
 import { StockDecimal as D } from "@/domain/stock/quantities";
 import { allocate } from "@/domain/profitability/allocation";
+import { readConsignmentCostBuckets } from "@/server/consignment/cost-buckets";
+import { assertCostPartition } from "@/domain/consignment/costs";
 export async function readOpeningCost(
   tx: Prisma.TransactionClient,
   originId: string,
@@ -44,6 +46,8 @@ export async function readOpeningCost(
   const initial = origin.movements
     .filter((m) => ["OPENING", "ADJUSTMENT_IN"].includes(m.kind))
     .reduce((s, m) => s + m.units, 0);
+  const external = await readConsignmentCostBuckets(tx, originId);
+  buckets.push(...external.map((b) => ({ ...b, value: null })));
   const available = initial - buckets.reduce((s, b) => s + b.units, 0);
   if (available > 0)
     buckets.push({
@@ -53,6 +57,11 @@ export async function readOpeningCost(
       value: null,
     });
   buckets.sort((a, b) => a.id.localeCompare(b.id));
+  if (external.length)
+    assertCostPartition(
+      initial,
+      buckets.map((b) => b.units),
+    );
   if (origin.initialValue !== null && initial > 0) {
     const allocated = allocate(
       origin.initialValue.toFixed(),

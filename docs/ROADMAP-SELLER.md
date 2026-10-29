@@ -43,7 +43,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 entregue na PR #21 (1.8.0); próximos componentes e rankings pendentes |
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 entregue na PR #22 (1.9.0), com banco exclusivo validado; demais incrementos pendentes |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 entregue na PR #23 (1.10.0), com migração e concorrência validadas; demais incrementos pendentes |
-| E5 | Pontos de venda e consignação | Pendente | Começar após E4 |
+| E5 | Pontos de venda e consignação | Em validação | Ciclo E5.1 implementado/testado em isolamento; entrega local sem PR ou publicação |
 | E6 | Conteúdo de anúncios e integrações externas | Pendente | Começar após E5 |
 
 Situações permitidas: Pendente, Em detalhamento, Em implementação, Em validação, Implementada ou Concluída. Registrar impedimentos e dependências em texto, sem marcar uma etapa como concluída apenas porque o código foi escrito.
@@ -234,6 +234,30 @@ Esses itens devem ser incorporados a uma etapa quando necessários ou receber pr
 - Implementação `49652b4`, preparo de versão `ba573f8`; PR aberta e em rascunho, anexada ao chat. E1 #19 e E2 #21 também propõem 1.6.0; reconsultar main e reconciliar versão/notas conforme ordem de integração. Nenhum desses chats ou branches foi alterado.
 - Sem merge, publicação, migração ou alteração de banco/contêineres. E3 permanece parcial; próxima ação: revisar PR, validar ambiente exclusivo e resolver/aceitar limite da suíte antes de eventual integração, que exige autorização específica.
 
+### 28/10/2026 — E5 iniciada: inspeção e proposta E5.1
+
+- Conferidos AGENTS.md, PENDENCIAS.md, roadmap original e módulos de estoque pronto/insumos, produção, comercial, financeiro e rentabilidade. Main local/remota `7fe37d9`, versão 1.10.1; E1.1–E4.1 integradas e publicação local registradas, etapas amplas ainda parciais. Limites históricos de testes não tratados como impedimentos atuais.
+- [Proposta E5.1](superpowers/specs/2026-10-28-e5-consignacao-proposta.md): recomendação de parceiros e custódia primeiro, com remessas, recebimento parcial, saldos, retorno e perda; alternativa de ciclo completo para escolha. Balcão/feira fora do recorte proposto, sem presumir decisão final.
+- Dependências concretas: estoque pronto não tem local, compromissos/entregas exigem venda e recebíveis nascem da confirmação comercial. Remessa precisa de custódia própria vinculada às origens, coordenação com reservas e tipos que não sejam classificados como perdas. Venda/comissão/acerto e resultado por parceiro exigem contrato adicional.
+- Desenho: proposta de abordagem, ainda sem aprovação ou plano executável. Implementação: não iniciada; isolamento exclusivo previsto antes de código. Validação: inspeção estática e conferência documental, sem testes funcionais/build/banco. PR/merge/publicação/migração: não realizados. Versão 1.10.1 preservada.
+- Arquivos/alterações dos outros chats preservados; nenhum chat alterado ou contatado. Próxima ação: escolher abordagem, escrever/aprovar desenho completo e planejar. PR, merge e publicação não autorizados; não alterar contêineres nem banco operacional.
+
+### 28/10/2026 — ciclo completo E5.1 escolhido e desenho preparado
+
+- Usuário escolheu entregar o ciclo completo já e confirmou ambos os modelos: comissão retida pela loja ou recebimento integral com comissão paga separadamente. A proposta de custódia primeiro foi superada por essa decisão.
+- [Desenho completo E5.1](superpowers/specs/2026-10-28-e5-consignacao-design.md) preparado e submetido a revisão independente, sem perguntas materiais pendentes para planejar. Inclui parceiros, custódia por origem, remessas/recebimento parcial, vendas efetivas, devoluções/perdas, títulos/baixas existentes, comissões, acertos mensais/complementares, reposição e resultado por parceiro/produto.
+- Propostas adicionais claramente identificadas para aprovação: parceiro como devedor nos dois modelos (sem recebimento direto de consumidor), um local por parceiro, comissão percentual, condições congeladas na confirmação da venda, correção comercial integral por cancelamento/relançamento. Balcão/feira, portal externo e múltiplas filiais fora do recorte.
+- Desenho ainda não aprovado; plano e implementação não iniciados. Validação: inspeção de contratos de estoque/comercial/financeiro/custos, revisão independente e git diff --check; sem testes funcionais/build/banco. Main remota reconferida `7fe37d9`, versão 1.10.1 preservada.
+- Sem PR, merge, publicação, migração ou alteração de contêineres. Próxima ação: aprovar desenho completo e então elaborar plano com isolamento e banco E5 exclusivos. Escolha da abordagem não equivale à aprovação dos detalhes novos.
+
+### 28/10/2026 — desenho completo E5.1 aprovado e plano preparado
+
+- Usuário aprovou o desenho completo com os dois modelos de comissão, parceiro devedor, local único e correção comercial integral. [Plano E5.1](superpowers/plans/2026-10-28-e5-consignacao.md) preparado com sete tarefas, contratos de integração e critérios de validação; autorrevisado contra o desenho.
+- Plano cobre domínio/persistência, custódia, venda/títulos, custos/rentabilidade, acertos/correções, consultas/UI e validação integrada. Inclui auditoria da ordem de locks e guardas dos caminhos legados, sem usar confirmação U3 para gerar título bruto no modelo retido.
+- Isolamento previsto antes de código: worktree E5 própria e banco exclusivo via E5_TEST_DATABASE_URL, allowlist localhost/127.0.0.1:55435/b2t_e5_test. Não usar setup/banco de outra etapa; não iniciar/alterar contêineres. Disponibilidade do banco não verificada nesta entrega.
+- Validação desta entrega: leitura dos contratos e configuração atual, autorrevisão documental e git diff --check. Implementação, testes funcionais, build, migração, PR, merge e publicação não realizados. Versão preservada em 1.10.1.
+- Próxima ação: revisão do plano e escolha do método; recomendada execução direta neste chat com revisão independente final. E5 segue em detalhamento até início de implementação; publicação/PR/merge continuam sem autorização.
+
 ### Modelo para próximas atualizações (preenchimento seguinte)
 
 Copiar e preencher a cada entrega, mantendo a mais recente acima deste modelo:
@@ -311,3 +335,16 @@ PRs #19, #21, #22 e #23 reconciliadas nas versões 1.7.0, 1.8.0, 1.9.0 e 1.10.0.
 ### 28/10/2026 — manutenção e publicação local 1.10.1
 
 E1.1–E4.1 integradas e disponíveis na instalação local com suas migrações. PR #25 resolve descoberta de testes, recursão de validação e observação de concorrência em pool pequeno, acrescenta CI real e publica a versão 1.10.1 com 103 projeções legadas preservadas. [Registro de publicação e limites](superpowers/2026-10-28-publicacao-1.10.1.md). A validação humana com a equipe e os próximos incrementos de cada etapa continuam pendentes; domínio externo e backup externo não foram configurados.
+
+
+### 28/10/2026 — E5.1 implementada e validada localmente
+
+E5.1 implementada e validada localmente em worktree isolada, branch `codex/e5-consignacao`: ambos os modelos de comissão, custódia, vendas, títulos, acertos, correções, custos, reposição e resultado. 661 testes unitários e 32 integrações/regressões aprovados; migração real/reaplicação em PostgreSQL exclusivo, tipos, lint e build aprovados. Revisão independente com dois P2 corrigidos e testados. [Relatório e limites](superpowers/reviews/2026-10-28-e5-consignacao.md). Versão 1.10.1 preservada; sem PR/push/merge/publicação ou migração operacional. Próxima etapa: revisão humana e preparação de PR quando autorizada. E5 em validação; balcão/feira fora do recorte.
+
+### 28/10/2026 — PR E5.1 autorizada e em preparação
+
+Usuário autorizou criar a PR do ciclo completo. Branch `codex/e5-consignacao` preparada em 1.11.0 MINOR sobre main 1.10.1 (`7fe37d9`), com manifestos e notas sincronizados. Validações da implementação: 661 unitários e 32 integrações/regressões, migração real/reaplicação exclusiva, tipos, lint e build aprovados. Revalidação da preparação: 661 unitários, 3 testes específicos de versão/rodapés, lint e build aprovados. Sem merge/publicação/migração operacional. [Evidências e limites](superpowers/reviews/2026-10-28-e5-consignacao.md).
+
+### 28/10/2026 — PR E5.1 criada
+
+[PR #26](https://github.com/bsgirardi/appb2t/pull/26) aberta para revisão, versão 1.11.0, branch codex/e5-consignacao. Revalidação de preparação aprovada; CI iniciado e resultado ainda pendente. Sem merge/publicação/migração operacional. E5 segue em validação.

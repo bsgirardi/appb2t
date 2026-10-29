@@ -17,8 +17,9 @@ RUN ./node_modules/.bin/prisma generate
 FROM deps AS build
 COPY --chown=node:node . .
 RUN mkdir -p .next/cache
+ARG NEXT_BUILD_MAX_OLD_SPACE_SIZE=1536
 RUN --mount=type=cache,id=appb2t-next-node22-next16,target=/app/.next/cache,uid=1000,gid=1000,sharing=locked \
-    ./node_modules/.bin/next build
+    NODE_OPTIONS="--max-old-space-size=${NEXT_BUILD_MAX_OLD_SPACE_SIZE}" ./node_modules/.bin/next build
 
 FROM deps AS tools
 COPY --chown=node:node prisma ./prisma

@@ -42,14 +42,16 @@ export function EntryPanel({
   accounts,
   categories,
   query,
+  initialDetail,
 }: {
   result: Page<EntryDTO>;
   accounts: AccountDTO[];
   categories: CategoryDTO[];
   query: Record<string, string>;
+  initialDetail?: Detail | null;
 }) {
   const router = useRouter(),
-    [detail, setDetail] = useState<Detail | null>(null),
+    [detail, setDetail] = useState<Detail | null>(initialDetail ?? null),
     [mode, setMode] = useState<"list" | "new" | "edit" | "settle" | "cancel">(
       "list",
     ),
@@ -58,7 +60,9 @@ export function EntryPanel({
   async function load(id: string) {
     try {
       setError("");
-      setDetail(await api<Detail>(`/api/finance/entries/${id}`));
+      setDetail(
+        await api<Detail>(`/api/finance/entries/${encodeURIComponent(id)}`),
+      );
       setMode("list");
       setReversal(null);
     } catch (e) {
@@ -146,7 +150,9 @@ export function EntryPanel({
                 <Link href={`/vendas/${detail.saleId}`}>
                   {detail.saleNumber}
                 </Link>{" "}
-                · Parcela {detail.installmentNumber}
+                {detail.installmentNumber !== null && (
+                  <> · Parcela {detail.installmentNumber}</>
+                )}
               </p>
             )}
             <div className="finance-actions">
@@ -163,20 +169,24 @@ export function EntryPanel({
                   Registrar baixa
                 </Button>
               )}
-              {!detail.saleId && !detail.receiptId && !detail.canceledAt && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className=""
-                  onClick={() => {
-                    setMode("edit");
-                    setReversal(null);
-                  }}
-                >
-                  Editar lançamento
-                </Button>
-              )}
+              {!detail.saleId &&
+                !detail.receiptId &&
+                !detail.consignmentPartnerId &&
+                !detail.canceledAt && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=""
+                    onClick={() => {
+                      setMode("edit");
+                      setReversal(null);
+                    }}
+                  >
+                    Editar lançamento
+                  </Button>
+                )}
               {!detail.receiptId &&
+                !detail.consignmentPartnerId &&
                 !detail.canceledAt &&
                 detail.paidAmount === "0.00" && (
                   <Button

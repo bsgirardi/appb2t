@@ -2,7 +2,8 @@ import type { DocumentTotals, SaleStatus } from "@/domain/commerce/types";
 export type Money = string;
 export type Coverage = "UNAVAILABLE" | "PARTIAL" | "PROVISIONAL" | "COMPLETE";
 export type DeclaredAmount =
-  { state: "UNKNOWN" } | { state: "DECLARED"; value: Money };
+  | { state: "UNKNOWN" }
+  | { state: "DECLARED"; value: Money };
 export type Metric = {
   value: Money | null;
   knownValue: Money;
@@ -74,6 +75,7 @@ export type ExpectedCost = {
   suggestedRevenue: Money;
 };
 export type ProfitabilityLineInput = {
+  frozenCommission?: Money;
   key: string;
   position: number;
   productId: string | null;
@@ -95,6 +97,7 @@ export type ProfitabilityLineInput = {
   sourceHash: string;
 };
 export type SaleProfitabilityInput = {
+  consignment?: boolean;
   saleId: string;
   number: string;
   version: number;

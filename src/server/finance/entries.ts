@@ -18,6 +18,10 @@ import { lockCommerce } from "../commerce/locks";
 import { runFinanceCommand } from "./commands";
 import { audit } from "./audit";
 import { cancelSale } from "../sales";
+import {
+  assertStandaloneEntry,
+  readConsignmentReceiptSummary,
+} from "../consignment/finance";
 import type {
   DocumentSnapshot,
   DocumentTotals,
@@ -35,6 +39,17 @@ import {
   type FinanceFilter,
 } from "@/domain/finance/validation";
 const include = {
+  consignmentLink: {
+    include: {
+      consignmentSale: {
+        select: {
+          id: true,
+          partnerId: true,
+          sale: { select: { id: true, sequence: true } },
+        },
+      },
+    },
+  },
   receiptLink: true,
   saleInstallment: {
     include: { sale: { select: { id: true, sequence: true, version: true } } },
@@ -50,6 +65,9 @@ function paidFor(row: EntryRow) {
 }
 export function entryDTO(row: EntryRow): EntryDTO {
   return {
+    consignmentPartnerId:
+      row.consignmentLink?.consignmentSale.partnerId ?? null,
+    consignmentSaleId: row.consignmentLink?.consignmentSale.id ?? null,
     id: row.id,
     receiptId: row.receiptLink?.receiptId ?? null,
     kind: row.kind,
@@ -70,10 +88,15 @@ export function entryDTO(row: EntryRow): EntryDTO {
       civilDateFromDb(row.dueDate),
       todaySaoPaulo(new Date()),
     ),
-    saleId: row.saleInstallment?.sale.id ?? null,
+    saleId:
+      row.saleInstallment?.sale.id ??
+      row.consignmentLink?.consignmentSale.sale?.id ??
+      null,
     saleNumber: row.saleInstallment
       ? `VEN-${String(row.saleInstallment.sale.sequence).padStart(6, "0")}`
-      : null,
+      : row.consignmentLink?.consignmentSale.sale
+        ? `VEN-${String(row.consignmentLink.consignmentSale.sale.sequence).padStart(6, "0")}`
+        : null,
     installmentNumber: row.saleInstallment?.number ?? null,
   };
 }
@@ -224,6 +247,7 @@ export async function updateEntry(
     .parse(raw);
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
+    await assertStandaloneEntry(tx, id);
     const old = await entryRow(tx, id);
     if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
       throw new AppError(
@@ -278,6 +302,7 @@ export async function cancelEntry(
   z.number().int().positive().parse(expectedVersion);
   const why = z.string().trim().min(3).max(2000).parse(reason);
   const origin = await entryRow(db, id);
+  await assertStandaloneEntry(db, id);
   if (origin.saleInstallment) {
     await cancelSale(
       actor,
@@ -290,6 +315,7 @@ export async function cancelEntry(
   }
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { entryIds: [id] });
+    await assertStandaloneEntry(tx, id);
     const old = await entryRow(tx, id);
     if (await tx.receiptFinancialLink.findUnique({ where: { entryId: id } }))
       throw new AppError(
@@ -319,7 +345,7 @@ export function entrySelectionSql(f: FinanceFilter) {
   if (f.groupId) conditions.push(Prisma.sql`e."groupId"=${f.groupId}`);
   if (f.saleId)
     conditions.push(
-      Prisma.sql`EXISTS(SELECT 1 FROM "SaleInstallment" si WHERE si.id=e."saleInstallmentId" AND si."saleId"=${f.saleId})`,
+      Prisma.sql`(EXISTS(SELECT 1 FROM "SaleInstallment" si WHERE si.id=e."saleInstallmentId" AND si."saleId"=${f.saleId}) OR EXISTS(SELECT 1 FROM "ConsignmentFinancialLink" cl JOIN "ConsignmentSale" cs ON cs.id=cl."consignmentSaleId" WHERE cl."entryId"=e.id AND cs."saleId"=${f.saleId}))`,
     );
   if (f.counterparty)
     conditions.push(
@@ -405,6 +431,15 @@ export async function getSaleReceiptSummary(
   tx: Prisma.TransactionClient,
   saleId: string,
 ): Promise<ReceiptSummary> {
+  const consignment = await readConsignmentReceiptSummary(tx, saleId);
+  if (consignment)
+    return {
+      total: consignment.gross,
+      received: consignment.receivedRepayment,
+      pending: consignment.pendingRepayment,
+      overdue: consignment.overdue,
+      consignment,
+    };
   const sale = await tx.sale.findUniqueOrThrow({ where: { id: saleId } });
   const entries = await tx.financialEntry.findMany({
     where: { saleInstallment: { saleId }, canceledAt: null },

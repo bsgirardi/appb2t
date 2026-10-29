@@ -69,7 +69,11 @@ async function movementWhere(
   }
   if (f.counterparty)
     entry.counterparty = { contains: f.counterparty, mode: "insensitive" };
-  if (f.saleId) entry.saleInstallment = { saleId: f.saleId };
+  if (f.saleId)
+    entry.OR = [
+      { saleInstallment: { saleId: f.saleId } },
+      { consignmentLink: { consignmentSale: { saleId: f.saleId } } },
+    ];
   if (f.groupId) entry.groupId = f.groupId;
   if (Object.keys(entry).length)
     and.push({

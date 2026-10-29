@@ -1,4 +1,8 @@
-import { assertOpportunityQuoteOpen, recordOpportunityWon } from "./opportunities/commerce";
+import {
+  assertOpportunityQuoteOpen,
+  recordOpportunityWon,
+} from "./opportunities/commerce";
+import { assertStandardSaleFlow } from "./consignment/finance";
 import { projectCheckoutDocument } from "./checkout/document-projection";
 import type { CheckoutReviewContent } from "@/domain/checkout/types";
 import { checkoutFingerprint } from "./checkout/review";
@@ -81,6 +85,7 @@ async function row(tx: Prisma.TransactionClient, id: string) {
     where: { id },
     include: {
       installments: { orderBy: { number: "asc" } },
+      consignment: { select: { partnerId: true } },
       events: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
     },
   });
@@ -91,6 +96,7 @@ async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
   const s = await row(tx, id);
   return {
     id: s.id,
+    consignmentPartnerId: s.consignment?.partnerId ?? null,
     number: `VEN-${String(s.sequence).padStart(6, "0")}`,
     quoteId: s.quoteId,
     art: await readDocumentArt(
@@ -99,7 +105,7 @@ async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
       (s.document as unknown as DocumentInput).items,
     ),
     status: s.status,
-    fulfillmentMode: s.fulfillmentMode as "LEGACY" | "U3",
+    fulfillmentMode: s.fulfillmentMode as "LEGACY" | "U3" | "CONSIGNMENT",
     version: s.version,
     document: {
       ...(s.document as unknown as DocumentInput),
@@ -168,6 +174,7 @@ export async function saveSaleDraft(
       );
     if (id) {
       await lockCommerce(tx, { saleId: id });
+      await assertStandardSaleFlow(tx, id);
       const old = await row(tx, id);
       previousRevisionId = old.costRevisionId;
       if (old.version !== expectedVersion || old.status !== "RASCUNHO")
@@ -323,6 +330,7 @@ export async function confirmSaleWithClient(
 ): Promise<SaleDTO> {
   const { id, expectedVersion, rows } = command;
   await lockCommerce(tx, { saleId: id });
+  await assertStandardSaleFlow(tx, id);
   const sale = await row(tx, id);
   if (sale.version !== expectedVersion || sale.status !== "RASCUNHO")
     throw conflict();
@@ -527,6 +535,7 @@ export async function cancelSaleWithClient(
 ): Promise<SaleDTO> {
   await lockPlanning(tx);
   await lockCommerce(tx, { saleId: id });
+  await assertStandardSaleFlow(tx, id);
   const sale = await row(tx, id);
   if (sale.version !== expectedVersion) throw conflict();
   assertSaleTransition(sale.status, "CANCELADA");
@@ -610,6 +619,7 @@ export async function transitionSale(
   z.number().int().positive().parse(expectedVersion);
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { saleId: id });
+    await assertStandardSaleFlow(tx, id);
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
     if (sale.fulfillmentMode === "U3")
@@ -643,6 +653,7 @@ export async function updateSaleOperations(
   z.number().int().positive().parse(expectedVersion);
   return db.$transaction(async (tx) => {
     await lockCommerce(tx, { saleId: id });
+    await assertStandardSaleFlow(tx, id);
     const sale = await row(tx, id);
     if (sale.version !== expectedVersion) throw conflict();
     await tx.sale.update({

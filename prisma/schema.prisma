@@ -1,6 +1,208 @@
 generator client {
   provider = "prisma-client-js"
 }
+
+enum CommissionModel {
+ RETIDA
+ SEPARADA
+}
+
+model Partner {
+ id String @id @default(cuid())
+ customerId String @unique
+ customer Customer @relation(fields:[customerId],references:[id],onDelete:Restrict)
+ responsibleId String
+ responsible User @relation(fields:[responsibleId],references:[id],onDelete:Restrict)
+ location String
+ active Boolean @default(true)
+ model CommissionModel
+ percent Decimal @db.Decimal(7,4)
+ dueDay Int
+ notes String @default("")
+ version Int @default(1)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ conditions PartnerProductCondition[]
+ shipments ConsignmentShipment[]
+ sales ConsignmentSale[]
+ statements ConsignmentStatement[]
+ events ConsignmentEvent[]
+}
+model PartnerProductCondition {
+ id String @id @default(cuid())
+ partnerId String
+ partner Partner @relation(fields:[partnerId],references:[id],onDelete:Restrict)
+ productId String
+ product Product @relation(fields:[productId],references:[id],onDelete:Restrict)
+ percent Decimal? @db.Decimal(7,4)
+ minimum Int?
+ @@unique([partnerId,productId])
+}
+model ConsignmentShipment {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ partnerId String
+ partner Partner @relation(fields:[partnerId],references:[id],onDelete:Restrict)
+ status String @default("DRAFT")
+ version Int @default(1)
+ snapshot Json?
+ notes String @default("")
+ actorId String
+ createdAt DateTime @default(now())
+ lines ConsignmentShipmentLine[]
+ events ConsignmentEvent[]
+ @@index([partnerId,createdAt])
+}
+model ConsignmentShipmentLine {
+ id String @id @default(cuid())
+ shipmentId String
+ shipment ConsignmentShipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+ productId String
+ product Product @relation(fields:[productId],references:[id],onDelete:Restrict)
+ units Int
+ allocations ConsignmentShipmentAllocation[]
+ @@unique([shipmentId,productId])
+}
+model ConsignmentShipmentAllocation {
+ id String @id @default(cuid())
+ lineId String
+ line ConsignmentShipmentLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ originId String
+ origin FinishedOrigin @relation(fields:[originId],references:[id],onDelete:Restrict)
+ units Int
+ events ConsignmentEventAllocation[]
+ sales ConsignmentSaleAllocation[]
+ @@unique([lineId,originId])
+ @@index([originId])
+}
+model ConsignmentEvent {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ partnerId String
+ partner Partner @relation(fields:[partnerId],references:[id],onDelete:Restrict)
+ shipmentId String?
+ shipment ConsignmentShipment? @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+ consignmentSaleId String?
+ consignmentSale ConsignmentSale? @relation(fields:[consignmentSaleId],references:[id],onDelete:Restrict)
+ kind String
+ fromStage String?
+ toStage String?
+ sourceId String?
+ source ConsignmentEvent? @relation("CustodyCompensation",fields:[sourceId],references:[id],onDelete:Restrict)
+ corrections ConsignmentEvent[] @relation("CustodyCompensation")
+ effectiveDate DateTime @db.Date
+ actorId String
+ actorName String
+ receiver String @default("")
+ reason String @default("")
+ changes Json?
+ createdAt DateTime @default(now())
+ allocations ConsignmentEventAllocation[]
+ @@index([partnerId,effectiveDate])
+}
+model ConsignmentEventAllocation {
+ id String @id @default(cuid())
+ eventId String
+ event ConsignmentEvent @relation(fields:[eventId],references:[id],onDelete:Restrict)
+ shipmentAllocationId String
+ shipmentAllocation ConsignmentShipmentAllocation @relation(fields:[shipmentAllocationId],references:[id],onDelete:Restrict)
+ units Int
+ internalMovementId String? @unique
+ internalMovement FinishedMovement? @relation(fields:[internalMovementId],references:[id],onDelete:Restrict)
+ @@unique([eventId,shipmentAllocationId])
+}
+model ConsignmentSale {
+ id String @id @default(cuid())
+ partnerId String
+ partner Partner @relation(fields:[partnerId],references:[id],onDelete:Restrict)
+ saleId String? @unique
+ sale Sale? @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ reference String
+ effectiveDate DateTime @db.Date
+ status String @default("DRAFT")
+ version Int @default(1)
+ model CommissionModel
+ dueDay Int
+ snapshot Json?
+ totals Json?
+ notes String @default("")
+ actorId String
+ replacesId String? @unique
+ replaces ConsignmentSale? @relation("ConsignmentReplacement",fields:[replacesId],references:[id],onDelete:Restrict)
+ replacedBy ConsignmentSale? @relation("ConsignmentReplacement")
+ createdAt DateTime @default(now())
+ lines ConsignmentSaleLine[]
+ events ConsignmentEvent[]
+ financialLinks ConsignmentFinancialLink[]
+ statementLines ConsignmentStatementLine[]
+ @@unique([partnerId,reference])
+ @@index([partnerId,effectiveDate])
+}
+model ConsignmentSaleLine {
+ id String @id @default(cuid())
+ consignmentSaleId String
+ consignmentSale ConsignmentSale @relation(fields:[consignmentSaleId],references:[id],onDelete:Restrict)
+ productId String
+ product Product @relation(fields:[productId],references:[id],onDelete:Restrict)
+ quantity Int
+ unitPrice Decimal @db.Decimal(18,2)
+ percent Decimal @db.Decimal(7,4)
+ gross Decimal? @db.Decimal(18,2)
+ commission Decimal? @db.Decimal(18,2)
+ allocations ConsignmentSaleAllocation[]
+ @@unique([consignmentSaleId,productId])
+}
+model ConsignmentSaleAllocation {
+ id String @id @default(cuid())
+ lineId String
+ line ConsignmentSaleLine @relation(fields:[lineId],references:[id],onDelete:Restrict)
+ shipmentAllocationId String
+ shipmentAllocation ConsignmentShipmentAllocation @relation(fields:[shipmentAllocationId],references:[id],onDelete:Restrict)
+ units Int
+ @@unique([lineId,shipmentAllocationId])
+}
+model ConsignmentFinancialLink {
+ id String @id @default(cuid())
+ consignmentSaleId String
+ consignmentSale ConsignmentSale @relation(fields:[consignmentSaleId],references:[id],onDelete:Restrict)
+ entryId String @unique
+ entry FinancialEntry @relation(fields:[entryId],references:[id],onDelete:Restrict)
+ role String
+ @@unique([consignmentSaleId,role])
+}
+model ConsignmentStatement {
+ id String @id @default(cuid())
+ sequence Int @unique @default(autoincrement())
+ partnerId String
+ partner Partner @relation(fields:[partnerId],references:[id],onDelete:Restrict)
+ competence String
+ status String @default("CLOSED")
+ version Int @default(1)
+ snapshot Json
+ actorId String
+ reason String @default("")
+ createdAt DateTime @default(now())
+ lines ConsignmentStatementLine[]
+ @@index([partnerId,competence])
+}
+model ConsignmentStatementLine {
+ id String @id @default(cuid())
+ statementId String
+ statement ConsignmentStatement @relation(fields:[statementId],references:[id],onDelete:Restrict)
+ consignmentSaleId String
+ consignmentSale ConsignmentSale @relation(fields:[consignmentSaleId],references:[id],onDelete:Restrict)
+ active Boolean @default(true)
+ snapshot Json
+ @@unique([statementId,consignmentSaleId])
+}
+model ConsignmentCommand {
+ key String @id
+ type String
+ payloadHash String
+ result Json
+ actorId String
+ createdAt DateTime @default(now())
+}
 datasource db {
   provider = "postgresql"
   url = env("DATABASE_URL")
@@ -14,6 +216,7 @@ enum Technology {
   RESIN
 }
 model User {
+  consignmentPartners Partner[]
   opportunities Opportunity[]
   artCommands ArtCommand[]
   catalogRequests CatalogRequest[]
@@ -90,6 +293,9 @@ model CalculationSettings {
   updatedBy User @relation(fields: [updatedById], references: [id])
 }
 model Product {
+  partnerConditions PartnerProductCondition[]
+  consignmentShipmentLines ConsignmentShipmentLine[]
+  consignmentSaleLines ConsignmentSaleLine[]
  minimumQuantity Int @default(1)
  checkoutPolicy Json?
   quantityTiers Json @default("[]")
@@ -189,6 +395,7 @@ enum CustomerType {
  COMPANY
 }
 model Customer {
+ partner Partner?
  opportunities Opportunity[]
  sales Sale[]
  entries FinancialEntry[]
@@ -292,6 +499,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+ consignment ConsignmentSale?
  wonOpportunity Opportunity?
  checkout Checkout?
  artBindings ArtDocumentBinding[]
@@ -350,6 +558,7 @@ model SaleInstallment {
  @@unique([saleId,number])
 }
 model FinancialEntry {
+ consignmentLink ConsignmentFinancialLink?
  receiptLink ReceiptFinancialLink?
  categoryId String?
  category FinancialCategory? @relation(fields:[categoryId],references:[id],onDelete:Restrict)
@@ -859,6 +1068,7 @@ model FinishedStock {
  @@unique([ownerSaleId,lineKey])
 }
 model FinishedOrigin {
+ consignmentAllocations ConsignmentShipmentAllocation[]
  id String @id @default(cuid())
  sequence Int @unique @default(autoincrement())
  stockId String
@@ -875,6 +1085,7 @@ model FinishedOrigin {
  @@index([stockId,sequence])
 }
 model FinishedMovement {
+ consignmentAllocation ConsignmentEventAllocation?
  id String @id @default(cuid())
  originId String
  origin FinishedOrigin @relation(fields:[originId],references:[id],onDelete:Restrict)

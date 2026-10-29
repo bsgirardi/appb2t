@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.10.4",
+  "version": "1.11.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -15,7 +15,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "db:migrate": "prisma migrate deploy",
-    "admin:create": "tsx scripts/create-admin.ts"
+    "admin:create": "tsx scripts/create-admin.ts",
+    "test:e5": "vitest run --config vitest.e5.config.ts",
+    "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

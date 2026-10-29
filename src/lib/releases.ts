@@ -8,6 +8,28 @@ type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.11.0",
+    date: "2026-10-28",
+    title: "Pontos de venda e consignação",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Cadastre lojas parceiras e acompanhe remessas, recebimentos, vendas, devoluções e perdas por origem das peças.",
+          "Trabalhe com comissão retida pela loja ou paga separadamente pelo B2T, com condições preservadas em cada venda.",
+          "Feche acertos mensais e complementares usando os títulos financeiros das vendas e acompanhe pagamentos e estornos.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Consulte reposição e resultados por parceiro e produto, distinguindo estoque interno, peças em trânsito e saldo na loja.",
+          "Acompanhe os custos das peças consignadas sem duplicação, com indicação de valores ausentes ou provisórios.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.10.4",
     date: "2026-10-28",
     title: "Repetição da atualização sem nova compilação",
