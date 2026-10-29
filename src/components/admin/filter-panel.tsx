@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 /** Keep controls mounted so closing a panel never discards an unfinished filter. */
 export function FilterPanel({
@@ -21,23 +22,37 @@ export function FilterPanel({
   hasErrors?: boolean;
   title?: string;
 }) {
-  const [selection, setOpen] = useState("");
-  const open = hasErrors ? "filters" : selection;
+  const [selection, setOpen] = useState(false);
+  const open = hasErrors || selection;
   return (
-    <Accordion type="single" collapsible value={open} onValueChange={setOpen}>
-      <AccordionItem value="filters" className="border-b-0">
-        <AccordionTrigger className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="rounded-xl border border-border bg-card text-card-foreground"
+    >
+      <CollapsibleTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-auto w-full justify-between gap-4 px-4 py-3"
+        >
           <span className="flex items-center gap-2">
+            <SlidersHorizontal data-icon="inline-start" aria-hidden="true" />
             {title}
             {activeCount > 0 && (
               <Badge variant="secondary">{activeCount} ativos</Badge>
             )}
           </span>
-        </AccordionTrigger>
-        <AccordionContent forceMount hidden={open !== "filters"}>
-          {children}
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+          <ChevronDown
+            data-icon="inline-end"
+            aria-hidden="true"
+            className={open ? "rotate-180" : undefined}
+          />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent forceMount hidden={!open} className="px-4 pb-4 pt-2">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

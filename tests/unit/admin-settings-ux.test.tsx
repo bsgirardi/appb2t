@@ -29,8 +29,11 @@ it("asks before the editor header discards unsaved configuration", () => {
     />,
   );
   fireEvent.click(screen.getByRole("button", { name: "Adicionar material" }));
+  expect(
+    screen.getAllByRole("heading", { name: "Adicionar · Materiais" }),
+  ).toHaveLength(1);
   fireEvent.change(screen.getByLabelText("Nome"), { target: { value: "PLA" } });
-  fireEvent.click(screen.getByRole("button", { name: "Fechar edição" }));
+  fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
   expect(
     screen.getByRole("button", { name: "Continuar editando" }),
   ).toBeTruthy();

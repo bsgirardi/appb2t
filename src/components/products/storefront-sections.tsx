@@ -1,3 +1,4 @@
+import { catalogPath } from "@/domain/products/catalog-navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { StorefrontConfig } from "@/domain/appearance/storefront";
@@ -68,7 +69,7 @@ export function StoreBanners({
               <Link
                 href={
                   collection
-                    ? `/?colecao=${encodeURIComponent(collection.id)}`
+                    ? catalogPath(collection.slug ?? collection.id)
                     : "#all-products"
                 }
               >
@@ -96,6 +97,7 @@ export function StoreFeatured({
 }: {
   collections: {
     id: string;
+    slug?: string;
     name: string;
     description: string;
     products: PublicProductDTO[];
@@ -112,14 +114,14 @@ export function StoreFeatured({
           <h2 id={`featured-${collection.id}`}>{collection.name}</h2>
           {collection.description && <p>{collection.description}</p>}
         </div>
-        <Link href={`/?colecao=${encodeURIComponent(collection.id)}`}>
+        <Link href={catalogPath(collection.slug ?? collection.id)}>
           Ver coleção →
         </Link>
       </div>
       <ProductCatalog
         products={collection.products}
         context={{
-          collection: collection.id,
+          collection: collection.slug ?? collection.id,
           search: "",
           order: "nome",
           page: 1,

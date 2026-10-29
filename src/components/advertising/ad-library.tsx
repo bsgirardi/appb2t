@@ -40,6 +40,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
 import { AdProductPicker, type AdProductsPage } from "./ad-product-picker";
 import { adChannels, adStatuses, adLibraryPath } from "./ad-client";
+import { FilterPanel } from "@/components/admin/filter-panel";
 export function AdLibrary({
   initial,
   query,
@@ -86,7 +87,7 @@ export function AdLibrary({
     }
   }
   return (
-    <div className="flex min-w-0 flex-col gap-5">
+    <div className="commerce-page">
       <div className="page-heading">
         <div>
           <h1>Anúncios</h1>
@@ -105,49 +106,55 @@ export function AdLibrary({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex min-w-0 flex-col gap-4">
-          <form action="/anuncios" method="get" aria-label="Filtrar anúncios">
-            <FieldGroup className="sm:flex-row sm:items-end">
-              <Field
-                label="Buscar rascunhos"
-                name="search"
-                maxLength={100}
-                defaultValue={query.search}
-              />
-              <FieldGroup>
-                <Label htmlFor="ads-channel">Canal</Label>
-                <NativeSelect
-                  id="ads-channel"
-                  name="channel"
-                  defaultValue={query.channel || ""}
-                >
-                  <option value="">Todos os canais</option>
-                  {Object.entries(adChannels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </NativeSelect>
+          <FilterPanel
+            activeCount={
+              [query.search, query.channel, query.status].filter(Boolean).length
+            }
+          >
+            <form action="/anuncios" method="get" aria-label="Filtrar anúncios">
+              <FieldGroup className="admin-filter-grid grid">
+                <Field
+                  label="Buscar rascunhos"
+                  name="search"
+                  maxLength={100}
+                  defaultValue={query.search}
+                />
+                <div data-slot="field">
+                  <Label htmlFor="ads-channel">Canal</Label>
+                  <NativeSelect
+                    id="ads-channel"
+                    name="channel"
+                    defaultValue={query.channel || ""}
+                  >
+                    <option value="">Todos os canais</option>
+                    {Object.entries(adChannels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </div>
+                <div data-slot="field">
+                  <Label htmlFor="ads-status">Estado</Label>
+                  <NativeSelect
+                    id="ads-status"
+                    name="status"
+                    defaultValue={query.status || ""}
+                  >
+                    <option value="">Todos os estados</option>
+                    {Object.entries(adStatuses).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </div>
+                <Button type="submit" variant="outline">
+                  Filtrar
+                </Button>
               </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor="ads-status">Estado</Label>
-                <NativeSelect
-                  id="ads-status"
-                  name="status"
-                  defaultValue={query.status || ""}
-                >
-                  <option value="">Todos os estados</option>
-                  {Object.entries(adStatuses).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </FieldGroup>
-              <Button type="submit" variant="outline">
-                Filtrar
-              </Button>
-            </FieldGroup>
-          </form>
+            </form>
+          </FilterPanel>
           {initial.drafts.length ? (
             <Table className="table-fixed">
               <TableHeader>

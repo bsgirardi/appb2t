@@ -3,13 +3,13 @@ import { FormSection } from "@/components/admin/form-section";
 import { FormActions } from "@/components/admin/form-actions";
 
 import { AdminForm } from "@/components/admin/admin-form";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Field, Notice } from "@/components/ui/field";
+import { Field, FieldGroup, Notice } from "@/components/ui/field";
 import { Brand } from "@/components/shell/brand";
 import type { AppearanceDTO } from "@/domain/appearance/types";
 import { appearanceSchema } from "@/domain/appearance/validation";
@@ -111,92 +111,107 @@ export function AppearancePanel({
           </p>
         </div>
       </div>
-      <AdminForm onSubmit={save} className="product-edit-grid">
-        {" "}
+      <div className="product-edit-grid">
         <Card asChild>
-          <section className="">
-            {error && <Notice>{error}</Notice>}
-            {message && <Notice kind="success">{message}</Notice>}
-            <fieldset disabled={busy}>
-              {texts.map(([key, label, max]) => (
-                <Field
-                  key={key}
-                  label={label}
-                  value={draft[key]}
-                  maxLength={max}
-                  type={key === "email" ? "email" : "text"}
-                  required={key === "name"}
-                  onChange={(e) =>
-                    setDraft({ ...draft, [key]: e.target.value })
-                  }
-                />
-              ))}
-              <Field
-                label="Logo da empresa"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                hint="JPEG, PNG ou WebP · até 2 MiB"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  if (file.size > 2 * 1024 * 1024) {
-                    setError("O logo deve ter até 2 MiB.");
-                    return;
-                  }
-                  setPhoto(file);
-                  setPreview(URL.createObjectURL(file));
-                  setRemoveLogo(false);
-                }}
-              />
-              <Label className="product-checkbox">
-                <Checkbox
-                  checked={removeLogo}
-                  onChange={(e) => {
-                    setRemoveLogo(e.target.checked);
-                    if (e.target.checked) {
-                      setPhoto(undefined);
-                      setPreview(undefined);
-                    }
-                  }}
-                />{" "}
-                Remover logo
-              </Label>
-              <FormSection
-                id="appearance-colors"
-                title="Cores da interface"
-                collapsible
-                defaultOpen={false}
-                hasErrors={!!error}
-                summary="Paleta da marca"
-              >
-                <AppearanceColors
-                  value={draft}
-                  onChange={(next) =>
-                    setDraft({ ...defaultSiteColors, ...next })
-                  }
-                />
-              </FormSection>
-              <FormSection
-                id="appearance-store"
-                title="Organização da loja"
-                collapsible
-                defaultOpen={false}
-                hasErrors={!!error}
-                summary="Seções e conteúdo da vitrine"
-              >
-                <StorefrontEditor
-                  value={draft.storefront ?? defaultStorefront}
-                  collections={collections}
-                  onChange={(storefront) => setDraft({ ...draft, storefront })}
-                />
-              </FormSection>
-              <FormActions>
-                <Button variant="default" size="sm" type="submit" className="">
-                  {busy ? "Salvando…" : "Salvar aparência"}
-                </Button>
-              </FormActions>
-            </fieldset>
-          </section>
+          <AdminForm onSubmit={save} aria-label="Configuração da aparência">
+            <CardHeader>
+              <CardTitle>
+                <h2>Identidade e preferências</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {error && <Notice>{error}</Notice>}
+              {message && <Notice kind="success">{message}</Notice>}
+              <fieldset disabled={busy}>
+                <FieldGroup>
+                  {texts.map(([key, label, max]) => (
+                    <Field
+                      key={key}
+                      label={label}
+                      value={draft[key]}
+                      maxLength={max}
+                      type={key === "email" ? "email" : "text"}
+                      required={key === "name"}
+                      onChange={(e) =>
+                        setDraft({ ...draft, [key]: e.target.value })
+                      }
+                    />
+                  ))}
+                  <Field
+                    label="Logo da empresa"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hint="JPEG, PNG ou WebP · até 2 MiB"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        setError("O logo deve ter até 2 MiB.");
+                        return;
+                      }
+                      setPhoto(file);
+                      setPreview(URL.createObjectURL(file));
+                      setRemoveLogo(false);
+                    }}
+                  />
+                  <Label className="product-checkbox">
+                    <Checkbox
+                      checked={removeLogo}
+                      onChange={(e) => {
+                        setRemoveLogo(e.target.checked);
+                        if (e.target.checked) {
+                          setPhoto(undefined);
+                          setPreview(undefined);
+                        }
+                      }}
+                    />{" "}
+                    Remover logo
+                  </Label>
+                  <FormSection
+                    id="appearance-colors"
+                    title="Cores da interface"
+                    collapsible
+                    defaultOpen={false}
+                    hasErrors={!!error}
+                    summary="Paleta da marca"
+                  >
+                    <AppearanceColors
+                      value={draft}
+                      onChange={(next) =>
+                        setDraft({ ...defaultSiteColors, ...next })
+                      }
+                    />
+                  </FormSection>
+                  <FormSection
+                    id="appearance-store"
+                    title="Organização da loja"
+                    collapsible
+                    defaultOpen={false}
+                    hasErrors={!!error}
+                    summary="Seções e conteúdo da vitrine"
+                  >
+                    <StorefrontEditor
+                      value={draft.storefront ?? defaultStorefront}
+                      collections={collections}
+                      onChange={(storefront) =>
+                        setDraft({ ...draft, storefront })
+                      }
+                    />
+                  </FormSection>
+                  <FormActions>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      type="submit"
+                      className=""
+                    >
+                      {busy ? "Salvando…" : "Salvar aparência"}
+                    </Button>
+                  </FormActions>
+                </FieldGroup>
+              </fieldset>
+            </CardContent>
+          </AdminForm>
         </Card>
         <Card asChild>
           <aside className="appearance-preview ">
@@ -222,7 +237,7 @@ export function AppearancePanel({
             </a>
           </aside>
         </Card>
-      </AdminForm>
+      </div>
     </>
   );
 }

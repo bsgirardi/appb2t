@@ -31,6 +31,7 @@ it("restores visible filters when navigating back to earlier results", () => {
     actorId: "u",
   };
   const { rerender } = render(<OpportunityPanel {...props} filters={a} />);
+  fireEvent.click(screen.getByRole("button", { name: /Filtros/ }));
   fireEvent.change(screen.getByLabelText("Buscar negociação"), {
     target: { value: "Especial" },
   });

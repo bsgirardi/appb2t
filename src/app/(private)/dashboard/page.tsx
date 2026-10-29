@@ -62,7 +62,7 @@ export default async function DashboardPage({
         </p>
       </div>
       <DashboardToolbar
-        key={JSON.stringify(filter)}
+        key={`toolbar-${JSON.stringify(filter)}`}
         filter={filter}
         panels={permittedPanels(actor.role)}
       />
@@ -71,7 +71,10 @@ export default async function DashboardPage({
         com {dateLabel(filter.previousFrom)} a {dateLabel(filter.previousTo)}.
         Posições atuais identificadas em cada indicador.
       </p>
-      <Suspense key={JSON.stringify(filter)} fallback={<DashboardLoading />}>
+      <Suspense
+        key={`panel-${JSON.stringify(filter)}`}
+        fallback={<DashboardLoading />}
+      >
         <Panel actor={actor} filter={filter} />
       </Suspense>
     </section>

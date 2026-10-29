@@ -32,7 +32,7 @@ export function StoreCollections({
         {collections.map((collection) => (
           <Link
             key={collection.id}
-            href={catalogPath(collection.id)}
+            href={catalogPath(collection.slug ?? collection.id)}
             className="group flex min-w-0 items-center gap-4 rounded-2xl border border-border bg-background p-4 hover:border-primary"
           >
             {collection.imageUrl ? (
@@ -88,11 +88,13 @@ export function CollectionNavigation({
         <Link
           key={collection.id}
           href={catalogContextPath(context, {
-            collection: collection.id,
+            collection: collection.slug ?? collection.id,
             page: 1,
           })}
           aria-current={
-            context.collection === collection.id ? "page" : undefined
+            context.collection === (collection.slug ?? collection.id)
+              ? "page"
+              : undefined
           }
         >
           {collection.name}

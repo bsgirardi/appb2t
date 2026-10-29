@@ -31,6 +31,9 @@ it("keeps unsaved edits until explicit discard in the same panel", () => {
     );
   }
   render(<Example />);
+  expect(screen.getByRole("dialog").getAttribute("data-slot")).toBe(
+    "dialog-content",
+  );
   fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
   expect(screen.getByRole("dialog", { name: "Editar cliente" })).toBeTruthy();
   expect((screen.getByLabelText("Nome") as HTMLInputElement).value).toBe("Ana");

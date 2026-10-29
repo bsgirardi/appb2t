@@ -9,6 +9,19 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+it("keeps the form and preview in separate grid columns without an orphan guide", () => {
+  const { container } = render(
+    <AppearancePanel
+      initial={{ ...defaultAppearance, logoUrl: null, version: 0 }}
+    />,
+  );
+  const grid = container.querySelector(".product-edit-grid")!;
+  expect(Array.from(grid.children, (node) => node.tagName)).toEqual([
+    "FORM",
+    "ASIDE",
+  ]);
+  expect(grid.querySelector("form .admin-required-guide")).toBeTruthy();
+});
 it("previews escaped identity locally before explicit saving", () => {
   const fetch = vi.spyOn(globalThis, "fetch");
   const { container } = render(
@@ -88,14 +101,12 @@ it("uses the storefront foreground color in its site preview", () => {
 });
 
 it("saves the choice to hide the initial banner without clearing its content", async () => {
-  const fetch = vi
-    .spyOn(globalThis, "fetch")
-    .mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        data: { ...defaultAppearance, logoUrl: null, version: 1 },
-      }),
-    } as Response);
+  const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      data: { ...defaultAppearance, logoUrl: null, version: 1 },
+    }),
+  } as Response);
   render(
     <AppearancePanel
       initial={{ ...defaultAppearance, logoUrl: null, version: 0 }}

@@ -1,3 +1,4 @@
+import { resolveCollection } from "@/domain/collections/navigation";
 import { Pagination } from "@/components/ui/pagination";
 import { CatalogFilterForm } from "@/components/products/catalog-filter-form";
 import { catalogCommercialErrors } from "@/domain/products/catalog-commercial-filters";
@@ -42,7 +43,8 @@ export async function generateMetadata({ searchParams }: Props) {
     getPublicAppearance(),
     listPublicCollections(),
   ]);
-  const collection = collections.find((c) => c.id === f.collection);
+  const collection = resolveCollection(collections, f.collection);
+  if (collection) f.collection = collection.slug ?? collection.id;
   const config = identity.storefront ?? defaultStorefront;
   const metadata = publicMetadata(
     `${collection ? `${collection.name} | ${identity.name}` : config.seoTitle || `Catálogo | ${identity.name}`}${f.page > 1 ? ` — Página ${f.page}` : ""}`,
@@ -73,18 +75,13 @@ export default async function PortfolioPage({ searchParams }: Props) {
     listPublicCollections(),
     listPublicKits(),
   ]);
-  const collection = collections.find((c) => c.id === f.collection);
+  const collection = resolveCollection(collections, f.collection);
+  if (collection) f.collection = collection.slug ?? collection.id;
   if (f.collection && !collection) notFound();
   const invalid = Object.keys(catalogCommercialErrors(f)).length > 0;
   const data = invalid
     ? { products: [], total: 0, pages: 0, approximate: false }
-    : await catalogPage(
-        f.collection || undefined,
-        f.search,
-        f.order,
-        f.page,
-        f,
-      );
+    : await catalogPage(collection?.id, f.search, f.order, f.page, f);
   if (!invalid && f.page > 1 && f.page > data.pages) notFound();
   const config = identity.storefront ?? defaultStorefront;
   const home =
@@ -163,7 +160,14 @@ export default async function PortfolioPage({ searchParams }: Props) {
   const sections = {
     catalog,
     banners: <StoreBanners config={config} collections={collections} />,
-    featured: <StoreFeatured collections={featured} />,
+    featured: (
+      <StoreFeatured
+        collections={featured.map((c) => ({
+          ...c,
+          slug: collections.find((item) => item.id === c.id)?.slug,
+        }))}
+      />
+    ),
     about: <StoreAbout config={config} />,
   };
   return (

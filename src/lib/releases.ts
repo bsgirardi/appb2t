@@ -1,4 +1,4 @@
-type Release = {
+export type Release = {
   version: string;
   date: string;
   title: string;
@@ -7,6 +7,37 @@ type Release = {
 
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
+  {
+    version: "1.13.0",
+    date: "2026-10-29",
+    title: "Interface mais organizada e atualizações por dia",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "O histórico reúne em um único bloco as novidades, melhorias e correções de cada dia, mostrando a versão mais recente da data.",
+          "Coleções passam a ter endereços com o nome, como /?colecao=corporativos, para facilitar o compartilhamento. O endereço acompanha o nome atual; nomes iguais recebem um complemento. Links anteriores por identificador continuam funcionando.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "O botão de tema mostra apenas o ícone de sol ou lua e alterna diretamente entre claro e escuro.",
+          "Janelas de edição abrem em um diálogo centralizado, com rolagem em telas menores e proteção para alterações não salvas.",
+          "Os filtros recolhíveis têm cabeçalho destacado com borda e ícone para facilitar sua localização, preservando os valores ao fechar e reabrir.",
+          "Negociações e Anúncios usam o mesmo padrão de filtros recolhíveis das outras listagens.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Ao trocar de dashboard, o seletor e os filtros de período permanecem em um único bloco, sem acumular seleções anteriores na tela.",
+          "A página de Aparência mantém o formulário e a prévia alinhados em telas largas e na ordem correta em celulares.",
+          "Campos de busca, seletores, cabeçalhos e paginação ficam alinhados nas listagens administrativas, com controles que se acomodam em telas menores.",
+        ],
+      },
+    ],
+  },
   {
     version: "1.12.0",
     date: "2026-10-29",
