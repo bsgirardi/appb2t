@@ -38,3 +38,7 @@ A primeira execução ampla Linux coincidiu com as edições da revisão e esgot
 Pasta operacional e documentos de outros chats preservados. Documentos locais pós-publicação/auditoria foram copiados para esta worktree no início; stash antigo não foi aplicado. Nenhum contêiner existente foi atualizado e nenhum banco operacional ou de outro chat recebeu testes. Instâncias e volumes temporários desta tarefa removidos após validação; worktree e branch preservadas.
 
 E1 ampla permanece parcial: importação G-code/3MF e projeção mensal por capacidade/demanda são incrementos separados. Aceite humano com dados de uso real e publicação desta versão continuam pendentes. A permissão para PR/push/merge/publicação não foi solicitada nem inferida da aprovação de implementação.
+
+## Preparação da PR autorizada
+
+Em 29/10/2026 o usuário autorizou push e criação da PR. Main remota reconferida em c3b3dae (1.13.0), preservando incremento único para 1.14.0. A ausência de autorização descrita na entrega local acima é histórica; merge, publicação e migração operacional continuam separados e não foram autorizados.

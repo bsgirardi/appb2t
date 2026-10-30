@@ -83,3 +83,5 @@ Desenho E1.2 completo aprovado em 29/10/2026; plano autorrevisado em `docs/super
 ## E1.2 — implementação local em 29/10/2026
 
 Canais, descontos, cobertura/meta e comparações nomeadas imutáveis implementados na branch isolada `codex/e1-2-canais-descontos`, sobre main c3b3dae (1.13.0), versão 1.14.0 preparada. Tipos/lint/build, oito integrações E12, migração/reaplicação com sete projeções legadas e regressões E3–E6 passaram. Revisão independente com achados reproduzidos e corrigidos. Suíte padrão completa aprovada: 1.023 testes em 304 arquivos; [relatório e limites](docs/superpowers/reviews/2026-10-29-e1-2-canais-descontos.md). Sem PR/push/merge/publicação ou ação operacional. Importação, projeção mensal e aceite humano permanecem separados.
+
+PR E1.2 autorizada pelo usuário em 29/10/2026 e em preparação, versão 1.14.0 sobre main 1.13.0. Sem autorização de merge/publicação ou migração operacional.

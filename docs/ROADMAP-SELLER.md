@@ -384,3 +384,7 @@ Usuário aprovou o desenho completo após revisão independente sem lacunas mate
 ### 29/10/2026 — E1.2 implementada em isolamento
 
 Desenho/plano aprovados e execução direta na branch `codex/e1-2-canais-descontos`. Base reconciliada com main `c3b3dae` (1.13.0), versão preparada 1.14.0. Comparação de canais/descontos, cobertura versus meta e biblioteca nomeada imutável, com reutilização após revisão atual e sem aplicar descontos duas vezes. Migração/reaplicação preservaram sete projeções sintéticas; oito testes E12 passaram, bem como tipos/lint/build e suítes E3–E6. Revisão independente teve dois P2 reproduzidos e corrigidos com regressões. Apresentação estática desktop/375 px conferida; prévia autenticada bloqueada pela revisão automática. Suíte padrão completa aprovada: 1.023 testes em 304 arquivos. [Relatório e limites](superpowers/reviews/2026-10-29-e1-2-canais-descontos.md). Sem PR/push/merge/publicação, migração operacional ou atualização de contêineres existentes; E1 ampla continua parcial, com importação e projeção mensal separadas.
+
+### 29/10/2026 — PR E1.2 autorizada
+
+Usuário autorizou enviar a branch e abrir a PR. Main remota reconferida em c3b3dae (1.13.0); entrega mantém 1.14.0, sem novo incremento. Validações anteriores completas preservadas no relatório; manifestos/rodapés/histórico reconferidos na preparação. Merge, publicação e migração operacional permanecem sem autorização.
