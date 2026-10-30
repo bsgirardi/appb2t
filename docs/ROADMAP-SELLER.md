@@ -392,3 +392,7 @@ Usuário autorizou enviar a branch e abrir a PR. Main remota reconferida em c3b3
 ### 29/10/2026 — PR E1.2 criada
 
 [PR #34](https://github.com/bsgirardi/appb2t/pull/34) aberta para revisão, versão 1.14.0 sobre main 1.13.0, branch `codex/e1-2-canais-descontos`. Rechecagem da preparação: manifestos sincronizados e três testes de versão/rodapés/Atualizações aprovados. Validação completa anterior no relatório; CI da PR pendente. Sem merge, publicação ou migração operacional.
+
+### 30/10/2026 — reconciliação da PR #34 para merge autorizado
+
+Usuário autorizou verificar e integrar as PRs pendentes. A única aberta é #34. Main avançou para ae006a2 (1.13.1, PR #33); conflitos limitados aos manifestos/histórico foram resolvidos preservando integralmente 1.13.1 e mantendo E1.2 em 1.14.0, sem novo incremento. Regressão focada: 25 testes em seis arquivos aprovados; 29 cenários de atualização Docker simulados em Linux aprovados. CI da PR será reexecutado sobre a base reconciliada antes da integração. Sem publicação ou migração operacional.

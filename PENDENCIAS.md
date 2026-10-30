@@ -87,3 +87,5 @@ Canais, descontos, cobertura/meta e comparações nomeadas imutáveis implementa
 PR E1.2 autorizada pelo usuário em 29/10/2026 e em preparação, versão 1.14.0 sobre main 1.13.0. Sem autorização de merge/publicação ou migração operacional.
 
 E1.2 entregue na [PR #34](https://github.com/bsgirardi/appb2t/pull/34), versão 1.14.0, aberta para revisão após autorização. CI pendente; sem merge/publicação/migração operacional.
+
+Em 30/10/2026 foi autorizada a integração das PRs pendentes. #34 é a única aberta; base reconciliada com main 1.13.1 (ae006a2), preservando a versão 1.14.0 e as notas anteriores. CI da base reconciliada será conferido antes do merge. Publicação/migração operacional permanecem separadas.

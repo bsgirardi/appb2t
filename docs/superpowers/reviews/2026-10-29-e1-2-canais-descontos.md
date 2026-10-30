@@ -44,3 +44,7 @@ E1 ampla permanece parcial: importação G-code/3MF e projeção mensal por capa
 Em 29/10/2026 o usuário autorizou push e criação da PR. Main remota reconferida em c3b3dae (1.13.0), preservando incremento único para 1.14.0. A ausência de autorização descrita na entrega local acima é histórica; merge, publicação e migração operacional continuam separados e não foram autorizados.
 
 [PR #34](https://github.com/bsgirardi/appb2t/pull/34) aberta para revisão após autorização. Versão 1.14.0 preservada, sem novo incremento. Três testes de manifestos/rodapés/Atualizações passaram novamente na preparação. CI da PR ainda pendente; sem merge/publicação/migração operacional.
+
+## Reconciliação para integração autorizada — 30/10/2026
+
+A única PR aberta é #34. Usuário autorizou o merge das pendentes. Main passou a ae006a2 (1.13.1, resumo de atualização da PR #33); resolvidos conflitos apenas em manifestos e releases, conservando integralmente as notas de 1.13.1 e a versão 1.14.0 da E1.2. Nenhum novo incremento. 25 testes focados de domínio/UI/versão/histórico e 29 cenários Linux do fluxo de atualização simulado passaram. CI será reexecutado antes da integração; publicação/migração operacional não incluídas.
