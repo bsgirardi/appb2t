@@ -388,3 +388,7 @@ Desenho/plano aprovados e execução direta na branch `codex/e1-2-canais-descont
 ### 29/10/2026 — PR E1.2 autorizada
 
 Usuário autorizou enviar a branch e abrir a PR. Main remota reconferida em c3b3dae (1.13.0); entrega mantém 1.14.0, sem novo incremento. Validações anteriores completas preservadas no relatório; manifestos/rodapés/histórico reconferidos na preparação. Merge, publicação e migração operacional permanecem sem autorização.
+
+### 29/10/2026 — PR E1.2 criada
+
+[PR #34](https://github.com/bsgirardi/appb2t/pull/34) aberta para revisão, versão 1.14.0 sobre main 1.13.0, branch `codex/e1-2-canais-descontos`. Rechecagem da preparação: manifestos sincronizados e três testes de versão/rodapés/Atualizações aprovados. Validação completa anterior no relatório; CI da PR pendente. Sem merge, publicação ou migração operacional.

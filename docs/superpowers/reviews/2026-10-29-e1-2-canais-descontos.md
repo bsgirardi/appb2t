@@ -42,3 +42,5 @@ E1 ampla permanece parcial: importação G-code/3MF e projeção mensal por capa
 ## Preparação da PR autorizada
 
 Em 29/10/2026 o usuário autorizou push e criação da PR. Main remota reconferida em c3b3dae (1.13.0), preservando incremento único para 1.14.0. A ausência de autorização descrita na entrega local acima é histórica; merge, publicação e migração operacional continuam separados e não foram autorizados.
+
+[PR #34](https://github.com/bsgirardi/appb2t/pull/34) aberta para revisão após autorização. Versão 1.14.0 preservada, sem novo incremento. Três testes de manifestos/rodapés/Atualizações passaram novamente na preparação. CI da PR ainda pendente; sem merge/publicação/migração operacional.
