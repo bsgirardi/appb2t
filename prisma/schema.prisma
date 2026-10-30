@@ -758,7 +758,33 @@ model PricingSnapshot {
   createdAt DateTime @default(now())
   operationKey String
   requestHash String
+  comparisonItem PricingComparisonItem?
   @@unique([actorId,operationKey])
+}
+model PricingComparison {
+  id String @id @default(cuid())
+  name String
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  operationKey String
+  requestHash String
+  contractVersion Int @default(1)
+  calculationVersion Int @default(1)
+  context Json
+  items PricingComparisonItem[]
+  @@unique([actorId,operationKey])
+  @@index([createdAt,id])
+}
+model PricingComparisonItem {
+  id String @id @default(cuid())
+  comparisonId String
+  comparison PricingComparison @relation(fields:[comparisonId],references:[id],onDelete:Restrict)
+  position Int
+  snapshotId String @unique
+  snapshot PricingSnapshot @relation(fields:[snapshotId],references:[id],onDelete:Restrict)
+  context Json
+  @@unique([comparisonId,position])
 }
 model ProductCalculationRevision {
   id String @id @default(cuid())

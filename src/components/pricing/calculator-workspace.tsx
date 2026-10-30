@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import type { CalculatorData } from "@/domain/calculation/types";
 import type { PricingCatalogDTO } from "@/domain/pricing/types";
@@ -37,6 +38,11 @@ export function CalculatorWorkspace({
         setVisited((previous) => new Set([...previous, value]));
       }}
     >
+      <p className="mb-4">
+        <Link href="/calculadora/cenarios">
+          Comparações de canais e descontos salvas
+        </Link>
+      </p>
       <TabsList
         aria-label="Tipo de cálculo"
         className="mb-5 h-auto flex-wrap justify-start gap-1"

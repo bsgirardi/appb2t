@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.13.1",
+  "version": "1.14.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -20,7 +20,9 @@
     "test:e5": "vitest run --config vitest.e5.config.ts",
     "test:e5:migration": "node --import tsx tests/e5/migration-validation.ts",
     "test:e6": "vitest run --config vitest.e6.config.ts",
-    "test:e6:migration": "node --import tsx tests/e6/migration-validation.ts"
+    "test:e6:migration": "node --import tsx tests/e6/migration-validation.ts",
+    "test:e12": "vitest run --config vitest.e12.config.ts",
+    "test:e12:migration": "node --import tsx tests/e12/migration-validation.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

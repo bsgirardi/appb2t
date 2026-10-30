@@ -8,6 +8,27 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.14.0",
+    date: "2026-10-29",
+    title: "Comparação de canais, descontos e memórias de preço",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Compare canais com suas taxas cadastradas, simule descontos e confira o efeito na contribuição e na margem.",
+          "Salve comparações nomeadas para consultar premissas e resultados históricos e comparar alternativas da equipe.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Preços de cobertura de custos e de meta comercial aparecem separadamente para apoiar a decisão de quanto cobrar.",
+          "Reutilize uma oferta histórica como rascunho após conferir os parâmetros atuais, preservando a memória original.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.13.1",
     date: "2026-10-29",
     title: "Resumo das atualizações do sistema",
