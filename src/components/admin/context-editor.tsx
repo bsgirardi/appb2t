@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +38,15 @@ export function ContextEditor({
     }
   }
   const returnFocus = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!open || !(dirty || changed)) return;
+    function protectExit(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", protectExit);
+    return () => window.removeEventListener("beforeunload", protectExit);
+  }, [open, dirty, changed]);
   function close(next: boolean) {
     if (!next && (dirty || changed)) {
       setConfirmDiscard(true);

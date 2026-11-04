@@ -138,7 +138,13 @@ export function DashboardToolbar({
           <ToggleGroupItem value="90">90 dias</ToggleGroupItem>
         </ToggleGroup>
       </div>
-      <FilterPanel title="Período e filtros">
+      <FilterPanel
+        title="Período e filtros"
+        activeCount={
+          Number(f.range === "custom") + Number(f.margin !== undefined)
+        }
+        hasErrors={!!error}
+      >
         <form
           key={`${f.from}-${f.to}-${f.margin ?? ""}`}
           onSubmit={apply}

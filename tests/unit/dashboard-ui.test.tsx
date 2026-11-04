@@ -88,7 +88,7 @@ it("clears an existing margin reference instead of restoring the previous URL va
   render(
     <DashboardToolbar filter={filter} panels={permittedPanels("ADMIN")} />,
   );
-  fireEvent.click(screen.getByRole("button", { name: "Período e filtros" }));
+  fireEvent.click(screen.getByRole("button", { name: /Período e filtros/ }));
   fireEvent.change(screen.getByLabelText("Referência de margem (%)"), {
     target: { value: "" },
   });

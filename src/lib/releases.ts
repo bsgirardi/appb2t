@@ -8,6 +8,29 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.16.0",
+    date: "2026-11-04",
+    title: "Rotina diária: prioridades e cadastro de clientes",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "O dashboard apresenta pendências acionáveis antes dos gráficos e identifica filtros personalizados.",
+          "Clientes mostra os filtros aplicados, permite limpar a seleção e distingue uma busca sem resultados de um cadastro ainda vazio.",
+          "O cadastro de clientes organiza identificação e contato em seções e apresenta um resumo junto à ação de salvar, com os dados preservados em caso de falha.",
+          "Editores em contexto passam a pedir confirmação do navegador ao sair ou recarregar com alterações não salvas, além da confirmação ao fechar o editor.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "A paginação de clientes mantém os filtros já aplicados, sem enviar buscas ainda em edição. Voltar e avançar pelo histórico atualiza os campos conforme a seleção da página.",
+          "Datas inválidas mantêm o painel de filtros do dashboard aberto para correção.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.15.0",
     date: "2026-11-04",
     title: "Detalhamento dos desvios de custo produtivo",
