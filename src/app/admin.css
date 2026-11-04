@@ -504,3 +504,9 @@
     }
   }
 }
+
+@layer utilities {
+  .admin-ui .profitability-intelligence [data-slot="accordion-trigger"] {
+    font-family: var(--font-admin);
+  }
+}

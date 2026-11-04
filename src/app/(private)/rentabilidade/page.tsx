@@ -9,6 +9,8 @@ import {
 } from "@/server/profitability/queries";
 import { db } from "@/lib/db";
 import { ProfitabilityReport } from "@/components/profitability/report";
+import { IntelligencePanel } from "@/components/profitability/intelligence-panel";
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { moneyText } from "@/components/profitability/detail";
 import { Field, Notice } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
@@ -140,6 +142,20 @@ export default async function ProfitabilityPage({
         contêm esse produto. Estes indicadores não representam DRE nem lucro
         líquido.
       </Notice>
+      <IntelligencePanel
+        key={JSON.stringify(filter)}
+        summary={result.summary}
+        rankings={result.rankings}
+        period={{
+          from: filter.from ?? period.from,
+          to: filter.to ?? period.to,
+          today: todaySaoPaulo(new Date()),
+          undated: filter.undated === "true",
+          enabled:
+            filter.undated !== "true" &&
+            (filter.situation ?? "NORMAL") === "NORMAL",
+        }}
+      />
       <ProfitabilityReport result={result} />
       <nav aria-label="Paginação de pedidos" className="flex gap-3">
         {result.page > 1 ? (
