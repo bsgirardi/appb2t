@@ -5,6 +5,7 @@ import Decimal from "decimal.js";
 import type { OpportunityQuote } from "@/domain/opportunities/types";
 import type { QuoteDTO } from "@/domain/commerce/types";
 import { quoteDecisionLines } from "@/domain/opportunities/decision";
+import { QuoteConsolidation } from "./consolidation";
 import { formatBRL } from "@/domain/calculation/calculate";
 import { api } from "@/lib/client-api";
 import { Button } from "@/components/ui/button";
@@ -110,12 +111,13 @@ function DecisionQuery({ quote }: { quote: OpportunityQuote | null }) {
               <p className="muted">
                 Antes do desconto global de{" "}
                 {formatBRL(document.input.discount ?? "0")} e do frete de{" "}
-                {formatBRL(document.input.shipping ?? "0")}. A margem
-                consolidada do orçamento não está apurada. Receita estimada não
-                é faturamento nem recebimento; contribuição e resultado após
-                depreciação não são lucro líquido.
+                {formatBRL(document.input.shipping ?? "0")}. Confira a simulação
+                consolidada abaixo com os encargos e o custo de envio
+                declarados. Receita estimada não é faturamento nem recebimento;
+                contribuição e resultado após depreciação não são lucro líquido.
               </p>
               {!rows.length && <p>O orçamento ainda não possui itens.</p>}
+              <QuoteConsolidation document={document} />
               <div className="grid min-w-0 gap-4 lg:grid-cols-2">
                 {rows.map(
                   ({ item, result, machineMinutes, snapshot }, index) => (
