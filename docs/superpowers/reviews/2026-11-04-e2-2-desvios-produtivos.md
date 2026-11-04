@@ -51,3 +51,7 @@ E2.2 implementada em isolamento; integração/publicação pendentes de autoriza
 Pasta operacional, bancos/volumes existentes e arquivos de outros chats preservados. Nenhum .env operacional copiado, nenhum stash histórico aplicado. Testes mutáveis usaram instâncias sintéticas exclusivas.
 
 Após a validação, encerrados a prévia e os executores e removidos os oito contêineres descartáveis desta tarefa, seus volumes anônimos e a imagem temporária do executor. Conferência final mantém apenas os três serviços já existentes, todos saudáveis. Branch/worktree e evidências locais preservadas para revisão; nenhum achado menor adiado.
+
+## Preparação autorizada da PR — 04/11/2026
+
+Usuário autorizou PR, merge em main e publicação local. Main remota reconferida em ce38daa/1.14.0; incremento MINOR único para 1.15.0, manifestos sincronizados e notas portuguesas no início de releases.ts. Os registros anteriores de ausência de autorização são históricos. 22 testes focados de versão/rodapés/Atualizações ADMIN/OPERATOR e reconciliação passaram; build da versão 1.15.0 aprovado. A validação funcional anterior permanece registrada acima; CI da PR e publicação serão conferidos antes de declarar integração/disponibilidade.
