@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OpportunityForm } from "./form";
+import { OpportunityDecision } from "./decision";
 import { useOpportunityCommand, CommandError } from "./command";
 const eventLabels: Record<string, string> = {
   CREATE: "Oportunidade criada",
@@ -149,6 +150,9 @@ export function OpportunityDetail({
         </Notice>
       ) : null}
       <CommandError {...command} />
+      <OpportunityDecision
+        quote={o.quotes.find((q) => q.id === o.principalQuoteId) ?? null}
+      />
       {readError ? <Notice>{readError}</Notice> : null}
       {editing ? (
         <Card>

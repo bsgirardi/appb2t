@@ -8,6 +8,26 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.16.0",
+    date: "2026-11-04",
+    title: "Indicadores comerciais na negociação",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Consulte o orçamento principal na negociação para conferir contribuição, margem e tempo de máquina estimado de cada item com memória de custo válida.",
+          "Acesse o planejamento, a simulação de canais e descontos e as comparações salvas durante a negociação.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Custos ausentes ou desatualizados e mudanças de versão do orçamento ficam explícitos. Os indicadores por item são apresentados antes dos descontos e frete globais, sem confundir contribuição com lucro líquido ou tempo de máquina com prazo garantido.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.15.0",
     date: "2026-11-04",
     title: "Detalhamento dos desvios de custo produtivo",
