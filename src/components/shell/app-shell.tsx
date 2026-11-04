@@ -18,7 +18,18 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { AdminNavigation, navigationTitle } from "./admin-navigation";
+import {
+  AdminNavigation,
+  navigationTitle,
+  navigationGroup,
+} from "./admin-navigation";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Brand } from "./brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { themeVariables } from "@/domain/appearance/theme";
@@ -87,7 +98,7 @@ export function AppShell({
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="admin-ui admin-theme font-admin"
+              className="admin-ui admin-theme font-admin admin-mobile-menu w-[min(360px,90vw)]"
               style={paletteStyle}
             >
               <SheetTitle>Menu principal</SheetTitle>
@@ -141,16 +152,25 @@ export function AppShell({
         </Sidebar>
         <div className="workspace">
           <header className="topbar">
-            <span>
-              Gestão <span className="slash">/</span>{" "}
-              <strong>{navigationTitle(path)}</strong>
-            </span>
+            <Breadcrumb aria-label="Localização no painel">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  {navigationGroup(path) ?? "Gestão"}
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage role={undefined}>
+                    {navigationTitle(path)}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
             <ThemeToggle />
             <span className="internal-chip">
               <span className="dot" /> Uso interno <ArrowUpRight size={13} />
             </span>
           </header>
-          <main id="admin-content" className="min-w-0">
+          <main id="admin-content" className="min-w-0" tabIndex={-1}>
             {children}
           </main>
           <footer className="workspace-footer">

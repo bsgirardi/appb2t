@@ -1,7 +1,7 @@
 /* Compact administrative theme. Existing behavior and native form semantics stay intact. */
 @layer components {
   .admin-ui {
-    --sidebar-width: 216px;
+    --sidebar-width: 232px;
     --background: var(--paper);
     --foreground: var(--ink);
     --primary: var(--brand);
@@ -14,7 +14,7 @@
     --border: var(--line);
     background: var(--bg);
     color: var(--ink);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
   }
   .admin-ui .sidebar {
@@ -34,15 +34,47 @@
   .admin-ui .nav-item {
     margin: 2px 0;
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: 13px;
     gap: 9px;
     min-height: 36px;
     height: auto;
     white-space: normal;
   }
   .admin-ui .nav-item.active {
-    background: var(--green-light);
-    color: var(--green);
+    background: var(--surface);
+    color: var(--ink);
+    border-inline-start: 3px solid var(--brand);
+    font-weight: 700;
+  }
+  .admin-ui .admin-nav-group {
+    font-family: inherit;
+    min-height: 40px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .admin-ui .admin-nav-group[data-active] {
+    color: var(--ink);
+  }
+  .admin-ui .admin-nav-group:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .admin-ui .admin-desktop-nav {
+    flex-shrink: 0;
+  }
+  .admin-ui.admin-mobile-menu {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px 16px;
+    width: min(360px, 90vw);
+  }
+  .admin-mobile-menu > :is(h2, p) {
+    padding-right: 48px;
+  }
+  .admin-mobile-menu .admin-navigation {
+    margin-top: 20px;
   }
   .admin-ui .sidebar-bottom {
     padding-top: 16px;
@@ -55,8 +87,23 @@
     padding-top: 12px;
   }
   .admin-ui .topbar {
-    height: 52px;
+    min-height: 56px;
+    height: auto;
     padding: 0 24px;
+    gap: 16px;
+  }
+  .admin-ui .topbar > nav {
+    min-width: 0;
+    margin-right: auto;
+    padding-block: 12px;
+  }
+  .admin-ui .topbar ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .admin-ui .topbar [aria-current="page"] {
+    font-weight: 600;
   }
   .admin-ui .workspace {
     min-width: 0;
@@ -77,6 +124,9 @@
   }
   .admin-ui .page-heading p {
     margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 72ch;
   }
   .admin-ui :is(.calculator-grid, .input-column, .result-column) {
     gap: 16px;
@@ -476,13 +526,19 @@
     }
     .admin-ui .topbar {
       padding: 0 16px;
-      height: 44px;
+      min-height: 56px;
     }
     .admin-ui .workspace main {
       padding: 20px 16px;
     }
     .admin-ui :is([data-slot="button"], .nav-item) {
       min-height: 44px;
+    }
+    .admin-ui .admin-nav-group {
+      min-height: 44px;
+    }
+    .admin-ui [data-slot="button"][data-size="icon-sm"] {
+      width: 44px;
     }
     .admin-ui
       .field

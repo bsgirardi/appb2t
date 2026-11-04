@@ -33,27 +33,36 @@ import { cn } from "@/lib/utils";
 type Item = { href: string; label: string; icon: LucideIcon; admin?: boolean };
 const groups: { label: string; items: Item[]; admin?: boolean }[] = [
   {
-    label: "Vendas",
+    label: "Comercial",
     items: [
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/solicitacoes", label: "Solicitações", icon: FileText },
       { href: "/negociacoes", label: "Negociações", icon: Users },
       { href: "/orcamentos", label: "Orçamentos", icon: FileText },
       { href: "/vendas", label: "Vendas", icon: ShoppingCart },
-      { href: "/pontos-de-venda", label: "Pontos de venda", icon: Package },
-      { href: "/produtos", label: "Produtos", icon: Boxes },
-      { href: "/anuncios", label: "Anúncios", icon: FileText },
-      { href: "/kits", label: "Kits", icon: Boxes },
-      { href: "/colecoes", label: "Coleções", icon: Layers },
     ],
   },
   {
-    label: "Produção",
+    label: "Catálogo",
+    items: [
+      { href: "/produtos", label: "Produtos", icon: Boxes },
+      { href: "/kits", label: "Kits", icon: Boxes },
+      { href: "/colecoes", label: "Coleções", icon: Layers },
+      { href: "/anuncios", label: "Anúncios", icon: FileText },
+    ],
+  },
+  {
+    label: "Operação",
     items: [
       { href: "/producao", label: "Ordens e entregas", icon: Factory },
       { href: "/planejamento", label: "Planejamento", icon: CalendarDays },
       { href: "/estoque", label: "Estoque", icon: Package },
-      { href: "/calculadora", label: "Calculadora", icon: Calculator },
+    ],
+  },
+  {
+    label: "Parcerias",
+    items: [
+      { href: "/pontos-de-venda", label: "Pontos de venda", icon: Users },
     ],
   },
   {
@@ -75,30 +84,36 @@ const groups: { label: string; items: Item[]; admin?: boolean }[] = [
       },
     ],
   },
+  {
+    label: "Configurações",
+    admin: true,
+    items: [
+      { href: "/configuracoes", label: "Geral", icon: Settings2 },
+      { href: "/configuracoes/aparencia", label: "Aparência", icon: Settings2 },
+    ],
+  },
 ];
 const utilities: Item[] = [
   { href: "/atualizacoes", label: "Atualizações", icon: History },
-  {
-    href: "/configuracoes",
-    label: "Configurações",
-    icon: Settings2,
-    admin: true,
-  },
-  {
-    href: "/configuracoes/aparencia",
-    label: "Aparência",
-    icon: Settings2,
-    admin: true,
-  },
   { href: "/conta", label: "Minha conta", icon: UserRound },
   { href: "/", label: "Abrir loja", icon: ArrowUpRight },
 ];
 const dashboard: Item = {
   href: "/dashboard",
-  label: "Dashboard",
+  label: "Visão geral",
   icon: LayoutDashboard,
 };
-const allItems = [dashboard, ...groups.flatMap((g) => g.items), ...utilities];
+const calculator: Item = {
+  href: "/calculadora",
+  label: "Calculadora",
+  icon: Calculator,
+};
+const allItems = [
+  dashboard,
+  calculator,
+  ...groups.flatMap((g) => g.items),
+  ...utilities,
+];
 function matches(path: string, href: string) {
   return path === href || (href !== "/" && path.startsWith(`${href}/`));
 }
@@ -108,6 +123,11 @@ export function navigationTitle(path: string) {
       .sort((a, b) => b.href.length - a.href.length)
       .find((i) => matches(path, i.href))?.label ?? "Gestão"
   );
+}
+export function navigationGroup(path: string) {
+  return groups.find((group) =>
+    group.items.some((item) => matches(path, item.href)),
+  )?.label;
 }
 export function AdminNavigation({
   path,
@@ -146,6 +166,8 @@ export function AdminNavigation({
   return (
     <nav aria-label="Menu principal" className="admin-navigation">
       {item(dashboard)}
+      {item(calculator)}
+      <Separator className="my-3" />
       <Accordion
         key={`groups:${path}`}
         type="multiple"
@@ -159,7 +181,12 @@ export function AdminNavigation({
             key={group.label}
             className="border-0"
           >
-            <AccordionTrigger className="px-2 py-3">
+            <AccordionTrigger
+              className="admin-nav-group font-admin px-2 py-3"
+              data-active={
+                group.items.some((i) => matches(path, i.href)) || undefined
+              }
+            >
               {group.label}
             </AccordionTrigger>
             <AccordionContent className="pb-2">
