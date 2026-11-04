@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { coverageNames, moneyText } from "./format";
+import { ProductiveCostReconciliation } from "./productive-reconciliation";
 
 function Amount({
   value,
@@ -195,6 +196,10 @@ export function ProfitabilityReconciliation({
                 {line.key}
               </p>
               <Bridge value={line} />
+              <ProductiveCostReconciliation
+                line={value.lines[index]}
+                administrative={value.administrative}
+              />
             </div>
           </details>
         ))}

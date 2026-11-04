@@ -1,6 +1,6 @@
 # B2T — evolução de preço, produção e vendas
 
-Atualizado em: 29/10/2026. Auditoria do código, PRs e chats E1–E5 consolidada após a publicação local 1.12.0; registros históricos abaixo preservados.
+Atualizado em: 04/11/2026. E2.2 implementada em isolamento, com validação e entrega registradas ao final. Main reconferida em 1.14.0 com E1.2 integrada; publicação atual não reconferida. Auditoria de 29/10 e registros históricos abaixo preservados.
 
 ## Como continuar em outro chat
 
@@ -40,7 +40,7 @@ Desenhos históricos úteis: `docs/superpowers/specs/2026-10-05-precificacao-ava
 | Etapa | Entrega | Situação | Próxima ação |
 | --- | --- | --- | --- |
 | E1 | Calculadora e decisões de preço | Em implementação | E1.1 publicada; E1.2 implementada localmente em 1.14.0, validada, sem publicação |
-| E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 da PR #21 publicada; abrir componentes de custo e rankings |
+| E2 | Rentabilidade e explicação de desvios | Em implementação | E2.1 publicada; E2.2 implementada em isolamento, sem integração/publicação; rankings e recorrência separados |
 | E3 | Fila visual e previsão para o comercial | Em implementação | E3.1 da PR #22 publicada e concorrência validada; detalhar bloqueios e execução |
 | E4 | Funil de negociações e próximos contatos | Em implementação | E4.1 da PR #23 publicada, incluindo orçamentos; detalhar margem, prazo e alertas de proposta |
 | E5 | Pontos de venda e consignação | Em implementação | E5.1 da PR #26 publicada na instalação 1.12.0; decidir balcão/feira sem refazer consignação |
@@ -73,7 +73,7 @@ Auditoria: o comparador já informa se o preço cobre os custos modelados e dist
 
 - [x] Comparar margem da memória de preço, efeito comercial e margem realizada, sem presumir histórico de negociação (E2.1, PR #21).
 - [x] Explicar preço praticado, desconto, frete e taxas e a variação agregada do custo produtivo (E2.1).
-- [ ] Abrir a variação produtiva por material, falhas e trabalho, conforme rastreabilidade disponível (E2.2).
+- [x] Abrir a variação produtiva por material, trabalho e provisão de falhas, conforme rastreabilidade disponível (E2.2 implementada em isolamento; sem integração/publicação). Custos causais de falhas não medidos separadamente permanecem indisponíveis; parcela não reconciliada explícita. [Relatório](superpowers/reviews/2026-11-04-e2-2-desvios-produtivos.md).
 - [ ] Ranking por produto, cliente e canal, com período e população definidos.
 - [x] Manter custos incompletos/provisórios distintos dos resultados completos (E2.1).
 - [ ] Sugerir revisão da ficha quando houver desvios recorrentes, sem alterar parâmetros automaticamente.
@@ -396,3 +396,25 @@ Usuário autorizou enviar a branch e abrir a PR. Main remota reconferida em c3b3
 ### 30/10/2026 — reconciliação da PR #34 para merge autorizado
 
 Usuário autorizou verificar e integrar as PRs pendentes. A única aberta é #34. Main avançou para ae006a2 (1.13.1, PR #33); conflitos limitados aos manifestos/histórico foram resolvidos preservando integralmente 1.13.1 e mantendo E1.2 em 1.14.0, sem novo incremento. Regressão focada: 25 testes em seis arquivos aprovados; 29 cenários de atualização Docker simulados em Linux aprovados. CI da PR será reexecutado sobre a base reconciliada antes da integração. Sem publicação ou migração operacional.
+
+### 30/10/2026 — E2.2 iniciada: fontes e desenho
+
+Main remota conferida em ce38daa, versão 1.14.0, com E1.2 integrada pela PR #34. Continuação pela E2.2 conforme encaminhamento; E2.3/rankings e E2.4/recorrência permanecem separados. Lidos os documentos locais de acompanhamento e auditoria antes do isolamento, sem sobrescrever alterações da pasta operacional.
+
+[Proposta E2.2](superpowers/specs/2026-10-30-e2-2-desvios-produtivos-design.md): abrir componentes da memória congelada versus componentes realizados atribuídos, explicar provisão de falhas sem inventar custo causal, perdas já incluídas e parcela não reconciliada. Desenho para aprovação; plano e implementação ainda não iniciados. Worktree própria, branch codex/e2-2-desvios-produtivos, a partir da main vigente.
+
+Validação desta fase: inspeção estática das fontes, comparação dos módulos relevantes com a main e revisão documental. Sem teste funcional/build, PR/push/merge, publicação, migração ou alteração de contêiner. Versão preservada em 1.14.0; versão efetivamente publicada não reconferida nesta fase. Próximo passo: aprovação do desenho e plano executável. E2 permanece parcial.
+
+### 30/10/2026 — desenho E2.2 aprovado e plano preparado
+
+Usuário aprovou o desenho E2.2. Plano executável em docs/superpowers/plans/2026-10-30-e2-2-desvios-produtivos.md preparado e autorrevisado: componentes congelados opcionais, projeção pura, interface por linha, integração/histórico em banco E22 exclusivo e verificação final. Banco previsto localhost:55438/b2t_e22_test, variável E22_TEST_DATABASE_URL e setup com guarda própria; ainda não provisionado.
+
+Método recomendado: execução direta neste chat com revisão independente final, aguardando revisão do plano e confirmação do método. Somente documentação nesta fase; sem código de produto, dependências instaladas, testes funcionais/build, banco, PR/push/merge ou publicação. Versão 1.14.0 preservada; E2.3/E2.4 continuam separados. A pasta operacional permanece intacta.
+
+### 04/11/2026 — E2.2 implementada e validada em isolamento
+
+Desenho/plano aprovados e execução direta na branch codex/e2-2-desvios-produtivos, base main ce38daa/1.14.0. Detalhamento por material, trabalho, energia, manutenção, extras/complementos e provisão prevista para falhas; fontes e cobertura explícitas, perdas já incluídas e parcela não reconciliada sem atribuição causal inventada. Motores, rateios, memória/documentos e apurações históricas preservados; leitura ampliada pode exigir nova conferência humana pelo fingerprint atual.
+
+Validação final: 752 unitários Windows; 1.056 testes padrão Linux/Node 22 com banco sintético exclusivo; 14 integrações E22 em Windows e Linux; tipos, lint, build e revisão independente sem achados. Prévia sintética desktop/375 px e teclado conferidos, sem overflow da página. Tentativas Linux anteriores e ajustes exclusivos de ambiente registrados no relatório; nenhuma regra de produto flexibilizada. Recursos descartáveis e prévia removidos após validação, serviços existentes preservados.
+
+[Relatório e limites](superpowers/reviews/2026-11-04-e2-2-desvios-produtivos.md). Versão mantida em 1.14.0; sem PR/push/merge, publicação ou migração operacional. Integração/publicação requerem autorização específica; futura PR exige SemVer/notas únicos sobre main vigente. E2 ampla continua parcial: E2.3/rankings e E2.4/recorrência permanecem separados; homologação humana pendente.

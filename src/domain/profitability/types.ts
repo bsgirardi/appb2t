@@ -65,7 +65,16 @@ export type RevisionDTO = {
   reason: string;
   payload: AdministrativePayload;
 };
+export type ExpectedProductiveComponents = {
+  material: Money;
+  energy: Money;
+  maintenance: Money;
+  labor: Money;
+  extras: Money;
+  failure: Money;
+};
 export type ExpectedCost = {
+  components?: ExpectedProductiveComponents;
   snapshotId: string;
   variable: Money;
   depreciation: Money;

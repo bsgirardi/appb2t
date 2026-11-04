@@ -8,6 +8,26 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.15.0",
+    date: "2026-11-04",
+    title: "Detalhamento dos desvios de custo produtivo",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Confira, por linha da venda, os custos previstos e realizados de material, trabalho, energia, manutenção e complementos, com suas fontes e o efeito na contribuição.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "A provisão prevista para falhas aparece separada dos custos efetivos já incorporados à produção, evitando contar perdas duas vezes.",
+          "Custos sem composição, dados provisórios e parcelas não reconciliadas continuam identificados. A leitura ampliada pode pedir nova conferência dos extras, preservando as apurações anteriores.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.14.0",
     date: "2026-10-29",
     title: "Comparação de canais, descontos e memórias de preço",

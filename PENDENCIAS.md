@@ -4,7 +4,7 @@
 
 O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; os primeiros incrementos E1.1–E6.1 estão entregues, e as etapas amplas continuam parciais. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.
 
-Atualizado em 29/10/2026. O estado atual está no registro abaixo; desenhos e validações anteriores são registros históricos.
+Atualizado em 04/11/2026. Main reconferida em 1.14.0 com E1.2 integrada. E2.2 implementada em isolamento, com validação/limites no registro de 04/11 ao final e no [relatório](docs/superpowers/reviews/2026-11-04-e2-2-desvios-produtivos.md); sem PR, integração ou publicação desta etapa. A versão efetivamente publicada não foi reconferida; registros de publicação abaixo são históricos confirmados.
 
 ## Estado atual — 1.12.0 publicada em 29/10/2026
 
@@ -89,3 +89,25 @@ PR E1.2 autorizada pelo usuário em 29/10/2026 e em preparação, versão 1.14.0
 E1.2 entregue na [PR #34](https://github.com/bsgirardi/appb2t/pull/34), versão 1.14.0, aberta para revisão após autorização. CI pendente; sem merge/publicação/migração operacional.
 
 Em 30/10/2026 foi autorizada a integração das PRs pendentes. #34 é a única aberta; base reconciliada com main 1.13.1 (ae006a2), preservando a versão 1.14.0 e as notas anteriores. CI da base reconciliada será conferido antes do merge. Publicação/migração operacional permanecem separadas.
+
+### 30/10/2026 — E2.2 iniciada: fontes e desenho
+
+Main remota conferida em ce38daa, versão 1.14.0, com E1.2 integrada pela PR #34. Continuação pela E2.2 conforme encaminhamento; E2.3/rankings e E2.4/recorrência permanecem separados. Lidos os documentos locais de acompanhamento e auditoria antes do isolamento, sem sobrescrever alterações da pasta operacional.
+
+[Proposta E2.2](docs/superpowers/specs/2026-10-30-e2-2-desvios-produtivos-design.md): abrir componentes da memória congelada versus componentes realizados atribuídos, explicar provisão de falhas sem inventar custo causal, perdas já incluídas e parcela não reconciliada. Desenho para aprovação; plano e implementação ainda não iniciados. Worktree própria, branch codex/e2-2-desvios-produtivos, a partir da main vigente.
+
+Validação desta fase: inspeção estática das fontes, comparação dos módulos relevantes com a main e revisão documental. Sem teste funcional/build, PR/push/merge, publicação, migração ou alteração de contêiner. Versão preservada em 1.14.0; versão efetivamente publicada não reconferida nesta fase. Próximo passo: aprovação do desenho e plano executável. E2 permanece parcial.
+
+### 30/10/2026 — desenho E2.2 aprovado e plano preparado
+
+Usuário aprovou o desenho E2.2. Plano executável em docs/superpowers/plans/2026-10-30-e2-2-desvios-produtivos.md preparado e autorrevisado: componentes congelados opcionais, projeção pura, interface por linha, integração/histórico em banco E22 exclusivo e verificação final. Banco previsto localhost:55438/b2t_e22_test, variável E22_TEST_DATABASE_URL e setup com guarda própria; ainda não provisionado.
+
+Método recomendado: execução direta neste chat com revisão independente final, aguardando revisão do plano e confirmação do método. Somente documentação nesta fase; sem código de produto, dependências instaladas, testes funcionais/build, banco, PR/push/merge ou publicação. Versão 1.14.0 preservada; E2.3/E2.4 continuam separados. A pasta operacional permanece intacta.
+
+### 04/11/2026 — E2.2 implementada e validada em isolamento
+
+Desenho/plano aprovados e execução direta na branch codex/e2-2-desvios-produtivos, base main ce38daa/1.14.0. Detalhamento por material, trabalho, energia, manutenção, extras/complementos e provisão prevista para falhas; fontes e cobertura explícitas, perdas já incluídas e parcela não reconciliada sem atribuição causal inventada. Motores, rateios, memória/documentos e apurações históricas preservados; leitura ampliada pode exigir nova conferência humana pelo fingerprint atual.
+
+Validação final: 752 unitários Windows; 1.056 testes padrão Linux/Node 22 com banco sintético exclusivo; 14 integrações E22 em Windows e Linux; tipos, lint, build e revisão independente sem achados. Prévia sintética desktop/375 px e teclado conferidos, sem overflow da página. Tentativas Linux anteriores e ajustes exclusivos de ambiente registrados no relatório; nenhuma regra de produto flexibilizada. Recursos descartáveis e prévia removidos após validação, serviços existentes preservados.
+
+[Relatório e limites](docs/superpowers/reviews/2026-11-04-e2-2-desvios-produtivos.md). Versão mantida em 1.14.0; sem PR/push/merge, publicação ou migração operacional. Integração/publicação requerem autorização específica; futura PR exige SemVer/notas únicos sobre main vigente. E2 ampla continua parcial: E2.3/rankings e E2.4/recorrência permanecem separados; homologação humana pendente.
