@@ -21,6 +21,7 @@ import { factsHash } from "./commands";
 import { revisionDTO } from "./revisions";
 import { readConsignmentSaleCost } from "@/server/consignment/costs";
 import { readOpeningCost } from "./origin-values";
+import { readExpectedComponents } from "@/domain/profitability/expected-components";
 const add = (a: string, b: string) => new D(a).plus(b).toFixed();
 export async function readSaleSources(
   tx: Prisma.TransactionClient,
@@ -118,6 +119,10 @@ export async function readSaleSources(
           r = snap.result as unknown as PricingV2Result;
         if (input.version === 2 && input.quantity === item.quantity) {
           expected = {
+            ...(() => {
+              const components = readExpectedComponents(r);
+              return components ? { components } : {};
+            })(),
             snapshotId: snap.id,
             variable: new D(r.variableCost).minus(r.commercialFixed).toFixed(),
             depreciation: r.depreciation,
