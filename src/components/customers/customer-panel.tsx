@@ -16,6 +16,14 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Page } from "@/domain/shared/pagination";
@@ -34,15 +42,24 @@ export function CustomerPanel({
   const router = useRouter(),
     [editing, setEditing] = useState<CustomerDTO | "new" | null>(null),
     [query, setQuery] = useState(search),
-    [state, setState] = useState(active);
+    [state, setState] = useState(active),
+    [applied, setApplied] = useState({ search, active });
+  if (applied.search !== search || applied.active !== active) {
+    setApplied({ search, active });
+    setQuery(search);
+    setState(active);
+  }
+  const filtered = !!search || (!!active && active !== "all");
   function navigate(page: number) {
     router.push(
-      `/clientes?${new URLSearchParams({ search: query, active: state, page: String(page) })}`,
+      `/clientes?${new URLSearchParams({ search, active, page: String(page) })}`,
     );
   }
   function filter(e: FormEvent) {
     e.preventDefault();
-    navigate(1);
+    router.push(
+      `/clientes?${new URLSearchParams({ search: query.trim(), active: state, page: "1" })}`,
+    );
   }
   return (
     <>
@@ -102,10 +119,28 @@ export function CustomerPanel({
               </NativeSelect>
             </div>
             <Button variant="outline" size="sm" className="">
-              Buscar
+              Aplicar filtros
             </Button>
           </AdminForm>
         </FilterPanel>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-muted-foreground" role="status">
+            {initial.total} clientes
+            {filtered ? " nesta seleção" : " cadastrados"}
+            {search && <> · Busca: “{search}”</>}
+            {active === "true" && " · Ativos"}
+            {active === "false" && " · Inativos"}
+          </p>
+          {filtered && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push("/clientes")}
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
         <Card asChild>
           <div className="table-scroll">
             <Table>
@@ -121,19 +156,28 @@ export function CustomerPanel({
                 {initial.items.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell>
-                      <strong>{c.name}</strong>
-                      <small>{c.document}</small>
+                      <div className="flex flex-col gap-1">
+                        <strong>{c.name}</strong>
+                        <span className="text-muted-foreground">
+                          {c.document || "Documento não informado"}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {c.email || c.phone || "Não informado"}
                     </TableCell>
-                    <TableCell>{c.active ? "Ativo" : "Inativo"}</TableCell>
+                    <TableCell>
+                      <Badge variant={c.active ? "secondary" : "outline"}>
+                        {c.active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="outline"
                         size="sm"
                         className=""
                         onClick={() => setEditing(c)}
+                        aria-label={`Editar cliente: ${c.name}`}
                       >
                         Editar
                       </Button>
@@ -143,7 +187,38 @@ export function CustomerPanel({
               </TableBody>
             </Table>
             {!initial.items.length && (
-              <p className="empty-state">Nenhum cliente encontrado.</p>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyTitle>
+                    {initial.total > 0
+                      ? "Nenhum cliente nesta página"
+                      : filtered
+                        ? "Nenhum cliente nesta seleção"
+                        : "Nenhum cliente cadastrado"}
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    {initial.total > 0
+                      ? "Os resultados mudaram. Volte à primeira página para continuar."
+                      : filtered
+                        ? "Ajuste a busca ou a situação para encontrar outros clientes."
+                        : "Cadastre o primeiro cliente para preparar orçamentos e vendas."}
+                  </EmptyDescription>
+                </EmptyHeader>
+                {initial.total > 0 && (
+                  <EmptyContent>
+                    <Button onClick={() => navigate(1)}>
+                      Voltar à primeira página
+                    </Button>
+                  </EmptyContent>
+                )}
+                {!filtered && initial.total === 0 && (
+                  <EmptyContent>
+                    <Button onClick={() => setEditing("new")}>
+                      Cadastrar primeiro cliente
+                    </Button>
+                  </EmptyContent>
+                )}
+              </Empty>
             )}
           </div>
         </Card>

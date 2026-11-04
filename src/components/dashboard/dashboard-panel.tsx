@@ -25,12 +25,12 @@ export function DashboardPanel({ data }: { data: DashboardPanelDTO }) {
           <MetricCard key={m.id} metric={m} />
         ))}
       </div>
+      <PriorityTable priorities={data.priorities} />
       <div className="grid min-w-0 gap-4 xl:grid-cols-2">
         {data.charts.map((s) => (
           <DashboardChart key={s.id} series={s} />
         ))}
       </div>
-      <PriorityTable priorities={data.priorities} />
       {data.metrics.length > 4 && (
         <Card>
           <CardHeader>
