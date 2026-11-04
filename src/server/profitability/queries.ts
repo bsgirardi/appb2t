@@ -5,6 +5,10 @@ import { civilDateSchema } from "@/domain/commerce/validation";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { calculateSale } from "@/domain/profitability/calculate";
 import { aggregateSales } from "@/domain/profitability/aggregate";
+import {
+  buildRankings,
+  type Rankings,
+} from "@/domain/profitability/intelligence";
 import type {
   ReportDTO,
   SaleProfitabilityDTO,
@@ -48,7 +52,7 @@ export function defaultPeriod() {
 export async function getProfitabilityReport(
   actor: Actor,
   raw: unknown,
-): Promise<ReportDTO> {
+): Promise<ReportDTO & { rankings: Rankings }> {
   await requireProfitabilityAdmin(actor);
   const f = reportFilterSchema.parse(raw),
     defaults = defaultPeriod();
@@ -70,6 +74,7 @@ export async function getProfitabilityReport(
         },
         select: {
           id: true,
+          customer: { select: { id: true, name: true } },
           events: {
             where: { action: { in: ["CONFIRM", "CONVERT"] } },
             orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -107,6 +112,10 @@ export async function getProfitabilityReport(
       const result = aggregateSales(filtered);
       return {
         ...result,
+        rankings: buildRankings(
+          filtered,
+          Object.fromEntries(candidates.map((s) => [s.id, s.customer])),
+        ),
         page: f.page,
         pageSize: f.pageSize,
         items: filtered.slice((f.page - 1) * f.pageSize, f.page * f.pageSize),

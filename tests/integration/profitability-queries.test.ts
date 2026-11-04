@@ -24,6 +24,26 @@ it("uses confirmation in Sao Paulo and keeps totals independent from pagination"
   const p1 = await getProfitabilityReport(a, filter),
     p2 = await getProfitabilityReport(a, { ...filter, page: "2" });
   expect(p1.summary).toEqual(p2.summary);
+  expect(p1.rankings).toEqual(p2.rankings);
+  expect(p1.rankings.customers.flatMap((g) => g.sources)).toHaveLength(2);
+  const sourceSale = await db.sale.findUniqueOrThrow({
+    where: { id: s.saleId },
+    include: { customer: true },
+  });
+  const customer = sourceSale.customer;
+  expect(p1.rankings.customers.find((g) => g.id === customer.id)).toMatchObject(
+    {
+      name: customer.name,
+      sources: expect.arrayContaining([
+        { id: s.saleId, number: String(sourceSale.sequence) },
+      ]),
+    },
+  );
+  expect(
+    day8.rankings.customers
+      .flatMap((g) => g.sources)
+      .map((source) => source.id),
+  ).toEqual([s.saleId]);
   expect(p1.items[0].saleId).not.toBe(p2.items[0].saleId);
   await expect(
     getProfitabilityReport(a, { from: "2026-02-30", to: "2026-10-09" }),
@@ -42,14 +62,16 @@ it("separates undated/canceled sales and refuses non-admin detail", async () => 
     data: { status: "CANCELADA" },
   });
   expect((await getProfitabilityReport(a, { undated: "true" })).total).toBe(0);
-  expect(
-    (
-      await getProfitabilityReport(a, {
-        undated: "true",
-        situation: "EXCEPTIONS",
-      })
-    ).total,
-  ).toBe(1);
+  const exceptions = await getProfitabilityReport(a, {
+    undated: "true",
+    situation: "EXCEPTIONS",
+  });
+  expect(exceptions.total).toBe(1);
+  expect(exceptions.rankings).toEqual({
+    products: [],
+    channels: [],
+    customers: [],
+  });
   const op = await seedUser("OPERATOR", "op@example.test");
   await expect(getSaleProfitability(op, s.saleId)).rejects.toMatchObject({
     code: "FORBIDDEN",

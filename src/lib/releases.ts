@@ -8,6 +8,26 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.16.0",
+    date: "2026-11-04",
+    title: "Inteligência operacional com fontes e premissas",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Consulte rankings por produto, cliente e canal na Rentabilidade, ordenados pela contribuição realizada, com cobertura de custos e acesso aos pedidos de origem.",
+          "Simule metas de faturamento, contribuição ou quantidade de pedidos no período e extrapole o histórico por dias corridos, com fórmula e limitações visíveis. As simulações são temporárias e não criam operações.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Grupos com custos incompletos permanecem sem posição no ranking. Faturamento, recebimentos, contribuição e lucro líquido têm suas diferenças explicitadas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.15.0",
     date: "2026-11-04",
     title: "Detalhamento dos desvios de custo produtivo",
