@@ -85,7 +85,20 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
         Horizonte: 90 dias.
       </p>
       {error && <Notice>{error}</Notice>}
-      <PlanningIssues issues={data.issues ?? []} onOpenTarget={t => { if(t.kind === "batch") {setId(t.id);setView("detail");} else if(t.kind === "calendar" && data.role === "ADMIN") setView("calendars"); else setError("Solicite a um administrador a configuração dos horários no planejamento."); }} />
+      <PlanningIssues
+        issues={data.issues ?? []}
+        onOpenTarget={(t) => {
+          if (t.kind === "batch") {
+            setId(t.id);
+            setView("detail");
+          } else if (t.kind === "calendar" && data.role === "ADMIN")
+            setView("calendars");
+          else
+            setError(
+              "Solicite a um administrador a configuração dos horários no planejamento.",
+            );
+        }}
+      />
       {data.warnings.map((w) => (
         <Notice kind="info" key={w}>
           {w}
@@ -193,21 +206,38 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
           </div>
           <label className="field">
             Visualização da fila
-            <NativeSelect value={presentation} onChange={e => setPresentation(e.target.value)}>
+            <NativeSelect
+              value={presentation}
+              onChange={(e) => setPresentation(e.target.value)}
+            >
               <option value="list">Lista e simulação</option>
               <option value="calendar">Calendário por impressora</option>
             </NativeSelect>
           </label>
-          <p>A retirada prevista não inclui acabamento, inspeção, embalagem ou transporte. Previsão não é garantia de entrega.</p>
-          {presentation === "calendar" ? <QueueCalendar data={data} batches={batches} onSelect={batchId => { setId(batchId); setView("detail"); }} /> : <Queue
-            data={data}
-            batches={batches}
-            onSelect={(batchId) => {
-              setId(batchId);
-              setView("detail");
-            }}
-            onDone={done}
-          />}
+          <p>
+            A retirada prevista não inclui acabamento, inspeção, embalagem ou
+            transporte. Previsão não é garantia de entrega.
+          </p>
+          {presentation === "calendar" ? (
+            <QueueCalendar
+              data={data}
+              batches={batches}
+              onSelect={(batchId) => {
+                setId(batchId);
+                setView("detail");
+              }}
+            />
+          ) : (
+            <Queue
+              data={data}
+              batches={batches}
+              onSelect={(batchId) => {
+                setId(batchId);
+                setView("detail");
+              }}
+              onDone={done}
+            />
+          )}
         </>
       )}
     </div>

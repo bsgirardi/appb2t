@@ -4,7 +4,11 @@ import { AppError } from "@/lib/errors";
 import { allocationRemaining } from "@/server/production/reservations";
 import { balance } from "@/server/stock/movements";
 import Decimal from "decimal.js";
-import { batchIssues, type BatchIssueFact, type IssueCode } from "@/domain/planning/issues";
+import {
+  batchIssues,
+  type BatchIssueFact,
+  type IssueCode,
+} from "@/domain/planning/issues";
 import { coveredTotal, outstandingCoverage } from "./coverage";
 export async function batchRow(tx: Prisma.TransactionClient, id: string) {
   const row = await tx.planningBatch.findUnique({
@@ -30,19 +34,37 @@ export async function batchDTO(
 ): Promise<BatchDTO> {
   const b = await batchRow(tx, id),
     facts: BatchIssueFact[] = [];
-  const add = (code: IssueCode, lineId?: string) => facts.push({code, kind: lineId ? "line" : "batch", id: lineId ?? b.id, target: code === "MACHINE_INACTIVE" ? {kind: "printer", id: b.printerId} : ["MATERIAL_INACTIVE", "STOCK"].includes(code) ? {kind: "material", id: b.materialItemId} : code === "ORDER_MACHINE" ? {kind:"order",id:b.participants.find(p => p.lineId === lineId)?.line.orderId ?? ""} : {kind: ["DURATION", "PROFILE_FIT"].includes(code) ? "batch-edit" : "batch", id: b.id}});
+  const add = (code: IssueCode, lineId?: string) =>
+    facts.push({
+      code,
+      kind: lineId ? "line" : "batch",
+      id: lineId ?? b.id,
+      target:
+        code === "MACHINE_INACTIVE"
+          ? { kind: "printer", id: b.printerId }
+          : ["MATERIAL_INACTIVE", "STOCK"].includes(code)
+            ? { kind: "material", id: b.materialItemId }
+            : code === "ORDER_MACHINE"
+              ? {
+                  kind: "order",
+                  id:
+                    b.participants.find((p) => p.lineId === lineId)?.line
+                      .orderId ?? "",
+                }
+              : {
+                  kind: ["DURATION", "PROFILE_FIT"].includes(code)
+                    ? "batch-edit"
+                    : "batch",
+                  id: b.id,
+                },
+    });
   if (!b.printer.active) add("MACHINE_INACTIVE");
-  if (!b.material.active || !b.material.inventoriedAt)
-    add("MATERIAL_INACTIVE");
-  if (!b.colorAvailabilityConfirmed)
-    add("COLOR");
-  if (!b.durationConfirmedAt || !b.durationMinutes?.gt(0))
-    add("DURATION");
-  if (!b.profileConfirmed || !b.fitConfirmed)
-    add("PROFILE_FIT");
+  if (!b.material.active || !b.material.inventoriedAt) add("MATERIAL_INACTIVE");
+  if (!b.colorAvailabilityConfirmed) add("COLOR");
+  if (!b.durationConfirmedAt || !b.durationMinutes?.gt(0)) add("DURATION");
+  if (!b.profileConfirmed || !b.fitConfirmed) add("PROFILE_FIT");
   const stock = await balance(tx, b.materialItemId);
-  if (new Decimal(stock.available).lt(0))
-    add("STOCK");
+  if (new Decimal(stock.available).lt(0)) add("STOCK");
   for (const p of b.participants) {
     if (
       p.line.plannedPrinterId !== b.printerId ||
@@ -117,7 +139,7 @@ export async function batchDTO(
       reason: m.reason,
     })),
     issues: batchIssues(facts),
-    blockers: [...new Set(batchIssues(facts).map(i => i.message))],
+    blockers: [...new Set(batchIssues(facts).map((i) => i.message))],
   };
 }
 export async function unclaimed(

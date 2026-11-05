@@ -27,7 +27,11 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
   return db.$transaction(
     async (tx) => {
       const asOf = new Date().toISOString();
-      const { input, all, calendars, printers } = await loadPlanningSource(tx, actor, asOf);
+      const { input, all, calendars, printers } = await loadPlanningSource(
+        tx,
+        actor,
+        asOf,
+      );
       const revision = input.revision;
       const projection = forecast(input);
       const lineRows = await tx.productionLine.findMany({

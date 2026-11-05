@@ -151,7 +151,14 @@ export function OpportunityDetail({
         </Notice>
       ) : null}
       <CommandError {...command} />
-      <CommercialForecast opportunityId={o.id} opportunityVersion={o.version} principalQuote={o.quotes.find(q => q.id === o.principalQuoteId) ?? null} wonSale={o.wonSale} />
+      <CommercialForecast
+        opportunityId={o.id}
+        opportunityVersion={o.version}
+        principalQuote={
+          o.quotes.find((q) => q.id === o.principalQuoteId) ?? null
+        }
+        wonSale={o.wonSale}
+      />
       <OpportunityDecision
         quote={o.quotes.find((q) => q.id === o.principalQuoteId) ?? null}
       />

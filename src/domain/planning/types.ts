@@ -27,7 +27,7 @@ export type BatchState =
   | "CLOSED"
   | "CANCELED";
 export type BatchDTO = {
-  issues?: import('./issues').PlanningIssue[];
+  issues?: import("./issues").PlanningIssue[];
   estimates: {
     lineId: string;
     snapshotId: string;
