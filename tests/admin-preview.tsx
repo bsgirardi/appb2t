@@ -8,6 +8,14 @@ import { SalePanel } from "@/components/commerce/sale-panel";
 import { EntryForm } from "@/components/finance/entry-form";
 import { SettingsPanel } from "@/components/settings/settings-panel";
 import { CustomerPanel } from "@/components/customers/customer-panel";
+import { ProductionPanel } from "@/components/production/production-panel";
+import { StockPanel } from "@/components/stock/stock-panel";
+import { OrderDetail } from "@/components/production/order-detail";
+import {
+  operationOrder,
+  operationOptions,
+  operationStock,
+} from "./fixtures/operations";
 import { CalculatorWorkspace } from "@/components/pricing/calculator-workspace";
 import { pricingCatalog } from "./fixtures/pricing-catalog";
 import { Button } from "@/components/ui/button";
@@ -16,17 +24,18 @@ import "@/app/design.css";
 
 // Visual fixture only. This Vite preview has no API or production database.
 function Preview() {
-  const [view, setView] = useState("Produtos");
+  const params = new URLSearchParams(window.location.search);
+  const [view, setView] = useState(params.get("view") ?? "Produtos");
   const [width, setWidth] = useState("auto");
   const [role, setRole] = useState<"ADMIN" | "OPERATOR">("ADMIN");
   return (
     <>
       <div
         style={{
-          display: "flex",
+          display: params.has("embedded") ? "none" : "flex",
           flexWrap: "wrap",
           gap: 8,
-          padding: 12,
+          padding: "12px 12px 12px 240px",
           background: "var(--background)",
           borderBottom: "1px solid var(--border)",
         }}
@@ -41,6 +50,10 @@ function Preview() {
           "Financeiro",
           "Configurações",
           "Clientes",
+          "Produção",
+          "Detalhe produção",
+          "Estoque",
+          "Detalhe estoque",
         ].map((name) => (
           <Button
             key={name}
@@ -163,6 +176,48 @@ function Preview() {
               initial={{ items: [], total: 0, page: 1, pageSize: 20 }}
               search=""
               active="all"
+            />
+          )}
+          {view === "Produção" && (
+            <ProductionPanel
+              orders={[
+                operationOrder,
+                {
+                  ...operationOrder,
+                  id: "preview-draft",
+                  sequence: 43,
+                  status: "RASCUNHO",
+                  responsibleId: null,
+                  dueDate: null,
+                },
+              ]}
+              finished={[]}
+              options={operationOptions}
+              admin={role === "ADMIN"}
+              sale={null}
+              view="orders"
+            />
+          )}
+          {view === "Detalhe produção" && (
+            <OrderDetail
+              order={operationOrder}
+              options={operationOptions}
+              admin={role === "ADMIN"}
+              onDone={() => {}}
+              onBack={() => setView("Produção")}
+            />
+          )}
+          {(view === "Estoque" || view === "Detalhe estoque") && (
+            <StockPanel
+              key={view}
+              items={[operationStock]}
+              receipts={[]}
+              reservations={[]}
+              options={{ materials: [], extras: [] }}
+              categories={[]}
+              admin={role === "ADMIN"}
+              view="items"
+              initialDetail={view === "Detalhe estoque" ? operationStock : null}
             />
           )}
         </AppShell>

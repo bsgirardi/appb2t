@@ -34,19 +34,19 @@ export function StockSummary({ item }: { item: StockItemDTO }) {
   return (
     <div className="grid gap-2 sm:grid-cols-3">
       <p>
-        Físico:{" "}
+        Físico (em mãos):{" "}
         <strong>
           {item.physical} {units[item.unit]}
         </strong>
       </p>
       <p>
-        Reservado:{" "}
+        Reservado (comprometido):{" "}
         <strong>
           {item.reserved} {units[item.unit]}
         </strong>
       </p>
       <p>
-        Disponível:{" "}
+        Disponível (físico − reservado):{" "}
         <strong
           className={new D(item.available).lt(0) ? "text-destructive" : ""}
         >

@@ -82,6 +82,7 @@ export function ActionForm({
     } | null>(null);
   async function send(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     if (pending.current) return;
     const data = new FormData(e.currentTarget),
       payload = JSON.stringify([revision, [...data.entries()]]);
@@ -103,6 +104,7 @@ export function ActionForm({
       await intent.current.submit(intent.current.data, intent.current.key);
       intent.current = null;
       setUncertain(false);
+      form.dispatchEvent(new Event("operation-saved", { bubbles: true }));
       onDone();
     } catch (err) {
       if (intent.current)
@@ -142,6 +144,7 @@ export function ActionForm({
                 size="sm"
                 className=""
                 type="button"
+                data-leave-operation
                 onClick={onCancel}
               >
                 Voltar

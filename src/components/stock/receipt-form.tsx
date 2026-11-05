@@ -145,6 +145,7 @@ export function ReceiptForm({
             <IdentityField item={item} suffix={String(r.key)} />
             {rows.length > 1 && (
               <Button
+                data-draft-change
                 type="button"
                 variant="outline"
                 onClick={() => setRows(rows.filter((x) => x.key !== r.key))}
@@ -156,6 +157,7 @@ export function ReceiptForm({
         );
       })}
       <Button
+        data-draft-change
         type="button"
         variant="outline"
         disabled={rows.length >= 100}

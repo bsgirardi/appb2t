@@ -1,7 +1,8 @@
 "use client";
 import { FormSection } from "@/components/admin/form-section";
+import { OrderSummary } from "./order-summary";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Select, money } from "@/components/finance/shared";
 import { ActionForm } from "./shared";
@@ -32,25 +33,31 @@ export function OrderDetail({
   onBack: () => void;
 }) {
   const [mode, setMode] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+  }, [order.id]);
   const done = () => {
     setMode("");
     onDone();
   };
   const active = ["LIBERADA", "EM_EXECUCAO"].includes(order.status);
   return (
-    <div className="space-y-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <Button variant="outline" onClick={onBack}>
         Voltar às ordens
       </Button>
       <h2>
         <Link href="/planejamento">Planejamento das máquinas</Link>
       </h2>
-      <h2>
+      <h2 ref={heading} tabIndex={-1}>
         OP-{String(order.sequence).padStart(6, "0")} · {names[order.status]}
       </h2>
-      <p>
-        {names[order.origin]} · prazo: {order.dueDate ?? "Não definido"}
-      </p>
+      <OrderSummary
+        order={order}
+        users={options.users}
+        printers={options.printers}
+      />
       {order.saleId && (
         <p>
           <Link href={`/vendas/${order.saleId}`}>
@@ -233,8 +240,16 @@ export function OrderDetail({
       {order.saleId && active && (
         <MaterialReconciliation order={order} admin={admin} onDone={done} />
       )}
-      <details>
-        <summary>Reservas de material da ordem</summary>
+      <FormSection
+        id="order-materials"
+        title="Reservas de material da ordem"
+        collapsible
+        defaultOpen={false}
+        summary="Conferir saldos e liberar reservas"
+      >
+        {!order.allocations.some((a) => Number(a.remaining) > 0) && (
+          <p>Nenhuma reserva de material pendente nesta ordem.</p>
+        )}
         {order.allocations
           .filter((a) => Number(a.remaining) > 0)
           .map((a) => (
@@ -262,7 +277,7 @@ export function OrderDetail({
               <Field label="Motivo" name="reason" minLength={3} required />
             </ActionForm>
           ))}
-      </details>
+      </FormSection>
       {admin && order.cost && (
         <details>
           <summary>Custo e cobertura das medições</summary>
@@ -284,13 +299,22 @@ export function OrderDetail({
           ))}
         </details>
       )}
-      <details>
-        <summary>Histórico de execução</summary>
+      <FormSection
+        id="order-history"
+        title="Histórico de execução"
+        collapsible
+        defaultOpen={false}
+        summary={`${order.events.length} registros`}
+      >
+        {!order.events.length && (
+          <p>Nenhum apontamento registrado nesta ordem.</p>
+        )}
         {order.events.map((e) => (
           <div key={e.id} className="border-b py-2">
             <p>
-              {e.effectiveDate} · {names[e.kind] ?? e.kind}: boas {e.goodUnits},
-              falhas {e.failedUnits}
+              {e.effectiveDate.split("-").reverse().join("/")} ·{" "}
+              {names[e.kind] ?? e.kind}: boas {e.goodUnits}, falhas{" "}
+              {e.failedUnits}
             </p>
             <p>{e.reason}</p>
             <p>
@@ -300,7 +324,7 @@ export function OrderDetail({
             </p>
           </div>
         ))}
-      </details>
+      </FormSection>
     </div>
   );
 }

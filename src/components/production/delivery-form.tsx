@@ -38,6 +38,16 @@ export function DeliveryForm({
       <ActionForm
         revision={`${sale.version}:${stock?.version}`}
         title="Separar peças prontas para esta venda"
+        summary={
+          <section className="admin-summary-card">
+            <h3>Separação de peças</h3>
+            <p>{line?.description ?? "Selecione o item"}</p>
+            <p>
+              Reserva peças boas por origem para esta venda. O saldo físico só
+              diminui na entrega.
+            </p>
+          </section>
+        }
         submit="Confirmar separação"
         onDone={onDone}
         onSubmit={(f, operationKey) =>
@@ -111,6 +121,16 @@ export function DeliveryForm({
       <ActionForm
         revision={sale.version}
         title="Registrar entrega parcial ou total"
+        summary={
+          <section className="admin-summary-card">
+            <h3>Conferência da entrega</h3>
+            <p>Revise as quantidades de cada origem antes de confirmar.</p>
+            <p>
+              Apenas as peças informadas saem do estoque. Esta confirmação não
+              registra pagamento.
+            </p>
+          </section>
+        }
         submit="Confirmar entrega"
         onDone={onDone}
         onSubmit={(f, operationKey) =>

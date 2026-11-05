@@ -1,0 +1,70 @@
+import type {
+  OrderDetail,
+  ProductionOptions,
+} from "@/server/production/queries";
+import type { StockItemDTO } from "@/server/stock/queries";
+export const operationOrder: OrderDetail = {
+  id: "preview-order",
+  sequence: 42,
+  version: 1,
+  status: "EM_EXECUCAO",
+  origin: "STOCK",
+  saleId: null,
+  responsibleId: "preview-user",
+  dueDate: "2026-11-09",
+  notes: "Dados fictícios",
+  lines: [
+    {
+      id: "preview-line",
+      productId: null,
+      saleLineKey: null,
+      description: "Suporte de mesa · lote de teste",
+      technology: "FDM",
+      targetUnits: 20,
+      goodUnits: 8,
+      failedUnits: 2,
+      canceledUnits: 0,
+      plannedPrinterId: "preview-printer",
+    },
+  ],
+  events: [],
+  planningParticipations: [],
+  allocations: [],
+  origins: [],
+  saleReservations: [],
+  previousConsumptions: [],
+};
+export const operationOptions: ProductionOptions = {
+  products: [],
+  users: [{ id: "preview-user", name: "Equipe de teste" }],
+  printers: [
+    { id: "preview-printer", name: "Impressora de teste", technology: "FDM" },
+  ],
+  materials: [],
+  sales: [],
+};
+export const operationStock: StockItemDTO = {
+  id: "preview-stock",
+  name: "PLA · material de teste",
+  unit: "G",
+  materialId: null,
+  extraId: null,
+  active: true,
+  version: 1,
+  inventoriedAt: "2026-11-01T12:00:00Z",
+  physical: "2500",
+  reserved: "800",
+  available: "1700",
+  shortage: "0",
+  identities: [{ id: null, label: "Sem identificação", quantity: "2500" }],
+  movements: [],
+  method: "WEIGHTED_AVERAGE",
+  manualUnitCost: null,
+  valuation: {
+    physical: "2500",
+    knownValue: "200",
+    unitCost: "0.08",
+    provisional: false,
+    allocations: [],
+  },
+};

@@ -1,3 +1,4 @@
+import { OperationResults } from "@/components/admin/operation-results";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import Link from "next/link";
 import { requireActor } from "@/server/auth/guards";
@@ -60,8 +61,11 @@ export default async function StockPage({
       : view === "reservations"
         ? reservations.total
         : stock.total;
+  const receiptId =
+    typeof query.receiptId === "string" ? query.receiptId : undefined;
+  const clearHref = `/estoque?${new URLSearchParams({ view, ...(saleId ? { saleId } : {}) })}`;
   const href = (page: number) =>
-    `/estoque?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}) })}`;
+    `/estoque?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}), ...(receiptId ? { receiptId } : {}) })}`;
   return (
     <section className="flex min-w-0 flex-col gap-5">
       <div className="page-heading">
@@ -75,7 +79,11 @@ export default async function StockPage({
       </div>
       <nav aria-label="Visões de estoque" className="flex flex-wrap gap-2">
         <Button asChild variant="outline">
-          <Link href="/producao?view=finished">Peças prontas</Link>
+          <Link
+            href={`/producao?${new URLSearchParams({ view: "finished", ...(saleId ? { saleId } : {}) })}`}
+          >
+            Peças prontas
+          </Link>
         </Button>
         {[
           ["items", "Materiais"],
@@ -84,7 +92,12 @@ export default async function StockPage({
           ["shortage", "Reposição"],
         ].map(([v, label]) => (
           <Button key={v} asChild variant={view === v ? "default" : "outline"}>
-            <Link href={`/estoque?view=${v}`}>{label}</Link>
+            <Link
+              aria-current={view === v ? "page" : undefined}
+              href={`/estoque?${new URLSearchParams({ view: v, ...(saleId ? { saleId } : {}) })}`}
+            >
+              {label}
+            </Link>
           </Button>
         ))}
       </nav>
@@ -92,11 +105,14 @@ export default async function StockPage({
         <Notice>Filtros inválidos. Exibindo a primeira página.</Notice>
       )}
       <FilterPanel
-        activeCount={filter.query ? 1 : 0}
+        activeCount={(filter.query ? 1 : 0) + (receiptId ? 1 : 0)}
         hasErrors={!parsed.success}
       >
         <form className="admin-filter-grid">
           <input type="hidden" name="view" value={view} />
+          {receiptId && (
+            <input type="hidden" name="receiptId" value={receiptId} />
+          )}
           {saleId && <input type="hidden" name="saleId" value={saleId} />}
           <Field
             label={view === "receipts" ? "Buscar fornecedor" : "Buscar item"}
@@ -104,9 +120,15 @@ export default async function StockPage({
             defaultValue={filter.query}
           />
           <Button>Filtrar</Button>
+          {(filter.query || receiptId) && (
+            <Button asChild variant="outline">
+              <Link href={clearHref}>Limpar filtros</Link>
+            </Button>
+          )}
         </form>
       </FilterPanel>
       <StockPanel
+        key={`${view}:${saleId ?? ""}:${typeof query.itemId === "string" ? query.itemId : ""}`}
         admin={actor.role === "ADMIN"}
         items={stock.items}
         receipts={receipts.items}
@@ -116,26 +138,14 @@ export default async function StockPage({
         view={view}
         initialDetail={detail}
       />
-      {total === 0 && (
-        <p className="rounded border p-5 text-muted-foreground">
-          Nenhum registro nesta visão.
-        </p>
-      )}
-      <div className="flex flex-wrap items-center gap-3">
-        <p>
-          {total} registros · página {filter.page}
-        </p>
-        {filter.page > 1 && (
-          <Link href={href(filter.page - 1)} className="underline">
-            Anterior
-          </Link>
-        )}
-        {filter.page * filter.pageSize < total && (
-          <Link href={href(filter.page + 1)} className="underline">
-            Próxima
-          </Link>
-        )}
-      </div>
+      <OperationResults
+        total={total}
+        page={filter.page}
+        pageSize={filter.pageSize}
+        filtered={!!(filter.query || receiptId)}
+        href={href}
+        clearHref={clearHref}
+      />
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { OperationResults } from "@/components/admin/operation-results";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import { NativeSelect } from "@/components/ui/native-select";
 import Link from "next/link";
@@ -44,6 +45,16 @@ export default async function ProductionPage({
     saleId ? saleProduction(actor, saleId) : Promise.resolve(null),
   ]);
   const total = view === "finished" ? finished.total : orders.total;
+  const context = new URLSearchParams({ view, ...(saleId ? { saleId } : {}) });
+  const clearHref = `/producao?${context}`;
+  const filtered = !!(
+    filter.query ||
+    filter.status ||
+    filter.origin ||
+    filter.responsibleId ||
+    filter.dueFrom ||
+    filter.dueTo
+  );
   const href = (page: number) =>
     `/producao?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}), ...(filter.status ? { status: filter.status } : {}), ...(filter.origin ? { origin: filter.origin } : {}), ...(filter.responsibleId ? { responsibleId: filter.responsibleId } : {}), ...(filter.dueFrom ? { dueFrom: filter.dueFrom } : {}), ...(filter.dueTo ? { dueTo: filter.dueTo } : {}) })}`;
   return (
@@ -59,10 +70,20 @@ export default async function ProductionPage({
           <Link href="/planejamento">Planejamento das máquinas</Link>
         </Button>
         <Button asChild variant={view === "orders" ? "default" : "outline"}>
-          <Link href="/producao">Ordens</Link>
+          <Link
+            aria-current={view === "orders" ? "page" : undefined}
+            href={`/producao?${new URLSearchParams({ ...(saleId ? { saleId } : {}) })}`}
+          >
+            Ordens
+          </Link>
         </Button>
         <Button asChild variant={view === "finished" ? "default" : "outline"}>
-          <Link href="/producao?view=finished">Peças prontas</Link>
+          <Link
+            aria-current={view === "finished" ? "page" : undefined}
+            href={`/producao?view=finished${saleId ? `&saleId=${encodeURIComponent(saleId)}` : ""}`}
+          >
+            Peças prontas
+          </Link>
         </Button>
         {saleId && <Link href={`/vendas/${saleId}`}>Voltar à venda</Link>}
       </nav>
@@ -137,6 +158,11 @@ export default async function ProductionPage({
             </>
           )}
           <Button>Filtrar</Button>
+          {filtered && (
+            <Button asChild variant="outline">
+              <Link href={clearHref}>Limpar filtros</Link>
+            </Button>
+          )}
         </form>
       </FilterPanel>
       <ProductionPanel
@@ -148,15 +174,14 @@ export default async function ProductionPage({
         sale={sale}
         view={view}
       />
-      <div className="flex gap-3">
-        <p>
-          {total} registros · página {filter.page}
-        </p>
-        {filter.page > 1 && <Link href={href(filter.page - 1)}>Anterior</Link>}
-        {filter.page * filter.pageSize < total && (
-          <Link href={href(filter.page + 1)}>Próxima</Link>
-        )}
-      </div>
+      <OperationResults
+        total={total}
+        page={filter.page}
+        pageSize={filter.pageSize}
+        filtered={filtered}
+        href={href}
+        clearHref={clearHref}
+      />
     </section>
   );
 }
