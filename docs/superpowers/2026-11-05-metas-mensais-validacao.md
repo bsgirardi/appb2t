@@ -8,6 +8,8 @@ Após a entrega local, o usuário autorizou abrir PR do commit `4e398c5` e inclu
 
 O recorte incluído melhora filtros, paginação, status, estados vazios e a composição dos formulários de Orçamentos/Vendas, sem mudar regras de cálculo ou criar migrações comerciais. A confirmação de saída por Voltar/Avançar nos formulários comerciais depende de Navigation API e travessia cancelável, conforme limitação da entrega original. A recuperação de rascunhos de metas permanece separada.
 
+Validação da integração: **1.147 testes passaram em 330 arquivos**, sem falhas, usando o banco descartável exclusivo. Os 40 testes direcionados dos dois escopos também passaram. Build final, TypeScript, lint completo e revisão independente aprovados. Prévia comercial integrada conferida em computador/celular, sem transbordamento horizontal. A tentativa inicial da suíte completa com pool de threads encerrou sem relatório; a execução padrão, registrada em log local, concluiu com os resultados acima. PR conjunta: https://github.com/bsgirardi/appb2t/pull/39. Sem merge ou deploy.
+
 ## Uso
 
 Na Rentabilidade, acessar **Cadastrar metas e acompanhar o mês**. Selecionar competência, informar metas desejadas e motivo, revisar o resumo e confirmar. Campo vazio remove a definição; zero continua sendo uma meta explícita. Acesso exclusivo a ADMIN ativo, seguindo a permissão da Rentabilidade. OPERATOR continua acessando o histórico geral de atualizações do sistema.
