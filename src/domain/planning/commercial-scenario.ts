@@ -23,7 +23,7 @@ export function simulateCommercial(input:PlanningInput,lines:CommercialQuoteLine
   for(const b of l.batches){
    if(b.lineKey!==l.lineKey)invalid('Lote pertence a outro item.');
    const p=options.printers.find(p=>p.id===b.printerId);
-   if(!p?.active||!input.machines.some(m=>m.id===p.id)||!source.technology||p.technology!==source.technology)invalid('Confira tecnologia e máquina ativa do item.');
+   if(!p?.active||!input.machines.some(m=>m.id===p.id)||!(source.technology??b.technology)||p.technology!==(source.technology??b.technology))invalid('Confira tecnologia e máquina ativa do item.');
    if(b.durationSource==='snapshot'&&(!source.suggestion||source.suggestion.printerId!==b.printerId||l.batches.length!==1||!new Decimal(source.suggestion.minutes).eq(b.durationMinutes)))invalid('Revise a duração dividida ou alterada como declaração manual.');
    checkTime(b.availableAt);
    const material=options.materials.find(m=>m.id===b.materialItemId);

@@ -34,3 +34,7 @@ it('refuses future restrictions that intersect a real active service',()=>{
  const s=scenario();if(s.lines[0].mode==='produce')s.lines[0].batches[0].availableAt='2026-10-28T11:00:00Z';
  expect(simulateCommercial(input,lines,s,options).removalAt).toBeNull();
 });
+it('allows explicit manual technology when the quote has no usable memory',()=>{
+ const s=scenario();if(s.lines[0].mode==='produce')Object.assign(s.lines[0].batches[0],{technology:'FDM'});
+ expect(simulateCommercial(scenarioInput(),[{...lines[0],technology:null}],s,options).removalAt).not.toBeNull();
+});

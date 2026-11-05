@@ -10,7 +10,7 @@ export type CompletionAssumptions = {
 };
 export type CompletionProjection = {removalAt:string|null;releaseAt:string|null;deliveryAt:string|null;issues:string[]};
 export type CommercialQuoteLine = {lineKey:string;description:string;quantity:number;technology:string|null;suggestion?:{printerId:string;minutes:string;snapshotId:string;sourceQuantity:number}|null};
-export type HypotheticalBatch = {id:string;lineKey:string;printerId:string;units:number;durationMinutes:string;prepareMinutes:string;removeMinutes:string;materialItemId:string;colorLabel:string;availableAt:string;availabilityReason:string;durationSource:'snapshot'|'manual';reviewed:boolean;profileAssumed:boolean;fitAssumed:boolean};
+export type HypotheticalBatch = {id:string;lineKey:string;printerId:string;technology?:'FDM'|'RESIN';units:number;durationMinutes:string;prepareMinutes:string;removeMinutes:string;materialItemId:string;colorLabel:string;availableAt:string;availabilityReason:string;durationSource:'snapshot'|'manual';reviewed:boolean;profileAssumed:boolean;fitAssumed:boolean};
 export type HypotheticalLine = {lineKey:string;quantity:number;mode:'produce';batches:HypotheticalBatch[]} | {lineKey:string;quantity:number;mode:'external';availableAt:string;reason:string};
 export type CommercialScenario = {lines:HypotheticalLine[];completion:CompletionAssumptions};
 export type CommercialSimulation = {before:Forecast;after:Forecast;lines:{lineKey:string;removalAt:string|null}[];removalAt:string|null;impacts:{batchId:string;before:BatchForecast;after:BatchForecast}[];issues:string[];warnings:string[];completion:CompletionProjection};
