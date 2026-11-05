@@ -10,7 +10,7 @@ export const releases: Release[] = [
   {
     version: "1.19.0",
     date: "2026-11-05",
-    title: "Metas salvas e acompanhamento mensal",
+    title: "Metas mensais e mais clareza em orçamentos e vendas",
     sections: [
       {
         title: "Novidades",
@@ -22,9 +22,17 @@ export const releases: Release[] = [
       {
         title: "Melhorias",
         items: [
+          "Orçamentos e Vendas mantêm os filtros ao navegar, oferecem limpeza com uma ação e distinguem listas vazias, buscas sem resultado e páginas fora dos resultados.",
+          "Status comerciais ficam mais fáceis de identificar. Cliente, itens e condições aparecem em seções claras, com resumo e salvamento acessíveis.",
           "Metas não definidas e metas zero aparecem separadamente. Contribuição sem cobertura integral permanece indisponível; o realizado usa a mesma apuração dos pedidos, pela confirmação em São Paulo.",
           "O mês corrente mostra uma estimativa por dias corridos, com fórmula e limitações. Custos posteriores podem atualizar meses encerrados; o histórico preserva as metas, sem congelar resultados.",
           "Revise um resumo antes de salvar e recupere rascunhos nesta aba ao retornar à competência. Metas e projeções não criam operações comerciais ou produtivas.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Ao cancelar ou sair por um link com alterações não salvas, os formulários comerciais pedem confirmação. Falhas no salvamento mantêm os campos preenchidos para tentar novamente.",
         ],
       },
     ],

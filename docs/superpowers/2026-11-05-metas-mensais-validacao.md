@@ -1,6 +1,12 @@
 # Metas mensais — entrega e validação
 
-Implementação local na branch `codex/metas-mensais`, baseada em `e046dbb` (main remoto consultado em 05/11/2026). Versão da entrega: **1.19.0**; main consultado: **1.18.0**. Sem merge, push, publicação ou migração operacional.
+Entrega inicial do commit `4e398c5` na branch `codex/metas-mensais`, baseada em `e046dbb` (main remoto consultado em 05/11/2026). Versão da entrega: **1.19.0**; main consultado: **1.18.0**. Naquele momento não havia merge, push, publicação ou migração operacional.
+
+## PR conjunta solicitada
+
+Após a entrega local, o usuário autorizou abrir PR do commit `4e398c5` e incluir `codex/orcamentos-vendas-ux`. Essa branch permanecia na base `e046dbb`, com a entrega pronta ainda sem commit na worktree `d2c8`. As alterações foram copiadas para esta branch, preservando integralmente a worktree de origem. Somente os arquivos comerciais, seus testes e plano foram incorporados; os manifestos 1.18.1 preparados na origem não foram copiados. As notas foram consolidadas em uma única versão **1.19.0**. O estado anterior “sem push” acima registra a entrega local original; a abertura da PR não autoriza merge ou publicação.
+
+O recorte incluído melhora filtros, paginação, status, estados vazios e a composição dos formulários de Orçamentos/Vendas, sem mudar regras de cálculo ou criar migrações comerciais. A confirmação de saída por Voltar/Avançar nos formulários comerciais depende de Navigation API e travessia cancelável, conforme limitação da entrega original. A recuperação de rascunhos de metas permanece separada.
 
 ## Uso
 
@@ -16,6 +22,7 @@ Realizado usa o relatório existente, sem filtros de canal/produto/cobertura, pe
 - Página e interface: `src/app/(private)/rentabilidade/metas/page.tsx` e `src/components/profitability/monthly-goals.tsx`.
 - Persistência: `prisma/schema.prisma` e `prisma/migrations/20261105180000_monthly_goals/migration.sql`.
 - Acesso: link na inteligência da Rentabilidade; sem alterações em Orçamentos/Vendas.
+- Integração comercial posterior: `src/components/commerce/quote-form.tsx`, `quote-panel.tsx`, `sale-panel.tsx`, `list-feedback.tsx`, `use-document-exit.ts` e regras de composição responsiva em `src/app/admin.css`; testes e prévia administrativos correspondentes. A composição de espaçamento do feedback foi alinhada ao padrão shadcn local (`flex` com `gap`).
 - Versão/notas: manifestos e `src/lib/releases.ts`; rodapés continuam consumindo `APP_VERSION`.
 
 ## Evidências
