@@ -8,6 +8,28 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.19.0",
+    date: "2026-11-05",
+    title: "Metas salvas e acompanhamento mensal",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Administradores podem cadastrar metas mensais de faturamento, contribuição e quantidade de pedidos, acompanhar realizado e progresso e consultar competências anteriores pela Rentabilidade.",
+          "Cada revisão preserva valores, motivo, autor e data. Alterações simultâneas pedem uma nova conferência antes de gravar, sem sobrescrever silenciosamente outra revisão.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Metas não definidas e metas zero aparecem separadamente. Contribuição sem cobertura integral permanece indisponível; o realizado usa a mesma apuração dos pedidos, pela confirmação em São Paulo.",
+          "O mês corrente mostra uma estimativa por dias corridos, com fórmula e limitações. Custos posteriores podem atualizar meses encerrados; o histórico preserva as metas, sem congelar resultados.",
+          "Revise um resumo antes de salvar e recupere rascunhos nesta aba ao retornar à competência. Metas e projeções não criam operações comerciais ou produtivas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.18.0",
     date: "2026-11-04",
     title: "Bloqueios acionáveis e previsão produtiva para negociar",

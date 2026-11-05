@@ -77,6 +77,9 @@ export function IntelligencePanel({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        <Link href="/rentabilidade/metas">
+          Cadastrar metas e acompanhar o mês
+        </Link>
         <Notice kind="info">
           Faturamento segue os totais dos pedidos, com descontos e frete.
           Recebimento é o dinheiro baixado no financeiro. Contribuição desconta

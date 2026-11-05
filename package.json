@@ -1,8 +1,10 @@
 {
   "name": "appb2t",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "private": true,
   "scripts": {
+    "test:goals": "vitest run --config vitest.goals.config.ts",
+    "test:goals:migration": "node --import tsx tests/goals/migration-validation.ts",
     "dev": "next dev --hostname 127.0.0.1",
     "build": "prisma generate && next build",
     "start": "next start",
