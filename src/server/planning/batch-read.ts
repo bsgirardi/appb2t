@@ -4,6 +4,7 @@ import { AppError } from "@/lib/errors";
 import { allocationRemaining } from "@/server/production/reservations";
 import { balance } from "@/server/stock/movements";
 import Decimal from "decimal.js";
+import { batchIssues, type BatchIssueFact, type IssueCode } from "@/domain/planning/issues";
 import { coveredTotal, outstandingCoverage } from "./coverage";
 export async function batchRow(tx: Prisma.TransactionClient, id: string) {
   const row = await tx.planningBatch.findUnique({
@@ -28,36 +29,37 @@ export async function batchDTO(
   id: string,
 ): Promise<BatchDTO> {
   const b = await batchRow(tx, id),
-    blockers: string[] = [];
-  if (!b.printer.active) blockers.push("Máquina inativa");
+    facts: BatchIssueFact[] = [];
+  const add = (code: IssueCode, lineId?: string) => facts.push({code, kind: lineId ? "line" : "batch", id: lineId ?? b.id, target: {kind: "batch", id: b.id}});
+  if (!b.printer.active) add("MACHINE_INACTIVE");
   if (!b.material.active || !b.material.inventoriedAt)
-    blockers.push("Material não inventariado ou inativo");
+    add("MATERIAL_INACTIVE");
   if (!b.colorAvailabilityConfirmed)
-    blockers.push("Confirme a disponibilidade da cor manualmente");
+    add("COLOR");
   if (!b.durationConfirmedAt || !b.durationMinutes?.gt(0))
-    blockers.push("Confirme o tempo do fatiador");
+    add("DURATION");
   if (!b.profileConfirmed || !b.fitConfirmed)
-    blockers.push("Confirme perfil e encaixe na mesa");
+    add("PROFILE_FIT");
   const stock = await balance(tx, b.materialItemId);
   if (new Decimal(stock.available).lt(0))
-    blockers.push("Material insuficiente para as reservas existentes");
+    add("STOCK");
   for (const p of b.participants) {
     if (
       p.line.plannedPrinterId !== b.printerId ||
       p.line.technology !== b.printer.technology ||
       !["LIBERADA", "EM_EXECUCAO"].includes(p.line.order.status)
     )
-      blockers.push("Revise a ordem ou máquina planejada");
+      add("ORDER_MACHINE", p.lineId);
     const covered = p.coverage.reduce(
       (n, c) => n.plus(c.quantity.toString()),
       new Decimal(0),
     );
     if (!p.needQuantity.gt(0) || covered.lt(p.needQuantity.toString()))
-      blockers.push("Reserva insuficiente para o lote");
+      add("RESERVATION", p.lineId);
     for (const c of p.coverage) {
       const used = await coveredTotal(tx, c.allocationId);
       if ((await allocationRemaining(tx, c.allocationId)).lt(used))
-        blockers.push("Reserva alterada; revise a cobertura");
+        add("COVERAGE_CHANGED", p.lineId);
     }
   }
   return {
@@ -114,7 +116,8 @@ export async function batchDTO(
       sourceId: m.sourceId,
       reason: m.reason,
     })),
-    blockers: [...new Set(blockers)],
+    issues: batchIssues(facts),
+    blockers: [...new Set(batchIssues(facts).map(i => i.message))],
   };
 }
 export async function unclaimed(

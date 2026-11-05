@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import type { Actor } from "@/server/auth/session";
 import { batchStateSchema } from "@/domain/planning/validation";
 import { civilDateSchema } from "@/domain/commerce/validation";
+import { forecastIssues } from "@/domain/planning/issues";
 import { forecast } from "@/domain/planning/scheduler";
 import { suggestBatches } from "@/domain/planning/suggestions";
 import { allocationRemaining } from "@/server/production/reservations";
@@ -117,6 +118,7 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
         asOf,
         role: actor.role,
         forecast: projection,
+        issues: forecastIssues(input, projection),
         batches,
         suggestions: suggestBatches(candidates),
         calendars,
