@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 04/11/2026 — PR e integração E3.2 autorizadas
+
+Usuário autorizou criar a PR e integrar E3.2. Preparação em **1.18.0**, incremento MINOR único sobre main 9797484/1.17.0, com manifestos sincronizados e notas em português. Abertura/CI/merge serão registrados após confirmação; publicação operacional não faz parte desta autorização. Os estados locais abaixo preservam a entrega anterior à autorização.
+
 ## 04/11/2026 — E3.2 implementada localmente
 
 Desenho e plano aprovados, incluindo simulação antes da venda. Implementação em `codex/e3-2-previsao-comercial`, sobre main 9797484/1.17.0: bloqueios acionáveis, cobertura por pedido, cenário temporário pelo orçamento principal e etapas posteriores declaradas, sem promessa automática. [Entrega, testes, decisões e limites](docs/superpowers/reviews/2026-11-04-e3-2-previsao-comercial.md). Revisão independente com três casos materiais corrigidos por regressão RED→GREEN. Versão local mantida 1.17.0; sem PR/push/merge/publicação, migração operacional ou alteração dos serviços existentes. Homologação humana pendente e separada dos testes sintéticos; execução completa de fechamento registrada no relatório. A pasta operacional e seus documentos/skills locais foram preservados.

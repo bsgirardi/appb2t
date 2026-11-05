@@ -2,6 +2,10 @@
 
 Data: 04/11/2026, America/Sao_Paulo. Entrega local em `codex/e3-2-previsao-comercial`, base `9797484`/1.17.0. Desenho e plano aprovados pelo usuário, incluindo simulação antes da venda e execução direta com revisão independente final.
 
+## Preparação autorizada da PR
+
+Após a entrega local, o usuário autorizou PR e integração. Main remota reconferida em 9797484/1.17.0; preparado incremento MINOR único para **1.18.0**, sincronizando package.json e ambos os campos de versão do package-lock, com entrada em português no início de releases.ts e histórico anterior intacto. A publicação operacional não está autorizada por este pedido. Os registros de versão 1.17.0 e ausência de PR mais abaixo descrevem a entrega local anterior; resultados de PR/CI/merge serão acrescentados quando confirmados.
+
 ## O que mudou
 
 - Bloqueios estruturados mantêm os predicados/textos anteriores e acrescentam entidade, próxima ação, destino e critério de resolução. O detalhe explica posição, prazo da OP e dependência da equipe compartilhada. Calendários, horizonte sem janela e término não confirmado têm explicação própria, sem atribuir causalidade inventada.

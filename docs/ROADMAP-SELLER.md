@@ -1,5 +1,9 @@
 # B2T — evolução de preço, produção e vendas
 
+## 04/11/2026 — E3.2: PR e integração autorizadas
+
+Preparação da PR em **1.18.0** (MINOR único sobre main 9797484/1.17.0), com manifestos/notas sincronizados. Usuário autorizou PR e integração; resultados de CI/merge serão registrados quando concluídos. Publicação operacional e homologação humana permanecem separadas. Os registros seguintes preservam as fases anteriores desta entrega.
+
 ## 04/11/2026 — E3.2 implementada e em validação local
 
 Recorte aprovado e implementado na branch `codex/e3-2-previsao-comercial`, base main 9797484/1.17.0. Bloqueios têm próxima ação e resolução verificável; a venda tem cobertura por item e a negociação permite simular todos os itens do orçamento principal antes de vender, sem reservar capacidade. Pós-produção e transporte têm premissas explícitas, sem confundir retirada produtiva e entrega combinada. Impactos identificam lotes, OPs e vendas vinculadas. [Testes, revisão e limites](superpowers/reviews/2026-11-04-e3-2-previsao-comercial.md).
