@@ -4,7 +4,13 @@ import { Select } from "@/components/finance/shared";
 import { ActionForm } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { productionCommand } from "@/lib/production-client";
 import type {
   FinishedDetail,
@@ -30,7 +36,7 @@ export function FinishedPanel({
     onDone();
   };
   return (
-    <div className="space-y-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <h2>Produtos acabados</h2>
       <p>
         Disponível é o saldo de peças boas menos as peças separadas para vendas.
@@ -110,44 +116,63 @@ export function FinishedPanel({
           </p>
         </ActionForm>
       )}
-      <div className="grid gap-3 lg:grid-cols-2">
-        {items.map((s) => (
-          <Card key={s.id} className="p-4 space-y-2">
-            <h3>{s.name}</h3>
-            {s.inventoriedAt ? (
-              <p>
-                Físico: {s.physical} · separado: {s.reserved} · disponível:{" "}
-                {s.available}
-              </p>
-            ) : (
-              <p>Não inventariado</p>
-            )}
-            {admin && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelected(s.id);
-                  setMode(s.inventoriedAt ? "adjust" : "open");
-                }}
-              >
-                {s.inventoriedAt
-                  ? "Ajustar contagem"
-                  : "Registrar contagem inicial"}
-              </Button>
-            )}
-            <details>
-              <summary>Origens das peças</summary>
-              {s.origins.map((o) => (
-                <p key={o.id}>
-                  {names[o.kind] ?? o.kind}: físico {o.physical}, disponível{" "}
-                  {o.available}
-                </p>
-              ))}
-            </details>
-          </Card>
-        ))}
-      </div>
-      {!items.length && <p>Nenhum produto habilitado nesta página.</p>}
+      {!mode && (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {items.map((s) => (
+            <Card key={s.id}>
+              <CardHeader>
+                <CardTitle>
+                  <h3>{s.name}</h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {s.inventoriedAt ? (
+                  <dl className="grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <dt>Físico</dt>
+                      <dd>{s.physical} un</dd>
+                    </div>
+                    <div>
+                      <dt>Separado para vendas</dt>
+                      <dd>{s.reserved} un</dd>
+                    </div>
+                    <div>
+                      <dt>Disponível</dt>
+                      <dd>{s.available} un</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p>Não inventariado</p>
+                )}
+              </CardContent>
+              {admin && (
+                <CardFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelected(s.id);
+                      setMode(s.inventoriedAt ? "adjust" : "open");
+                    }}
+                  >
+                    {s.inventoriedAt
+                      ? "Ajustar contagem"
+                      : "Registrar contagem inicial"}
+                  </Button>
+                </CardFooter>
+              )}
+              <details>
+                <summary>Origens das peças</summary>
+                {s.origins.map((o) => (
+                  <p key={o.id}>
+                    {names[o.kind] ?? o.kind}: físico {o.physical}, disponível{" "}
+                    {o.available}
+                  </p>
+                ))}
+              </details>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

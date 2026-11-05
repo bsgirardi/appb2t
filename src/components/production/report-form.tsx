@@ -253,6 +253,7 @@ export function ReportForm({
               label="Confirmo eventual consumo acima da reserva"
             />
             <Button
+              data-draft-change
               type="button"
               variant="outline"
               onClick={() => setRows(rows.filter((x) => x !== i))}
@@ -262,6 +263,7 @@ export function ReportForm({
           </div>
         ))}
         <Button
+          data-draft-change
           type="button"
           variant="outline"
           onClick={() => {

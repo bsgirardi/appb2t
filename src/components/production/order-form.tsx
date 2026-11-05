@@ -179,6 +179,7 @@ export function OrderForm({
           />
           {rows.length > 1 && (
             <Button
+              data-draft-change
               type="button"
               variant="outline"
               onClick={() => setRows(rows.filter((x) => x !== i))}
@@ -189,6 +190,7 @@ export function OrderForm({
         </div>
       ))}
       <Button
+        data-draft-change
         type="button"
         variant="outline"
         onClick={() => {

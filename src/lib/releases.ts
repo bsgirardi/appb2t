@@ -8,6 +8,29 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.20.0",
+    date: "2026-11-05",
+    title: "Mais clareza em Produção e Estoque",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Ordens mostram responsável, máquina planejada, prazo, quantidades boas, falhas e pendências, com orientação para a próxima etapa.",
+          "Produção e Estoque oferecem limpeza de filtros, paginação mais clara e orientação quando a busca ou a página não tem resultados. O contexto da venda acompanha a troca de visão.",
+          "Materiais e peças prontas distinguem saldo físico, reservado e disponível. A consulta de movimentos mostra unidades e horários de São Paulo; detalhes e formulários ficam separados da lista.",
+          "Separação e entrega apresentam um resumo dos efeitos antes da confirmação.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Ao trocar de ação, voltar ou sair com campos preenchidos em Produção e Estoque, o sistema pede confirmação. Atualizar os saldos mantém os campos; salvar um formulário preserva a proteção dos demais.",
+          "A consulta de ordens, materiais e movimentos informa carregamento e permite tentar novamente após falhas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.19.1",
     date: "2026-11-05",
     title: "Proteção ampliada ao voltar e avançar",
