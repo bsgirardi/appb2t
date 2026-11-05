@@ -1,5 +1,21 @@
 # appb2t — estado e pendências
 
+## 04/11/2026 — PR e integração E3.2 autorizadas
+
+Usuário autorizou criar a PR e integrar E3.2. Preparação em **1.18.0**, incremento MINOR único sobre main 9797484/1.17.0, com manifestos sincronizados e notas em português. Abertura/CI/merge serão registrados após confirmação; publicação operacional não faz parte desta autorização. Os estados locais abaixo preservam a entrega anterior à autorização.
+
+## 04/11/2026 — E3.2 implementada localmente
+
+Desenho e plano aprovados, incluindo simulação antes da venda. Implementação em `codex/e3-2-previsao-comercial`, sobre main 9797484/1.17.0: bloqueios acionáveis, cobertura por pedido, cenário temporário pelo orçamento principal e etapas posteriores declaradas, sem promessa automática. [Entrega, testes, decisões e limites](docs/superpowers/reviews/2026-11-04-e3-2-previsao-comercial.md). Revisão independente com três casos materiais corrigidos por regressão RED→GREEN. Versão local mantida 1.17.0; sem PR/push/merge/publicação, migração operacional ou alteração dos serviços existentes. Homologação humana pendente e separada dos testes sintéticos; execução completa de fechamento registrada no relatório. A pasta operacional e seus documentos/skills locais foram preservados.
+
+Os registros de detalhamento abaixo são históricos anteriores à aprovação e implementação.
+
+## 04/11/2026 — E3.2 em detalhamento
+
+Desenho aprovado pelo usuário em 04/11/2026. [Plano de implementação](docs/superpowers/plans/2026-11-04-e3-2-previsao-comercial.md) preparado e autorrevisado em sete tarefas; aguarda revisão do plano/escolha de execução. Verificação documental sem erros de espaço; sem instalação de dependências, implementação ou testes funcionais nesta fase. Estado abaixo registra a preparação anterior à aprovação.
+
+Usuário escolheu incluir simulação antes da venda no incremento de bloqueios acionáveis e previsão por pedido conectado às negociações. [Desenho proposto](docs/superpowers/specs/2026-11-04-e3-2-previsao-comercial-design.md) preparado sobre main 9797484/1.17.0, em worktree isolada, com revisão independente sem perguntas materiais pendentes. Aguarda aprovação do desenho para elaborar plano; nenhum produto implementado ou teste funcional executado. Sem PR, push, merge, publicação, migração ou mudança operacional. Homologação humana permanece separada e não impede o detalhamento autorizado. Documentos locais da pasta operacional preservados.
+
 ## Roadmap de evolução aprovado em 27/10/2026
 
 O acompanhamento das melhorias de calculadora, rentabilidade, produção, negociações, pontos de venda e anúncios está em [docs/ROADMAP-SELLER.md](docs/ROADMAP-SELLER.md). Consultar e atualizar esse arquivo ao trabalhar nessas etapas em qualquer chat. A ordem foi aprovada; os primeiros incrementos E1.1–E6.1 estão entregues, e as etapas amplas continuam parciais. As pendências históricas abaixo devem ser verificadas no código e nas entregas mais recentes antes de retomá-las.

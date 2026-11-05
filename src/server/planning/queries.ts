@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import type { Actor } from "@/server/auth/session";
 import { batchStateSchema } from "@/domain/planning/validation";
 import { civilDateSchema } from "@/domain/commerce/validation";
+import { forecastIssues } from "@/domain/planning/issues";
 import { forecast } from "@/domain/planning/scheduler";
 import { suggestBatches } from "@/domain/planning/suggestions";
 import { allocationRemaining } from "@/server/production/reservations";
@@ -26,7 +27,11 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
   return db.$transaction(
     async (tx) => {
       const asOf = new Date().toISOString();
-      const { input, all, calendars, printers } = await loadPlanningSource(tx, actor, asOf);
+      const { input, all, calendars, printers } = await loadPlanningSource(
+        tx,
+        actor,
+        asOf,
+      );
       const revision = input.revision;
       const projection = forecast(input);
       const lineRows = await tx.productionLine.findMany({
@@ -117,6 +122,7 @@ export async function getPlanning(actor: Actor, raw: unknown = {}) {
         asOf,
         role: actor.role,
         forecast: projection,
+        issues: forecastIssues(input, projection),
         batches,
         suggestions: suggestBatches(candidates),
         calendars,

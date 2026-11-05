@@ -47,6 +47,10 @@ jobs:
             database: b2t_test
             port: 55432
             command: npm test
+          - suite: e32
+            database: b2t_e32_test
+            port: 55439
+            command: npm run test:e32
           - suite: e3
             database: b2t_e3_test
             port: 55433
@@ -86,6 +90,7 @@ jobs:
           --health-timeout 3s
           --health-retries 30
     env:
+      E32_TEST_DATABASE: "1"
       DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E4_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E5_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}

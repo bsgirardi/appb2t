@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OpportunityForm } from "./form";
+import { CommercialForecast } from "@/components/planning/commercial-forecast";
 import { OpportunityDecision } from "./decision";
 import { useOpportunityCommand, CommandError } from "./command";
 const eventLabels: Record<string, string> = {
@@ -150,6 +151,14 @@ export function OpportunityDetail({
         </Notice>
       ) : null}
       <CommandError {...command} />
+      <CommercialForecast
+        opportunityId={o.id}
+        opportunityVersion={o.version}
+        principalQuote={
+          o.quotes.find((q) => q.id === o.principalQuoteId) ?? null
+        }
+        wonSale={o.wonSale}
+      />
       <OpportunityDecision
         quote={o.quotes.find((q) => q.id === o.principalQuoteId) ?? null}
       />

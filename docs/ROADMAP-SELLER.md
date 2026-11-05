@@ -1,5 +1,23 @@
 # B2T — evolução de preço, produção e vendas
 
+## 04/11/2026 — E3.2: PR e integração autorizadas
+
+Preparação da PR em **1.18.0** (MINOR único sobre main 9797484/1.17.0), com manifestos/notas sincronizados. Usuário autorizou PR e integração; resultados de CI/merge serão registrados quando concluídos. Publicação operacional e homologação humana permanecem separadas. Os registros seguintes preservam as fases anteriores desta entrega.
+
+## 04/11/2026 — E3.2 implementada e em validação local
+
+Recorte aprovado e implementado na branch `codex/e3-2-previsao-comercial`, base main 9797484/1.17.0. Bloqueios têm próxima ação e resolução verificável; a venda tem cobertura por item e a negociação permite simular todos os itens do orçamento principal antes de vender, sem reservar capacidade. Pós-produção e transporte têm premissas explícitas, sem confundir retirada produtiva e entrega combinada. Impactos identificam lotes, OPs e vendas vinculadas. [Testes, revisão e limites](superpowers/reviews/2026-11-04-e3-2-previsao-comercial.md).
+
+Implementação local, sem integração/publicação/PR/push ou migração operacional; versão mantida 1.17.0. Homologação humana permanece pendente. E3/E4 amplas continuam parciais: transferência, reimpressão causal, contribuição/hora de lote real, alertas e comissão continuam incrementos próprios. Documentos/skills da pasta operacional preservados. Próxima ação possível: revisar esta entrega local e autorizar especificamente eventual PR.
+
+Os registros de detalhamento abaixo preservam a situação anterior à implementação.
+
+## 04/11/2026 — E3.2 em detalhamento autorizado
+
+Desenho aprovado pelo usuário em 04/11/2026. [Plano em sete tarefas](superpowers/plans/2026-11-04-e3-2-previsao-comercial.md) preparado e autorrevisado; próxima ação: revisão do plano/escolha de execução. Sem implementação, testes funcionais, PR/push/merge/publicação ou alteração operacional. Registro abaixo preserva o momento anterior à aprovação.
+
+Usuário escolheu incluir simulação antes da venda, pelo orçamento principal, além dos bloqueios acionáveis e diagnóstico por pedido. [Desenho para aprovação](superpowers/specs/2026-11-04-e3-2-previsao-comercial-design.md): cenário temporário sem reserva, cobertura de toda demanda, impacto cruzado da equipe e pós-produção/transporte com premissas explícitas. Revisão independente sem perguntas materiais pendentes. Base main 9797484/1.17.0 em isolamento; alterações locais operacionais preservadas. Próxima ação: aprovação do desenho e plano. Implementação, testes funcionais, integração, publicação e homologação humana ainda não realizados neste incremento; sem PR/push ou mudanças operacionais. E3/E4 amplas continuam parciais.
+
 Atualizado em: 04/11/2026. E2.2 implementada em isolamento, com validação e entrega registradas ao final. Main reconferida em 1.14.0 com E1.2 integrada; publicação atual não reconferida. Auditoria de 29/10 e registros históricos abaixo preservados.
 
 ## Como continuar em outro chat

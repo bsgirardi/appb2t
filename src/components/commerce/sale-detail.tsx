@@ -1,6 +1,7 @@
 "use client";
 import { FormSection } from "@/components/admin/form-section";
 
+import { SalePlanningForecast } from "@/components/planning/commercial-forecast";
 import { SaleStock } from "@/components/stock/reservation-form";
 import { DocumentArt } from "@/components/art/document-art";
 import {
@@ -239,6 +240,7 @@ export function SaleDetail({
           }
         />
       )}
+      <SalePlanningForecast saleId={sale.id} saleVersion={sale.version} />
       <SaleStock sale={sale} />
       <DocumentCostSummary
         items={sale.document.items}

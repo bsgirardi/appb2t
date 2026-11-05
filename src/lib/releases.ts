@@ -8,6 +8,28 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.18.0",
+    date: "2026-11-04",
+    title: "Bloqueios acionáveis e previsão produtiva para negociar",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Consulte a cobertura produtiva de cada item da venda, distinguindo peças entregues, prontas comprometidas, planejadas e quantidades ainda sem cobertura.",
+          "Simule a produção antes da venda pelo orçamento principal da negociação, distribuindo todos os itens em lotes hipotéticos e conferindo os impactos na fila, nas ordens e nas vendas vinculadas, sem reservar capacidade.",
+          "Declare as premissas de acabamento, inspeção, embalagem e atendimento ou transporte para estimar a entrega. Dados essenciais ausentes mantêm a data indisponível; a simulação não altera a entrega combinada.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Bloqueios do planejamento explicam a próxima ação e como verificar a resolução, com acesso aos fluxos existentes.",
+          "Previsões mostram referência, revisão e versão consultadas, expiram após 60 segundos e são invalidadas ao editar premissas ou retornar à tela. Retirada produtiva e promessa comercial permanecem distintas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.17.0",
     date: "2026-11-04",
     title: "Painel integrado: navegação, rotina e decisões comerciais",

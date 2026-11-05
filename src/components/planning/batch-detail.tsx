@@ -1,4 +1,5 @@
 "use client";
+import { PlanningIssues } from "./issues";
 import { useState } from "react";
 import Link from "next/link";
 import Decimal from "decimal.js";
@@ -126,7 +127,26 @@ export function BatchDetail({
         ))}
       </ul>
       {b.state !== "CANCELED" &&
-        b.blockers.map((x) => <Notice key={x}>{x}</Notice>)}
+        (b.issues?.length ? (
+          <PlanningIssues
+            issues={b.issues}
+            onOpenTarget={(t) => {
+              if (t.kind === "batch-edit" && future) setEdit(true);
+              else document.getElementById("batch-actions")?.focus();
+            }}
+          />
+        ) : (
+          b.blockers.map((x) => <Notice key={x}>{x}</Notice>)
+        ))}
+      <p>
+        Posição registrada: {b.position}.{" "}
+        {future
+          ? "Lote futuro; a fila pode ser simulada antes de confirmar mudanças."
+          : "Confira os marcos reais deste lote."}{" "}
+        O horário depende das outras máquinas e da equipe compartilhada; o prazo
+        acima é da OP, não uma promessa de entrega.
+      </p>
+      <div id="batch-actions" tabIndex={-1} />
       {b.state === "DRAFT" && (
         <ActionForm
           title="Confirmar composição"

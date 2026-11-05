@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -10,6 +10,7 @@
     "test:unit": "vitest run tests/unit",
     "test:docker": "node --test tests/docker/build-manifests.test.mjs",
     "test:integration": "vitest run tests/integration",
+    "test:e32": "vitest run --config vitest.e32.config.ts",
     "test:e3": "vitest run --config vitest.e3.config.ts",
     "test:e4": "vitest run --config vitest.e4.config.ts",
     "test:e4:migration": "node --import tsx tests/e4/migration-validation.ts",
