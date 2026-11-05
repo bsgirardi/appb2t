@@ -60,6 +60,25 @@ export async function previewCommercial(
         printers: source.printers,
         materials,
       });
+      const affectedLines = await tx.productionLine.findMany({
+        where: {
+          id: {
+            in: result.impacts.flatMap((i) =>
+              i.participants.map((p) => p.lineId),
+            ),
+          },
+        },
+        select: {
+          id: true,
+          order: { select: { sale: { select: { id: true, sequence: true } } } },
+        },
+      });
+      for (const impact of result.impacts) {
+        const sales = affectedLines
+          .filter((l) => impact.participants.some((p) => p.lineId === l.id))
+          .flatMap((l) => (l.order.sale ? [l.order.sale] : []));
+        impact.sales = [...new Map(sales.map((s) => [s.id, s])).values()];
+      }
       return envelope(
         asOf,
         source.input.revision,

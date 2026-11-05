@@ -75,6 +75,9 @@ export async function loadSaleDemand(
       let committedUnits = 0;
       for (const c of cs) {
         const n = c.events.reduce((s, e) => s + e.units, 0);
+        // Closed commitments are historical facts; current stock availability
+        // only constrains quantities still committed to this order.
+        if (n === 0) continue;
         const physical = c.origin.movements.reduce((s, m) => s + m.units, 0);
         const total = c.origin.commitments
           .flatMap((c) => c.events)

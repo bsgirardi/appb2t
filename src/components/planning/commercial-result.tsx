@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import type {
   CommercialEnvelope,
   CommercialSimulation,
@@ -66,6 +67,27 @@ export function CommercialResult({
               {planningLabel(i.before.removal?.end ?? null)} →{" "}
               {planningLabel(i.after.removal?.end ?? null)}.{" "}
               {i.after.reason ?? ""}
+              <ul>
+                {i.participants.map((p) => (
+                  <li key={p.id}>
+                    OP {p.orderSequence} · {p.description} ·{" "}
+                    {p.units - p.settledUnits - p.releasedUnits} unidades ainda
+                    vinculadas
+                  </li>
+                ))}
+              </ul>
+              {i.sales?.length ? (
+                <p>
+                  Vendas afetadas:{" "}
+                  {i.sales.map((s) => (
+                    <Link key={s.id} href={`/vendas/${s.id}`}>
+                      VEN-{String(s.sequence).padStart(6, "0")}{" "}
+                    </Link>
+                  ))}
+                </p>
+              ) : (
+                <p>Sem vínculo comercial identificado para este lote.</p>
+              )}
             </li>
           ))}
         </ul>

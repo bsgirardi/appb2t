@@ -1,5 +1,11 @@
 # appb2t — estado e pendências
 
+## 04/11/2026 — E3.2 implementada localmente
+
+Desenho e plano aprovados, incluindo simulação antes da venda. Implementação em `codex/e3-2-previsao-comercial`, sobre main 9797484/1.17.0: bloqueios acionáveis, cobertura por pedido, cenário temporário pelo orçamento principal e etapas posteriores declaradas, sem promessa automática. [Entrega, testes, decisões e limites](docs/superpowers/reviews/2026-11-04-e3-2-previsao-comercial.md). Revisão independente com três casos materiais corrigidos por regressão RED→GREEN. Versão local mantida 1.17.0; sem PR/push/merge/publicação, migração operacional ou alteração dos serviços existentes. Homologação humana pendente e separada dos testes sintéticos; execução completa de fechamento registrada no relatório. A pasta operacional e seus documentos/skills locais foram preservados.
+
+Os registros de detalhamento abaixo são históricos anteriores à aprovação e implementação.
+
 ## 04/11/2026 — E3.2 em detalhamento
 
 Desenho aprovado pelo usuário em 04/11/2026. [Plano de implementação](docs/superpowers/plans/2026-11-04-e3-2-previsao-comercial.md) preparado e autorrevisado em sete tarefas; aguarda revisão do plano/escolha de execução. Verificação documental sem erros de espaço; sem instalação de dependências, implementação ou testes funcionais nesta fase. Estado abaixo registra a preparação anterior à aprovação.

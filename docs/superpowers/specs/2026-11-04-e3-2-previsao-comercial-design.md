@@ -1,6 +1,6 @@
 # E3.2 — Bloqueios acionáveis e previsão por pedido na negociação
 
-Data: 04/11/2026, America/Sao_Paulo. Estado: desenho aprovado pelo usuário em 04/11/2026 ("Aprovado"); não implementado. Revisão independente sem perguntas materiais pendentes. Plano em `../plans/2026-11-04-e3-2-previsao-comercial.md`, aguardando revisão do plano e escolha de execução.
+Data: 04/11/2026, America/Sao_Paulo. Estado: desenho e plano aprovados pelo usuário em 04/11/2026 ("Aprovado"), execução direta escolhida e implementação local realizada. [Entrega e limites](../reviews/2026-11-04-e3-2-previsao-comercial.md). Revisão independente do desenho sem perguntas materiais pendentes; revisão da implementação com três casos materiais corrigidos e testados. Plano em `../plans/2026-11-04-e3-2-previsao-comercial.md`. Sem integração/publicação; homologação humana pendente.
 
 ## Intenção e decisões
 
@@ -83,4 +83,4 @@ Transferência de lotes reais, reimpressão causal, novo otimizador, contribuiç
 
 ## Próxima fase e limites de autorização
 
-Desenho revisado independentemente e aprovado pelo usuário; plano preparado e autorrevisado. Próxima ação: revisão do plano e escolha de execução. Antes de código Next, ler guias da versão instalada. Sem instalação de dependências/testes funcionais nesta fase documental. Versão 1.17.0 preservada, sem PR/push/merge/publicação, migração ou atualização de contêiner. Futura PR autorizada exige incremento único SemVer comparado à main, manifestos/notas/rodapés/Atualizações consistentes. Acompanhamento deve separar implementação, testes, integração, publicação e homologação humana.
+Desenho e plano aprovados, execução direta concluída localmente, com evidências e limites no relatório. Guias Next e skill shadcn lidos antes das alterações visuais; dependências instaladas pelo lock somente na worktree. Versão 1.17.0 preservada, sem PR/push/merge/publicação, migração operacional ou atualização dos contêineres existentes. Futura PR autorizada exige incremento único SemVer comparado à main, manifestos/notas/rodapés/Atualizações consistentes. Implementação e testes não significam integração, publicação ou homologação humana.

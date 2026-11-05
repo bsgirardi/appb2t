@@ -138,7 +138,12 @@ export function simulateCommercial(
   const after = forecast(derived);
   const outputLines = s.lines.map((l) => {
     if (l.mode === "external")
-      return { lineKey: l.lineKey, removalAt: l.availableAt };
+      return {
+        lineKey: l.lineKey,
+        removalAt: new Date(
+          Math.max(now, Date.parse(l.availableAt)),
+        ).toISOString(),
+      };
     const projections = l.batches.map((b) =>
       after.batches.find((f) => f.batchId === hypId(b)),
     );
@@ -176,7 +181,16 @@ export function simulateCommercial(
       const a = after.batches.find((a) => a.batchId === b.batchId)!;
       return JSON.stringify(a) === JSON.stringify(b)
         ? []
-        : [{ batchId: b.batchId, before: b, after: a }];
+        : [
+            {
+              batchId: b.batchId,
+              before: b,
+              after: a,
+              participants: input.machines
+                .flatMap((m) => m.batches)
+                .find((batch) => batch.id === b.batchId)!.participants,
+            },
+          ];
     }),
   };
 }

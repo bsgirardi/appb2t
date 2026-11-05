@@ -41,6 +41,95 @@ const options = {
   ],
   materials: [{ id: "m", active: true, inventoried: true, available: "100" }],
 };
+it("aggregates offset instants chronologically, including external and productive demand", () => {
+  const s: CommercialScenario = {
+    completion: { post: { mode: "unknown" }, delivery: { mode: "unknown" } },
+    lines: [
+      {
+        lineKey: "x",
+        quantity: 2,
+        mode: "external",
+        availableAt: "2026-11-05T10:00:00-03:00",
+        reason: "Fornecedor sintético",
+      },
+      {
+        lineKey: "y",
+        quantity: 1,
+        mode: "external",
+        availableAt: "2026-11-05T12:00:00Z",
+        reason: "Fornecedor sintético",
+      },
+    ],
+  };
+  const r = simulateCommercial(
+    scenarioInput(),
+    [
+      ...lines,
+      {
+        lineKey: "y",
+        description: "Outra peça",
+        quantity: 1,
+        technology: null,
+      },
+    ],
+    s,
+    options,
+  );
+  expect(Date.parse(r.removalAt!)).toBe(Date.parse("2026-11-05T13:00:00Z"));
+  const mixed = scenario();
+  mixed.lines.push(s.lines[0]);
+  mixed.lines[0] = { ...mixed.lines[0], lineKey: "y", quantity: 2 };
+  if (mixed.lines[0].mode === "produce")
+    mixed.lines[0].batches = mixed.lines[0].batches.map((b) => ({
+      ...b,
+      lineKey: "y",
+    }));
+  const m = simulateCommercial(
+    scenarioInput(),
+    [
+      ...lines,
+      {
+        lineKey: "y",
+        description: "Outra peça",
+        quantity: 2,
+        technology: "FDM",
+      },
+    ],
+    mixed,
+    options,
+  );
+  expect(Date.parse(m.removalAt!)).toBe(Date.parse("2026-11-05T13:00:00Z"));
+});
+it("uses current reference for already available external goods and rejects retroactive delivery", () => {
+  const s: CommercialScenario = {
+    completion: {
+      post: { mode: "waived", reason: "Sem acabamento" },
+      delivery: {
+        mode: "pickup",
+        at: "2026-10-26T12:00:00Z",
+        reason: "Horário antigo",
+      },
+    },
+    lines: [
+      {
+        lineKey: "x",
+        quantity: 2,
+        mode: "external",
+        availableAt: "2026-10-26T11:00:00Z",
+        reason: "Já disponível",
+      },
+    ],
+  };
+  expect(() =>
+    simulateCommercial(scenarioInput(), lines, s, options),
+  ).toThrow();
+  s.completion.delivery = { mode: "unknown" };
+  expect(
+    Date.parse(
+      simulateCommercial(scenarioInput(), lines, s, options).removalAt!,
+    ),
+  ).toBe(Date.parse(asOf));
+});
 it("appends hypothetical work without changing inputs and includes cross-machine impact", () => {
   const input = scenarioInput(),
     before = structuredClone(input);
@@ -64,6 +153,9 @@ it("restricts real calendars before calculation for future availability", () => 
   ).toBe(true);
   expect(r.warnings.join()).toContain("conservadora");
   expect(r.impacts.some((b) => b.batchId === "a")).toBe(true);
+  expect(
+    r.impacts.find((b) => b.batchId === "a")?.participants[0],
+  ).toMatchObject({ lineId: "line-a", orderSequence: 97, units: 2 });
 });
 it("rejects incomplete quantities, incompatible machines and unreviewed assumptions", () => {
   for (const mutate of [

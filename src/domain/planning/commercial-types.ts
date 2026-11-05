@@ -1,4 +1,4 @@
-import type { BatchForecast, Forecast } from "./types";
+import type { BatchDTO, BatchForecast, Forecast } from "./types";
 import type { PlanningIssue } from "./issues";
 export type { PlanningIssue } from "./issues";
 export type DemandLineFacts = {
@@ -103,7 +103,13 @@ export type CommercialSimulation = {
   after: Forecast;
   lines: { lineKey: string; removalAt: string | null }[];
   removalAt: string | null;
-  impacts: { batchId: string; before: BatchForecast; after: BatchForecast }[];
+  impacts: {
+    batchId: string;
+    before: BatchForecast;
+    after: BatchForecast;
+    participants: BatchDTO["participants"];
+    sales?: { id: string; sequence: number }[];
+  }[];
   issues: string[];
   warnings: string[];
   completion: CompletionProjection;
