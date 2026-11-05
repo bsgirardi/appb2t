@@ -59,6 +59,8 @@ Captura sintética local ignorada pelo Git: `.superpowers/evidence/e3-2/preview-
 
 Logs finais e ledger preservados em `.superpowers/evidence/e3-2/`, ignorados pelo Git. Manifestos raiz/package-lock/packages[""].version conferidos em 1.17.0; APP_VERSION permanece importado do package.json. Diff sem erros de espaço.
 
+A revisão automática também rejeitou o comando que excluiria o contêiner sintético e a pasta temporária, sem informar motivo específico. A alternativa reversível foi concluída: `codex-e32-20261104-test` foi parado, sem removê-lo nem apagar os arquivos. A pasta temporária deste plano permanece ignorada pelo Git, além das evidências preservadas. O servidor/browser de prévia foram encerrados. Conferência posterior mostrou somente os três contêineres preexistentes em execução, preservados. A limpeza destrutiva não é apresentada como concluída e não afeta os resultados dos testes ou a entrega do código.
+
 ## Estado de entrega
 
 Implementação: local. Testes: evidências acima. Integração: não realizada. Publicação: não realizada. Homologação humana: pendente. Versão mantida em **1.17.0**; fonte única/rodapés/releases não alterados por esta entrega local. Preparação de futura PR requer autorização específica, incremento único comparado à main atual, package/lock sincronizados, notas portuguesas e conferência dos dois rodapés e `/atualizacoes`.

@@ -130,4 +130,4 @@ Cobertura do desenho: bloqueios/prioridades (1), demanda integral e vínculos (2
 
 ## Entrega local
 
-Plano aprovado e executado diretamente em 04/11/2026. Verificação final: 825 unitários, 10 integrações E32 exclusivas, tipos/lint/build e inspeção sintética aprovados dentro dos limites do relatório. Revisão independente com três casos materiais reproduzidos/corrigidos. [Relatório e limites](../reviews/2026-11-04-e3-2-previsao-comercial.md). Sem PR/push/merge/publicação; versão preservada 1.17.0.
+Plano aprovado e executado diretamente em 04/11/2026. Verificação final: 825 unitários, 10 integrações E32 exclusivas, tipos/lint/build e inspeção sintética aprovados dentro dos limites do relatório. Revisão independente com três casos materiais reproduzidos/corrigidos. [Relatório e limites](../reviews/2026-11-04-e3-2-previsao-comercial.md). Sem PR/push/merge/publicação; versão preservada 1.17.0. A remoção final do contêiner sintético/pasta temporária foi rejeitada pela revisão automática; o contêiner foi apenas parado e os arquivos preservados. Essa exceção substitui a ação de remoção indicada na tarefa 7, sem apresentar a limpeza destrutiva como executada.
