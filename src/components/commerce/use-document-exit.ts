@@ -1,11 +1,12 @@
 "use client";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { startHistoryProtection } from "@/lib/history-protection";
 
 /** Protect browser exits and links without replacing Next's history entries. */
 export function useDocumentExit(value: string) {
   const saved = useRef(value);
   const current = useRef(value);
-  useEffect(() => {
+  useLayoutEffect(() => {
     current.current = value;
   }, [value]);
   const dirty = useCallback(() => current.current !== saved.current, []);
@@ -18,19 +19,7 @@ export function useDocumentExit(value: string) {
     );
   }, [dirty]);
   useEffect(() => {
-    // Cancel supported history traversals before Next commits them, without
-    // rewriting or adding history entries.
-    const navigation = (window as Window & { navigation?: EventTarget })
-      .navigation;
-    function navigate(event: Event) {
-      if (
-        (event as Event & { navigationType?: string }).navigationType !==
-          "traverse" ||
-        !event.cancelable
-      )
-        return;
-      if (!allowExit()) event.preventDefault();
-    }
+    const removeGuard = startHistoryProtection().addGuard(allowExit);
     function unload(event: BeforeUnloadEvent) {
       if (!dirty()) return;
       event.preventDefault();
@@ -63,11 +52,10 @@ export function useDocumentExit(value: string) {
       }
     }
     window.addEventListener("beforeunload", unload);
-    navigation?.addEventListener("navigate", navigate);
     document.addEventListener("click", click, true);
     return () => {
       window.removeEventListener("beforeunload", unload);
-      navigation?.removeEventListener("navigate", navigate);
+      removeGuard();
       document.removeEventListener("click", click, true);
     };
   }, [allowExit, dirty]);
