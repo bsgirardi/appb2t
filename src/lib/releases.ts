@@ -8,6 +8,38 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.17.0",
+    date: "2026-11-04",
+    title: "Painel integrado: navegação, rotina e decisões comerciais",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Consulte o orçamento principal dentro da negociação para conferir contribuição, margem e tempo de máquina estimado por item com memória de custo válida.",
+          "Simule a contribuição e a margem consolidada após desconto e frete, declarando o custo de envio e os encargos incidentes no frete. Premissas ausentes mantêm o resultado indisponível e não alteram o orçamento.",
+          "Acesse planejamento, simulação de canais e descontos e comparações salvas durante a negociação.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Menu organizado em Visão geral, Comercial, Catálogo, Operação, Parcerias, Financeiro e Configurações, mantendo as permissões e a calculadora com acesso direto para a equipe.",
+          "Localização contextual no topo, leitura mais confortável e destaque da página atual além da cor. Menu móvel com rolagem e áreas de toque ampliadas, nos temas claro e escuro.",
+          "Dashboard com pendências acionáveis antes dos gráficos e filtros personalizados identificados.",
+          "Clientes apresenta os filtros aplicados e organiza identificação, contato e complementos no cadastro, com resumo antes de salvar e dados preservados em caso de falha.",
+          "Editores pedem confirmação ao fechar ou recarregar com alterações não salvas. Custos ausentes, memórias desatualizadas e mudanças de versão do orçamento ficam explícitos, distinguindo contribuição de lucro líquido e tempo de máquina de prazo garantido.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Paginação de clientes mantém os filtros aplicados, sem enviar buscas ainda em edição; voltar e avançar no histórico sincroniza os campos com a página.",
+          "Clientes distingue cadastro vazio, busca sem resultados e página fora dos resultados. Datas inválidas mantêm os filtros do dashboard abertos para correção.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.16.0",
     date: "2026-11-04",
     title: "Inteligência operacional com fontes e premissas",

@@ -1,4 +1,5 @@
 "use client";
+import { FormActions } from "@/components/admin/form-actions";
 import { FormSection } from "@/components/admin/form-section";
 
 import { AdminForm } from "@/components/admin/admin-form";
@@ -79,55 +80,73 @@ export function CustomerForm({
   }
   return (
     <Card asChild>
-      <AdminForm onSubmit={save} className="product-form">
-        {error && <Notice>{error}</Notice>}
+      <AdminForm onSubmit={save} className="product-form" aria-busy={busy}>
         <fieldset disabled={busy}>
-          <Field
-            label="Nome do cliente"
-            value={draft.name}
-            maxLength={160}
-            required
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          />
-          <div className="field">
-            <Label htmlFor="customer-type">Tipo de cliente</Label>
-            <NativeSelect
-              id="customer-type"
-              value={draft.type}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  type: e.target.value as CustomerInput["type"],
-                })
-              }
-            >
-              <option value="PERSON">Pessoa física</option>
-              <option value="COMPANY">Pessoa jurídica</option>
-            </NativeSelect>
-          </div>
-          <div className="form-grid">
-            {(
-              [
-                ["document", "Documento", 32],
-                ["email", "E-mail", 254],
-                ["phone", "Telefone", 50],
-                ["address", "Endereço", 500],
-              ] as const
-            ).map(([key, label, max]) => (
-              <Field
-                key={key}
-                label={label}
-                value={draft[key]}
-                maxLength={key === "document" ? 100 : max}
-                type={key === "email" ? "email" : "text"}
-                onChange={(e) => setDraft({ ...draft, [key]: e.target.value })}
-              />
-            ))}
-          </div>
-          <p className="muted">
-            Documento opcional, informado pela equipe. Sem validação fiscal
-            externa.
-          </p>
+          <legend className="sr-only">Dados do cliente</legend>
+          <FormSection
+            id="customer-identity"
+            title="Identificação"
+            description="Nome e tipo usados nos orçamentos e vendas."
+          >
+            <Field
+              label="Nome do cliente"
+              value={draft.name}
+              maxLength={160}
+              required
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            />
+            <div className="field">
+              <Label htmlFor="customer-type">Tipo de cliente</Label>
+              <NativeSelect
+                id="customer-type"
+                value={draft.type}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    type: e.target.value as CustomerInput["type"],
+                  })
+                }
+              >
+                <option value="PERSON">Pessoa física</option>
+                <option value="COMPANY">Pessoa jurídica</option>
+              </NativeSelect>
+            </div>
+            <Field
+              label="Documento"
+              value={draft.document}
+              maxLength={100}
+              hint="Opcional, informado pela equipe. Sem validação fiscal externa."
+              onChange={(e) => setDraft({ ...draft, document: e.target.value })}
+            />
+          </FormSection>
+          <FormSection
+            id="customer-contact"
+            title="Contato"
+            description="Informações opcionais para localizar e atender o cliente."
+          >
+            <div className="form-grid">
+              {(
+                [
+                  ["email", "E-mail", 254],
+                  ["phone", "Telefone", 50],
+                  ["address", "Endereço", 500],
+                ] as const
+              ).map(([key, label, max]) => (
+                <Field
+                  key={key}
+                  label={label}
+                  value={draft[key]}
+                  maxLength={max}
+                  type={
+                    key === "email" ? "email" : key === "phone" ? "tel" : "text"
+                  }
+                  onChange={(e) =>
+                    setDraft({ ...draft, [key]: e.target.value })
+                  }
+                />
+              ))}
+            </div>
+          </FormSection>
           <FormSection
             id="customer-extra"
             title="Observações e situação"
@@ -155,7 +174,25 @@ export function CustomerForm({
               Cliente ativo
             </Label>
           </FormSection>
-          <div className="product-actions">
+          <section
+            aria-label="Conferir cliente"
+            className="rounded-lg border border-border bg-muted/40 p-4 flex flex-col gap-2 break-words"
+          >
+            <h2 className="font-semibold">Conferir antes de salvar</h2>
+            <p>
+              {draft.name.trim() || "Nome ainda não informado"} ·{" "}
+              {draft.type === "PERSON" ? "Pessoa física" : "Pessoa jurídica"} ·{" "}
+              {draft.active ? "Ativo" : "Inativo"}
+            </p>
+            <p className="text-muted-foreground">
+              {draft.email || draft.phone || "Contato não informado"}
+            </p>
+          </section>
+          {error && <Notice>{error}</Notice>}
+          <span role="status" className="sr-only">
+            {busy ? "Salvando cliente…" : ""}
+          </span>
+          <FormActions>
             <Button variant="default" size="sm" type="submit" className="">
               {busy ? "Salvando…" : "Salvar cliente"}
             </Button>
@@ -169,7 +206,7 @@ export function CustomerForm({
             >
               Voltar
             </Button>
-          </div>
+          </FormActions>
         </fieldset>
       </AdminForm>
     </Card>

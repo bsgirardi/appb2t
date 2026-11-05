@@ -102,3 +102,7 @@ O painel, login e menu móvel usam Roboto local (400/600/700); a vitrine mantém
 Botões e campos usam cantos de 8 px; campos têm foco e erro consistentes, sem sombra permanente. Badges usam contorno ou cor semântica e formato arredondado, com quebra para textos extensos. Card mantém o preenchimento externo de 16 px e não o duplica nos subcomponentes. Alturas, variantes existentes, formulários nativos e `asChild` permanecem preservados. A configuração do gerador ainda é new-york/slate: esta é uma adaptação local, não substituição integral pelo preset.
 
 No catálogo, fotos ficam inteiras inclusive no hover, disponibilidade vem dos dados cadastrados, filtros extensos quebram dentro da tela e os estados vazios distinguem busca, coleção e catálogo. As ações públicas mantêm 44 px também no desktop. Evidências e limites em `docs/superpowers/2026-10-15-nova-catalogo.md`.
+
+### Navegação administrativa — 04/11/2026
+
+A etapa 1 organiza o menu em Visão geral, Comercial, Catálogo, Operação, Parcerias, Financeiro e Configurações. A calculadora é um atalho permanente para os dois perfis. Financeiro e Configurações mantêm acesso exclusivo de administradores. A lateral passa a 232 px no desktop; a localização contextual, o destaque com borda e peso e os controles móveis de pelo menos 44 px preservam Roboto e a paleta administrativa configurada. Não altera os ativos oficiais B2T nem a vitrine.

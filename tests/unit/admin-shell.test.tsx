@@ -20,9 +20,15 @@ it("groups operations into collapsible menus and exposes the dashboard", () => {
     </AppShell>,
   );
   expect(
-    screen.getByRole("link", { name: "Dashboard" }).getAttribute("href"),
+    screen.getByRole("link", { name: "Visão geral" }).getAttribute("href"),
   ).toBe("/dashboard");
-  for (const name of ["Vendas", "Produção", "Financeiro"]) {
+  for (const name of [
+    "Comercial",
+    "Catálogo",
+    "Operação",
+    "Parcerias",
+    "Financeiro",
+  ]) {
     const trigger = screen.getByRole("button", { name });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(trigger);
@@ -70,7 +76,7 @@ it("opens and closes the mobile navigation without hiding account actions", () =
       .getAttribute("aria-current"),
   ).toBe("page");
   expect(
-    screen.getByRole("link", { name: "Configurações" }).getAttribute("class"),
+    screen.getByRole("link", { name: "Geral" }).getAttribute("class"),
   ).not.toContain("active");
   expect(screen.getByRole("button", { name: "Sair da conta" })).toBeTruthy();
 });
@@ -87,7 +93,7 @@ it("preserves operator navigation restrictions", () => {
     "Configurações",
   ])
     expect(screen.queryByRole("link", { name })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Produção" }));
+  fireEvent.click(screen.getByRole("button", { name: "Operação" }));
   expect(screen.getByRole("link", { name: "Calculadora" })).toBeTruthy();
   expect(
     screen.getByRole("link", { name: "Abrir loja" }).getAttribute("href"),
@@ -120,16 +126,17 @@ it("carries the administrative palette into the mobile portal", () => {
   expect(screen.getByRole("dialog").className).toContain("admin-theme");
 });
 
-it("keeps_catalog_requests_and_kits_in_the_grouped_sales_navigation", () => {
+it("separates_commercial_requests_from_catalog_kits", () => {
   render(
     <AppShell actor={actor}>
       <h1>Conteúdo</h1>
     </AppShell>,
   );
-  fireEvent.click(screen.getByRole("button", { name: "Vendas" }));
+  fireEvent.click(screen.getByRole("button", { name: "Comercial" }));
   expect(
     screen.getByRole("link", { name: "Solicitações" }).getAttribute("href"),
   ).toBe("/solicitacoes");
+  fireEvent.click(screen.getByRole("button", { name: "Catálogo" }));
   expect(screen.getByRole("link", { name: "Kits" }).getAttribute("href")).toBe(
     "/kits",
   );
