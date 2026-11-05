@@ -1,4 +1,5 @@
 "use client";
+import { PlanningIssues } from "./issues";
 import { useState } from "react";
 import type { Suggestion } from "@/domain/planning/types";
 import { api } from "@/lib/client-api";
@@ -84,6 +85,7 @@ export function PlanningPanel({ initial }: { initial: PlanningData }) {
         Horizonte: 90 dias.
       </p>
       {error && <Notice>{error}</Notice>}
+      <PlanningIssues issues={data.issues ?? []} onOpenTarget={t => { if(t.kind === "batch") {setId(t.id);setView("detail");} else if(t.kind === "calendar" && data.role === "ADMIN") setView("calendars"); else setError("Solicite a um administrador a configuração dos horários no planejamento."); }} />
       {data.warnings.map((w) => (
         <Notice kind="info" key={w}>
           {w}

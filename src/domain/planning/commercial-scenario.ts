@@ -14,7 +14,7 @@ export function simulateCommercial(input:PlanningInput,lines:CommercialQuoteLine
  const h=s.lines.flatMap(l=>l.mode==='produce'?l.batches:[]);
  if(new Set(h.map(b=>b.id)).size!==h.length)invalid('Identificadores de lotes hipotéticos repetidos.');
  const now=Date.parse(input.asOf),horizon=now+90*86400000;
- const checkTime=(v:string)=>{if(Date.parse(v)<now-60000||Date.parse(v)>horizon)invalid('Disponibilidade deve estar entre agora e o horizonte de 90 dias.');};
+ const checkTime=(v:string)=>{if(Date.parse(v)>horizon)invalid('Disponibilidade deve estar dentro do horizonte de 90 dias.');};
  for(const l of s.lines){
   const source=lines.find(x=>x.lineKey===l.lineKey);
   if(!source||source.quantity!==l.quantity)invalid('Quantidade ou linha diverge do orçamento atual.');

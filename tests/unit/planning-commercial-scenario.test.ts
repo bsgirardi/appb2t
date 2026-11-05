@@ -8,12 +8,12 @@ const options={printers:[{id:'p',technology:'FDM',active:true},{id:'q',technolog
 it('appends hypothetical work without changing inputs and includes cross-machine impact',()=>{
  const input=scenarioInput(),before=structuredClone(input);const r=simulateCommercial(input,lines,scenario(),options);
  expect(input).toEqual(before);expect(r.removalAt).not.toBeNull();expect(r.after.batches.at(-1)).toBeDefined();
- expect(r.after.batches.find(b=>b.batchId==='hyp:x:hyp')?.prepare?.start! >= r.before.batches.find(b=>b.batchId==='b')?.removal?.end!).toBe(true);
+ expect(r.after.batches.find(b=>b.batchId==='hyp:x:hyp')!.prepare!.start >= r.before.batches.find(b=>b.batchId==='b')!.removal!.end).toBe(true);
 });
 it('restricts real calendars before calculation for future availability',()=>{
  const s=scenario();if(s.lines[0].mode==='produce')s.lines[0].batches[0].availableAt='2026-10-28T11:00:00.000Z';
  const r=simulateCommercial(scenarioInput(),lines,s,options);
- expect(r.after.batches.find(b=>b.batchId==='hyp:x:hyp')?.prepare?.start! >= '2026-10-28T11:00:00.000Z').toBe(true);
+ expect(r.after.batches.find(b=>b.batchId==='hyp:x:hyp')!.prepare!.start >= '2026-10-28T11:00:00.000Z').toBe(true);
  expect(r.warnings.join()).toContain('conservadora');expect(r.impacts.some(b=>b.batchId==='a')).toBe(true);
 });
 it('rejects incomplete quantities, incompatible machines and unreviewed assumptions',()=>{

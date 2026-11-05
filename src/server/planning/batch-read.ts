@@ -30,7 +30,7 @@ export async function batchDTO(
 ): Promise<BatchDTO> {
   const b = await batchRow(tx, id),
     facts: BatchIssueFact[] = [];
-  const add = (code: IssueCode, lineId?: string) => facts.push({code, kind: lineId ? "line" : "batch", id: lineId ?? b.id, target: {kind: "batch", id: b.id}});
+  const add = (code: IssueCode, lineId?: string) => facts.push({code, kind: lineId ? "line" : "batch", id: lineId ?? b.id, target: code === "MACHINE_INACTIVE" ? {kind: "printer", id: b.printerId} : ["MATERIAL_INACTIVE", "STOCK"].includes(code) ? {kind: "material", id: b.materialItemId} : code === "ORDER_MACHINE" ? {kind:"order",id:b.participants.find(p => p.lineId === lineId)?.line.orderId ?? ""} : {kind: ["DURATION", "PROFILE_FIT"].includes(code) ? "batch-edit" : "batch", id: b.id}});
   if (!b.printer.active) add("MACHINE_INACTIVE");
   if (!b.material.active || !b.material.inventoriedAt)
     add("MATERIAL_INACTIVE");
