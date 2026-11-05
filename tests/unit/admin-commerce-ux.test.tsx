@@ -29,6 +29,8 @@ it("cancels supported history traversals without adding history entries", () => 
   fireEvent.change(screen.getByLabelText("Frete (R$)"), {
     target: { value: "12" },
   });
+  // Initialization may add metadata to the current entry, never an entry.
+  replace.mockClear();
   const event = new Event("navigate", { cancelable: true });
   Object.defineProperty(event, "navigationType", { value: "traverse" });
   navigation.dispatchEvent(event);
@@ -87,4 +89,39 @@ it("allows incomplete sale drafts while showing the live summary", async () => {
   expect(screen.getByLabelText("Cliente").hasAttribute("required")).toBe(false);
   fireEvent.submit(document.querySelector("form")!);
   await waitFor(() => expect(save).toHaveBeenCalledOnce());
+});
+it("stops asking after a successful save and protects subsequent edits again", async () => {
+  const save = vi.fn().mockResolvedValue(undefined);
+  const cancel = vi.fn();
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  render(
+    <QuoteForm
+      customers={[]}
+      products={[]}
+      onSaved={vi.fn()}
+      onCancel={cancel}
+      saveDraft={save}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Frete (R$)"), {
+    target: { value: "12" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar rascunho" }));
+  await waitFor(() =>
+    expect(
+      screen
+        .getByRole("button", { name: "Salvar rascunho" })
+        .hasAttribute("disabled"),
+    ).toBe(false),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+  expect(cancel).toHaveBeenCalledOnce();
+  expect(confirm).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText("Frete (R$)"), {
+    target: { value: "34" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+  expect(cancel).toHaveBeenCalledOnce();
+  expect(confirm).toHaveBeenCalledOnce();
+  confirm.mockRestore();
 });

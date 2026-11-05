@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getPublicAppearance } from "@/server/appearance";
 import "./design.css";
 import { ThemeController } from "@/components/theme-toggle";
+import { HistoryProtection } from "@/components/history-protection";
 import { themeBootstrap } from "@/lib/theme-preference";
 export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,6 +24,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body>
+        <HistoryProtection />
         <ThemeController />
         {children}
       </body>

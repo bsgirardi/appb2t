@@ -8,6 +8,20 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.19.1",
+    date: "2026-11-05",
+    title: "Proteção ampliada ao voltar e avançar",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "Orçamentos e vendas pedem confirmação ao usar Voltar ou Avançar com alterações não salvas, inclusive em navegadores sem suporte à confirmação antecipada. Ao continuar editando, os campos e a posição no histórico são preservados.",
+          "A proteção mantém os filtros da lista, funciona após recarregar o editor e permite navegar dentro da mesma tela sem descartar o rascunho.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.19.0",
     date: "2026-11-05",
     title: "Metas mensais e mais clareza em orçamentos e vendas",
