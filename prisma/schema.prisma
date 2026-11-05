@@ -216,6 +216,7 @@ enum Technology {
   RESIN
 }
 model User {
+  monthlyGoalRevisions MonthlyGoalRevision[]
   advertisingCreated AdvertisingDraft[] @relation("AdCreated")
   advertisingUpdated AdvertisingDraft[] @relation("AdUpdated")
   advertisingReviewed AdvertisingDraft[] @relation("AdReviewed")
@@ -238,6 +239,28 @@ model User {
   updatedAt DateTime @updatedAt
   sessions Session[]
   settings CalculationSettings[]
+}
+
+model MonthlyGoal {
+  month String @id
+  version Int
+  values Json
+  updatedAt DateTime @updatedAt
+  revisions MonthlyGoalRevision[]
+}
+
+model MonthlyGoalRevision {
+  id String @id @default(cuid())
+  month String
+  goal MonthlyGoal @relation(fields:[month],references:[month],onDelete:Restrict)
+  version Int
+  values Json
+  reason String
+  actorId String
+  actor User @relation(fields:[actorId],references:[id],onDelete:Restrict)
+  actorName String
+  createdAt DateTime @default(now())
+  @@unique([month,version])
 }
 model Session {
   tokenHash String @id

@@ -5,7 +5,11 @@ import { assertTestDatabase } from "./database-target";
 export const password = "Teste-interno-123!";
 export function setupDatabase(target?: "e3") {
   beforeEach(async () => {
-    assertTestDatabase(process.env.DATABASE_URL, target === "e3" || process.env.E3_TEST_DATABASE === "1");
+    assertTestDatabase(
+      process.env.DATABASE_URL,
+      target === "e3" || process.env.E3_TEST_DATABASE === "1",
+    );
+    await db.$executeRawUnsafe('TRUNCATE "MonthlyGoal" CASCADE');
     await db.$executeRawUnsafe(
       'TRUNCATE "Checkout", "CheckoutSession", "CheckoutQuota" CASCADE',
     );

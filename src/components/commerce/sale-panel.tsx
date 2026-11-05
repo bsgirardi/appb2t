@@ -1,4 +1,10 @@
 "use client";
+import {
+  activeCommerceFilters,
+  commerceStatusLabel,
+  CommerceStatus,
+  ListFeedback,
+} from "./list-feedback";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
@@ -80,12 +86,12 @@ export function SalePanel({
           onSaved={(s) => router.push(`/vendas/${s.id}`)}
         />
       )}
-      <FilterPanel
-        activeCount={
-          Object.values(filters).filter((v) => v && v !== "all").length
-        }
-      >
-        <AdminForm className="commerce-filters" onSubmit={filter}>
+      <FilterPanel activeCount={activeCommerceFilters(filters)}>
+        <AdminForm
+          key={JSON.stringify(filters)}
+          className="commerce-filters"
+          onSubmit={filter}
+        >
           <Label>
             Buscar
             <Input
@@ -112,7 +118,7 @@ export function SalePanel({
                     ? "Todos"
                     : s === "realizadas"
                       ? "Vendas efetivadas"
-                      : s}
+                      : commerceStatusLabel(s)}
                 </option>
               ))}
             </NativeSelect>
@@ -142,6 +148,15 @@ export function SalePanel({
           <Button variant="outline" size="sm" className="">
             Filtrar
           </Button>
+          {activeCommerceFilters(filters) > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push("/vendas")}
+            >
+              Limpar filtros
+            </Button>
+          )}
         </AdminForm>
       </FilterPanel>
       <Card asChild>
@@ -167,14 +182,24 @@ export function SalePanel({
                       customers.find((c) => c.id === s.document.customerId)
                         ?.name}
                   </TableCell>
-                  <TableCell>{s.status}</TableCell>
+                  <TableCell>
+                    <CommerceStatus status={s.status} />
+                  </TableCell>
                   <TableCell>R$ {s.totals.total}</TableCell>
                   <TableCell>R$ {s.receiptSummary.pending}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          {!initial.total && <p>Nenhuma venda encontrada.</p>}
+          {!initial.items.length && (
+            <ListFeedback
+              total={initial.total}
+              filtered={activeCommerceFilters(filters) > 0}
+              noun="vendas"
+              onFirst={() => router.push(url(1))}
+              onClear={() => router.push("/vendas")}
+            />
+          )}
         </div>
       </Card>
       <Pagination className="form-actions">
@@ -188,7 +213,8 @@ export function SalePanel({
           Anterior
         </Button>
         <span>
-          {initial.total} venda(s) · Página {initial.page}
+          {initial.total} venda(s) · Página {initial.page} de{" "}
+          {Math.max(1, Math.ceil(initial.total / initial.pageSize))}
         </span>
         <Button
           variant="outline"

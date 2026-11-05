@@ -1,4 +1,10 @@
 "use client";
+import {
+  activeCommerceFilters,
+  commerceStatusLabel,
+  CommerceStatus,
+  ListFeedback,
+} from "./list-feedback";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
@@ -70,12 +76,12 @@ export function QuotePanel({
           onSaved={(q) => router.push(`/orcamentos/${q.id}`)}
         />
       )}
-      <FilterPanel
-        activeCount={
-          Object.values(filters).filter((v) => v && v !== "all").length
-        }
-      >
-        <AdminForm className="commerce-filters" onSubmit={filter}>
+      <FilterPanel activeCount={activeCommerceFilters(filters)}>
+        <AdminForm
+          key={JSON.stringify(filters)}
+          className="commerce-filters"
+          onSubmit={filter}
+        >
           <Label>
             Buscar
             <Input
@@ -97,7 +103,7 @@ export function QuotePanel({
                 "CONVERTIDO",
               ].map((s) => (
                 <option key={s} value={s}>
-                  {s === "all" ? "Todos" : s}
+                  {s === "all" ? "Todos" : commerceStatusLabel(s)}
                 </option>
               ))}
             </NativeSelect>
@@ -113,6 +119,15 @@ export function QuotePanel({
           <Button variant="outline" size="sm" className="">
             Filtrar
           </Button>
+          {activeCommerceFilters(filters) > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.push("/orcamentos")}
+            >
+              Limpar filtros
+            </Button>
+          )}
         </AdminForm>
       </FilterPanel>
       <Card asChild>
@@ -138,13 +153,23 @@ export function QuotePanel({
                         ?.name ??
                       "Não informado"}
                   </TableCell>
-                  <TableCell>{q.status}</TableCell>
+                  <TableCell>
+                    <CommerceStatus status={q.status} />
+                  </TableCell>
                   <TableCell>R$ {q.totals?.total ?? "—"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          {!initial.total && <p>Nenhum orçamento encontrado.</p>}
+          {!initial.items.length && (
+            <ListFeedback
+              total={initial.total}
+              filtered={activeCommerceFilters(filters) > 0}
+              noun="orçamentos"
+              onFirst={() => router.push(url(1))}
+              onClear={() => router.push("/orcamentos")}
+            />
+          )}
         </div>
       </Card>
       <Pagination className="form-actions">
@@ -158,7 +183,8 @@ export function QuotePanel({
           Anterior
         </Button>
         <span>
-          {initial.total} orçamento(s) · Página {initial.page}
+          {initial.total} orçamento(s) · Página {initial.page} de{" "}
+          {Math.max(1, Math.ceil(initial.total / initial.pageSize))}
         </span>
         <Button
           variant="outline"

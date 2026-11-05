@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import { AppShell } from "@/components/shell/app-shell";
 import { ProductForm } from "@/components/products/product-form";
 import { QuoteForm } from "@/components/commerce/quote-form";
+import { QuotePanel } from "@/components/commerce/quote-panel";
+import { SalePanel } from "@/components/commerce/sale-panel";
 import { EntryForm } from "@/components/finance/entry-form";
 import { SettingsPanel } from "@/components/settings/settings-panel";
 import { CustomerPanel } from "@/components/customers/customer-panel";
@@ -16,6 +18,7 @@ import "@/app/design.css";
 function Preview() {
   const [view, setView] = useState("Produtos");
   const [width, setWidth] = useState("auto");
+  const [role, setRole] = useState<"ADMIN" | "OPERATOR">("ADMIN");
   return (
     <>
       <div
@@ -33,6 +36,8 @@ function Preview() {
           "Produtos",
           "Calculadora",
           "Orçamentos",
+          "Lista orçamentos",
+          "Vendas",
           "Financeiro",
           "Configurações",
           "Clientes",
@@ -46,6 +51,19 @@ function Preview() {
             {name}
           </Button>
         ))}
+        <label>
+          Perfil{" "}
+          <select
+            aria-label="Perfil da prévia"
+            value={role}
+            onChange={(event) =>
+              setRole(event.target.value as "ADMIN" | "OPERATOR")
+            }
+          >
+            <option value="ADMIN">Administrador</option>
+            <option value="OPERATOR">Operador</option>
+          </select>
+        </label>
         <label>
           Largura{" "}
           <select
@@ -78,7 +96,7 @@ function Preview() {
             id: "preview",
             name: "Equipe de teste",
             email: "preview@example.test",
-            role: "ADMIN",
+            role,
           }}
         >
           <div className="page-heading">
@@ -109,6 +127,22 @@ function Preview() {
               products={[]}
               onSaved={() => {}}
               onCancel={() => {}}
+            />
+          )}
+          {view === "Lista orçamentos" && (
+            <QuotePanel
+              initial={{ items: [], total: 0, page: 1, pageSize: 20 }}
+              customers={[]}
+              products={[]}
+              filters={{ search: "", status: "all" }}
+            />
+          )}
+          {view === "Vendas" && (
+            <SalePanel
+              initial={{ items: [], total: 0, page: 1, pageSize: 20 }}
+              customers={[]}
+              products={[]}
+              filters={{ search: "", status: "all" }}
             />
           )}
           {view === "Financeiro" && (
