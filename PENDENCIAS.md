@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 06/11/2026 — ajustes de espaçamento em revisão local
+
+Main 1.22.0 (`16a6466`) reconferida com #42/#43 integradas. Menu com rolagem independente, perfil acessível e espaçamentos corrigidos em campos e cartão de produto. Versão 1.22.1 preparada em isolamento, com inspeção visual sintética desktop/celular e temas, 47 testes de interface/regressão e 4 de versão aprovados; tipagem e lint aprovados. [Evidências e limites](docs/ux-admin-espacamento/ENTREGA.md). Sem PR, merge ou publicação. Registros abaixo mantêm o estado histórico de suas respectivas entregas.
+
 Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
 ## Estado atual — main 1.21.1; publicação separada
