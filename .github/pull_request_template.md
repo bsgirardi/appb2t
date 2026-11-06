@@ -13,3 +13,15 @@ Descreva o problema e o resultado para quem usa o sistema.
 ## Validação
 
 Informe as verificações executadas e eventuais limitações.
+
+## Entrega após integração em main
+
+Seguir [o roteiro de distribuição](../blob/main/docs/DISTRIBUICAO_IMAGENS.md#rotina-obrigatória-para-cada-integração-em-main). Preencher após o merge autorizado, sem novo incremento da versão desta PR:
+
+- SHA completo integrado:
+- Release oficial no repositório privado de distribuição:
+- Plataforma, digest base e SHA-256/tamanho dos assets conferidos:
+- Atualizador sincronizado, se alterado:
+- Estado da implantação operacional (separado da publicação da imagem):
+
+Antes do merge, esses campos podem permanecer pendentes. A entrega só está concluída quando a Release oficial estiver publicada e validada; a implantação em servidor exige autorização própria.

@@ -4,6 +4,45 @@ O código permanece em `bsgirardi/appb2t`. Imagens são construídas na máquina
 
 GitHub é necessário para buscar novas entregas. Sua indisponibilidade não interrompe a aplicação instalada. Imagens, pacotes e caches não devem entrar em commits Git. Nunca publicar `.env`, banco, dumps, credenciais ou configuração operacional resolvida.
 
+## Rotina obrigatória para cada integração em main
+
+Esta sequência é a política de entrega do projeto, inclusive para manutenção e documentação. Ela é executada na máquina local pelo responsável pela integração; não existe automação Actions/GHCR de publicação. As instruções em `AGENTS.md` e no modelo de PR fazem os próximos trabalhos seguirem este mesmo procedimento.
+
+1. Antes de integrar, atualizar a referência de main, conferir conflitos, versão/notas/rodapés e as verificações pertinentes. Aguardar as verificações da revisão exata que será integrada. Não contornar checks com falha. Havendo nova versão em outra PR, ajustar a candidata nesta mesma PR.
+2. Integrar a PR autorizada. Obter o **mergeCommit.oid**, não o antigo SHA da branch. Buscar origin/main e confirmar que o commit integrado pertence ao seu histórico.
+3. Em checkout limpo desse commit (ou fonte limpa extraída pelo gerador), executar o gate local e construir a entrega Linux adequada. A versão é a já integrada: não incrementá-la novamente, não reutilizar imagens da branch nem usar latest como identidade.
+4. Validar manifesto, tamanhos e checksums. Publicar draft com todos os assets, conferir sua integridade remota e só então publicar a Release oficial. Não sobrescrever uma entrega anterior. Reconstrução recebe novo BuildId.
+5. Se atualizador ou documentação mudaram, sincronizar os scripts revisados e o guia no repositório de distribuição. Isso não instala nada nos servidores.
+6. Conferir pela API a Release publicada (draft/prerelease falsos), origem/versão/plataforma e os três assets. Registrar URL/identificador, SHA fonte, digest base, tamanho e SHA-256 do pacote. Atualizar o resumo da PR e guardar os metadados locais em `.b2t/`, sem credenciais. Esse registro de execução não exige outra PR de versão.
+7. Informar separadamente: **código integrado**, **Release disponível**, **servidor atualizado ou não**. Não executar o atualizador operacional só porque houve merge. A aplicação segue na versão anterior até o operador realizar a implantação autorizada.
+
+Exemplo na máquina local, a partir de uma PR já aprovada para integração (substituir 44 pelo número correto):
+
+```powershell
+git fetch origin main
+gh pr checks 44
+gh pr ready 44 # somente se ainda estiver em rascunho
+$head = gh pr view 44 --json headRefOid --jq .headRefOid
+gh pr merge 44 --merge --match-head-commit $head
+if ($LASTEXITCODE) { throw 'Merge nao concluido; nao gerar uma entrega presumida.' }
+$commit = gh pr view 44 --json mergeCommit --jq .mergeCommit.oid
+git fetch origin main
+git merge-base --is-ancestor $commit origin/main
+if ($LASTEXITCODE) { throw 'Commit integrado nao confirmado em main.' }
+$buildId = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$out = Join-Path $PWD ".b2t/entregas/$buildId"
+pwsh -File scripts/distribution/build.ps1 -Commit $commit -BuildId $buildId -OutputDirectory $out
+if ($LASTEXITCODE) { throw 'Build falhou; entrega pendente.' }
+pwsh -File scripts/distribution/publish.ps1 -PackageDirectory $out -Repository bsgirardi/appb2t-distribuicao
+if ($LASTEXITCODE) { throw 'Publicacao falhou; revisar draft e assets.' }
+$manifest = Get-Content (Join-Path $out 'manifest.json') -Raw | ConvertFrom-Json
+gh release view $manifest.release --repo bsgirardi/appb2t-distribuicao
+```
+
+Use os scripts do commit revisado/integrado, não os de um checkout antigo. Confira cada resultado antes de seguir; `gh pr checks` com estado pendente/falha impede o merge. Nas instalações que usam squash/rebase, obter igualmente `mergeCommit.oid` efetivo retornado pelo GitHub. A primeira entrega e mudanças de ambiente exigem o ensaio isolado descrito neste guia.
+
+Falha depois do merge não desfaz o código integrado e não autoriza deploy incompleto: conservar a versão instalada, manter evidências e concluir/corrigir a distribuição. Não iniciar um novo incremento de versão apenas para repetir o build da mesma revisão.
+
 ## Preparação única na máquina local
 
 Requisitos: PowerShell 7, Git, Node compatível com `.nvmrc`, Docker Linux e GitHub CLI autenticado com escrita apenas onde necessário. A plataforma padrão é `linux/amd64`; conferir o servidor. Para ARM, construir e testar pacote separado. O Docker local precisa de recursos para build e espaço para arquivo descomprimido e comprimido; não aplicar o orçamento de 2 GB da produção à máquina de build.
