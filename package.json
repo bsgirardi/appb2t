@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.21.2",
+  "version": "1.22.0",
   "private": true,
   "scripts": {
     "test:goals": "vitest run --config vitest.goals.config.ts",

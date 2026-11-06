@@ -1,4 +1,6 @@
 "use client";
+import { useDocumentExit } from "@/components/commerce/use-document-exit";
+import { FormActions } from "@/components/admin/form-actions";
 import { TaskLayout } from "@/components/admin/task-layout";
 import { FormSection } from "@/components/admin/form-section";
 
@@ -150,6 +152,10 @@ export function ProductForm({
   const [gallery, setGallery] = useState<GalleryDraft[]>(
     () => product?.images.map((i) => ({ id: i.id, url: i.url })) ?? [],
   );
+  const [pendingPricing, setPendingPricing] = useState(false);
+  const exit = useDocumentExit(
+    JSON.stringify({ draft, gallery, pricingSnapshot, pendingPricing }),
+  );
   const pending = useRef(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const hasFieldErrors = (...prefixes: string[]) =>
@@ -224,7 +230,7 @@ export function ProductForm({
   }
   async function save(event: FormEvent) {
     event.preventDefault();
-    if (pending.current) return;
+    if (pending.current || pendingPricing) return;
     setError("");
     setInfo("");
     const parsed = productSchema.safeParse({
@@ -311,20 +317,20 @@ export function ProductForm({
     pending.current = true;
     setSaving(true);
     try {
-      onSaved(
-        await saveProductRequest(
-          product?.id,
-          {
-            ...parsed.data,
-            ...(product ? { expectedVersion: product.version } : {}),
-          },
-          Object.fromEntries(
-            gallery
-              .filter((i) => i.file && i.uploadKey)
-              .map((i) => [i.uploadKey!, i.file!]),
-          ),
+      const saved = await saveProductRequest(
+        product?.id,
+        {
+          ...parsed.data,
+          ...(product ? { expectedVersion: product.version } : {}),
+        },
+        Object.fromEntries(
+          gallery
+            .filter((i) => i.file && i.uploadKey)
+            .map((i) => [i.uploadKey!, i.file!]),
         ),
       );
+      exit.markSaved();
+      onSaved(saved);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -348,7 +354,9 @@ export function ProductForm({
           size="sm"
           type="button"
           className=""
-          onClick={onCancel}
+          onClick={() => {
+            if (exit.allowExit()) onCancel();
+          }}
           disabled={saving || refreshing}
         >
           <ArrowLeft size={16} /> Voltar aos produtos
@@ -809,6 +817,7 @@ export function ProductForm({
             >
               <ProductPricingEditor
                 snapshot={pricingSnapshot}
+                onPendingChange={setPendingPricing}
                 legacy={draft.calculation}
                 materialId={draft.materialId}
                 printerId={draft.printerId}
@@ -956,19 +965,25 @@ export function ProductForm({
           </div>
         </TaskLayout>
       </fieldset>
-      <div className="product-actions">
+      {pendingPricing && (
+        <Notice kind="info">
+          Aplique ou cancele a revisão da ficha de custo antes de salvar o
+          produto.
+        </Notice>
+      )}
+      <FormActions>
         <Button
           variant="default"
           size="sm"
           type="submit"
           className=""
-          disabled={saving || refreshing || !ready}
+          disabled={saving || refreshing || pendingPricing || !ready}
         >
           <Save size={17} />
           {saving ? "Salvando…" : "Salvar produto"}
         </Button>
         <span className="muted">O preço só será publicado ao salvar.</span>
-      </div>
+      </FormActions>
     </AdminForm>
   );
 }

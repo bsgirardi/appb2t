@@ -1,4 +1,9 @@
 "use client";
+import {
+  CatalogFilters,
+  CatalogEmpty,
+  useCatalogFilters,
+} from "@/components/admin/catalog-filters";
 import { Badge } from "@/components/ui/badge";
 
 import { Card } from "@/components/ui/card";
@@ -6,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, ArrowUpRight, Package } from "lucide-react";
+import { Plus, ArrowUpRight } from "lucide-react";
 import type { CalculatorData } from "@/domain/calculation/types";
 import type { ProductDTO } from "@/domain/products/types";
 import { formatBRL } from "@/domain/calculation/calculate";
@@ -35,6 +40,8 @@ export function ProductPanel({
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
+  const filters = useCatalogFilters();
+  const filtered = rows.filter(filters.matches);
   const pending = useRef(false);
   const [incomingSnapshot, setIncomingSnapshot] = useState(
     initialPricingSnapshot,
@@ -89,7 +96,6 @@ export function ProductPanel({
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">PORTFÓLIO DA EQUIPE</div>
           <h1>Produtos</h1>
           <p>
             Da sua calculadora para a vitrine. Gerencie cada peça e seu preço.
@@ -125,7 +131,11 @@ export function ProductPanel({
       ) : (
         <>
           {error && <Notice>{error}</Notice>}
-          {message && <Notice kind="success">{message}</Notice>}
+          {message && (
+            <div role="status">
+              <Notice kind="success">{message}</Notice>
+            </div>
+          )}
           <div className="product-toolbar">
             <span className="muted">
               {rows.filter((p) => p.active).length} ativos ·{" "}
@@ -139,7 +149,7 @@ export function ProductPanel({
                 disabled={busy}
                 onClick={reload}
               >
-                Atualizar lista
+                {busy ? "Atualizando…" : "Atualizar lista"}
               </Button>
               <Button
                 variant="default"
@@ -152,25 +162,26 @@ export function ProductPanel({
                   setMessage("");
                 }}
               >
-                <Plus size={17} />
+                <Plus data-icon="inline-start" aria-hidden="true" />
                 Novo produto
               </Button>
             </div>
           </div>
-          {!rows.length ? (
-            <Card asChild>
-              <div className="catalog-empty">
-                <Package size={32} />
-                <h2>Seu primeiro produto começa aqui.</h2>
-                <p>
-                  Cadastre uma foto, os detalhes e os custos de produção para
-                  publicar.
-                </p>
-              </div>
-            </Card>
+          <CatalogFilters
+            filters={filters}
+            count={filtered.length}
+            total={rows.length}
+            kind="products"
+          />
+          {!filtered.length ? (
+            <CatalogEmpty
+              kind="products"
+              filtered={rows.length > 0}
+              create={() => setEditing("new")}
+            />
           ) : (
             <div className="product-admin-list">
-              {rows.map((row) => (
+              {filtered.map((row) => (
                 <Card key={row.id} asChild>
                   <article className="product-admin-row">
                     <Image

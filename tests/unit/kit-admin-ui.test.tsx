@@ -78,6 +78,7 @@ it("requires_allowed_products_before_publishing", async () => {
 });
 
 it("reloads_the_current_kit_version_after_an_edit_conflict", async () => {
+  vi.spyOn(window, "confirm").mockReturnValue(true);
   const calls: unknown[] = [];
   vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
     if (init?.method === "PATCH") {

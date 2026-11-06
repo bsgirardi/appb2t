@@ -1,6 +1,6 @@
 # Catálogo e Kits — desenho do próximo recorte visual
 
-Estado: abordagem e recorte aprovados pelo usuário em 05/11/2026; desenho abaixo proposto para revisão antes da implementação. Base inspecionada: main 1.20.0 (`4524ca1`). Esta PR é documental.
+Estado: recorte e desenho aprovados pelo usuário em 05/11/2026. Implementação nesta branch conforme plano associado. Base inspecionada: main 1.20.0 (`4524ca1`). A PR #42 documental mantém o registro original da proposta.
 
 ## Objetivo
 
@@ -45,4 +45,4 @@ Escolher componentes instalados e tamanho das seções pela inspeção visual; d
 
 ## Próximo passo
 
-Revisar este desenho e preparar o plano de implementação após seu aceite. A aprovação do recorte não é registrada como aprovação presumida de cada detalhe acima.
+Executar o plano aprovado e conferir os critérios de aceite; registrar separadamente os limites de validação visual e qualquer nova autorização de merge/publicação.

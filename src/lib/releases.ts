@@ -8,6 +8,34 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.22.0",
+    date: "2026-11-06",
+    title: "Catálogo e Kits mais fáceis de consultar e editar",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Busque produtos e kits por nome, combine com o estado no catálogo e mantenha os filtros ao retornar da edição ou navegar pelo histórico.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Listas distinguem cadastros vazios de buscas sem resultado e permitem limpar filtros. Kits organizam identificação, composição e condições com resumo antes de salvar.",
+          "O salvamento do produto permanece acessível durante a rolagem. Atualizações da lista informam o resultado e preservam os registros quando ocorre uma falha.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Aplicar filtros preserva o foco do teclado; limpar retorna à busca para facilitar a próxima consulta.",
+          "Produtos e kits pedem confirmação antes de descartar alterações, incluindo fotos e composição. Falhas de gravação mantêm os campos preenchidos.",
+          "Alterações ainda não aplicadas na ficha de custo também são protegidas; aplique ou cancele a revisão antes de salvar o produto. O cadastro de kit bloqueia os campos enquanto grava para evitar alterações não enviadas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.21.2",
     date: "2026-11-06",
     title: "Histórico e acompanhamento das melhorias atualizados",

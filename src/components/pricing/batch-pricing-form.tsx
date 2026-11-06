@@ -1,4 +1,5 @@
 "use client";
+import { useLayoutEffect } from "react";
 import { usePricingDraft } from "./use-pricing-draft";
 import { FormSection } from "@/components/admin/form-section";
 
@@ -23,6 +24,7 @@ export function BatchPricingForm({
   onApply,
   applyLabel = "Aplicar estimativa",
   fixedQuantity,
+  onDraftChange,
 }: {
   catalog: PricingCatalogDTO;
   initialInput?: PricingV2Input;
@@ -30,6 +32,7 @@ export function BatchPricingForm({
   onApply: (request: PricingRequest) => Promise<void>;
   applyLabel?: string;
   fixedQuantity?: number;
+  onDraftChange?: (value: string) => void;
 }) {
   const {
     current,
@@ -60,6 +63,10 @@ export function BatchPricingForm({
     onApply,
     fixedQuantity,
   });
+  const fingerprint = JSON.stringify(draft);
+  useLayoutEffect(() => {
+    onDraftChange?.(fingerprint);
+  }, [fingerprint, onDraftChange]);
   return (
     <section className="space-y-5" aria-label="Cálculo por lote">
       <h2>Cálculo por lote</h2>
