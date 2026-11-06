@@ -11,3 +11,9 @@ dados/
 *.dump
 test-results/
 playwright-report/
+.b2t/
+deliveries/
+.dependency-install.log
+.build.log
+.lint.log
+.version-tests.log

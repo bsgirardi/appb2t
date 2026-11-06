@@ -28,5 +28,7 @@ skills-lock.json
 Dockerfile
 compose*.yaml
 scripts/atualizar-*.sh
+scripts/distribution
+deliveries
 tests/shell
 tests/docker

@@ -1,5 +1,7 @@
 # Deploy manual: construção, medição e recuperação
 
+> Novo fluxo sem compilação em produção: [Entregas com imagens prontas](DISTRIBUICAO_IMAGENS.md). O procedimento abaixo é o legado e ainda constrói no servidor. Não misturar os dois atualizadores na mesma instalação.
+
 O fluxo continua: desenvolver → integrar em main → executar manualmente atualizar-projeto.sh → atualizar-docker.sh no Debian. Sem Actions, registry ou pipeline externo no caminho do deploy. A configuração de CI já existente é independente: nenhum script desta entrega a consulta ou aguarda.
 
 ## Construção
