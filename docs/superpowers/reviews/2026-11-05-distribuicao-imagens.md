@@ -30,4 +30,14 @@ Auditou-se também produção com `npm audit --omit=dev`: inicialmente apontou Z
 - Não foi adotado blue-green nem prometida indisponibilidade zero. Atualizar por imagens prontas elimina compilação operacional, mas download/importação ainda usam disco e precisam de medição no servidor.
 - Não atualizar major do Node nem trocar Debian slim por Alpine nesta entrega. Atualizar base/pacotes por reconstrução controlada, sem atualizar containers vivos.
 
-Ensaio final de imagens reais e sincronização dos scripts de distribuição serão registrados antes da entrega. Nenhuma Release de aplicação foi publicada a partir de código não integrado em main.
+## Ensaio final real e distribuição
+
+- Imagens Linux amd64 de app/tools construídas a partir do código revisado `4a3d746ef37a688f5093729568e5569ac16c36e5`, com usuário node, versão 1.21.0 e revisão OCI conferidas. Builds concluíram com tipos habilitados. As tags de ensaio não substituíram latest nem a instalação operacional.
+- Pacote exportado por docker save, comprimido, validado pelo contrato e carregado por docker load: **285098031 bytes** comprimidos, abaixo de 2 GiB. Tags/IDs preservados. O arquivo de metadados manual do ensaio teve uma seleção escalar incorreta do digest base e foi rejeitado pelo validador; corrigido o metadado e repetida a validação antes da importação. O gerador oficial usa seleção explícita de array e passou em seus testes.
+- Instalação descartável exclusiva `b2t-dist-rehearsal`, PostgreSQL 17 sem porta externa e app apenas em 127.0.0.1:33121. Migrações aplicadas; app/banco saudáveis; login HTTP 200 com versão 1.21.0 e health HTTP 200. Nenhuma conta artificial criada na instalação operacional.
+- Dump desse banco descartável restaurado realmente em outra base descartável, em transação única: 33 migrações presentes após restauração. Isso não é homologação de dados de negócio existentes nem restauração de backup operacional.
+- Compose serializado para JSON e relido produziu o mesmo hash do container real. Isso confirma estabilidade desse modelo no ensaio, sem alegar execução completa do atualizador remoto autenticado.
+- Repositório privado criado, scripts de update/deploy/validador e guia sincronizados com referência de origem. Bootstrap do servidor continua manual, revisado e fixado em commit; não ocorreu instalação remota.
+- Containers operacionais locais originais conferidos por IDs exatos: app e ambos os PostgreSQL continuaram running/healthy. Ensaio usou rede, banco e porta separados.
+
+Nenhuma Release de aplicação foi publicada a partir de código não integrado em main. A primeira entrega oficial ainda depende de integrar a PR e executar o gerador no commit final; download autenticado de Release e homologação da instalação remota permanecem pendentes. Não houve merge nem publicação operacional nesta execução.

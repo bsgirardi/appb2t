@@ -1,6 +1,6 @@
 # Distribuição de imagens prontas Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Construir localmente, distribuir por Releases privadas e atualizar produção sem compilação remota.
 
@@ -33,10 +33,10 @@
 
 **Interfaces:** manifesto schemaVersion=1 com release/appVersion/sourceCommit/platform/baseReference, images.app/tools.{tag,imageId,sizeBytes}, files contendo nome/sha256/sizeBytes; release = app-v<VERSAO>-<COMMIT12>-<BUILDID>. Validador CLI recebe caminho do pacote. Build recebe -Commit, -OutputDirectory, -BuildId e -Platform.
 
-- [ ] Escrever testes Node para manifesto válido, chaves desconhecidas, caminhos, plataforma, hashes, tamanho >=2GiB, identidade de reconstrução e ausência de segredos.
-- [ ] Rodar node --test tests/docker/distribution.test.mjs; observar falha pela funcionalidade ausente.
-- [ ] Implementar validador/gerador e build a partir de git archive de commit de origin/main, conferindo clean source, versão e checks locais. Base por digest, caches mantidos, imagens exclusivas e save comprimido. Validar tamanho, checksums e configuração somente de execução.
-- [ ] Repetir testes até aprovação e verificar sintaxe PowerShell.
+- [x] Escrever testes Node para manifesto válido, chaves desconhecidas, caminhos, plataforma, hashes, tamanho >=2GiB, identidade de reconstrução e ausência de segredos.
+- [x] Rodar node --test tests/docker/distribution.test.mjs; observar falha pela funcionalidade ausente.
+- [x] Implementar validador/gerador e build a partir de git archive de commit de origin/main, conferindo clean source, versão e checks locais. Base por digest, caches mantidos, imagens exclusivas e save comprimido. Validar tamanho, checksums e configuração somente de execução.
+- [x] Repetir testes até aprovação e verificar sintaxe PowerShell.
 
 ### Task 2: Publicação privada e bootstrap
 
@@ -44,9 +44,9 @@
 
 **Interfaces:** publish recebe -PackageDirectory e -Repository; bootstrap recebe -Repository (padrão proposto bsgirardi/appb2t-distribuicao) e exige privacidade. Publicação cria draft, sobe assets completos e confere tamanhos/digests antes de publicar. Não substituir Release existente.
 
-- [ ] Adicionar testes de rejeição de destino público, draft incompleto e release existente, com CLI simulada sem rede.
-- [ ] Observar RED, implementar scripts com argumentos estruturados e sem tokens nos argumentos, repetir GREEN.
-- [ ] Documentar autenticação de escrita local e leitura remota restrita, instalação inicial sem executar script baixado automaticamente e limites por asset.
+- [x] Adicionar testes de rejeição de destino público, draft incompleto e release existente, com CLI simulada sem rede.
+- [x] Observar RED, implementar scripts com argumentos estruturados e sem tokens nos argumentos, repetir GREEN.
+- [x] Documentar autenticação de escrita local e leitura remota restrita, instalação inicial sem executar script baixado automaticamente e limites por asset.
 
 ### Task 3: Download e implantação sem Git/build
 
@@ -54,18 +54,18 @@
 
 **Interfaces:** update.sh --repository OWNER/REPO --release TAG --installation DIR --token-file FILE. Diretório exige .env e compose.yaml da instalação; trava fora de .git, staging privado e registro em .b2t. Não executar código do pacote. Download por API em HTTPS, credencial em arquivo privado curl config; validação antes de docker load. Usar projeto/diretório/ambiente originais.
 
-- [ ] Escrever teste Bash com comandos externos simulados cobrindo fluxo, repetição, rede/401, arquivo ausente, checksum/tamanho inválido, manifesto/plataforma/disco, concorrência, load, alteração de mounts, migração e saúde; verificar ausência de stop em preflight e ausência de build/pull sempre.
-- [ ] Observar RED; implementar JSON estrito, arquivos fixos, espaço conservador, conferência de IDs/labels, Compose sem build e com pull_policy never, preservação de mounts/rede/bind e backups.
-- [ ] GREEN: testes shell em Linux isolado e testes Node, bash -n. Confirmar recuperação por container ID e registros privados com duração real.
+- [x] Escrever teste Bash com comandos externos simulados cobrindo fluxo, repetição, rede/401, arquivo ausente, checksum/tamanho inválido, manifesto/plataforma/disco, concorrência, load, alteração de mounts, migração e saúde; verificar ausência de stop em preflight e ausência de build/pull sempre.
+- [x] Observar RED; implementar JSON estrito, arquivos fixos, espaço conservador, conferência de IDs/labels, Compose sem build e com pull_policy never, preservação de mounts/rede/bind e backups.
+- [x] GREEN: testes shell em Linux isolado e testes Node, bash -n. Confirmar recuperação por container ID e registros privados com duração real.
 
 ### Task 4: Ensaio, versão e revisão
 
 **Files:** package.json; package-lock.json; src/lib/releases.ts; docs/DEPLOY_MANUAL.md; INSTALACAO_SERVIDOR.md; docs/superpowers/reviews/2026-11-05-distribuicao-imagens.md.
 
-- [ ] Conferir versão atual de main e definir MINOR seguinte, sincronizar manifests/notas e confirmar APP_VERSION nos rodapés.
-- [ ] Rodar testes focados, shell legado, lint/tipos e build com ambiente sintético. Ensaiar docker save/load com imagem pequena e, se recursos locais permitirem, pacote real em instalação descartável sem portas/volumes operacionais.
-- [ ] Revisar branch por agente independente, resolver problemas relevantes com regressões RED/GREEN e registrar limitações reais.
-- [ ] Entregar alterações e instruções sem afirmar publicação remota. Criação privada do repositório está autorizada pela aprovação do desenho; nenhuma credencial de produção será criada por suposição.
+- [x] Conferir versão atual de main e definir MINOR seguinte, sincronizar manifests/notas e confirmar APP_VERSION nos rodapés.
+- [x] Rodar testes focados, shell legado, lint/tipos e build com ambiente sintético. Ensaiar docker save/load com imagem pequena e, se recursos locais permitirem, pacote real em instalação descartável sem portas/volumes operacionais.
+- [x] Revisar branch por agente independente, resolver problemas relevantes com regressões RED/GREEN e registrar limitações reais.
+- [x] Entregar alterações e instruções sem afirmar publicação remota. Criação privada do repositório está autorizada pela aprovação do desenho; nenhuma credencial de produção será criada por suposição.
 
 ## Execution ledger
 
@@ -78,3 +78,5 @@
 - Final: corrigidos os três achados do revisor com regressões RED→GREEN (profile, dollar e contexto Docker). Gate Docker real: tipos/lint e 865 unitários aprovados. Shell novo: 18 cenários aprovados.
 - Ruling: download privado redirecionado, hashes em implantação real e sinais sob backup real não foram homologados em operação — exigir ensaio isolado e restauração antes da primeira troca; custo: testes simulados não substituem essa homologação.
 - Ruling: atualizar Zod para 4.6.7 nesta mesma PR de publicação segura — auditoria de produção caiu de um achado high para zero; custo: patch exige regressões amplas, cobertas pelos 865 testes unitários e tipos/lint em Linux.
+- Tasks 1–4 implementadas e verificadas. Ensaio real de imagens/285098031 bytes save-load, migrações, restauração descartável (33 registros), login/saúde e hash Compose concluído. Repositório privado criado e sincronizado. Detalhes e limites em docs/superpowers/reviews/2026-11-05-distribuicao-imagens.md.
+- Final: download privado real e backup operacional não ensaiados, deliberadamente fora da preparação local. Custo/condição: primeira entrega oficial somente do commit integrado e primeira instalação remota condicionada à homologação isolada do ambiente alvo. Nenhuma Release de aplicação publicada nem servidor remoto alterado.

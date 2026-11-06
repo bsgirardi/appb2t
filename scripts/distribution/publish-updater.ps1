@@ -13,8 +13,9 @@ try {
     [void](New-Item -ItemType Directory -Path $dest -Force)
     foreach ($file in @('update.sh', 'deploy.sh', 'validate-manifest.jq')) { Copy-Item -LiteralPath "$PSScriptRoot/$file" -Destination $dest }
     Copy-Item -LiteralPath "$sourceRepo/docs/DISTRIBUICAO_IMAGENS.md" -Destination "$syncTemp/README.md"
+    Copy-Item -LiteralPath "$sourceRepo/.gitattributes" -Destination "$syncTemp/.gitattributes"
     Set-Content -LiteralPath "$syncTemp/SOURCE_COMMIT" -Value $sourceCommit -Encoding utf8NoBOM
-    Invoke-Checked git @('-C', $syncTemp, 'add', 'scripts', 'README.md', 'SOURCE_COMMIT')
+    Invoke-Checked git @('-C', $syncTemp, 'add', 'scripts', 'README.md', 'SOURCE_COMMIT', '.gitattributes')
     & git -C $syncTemp diff --cached --quiet
     if ($LASTEXITCODE -eq 0) { Write-Host 'Atualizador ja sincronizado.'; return }
     if ($LASTEXITCODE -ne 1) { throw 'Falha ao conferir alteracoes.' }
