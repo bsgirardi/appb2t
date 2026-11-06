@@ -2,7 +2,7 @@
 
 ## 06/11/2026 — PR da calculadora autorizada
 
-Usuário autorizou preparar e criar PR. Versão 1.23.0 MINOR única sobre main 1.22.0 (`16a6466`), com manifestos e notas portuguesas sincronizados. Revalidação de preparação aprovada: 897 testes, tipagem, lint, build e quatro testes de versão/rodapés; URL será registrada ao criar a PR. Sem autorização de merge, Release ou publicação operacional. O registro de implementação abaixo preserva o estado anterior à preparação da PR.
+Usuário autorizou preparar e criar PR. Versão 1.23.0 MINOR única sobre main 1.22.0 (`16a6466`), com manifestos e notas portuguesas sincronizados. Revalidação de preparação aprovada: 897 testes, tipagem, lint, build e quatro testes de versão/rodapés; [PR #47](https://github.com/bsgirardi/appb2t/pull/47) criada para revisão; CI será acompanhado pelo GitHub. Sem autorização de merge, Release ou publicação operacional. O registro de implementação abaixo preserva o estado anterior à preparação da PR.
 
 
 ## 06/11/2026 — calculadora unificada em revisão local
