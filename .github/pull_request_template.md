@@ -16,7 +16,7 @@ Informe as verificações executadas e eventuais limitações.
 
 ## Entrega após integração em main
 
-Seguir [o roteiro de distribuição](../blob/main/docs/DISTRIBUICAO_IMAGENS.md#rotina-obrigatória-para-cada-integração-em-main). Preencher após o merge autorizado, sem novo incremento da versão desta PR:
+Seguir [o roteiro de distribuição](https://github.com/bsgirardi/appb2t/blob/main/docs/DISTRIBUICAO_IMAGENS.md#rotina-obrigatória-para-cada-integração-em-main). Preencher após o merge autorizado, sem novo incremento da versão desta PR:
 
 - SHA completo integrado:
 - Release oficial no repositório privado de distribuição:

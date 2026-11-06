@@ -21,7 +21,12 @@ Exemplo na máquina local, a partir de uma PR já aprovada para integração (su
 ```powershell
 git fetch origin main
 gh pr checks 44
-gh pr ready 44 # somente se ainda estiver em rascunho
+if ($LASTEXITCODE) { throw 'Checks pendentes ou com falha; nao integrar.' }
+$draft = gh pr view 44 --json isDraft --jq .isDraft
+if ($draft -eq 'true') {
+  gh pr ready 44
+  if ($LASTEXITCODE) { throw 'Nao foi possivel retirar o rascunho.' }
+}
 $head = gh pr view 44 --json headRefOid --jq .headRefOid
 gh pr merge 44 --merge --match-head-commit $head
 if ($LASTEXITCODE) { throw 'Merge nao concluido; nao gerar uma entrega presumida.' }
