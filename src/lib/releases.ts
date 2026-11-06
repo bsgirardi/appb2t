@@ -36,6 +36,20 @@ export const releases: Release[] = [
     ],
   },
   {
+    version: "1.22.1",
+    date: "2026-11-06",
+    title: "Mais equilíbrio no menu e nos formulários",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "O menu lateral rola separadamente no computador, mantendo o perfil e a saída acessíveis mesmo com vários grupos abertos.",
+          "Campos, orientações, ações e seções do cadastro de produto têm espaçamentos consistentes, preservando a leitura no celular e nos dois temas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.22.0",
     date: "2026-11-06",
     title: "Catálogo e Kits mais fáceis de consultar e editar",

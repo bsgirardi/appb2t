@@ -10,6 +10,10 @@ Usuário autorizou preparar e criar PR. Versão 1.23.0 MINOR única sobre main 1
 Base main reconferida em 1.22.0 / `16a6466`, com #42/#43 integradas; referências anteriores abaixo são históricas. Experiência principal com composição original, recursos por lote existentes e revisão de produto com referências atuais e antes/depois; preço final e memórias preservados. Comparadores E1.1/E1.2 reutilizados. Implementação na worktree `codex/calculadora-unificada`, com 897 testes unitários, tipagem, lint e build aprovados; conferência visual sintética desktop/celular e temas. Sem PR, merge, publicação ou banco operacional. Versão base 1.22.0 mantida; incremento único reservado à futura PR. [Entrega, evidências e limites](calculadora-unificada/ENTREGA.md). Consumo segue por peça até decisão específica sobre entrada total; tempo principal do lote em horas/minutos. PDV presencial é frente separada; tributação brasileira por regime/operação segue direção futura, sem regras fiscais inferidas. A revisão de espaçamentos local de outro chat permanece separada.
 
 
+## 06/11/2026 — ajustes de espaçamento em revisão local
+
+Main 1.22.0 (`16a6466`) reconferida com #42/#43 integradas. Menu com rolagem independente, perfil acessível e espaçamentos corrigidos em campos e cartão de produto. Versão 1.22.1 preparada em isolamento, com inspeção visual sintética desktop/celular e temas, 47 testes de interface/regressão e 4 de versão aprovados; tipagem e lint aprovados. [Evidências e limites](ux-admin-espacamento/ENTREGA.md). Sem PR, merge ou publicação. Registros abaixo mantêm o estado histórico de suas respectivas entregas.
+
 Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
 ## Fila atual após as entregas de 05/11/2026

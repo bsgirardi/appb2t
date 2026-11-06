@@ -96,6 +96,22 @@
     flex-direction: column;
     gap: 4px;
   }
+  .admin-ui .product-main-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .admin-ui .product-main-card > [data-slot="button"] {
+    align-self: flex-start;
+  }
+  .admin-ui .product-main-card > .admin-form-note {
+    margin: 0;
+  }
+  .admin-ui .field:not(label) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
   .admin-ui .admin-navigation [data-slot="accordion-trigger"] {
     font-family: inherit;
   }
