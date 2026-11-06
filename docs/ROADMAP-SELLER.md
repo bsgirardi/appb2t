@@ -1,6 +1,6 @@
 # B2T — evolução de preço, produção e vendas
 
-Atualizado em 05/11/2026. Main de referência: 1.20.0 / 4524ca1.
+Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
 ## Fila atual após as entregas de 05/11/2026
 
@@ -13,13 +13,13 @@ Atualizado em 05/11/2026. Main de referência: 1.20.0 / 4524ca1.
 | Pendente | Publicar a versão integrada no destino escolhido | Backup/restauração, migrações por destino, saúde e versão; merge não comprova publicação |
 | Em validação | Aceite humano dos fluxos reais | Pode acontecer durante o uso; registrar problemas sem operações fictícias na instalação publicada |
 | Pendente | Backup externo automático e restauração periódica | Escolher destino, retenção e responsável |
-| Em detalhamento | Recorte visual aprovado: Catálogo e Kits | Proposta de continuidade: localizar produtos/kits, compreender publicação/disponibilidade e editar sem perda de campos; sem redesenhar a loja pública ou mudar regras |
+| Em validação | Recorte visual aprovado: Catálogo e Kits (PR #43, sem merge) | Implementação: localizar produtos/kits, compreender publicação/disponibilidade e editar sem perda de campos; sem redesenhar a loja pública ou mudar regras |
 | Pendente | E2.4 e alertas internos de propostas | Recorrência, amostra e cobertura a definir; sem mensagens externas ou revisão automática da ficha |
 
-Esta fila substitui as recomendações datadas abaixo que ainda apontam metas salvas, prazo comercial e UX comercial/produtiva como ausências integrais. As PRs #38–#41 foram conferidas no GitHub e as notas da main consultadas; não foi repetida a execução dos testes nesta revisão documental. Publicações: local 1.18.0 (registro operacional local, fora desta PR) e tentativa remota cancelada (registro operacional local, fora desta PR). PR documental preparada em 1.20.1; sem merge ou deploy.
+Esta fila substitui as recomendações datadas abaixo que ainda apontam metas salvas, prazo comercial e UX comercial/produtiva como ausências integrais. As PRs #38–#41 foram conferidas no GitHub e as notas da main consultadas; não foi repetida a execução dos testes nesta revisão documental. Publicações: local 1.18.0 (registro operacional local, fora desta PR) e tentativa remota cancelada (registro operacional local, fora desta PR). PR documental reconciliada em 1.21.2 sobre main 1.21.1; sem merge ou deploy.
 
 
-[Desenho proposto de Catálogo e Kits](superpowers/specs/2026-11-05-catalogo-kits-ux-design.md), com abordagem, restrições e critérios de aceite; aguardando revisão dos detalhes antes da implementação.
+[Desenho proposto de Catálogo e Kits](superpowers/specs/2026-11-05-catalogo-kits-ux-design.md), com abordagem, restrições e critérios de aceite; aprovado e implementado na PR #43, ainda em validação e sem merge.
 
 ## Registros históricos anteriores à consolidação
 

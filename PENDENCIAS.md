@@ -1,21 +1,21 @@
 # appb2t — estado e pendências
 
-Atualizado em 05/11/2026. Main de referência: 1.20.0 / 4524ca1.
+Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
-## Estado atual — main 1.20.0; publicação separada
+## Estado atual — main 1.21.1; publicação separada
 
-PRs confirmadas integradas: [#38](https://github.com/bsgirardi/appb2t/pull/38), previsão comercial e bloqueios (1.18.0); [#39](https://github.com/bsgirardi/appb2t/pull/39), metas mensais persistidas e UX de Orçamentos/Vendas (1.19.0); [#40](https://github.com/bsgirardi/appb2t/pull/40), proteção de Voltar/Avançar comercial (1.19.1); [#41](https://github.com/bsgirardi/appb2t/pull/41), clareza e proteção de rascunhos em Produção/Estoque (1.20.0). Main remota consultada: `4524ca145bb751413270dce0be33803842dfc667`. Não reiniciar essas entregas com base nas pendências históricas abaixo.
+PRs confirmadas integradas: [#38](https://github.com/bsgirardi/appb2t/pull/38), previsão comercial e bloqueios (1.18.0); [#39](https://github.com/bsgirardi/appb2t/pull/39), metas mensais persistidas e UX de Orçamentos/Vendas (1.19.0); [#40](https://github.com/bsgirardi/appb2t/pull/40), proteção de Voltar/Avançar comercial (1.19.1); [#41](https://github.com/bsgirardi/appb2t/pull/41), clareza e proteção de rascunhos em Produção/Estoque (1.20.0). Main remota consultada: `4786a8b` (PRs #44/#45: distribuição de imagens e conferência de assets, 1.21.0/1.21.1). Não reiniciar essas entregas com base nas pendências históricas abaixo.
 
 Metas agora são salvas por competência, com revisões; o histórico preserva as metas, sem congelar o realizado. Estimativas continuam distinguindo dados incompletos e não garantem demanda/capacidade. Previsão comercial e bloqueios acionáveis já existem; preservar suas premissas e limites. Produção/Estoque já distinguem saldos e apresentam resumos de efeitos, filtros e proteção de campos.
 
 Última publicação local comprovada nos registros consultados: **1.18.0**, conforme o registro operacional local consultado (fora desta PR). A tentativa remota foi cancelada; último estado registrado: aplicação **1.13.1**, código preparado em 1.18.0, sem migração operacional aplicada, conforme o registro operacional remoto consultado (fora desta PR). Essas evidências não são uma nova consulta aos ambientes em execução. Publicar as entregas posteriores e aplicar a migração de metas continua pendente de procedimento autorizado, com conferência das migrações de cada destino.
 
-Pendências atuais: publicação; aceite da equipe durante operações legítimas; backup externo automático com restauração; recorrência de desvios E2.4 e alertas internos de propostas. Próximo recorte visual aprovado pelo usuário em 05/11/2026: **Catálogo e Kits**, reaproveitando os padrões administrativos, sem alterar vitrine pública, precificação ou regras comerciais. Desenho preparado para revisão; implementação ainda não iniciada. A homologação humana pode acompanhar o uso normal, sem bloquear a evolução autorizada.
+Pendências atuais: publicação; aceite da equipe durante operações legítimas; backup externo automático com restauração; recorrência de desvios E2.4 e alertas internos de propostas. Próximo recorte visual aprovado pelo usuário em 05/11/2026: **Catálogo e Kits**, reaproveitando os padrões administrativos, sem alterar vitrine pública, precificação ou regras comerciais. Desenho aprovado; implementação na PR #43, em validação, ainda sem integração. A homologação humana pode acompanhar o uso normal, sem bloquear a evolução autorizada.
 
-PR documental preparada em worktree isolada sobre main 1.20.0, versão 1.20.1. A pasta operacional antiga e suas alterações locais foram preservadas. Sem merge, migração ou deploy.
+PR documental reconciliada em worktree isolada sobre main 1.21.1, versão 1.21.2. A pasta operacional antiga e suas alterações locais foram preservadas. Sem merge, migração ou deploy.
 
 
-[Desenho proposto de Catálogo e Kits](docs/superpowers/specs/2026-11-05-catalogo-kits-ux-design.md), com abordagem, restrições e critérios de aceite; aguardando revisão dos detalhes antes da implementação.
+[Desenho proposto de Catálogo e Kits](docs/superpowers/specs/2026-11-05-catalogo-kits-ux-design.md), com abordagem, restrições e critérios de aceite; aprovado e implementado na PR #43, ainda em validação e sem merge.
 
 ## Registros históricos anteriores à consolidação
 
