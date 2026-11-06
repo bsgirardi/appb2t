@@ -1,0 +1,77 @@
+name: appb2t
+services:
+  db:
+    pull_policy: never
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: b2t
+      POSTGRES_USER: b2t
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
+    volumes:
+      - ${POSTGRES_DATA_PATH:-postgres_data}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U b2t -d b2t"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [appb2t_network]
+  migrate:
+    pull_policy: never
+    image: appb2t-tools:${APP_IMAGE_TAG:?Informe a entrega}
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [appb2t_network]
+  app:
+    pull_policy: never
+    image: appb2t-app:${APP_IMAGE_TAG:?Informe a entrega}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      ART_ACCESS_KEY: ${ART_ACCESS_KEY:-}
+      CHECKOUT_ACCESS_KEY: ${CHECKOUT_ACCESS_KEY:-}
+      NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks: [appb2t_network]
+  admin:
+    pull_policy: never
+    image: appb2t-tools:${APP_IMAGE_TAG:?Informe a entrega}
+    profiles: [tools]
+    environment:
+      DATABASE_URL: postgresql://b2t:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/b2t
+    command: ["npm", "run", "admin:create"]
+    stdin_open: true
+    tty: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [appb2t_network]
+volumes:
+  postgres_data:
+networks:
+  appb2t_network:
+    name: ${APP_NETWORK_NAME:-appb2t_network}
+    driver: bridge

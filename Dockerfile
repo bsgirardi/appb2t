@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM node:22-bookworm-slim AS base
+ARG NODE_BASE=node:22-bookworm-slim
+FROM ${NODE_BASE} AS base
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 RUN chown node:node /app
@@ -30,6 +31,13 @@ RUN mkdir -p .next/cache
 ARG NEXT_BUILD_MAX_OLD_SPACE_SIZE=1536
 RUN --mount=type=cache,id=appb2t-next-node22-next16,target=/app/.next/cache,uid=1000,gid=1000,sharing=locked \
     NODE_OPTIONS="--max-old-space-size=${NEXT_BUILD_MAX_OLD_SPACE_SIZE}" ./node_modules/.bin/next build
+
+# Explicit local release gate; never runs against the operational database.
+FROM deps AS verify
+COPY --chown=node:node . .
+ENV DATABASE_URL=postgresql://unused:unused@127.0.0.1:55432/b2t_test
+ENV NODE_OPTIONS=--max-old-space-size=1536
+RUN ./node_modules/.bin/next typegen && npm run typecheck && npm run lint && npm run test:unit
 
 FROM base AS tools-deps
 USER node
