@@ -43,6 +43,7 @@ fetch() {
   [[ "$(stat -c %s "$output.part")" -le "$limit" ]]
   mv -- "$output.part" "$output"
 }
+download_started=$SECONDS
 echo 'etapa=download status=inicio'
 fetch "https://api.github.com/repos/$repository" "$stage/repository.json" 65536
 jq -e --arg repo "$repository" '.private == true and (.full_name | ascii_downcase) == ($repo | ascii_downcase)' "$stage/repository.json" >/dev/null || fail 'Repositório privado não confirmado.'
@@ -76,9 +77,12 @@ for name in images.tar.gz compose.production.yaml; do
   [[ "$(sha256sum "$stage/$name" | cut -d' ' -f1)" == "$sha" ]] || fail 'Checksum não corresponde ao manifesto.'
 done
 cleanup
-echo 'etapa=download status=sucesso'
+echo "etapa=download status=sucesso duracao_s=$((SECONDS-download_started))"
 compose=(docker compose --project-directory "$installation" --env-file "$installation/.env" -f "$installation/compose.yaml")
-"${compose[@]}" config --format json > "$stage/installed.json"
+"${compose[@]}" --profile '*' config --format json > "$stage/installed.json"
+# Serialized Compose escapes literal dollars for re-parsing. Only the comparison
+# copy is unescaped; compose.json keeps Docker's original escaped representation.
+jq 'walk(if type == "string" then gsub("\\$\\$"; "$" ) else . end)' "$stage/installed.json" > "$stage/comparison.json"
 # Keep the installed environment, mounts, database, ports and project identity.
 # The delivered Compose is a reviewed bootstrap reference, never an override of data paths.
 jq -e '.name and .services.app and .services.db and .services.migrate and .services.admin' "$stage/installed.json" >/dev/null || fail 'Compose instalado incompatível.'
@@ -88,7 +92,7 @@ docker inspect "$app_id" "$db_id" > "$stage/containers.json"
 project=$(jq -r .name "$stage/installed.json")
 jq -e --arg project "$project" 'length==2 and all(.[]; .State.Running == true and .Config.Labels["com.docker.compose.project"] == $project)' "$stage/containers.json" >/dev/null || fail 'Identidade da instalação incompatível.'
 # Fail on runtime drift instead of silently changing live settings from a stale Compose.
-jq -e --slurpfile config "$stage/installed.json" '
+jq -e --slurpfile config "$stage/comparison.json" '
   .[0] as $live | $config[0] as $c |
   all(($c.services.app.environment // {} | to_entries)[]; . as $e | ($live.Config.Env | index($e.key + "=" + ($e.value|tostring))) != null) and
   (($live.Mounts // [] | length) == ($c.services.app.volumes // [] | length)) and
@@ -103,9 +107,9 @@ docker image inspect "$old_image" >/dev/null || fail 'Imagem anterior indisponí
 # Resolve Docker's named-volume source before comparing it with the live database mount.
 db_target=$(jq -r '.services.db.volumes | if length==1 then .[0].target else error("Mounts do banco exigem revisão") end' "$stage/installed.json")
 db_type=$(jq -r '.services.db.volumes[0].type' "$stage/installed.json")
-db_source=$(jq -r '.services.db.volumes[0].source' "$stage/installed.json")
+db_source=$(jq -r '.services.db.volumes[0].source' "$stage/comparison.json")
 if [[ "$db_type" == volume ]]; then
-  db_source=$(jq -er --arg source "$db_source" '.volumes[$source].name' "$stage/installed.json")
+  db_source=$(jq -er --arg source "$db_source" '.volumes[$source].name' "$stage/comparison.json")
   jq -e --arg target "$db_target" --arg source "$db_source" '.[1].Mounts | any(.Destination==$target and .Type=="volume" and .Name==$source)' "$stage/containers.json" >/dev/null || fail 'Volume do banco diverge da instalação.'
 elif [[ "$db_type" == bind ]]; then
   jq -e --arg target "$db_target" --arg source "$db_source" '.[1].Mounts | any(.Destination==$target and .Type=="bind" and .Source==$source)' "$stage/containers.json" >/dev/null || fail 'Bind do banco diverge da instalação.'
@@ -113,6 +117,7 @@ else fail 'Tipo de armazenamento do banco não suportado.'; fi
 app_tag=$(jq -r .images.app.tag "$stage/manifest.json"); tools_tag=$(jq -r .images.tools.tag "$stage/manifest.json")
 jq --arg app "$app_tag" --arg tools "$tools_tag" '.services |= with_entries(.value |= (del(.build) | .pull_policy="never")) | .services.app.image=$app | .services.migrate.image=$tools | .services.admin.image=$tools' "$stage/installed.json" > "$stage/compose.json"
 docker compose --project-directory "$installation" --env-file "$installation/.env" -f "$stage/compose.json" config --quiet
+import_started=$SECONDS
 echo 'etapa=importacao status=inicio'
 docker load --input "$stage/images.tar.gz"
 for name in app tools; do
@@ -123,5 +128,5 @@ for name in app tools; do
 done
 actual_version=$(docker run --rm --network none --pull never --entrypoint node "$app_tag" -p 'require("./package.json").version')
 [[ "$actual_version" == "$(jq -r .appVersion "$stage/manifest.json")" ]] || fail 'Versão interna da imagem incorreta.'
-echo 'etapa=importacao status=sucesso'
+echo "etapa=importacao status=sucesso duracao_s=$((SECONDS-import_started))"
 bash "$script_dir/deploy.sh" "$installation" "$stage"

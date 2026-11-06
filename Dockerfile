@@ -36,6 +36,7 @@ RUN --mount=type=cache,id=appb2t-next-node22-next16,target=/app/.next/cache,uid=
 FROM deps AS verify
 COPY --chown=node:node . .
 ENV DATABASE_URL=postgresql://unused:unused@127.0.0.1:55432/b2t_test
+ENV NODE_OPTIONS=--max-old-space-size=1536
 RUN ./node_modules/.bin/next typegen && npm run typecheck && npm run lint && npm run test:unit
 
 FROM base AS tools-deps

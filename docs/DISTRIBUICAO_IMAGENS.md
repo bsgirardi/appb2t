@@ -95,7 +95,9 @@ A mesma entrega roda em VM Linux com arquitetura compatível. Migrar banco e arq
 ```powershell
 npm run test:docker
 pwsh -File tests/docker/distribution-publish.ps1
+pwsh -File tests/docker/distribution-build.ps1
 docker build -t appb2t-distribution-test -f tests/docker/Dockerfile.distribution .
+docker build -f tests/docker/Dockerfile.context .
 ```
 
 Executar `bash tests/shell/distribution.sh` em Linux com jq e utilitários GNU, ou copiar scripts/testes para container de ferramentas sem montar o socket Docker. O teste simula comandos Docker e GitHub, não acessa produção. O teste real de `save/load` é adicional e precisa usar tags exclusivas, sem alterar aliases operacionais.

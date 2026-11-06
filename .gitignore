@@ -17,3 +17,8 @@ deliveries/
 .build.log
 .lint.log
 .version-tests.log
+.docker-build.log
+.context-check.log
+.audit.json
+.verify-build.log
+.tools-build.log

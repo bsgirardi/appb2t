@@ -23,6 +23,7 @@ export const releases: Release[] = [
         items: [
           "O novo atualizador confere a entrega antes da manutenção e preserva o banco, os arquivos e a configuração da instalação.",
           "A preparação fora da produção evita a disputa de recursos da compilação com o atendimento do sistema.",
+          "Atualização de segurança reforça a proteção contra consumo excessivo de memória na validação de dados.",
         ],
       },
     ],

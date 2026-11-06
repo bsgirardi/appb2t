@@ -17,7 +17,10 @@ docs/superpowers
 AGENTS.md
 CLAUDE.md
 .agents
-.github
+.github/*
+!.github/workflows
+.github/workflows/*
+!.github/workflows/ci.yml
 docs
 *.md
 skills-lock.json
@@ -30,5 +33,7 @@ compose*.yaml
 scripts/atualizar-*.sh
 scripts/distribution
 deliveries
+.b2t
+.audit.json
 tests/shell
 tests/docker

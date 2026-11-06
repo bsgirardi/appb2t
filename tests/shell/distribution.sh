@@ -53,14 +53,16 @@ case "$1" in
     esac
   else
     name=appb2t_postgres_data; [[ "$CASE" != volume ]] || name=another_volume
-    jq -n --arg name "$name" '[{Image:"sha256:old",State:{Running:true},Config:{Env:[],Labels:{"com.docker.compose.project":"appb2t"}},Mounts:[],HostConfig:{PortBindings:{}},NetworkSettings:{Networks:{}}},{State:{Running:true},Config:{Labels:{"com.docker.compose.project":"appb2t"}},Mounts:[{Type:"volume",Name:$name,Destination:"/var/lib/postgresql/data"}]}]'
+    env='[]'; [[ "$CASE" != dollar ]] || env='["ART_ACCESS_KEY=review$synthetic"]'
+    jq -n --arg name "$name" --argjson env "$env" '[{Image:"sha256:old",State:{Running:true},Config:{Env:$env,Labels:{"com.docker.compose.project":"appb2t"}},Mounts:[],HostConfig:{PortBindings:{}},NetworkSettings:{Networks:{}}},{State:{Running:true},Config:{Labels:{"com.docker.compose.project":"appb2t"}},Mounts:[{Type:"volume",Name:$name,Destination:"/var/lib/postgresql/data"}]}]'
   fi ;;
  compose)
+  all_profiles=0; [[ " $* " != *" --profile * "* ]] || all_profiles=1
   shift
   while [[ "${1:-}" == --* || "${1:-}" == -f ]]; do shift 2; done
   case "$*" in
     'config --format json')
-      jq -n '{name:"appb2t",services:{app:{image:"appb2t-app:latest"},migrate:{image:"appb2t-tools:latest"},admin:{image:"appb2t-tools:latest"},db:{image:"postgres:17-alpine",volumes:[{type:"volume",source:"postgres_data",target:"/var/lib/postgresql/data"}]}},volumes:{postgres_data:{name:"appb2t_postgres_data"}}}' ;;
+      jq -n --arg case "$CASE" --argjson profiles "$all_profiles" '{name:"appb2t",services:{app:{image:"appb2t-app:latest"},migrate:{image:"appb2t-tools:latest"},admin:{image:"appb2t-tools:latest"},db:{image:"postgres:17-alpine",volumes:[{type:"volume",source:"postgres_data",target:"/var/lib/postgresql/data"}]}},volumes:{postgres_data:{name:"appb2t_postgres_data"}}} | if $case=="profile" and $profiles==0 then del(.services.admin) else . end | if $case=="dollar" then .services.app.environment={ART_ACCESS_KEY:"review$$synthetic"} else . end' ;;
     'config --hash app') echo 'app config123' ;;
     'ps -q app') echo app ;;
     'ps -q db') echo db ;;
@@ -79,7 +81,7 @@ cat > "$work/bin/df" <<'MOCK'
 if [[ "$CASE" == disk ]]; then printf 'Filesystem 1B-blocks Used Available Use%% Mounted\nmock 100 99 1 99%% /\n'; else /bin/df "$@"; fi
 MOCK
 chmod +x "$work/bin/df"
-for CASE in success noop network unauthorized corrupt platform manifest missing disk volume load stop backup migration health wronghealth; do
+for CASE in success profile dollar noop network unauthorized corrupt platform manifest missing disk volume load stop backup migration health wronghealth; do
   export CASE
   : > "$LOG"; rm -f "$work/published"
   printf images > "$work/assets/images.tar.gz"
@@ -98,9 +100,9 @@ for CASE in success noop network unauthorized corrupt platform manifest missing 
   jq -n --arg tag "$release" --argjson assets "$assets" '{tag_name:$tag,draft:false,prerelease:false,assets:$assets}' > "$work/assets/release.json"
   if [[ "$CASE" == missing ]]; then jq '.assets |= .[0:2]' "$work/assets/release.json" > "$work/r"; mv "$work/r" "$work/assets/release.json"; fi
   if bash "$repo/scripts/distribution/update.sh" --repository owner/delivery --release "$release" --installation "$work/install" --token-file "$work/token" > "$work/output" 2>&1; then
-    [[ "$CASE" == success || "$CASE" == noop ]] || { cat "$work/output"; exit 1; }
+    [[ "$CASE" =~ ^(success|profile|dollar|noop)$ ]] || { cat "$work/output"; exit 1; }
   else
-    [[ "$CASE" != success && "$CASE" != noop ]] || { cat "$work/output"; exit 1; }
+    [[ ! "$CASE" =~ ^(success|profile|dollar|noop)$ ]] || { cat "$work/output"; exit 1; }
   fi
   if grep -Eq '(^| )(build|pull)( |$)' "$LOG"; then cat "$LOG"; exit 1; fi
   if grep -q github_test_sentinel "$work/output" "$LOG"; then echo 'Token exposto'; exit 1; fi
