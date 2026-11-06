@@ -30,10 +30,16 @@
 
 Implementação e revisão concluídas: 880 unitários, 34 focados, tipos/lint/build aprovados; sem schema, permissões ou operação alterados. Revisão corrigiu rascunho de custo e corridas assíncronas. A tarefa de apresentação tem implementação concluída, mas sua conferência visual solicitada no item permanece aberta:
 
-- [ ] Validar no navegador celular/desktop, teclado/foco e temas com fixtures. Automação retornou inventário vazio; prévia reproduzível em tests/catalog-admin-preview.html, porta 4321. Não tratar jsdom como aceite visual.
+- [x] Validar no navegador celular/desktop, teclado/foco e temas com fixtures. Conferência retomada em 06/11, detalhada ao final e no relatório. A confirmação nativa tem o limite manual registrado; não tratar jsdom como aceite visual.
 
 Versão 1.21.0 preparada, sem merge ou publicação. PR #42 documental separada; reconciliar notas e versões antes da integração.
 
 ## Continuidade em 06/11/2026
 
 Reconciliação com main 1.21.1 e PR #42 documental 1.21.2; funcionalidade preparada em 1.22.0, sem novo incremento por commit de resolução. Revisão independente identificou perda de foco nos filtros; duas regressões RED→GREEN e sincronização sem remontar o formulário. Evidências atuais e limite de confirmação nativa em docs/ux-catalogo-kits/ENTREGA.md. A tarefa visual permanece parcialmente aberta; sem autorização de merge ou publicação.
+
+## Validação retomada em 06/11/2026
+
+- [x] Conferência visual retomada: desktop/celular, claro/escuro, editores/resumos e apresentação OPERATOR; foco dos filtros confirmado no navegador. Sem novas alterações de código.
+- Confirmação nativa cancelada manualmente pelo usuário; preservação após recusa permanece validada pelos testes de componentes, sem reinspeção automática na aba anterior.
+- CI do código 6963ce2: nove checks aprovados. PR pronta para revisão; merge e distribuição dependem de autorização e reconferência dos checks do SHA atual. Ver relatório de entrega para evidências e limites.

@@ -45,9 +45,13 @@ Os 15 testes novos cobrem filtros combinados e acentos, limpar/histórico/contex
 
 ## Validação visual e limite
 
-Navegador integrado disponível em 06/11. Conferidas lista de Produtos em desktop 1280 px (escuro), celular 390 px (claro e escuro), busca sem acentos com resultado/URL e passagem de Tab da busca ao estado. Celular sem transbordamento horizontal (largura 390, scrollWidth 375). Editor de Produto abriu com dados, seções e ação de salvar na árvore acessível. Lista de Kits renderizada em 390 px no tema escuro, com estado, composição, faixas e edição legíveis.
+Conferência retomada após o usuário cancelar manualmente a confirmação nativa. Produtos e Kits renderizados em desktop 1280 px e celular 390 px, nos temas claro e escuro. Conferidos editor de Produtos com galeria aberta, custos e resumo financeiro; editor de Kits com composição, faixas abertas, resumo antes de salvar e ações durante a rolagem. Sem transbordamento horizontal nos editores móveis (largura 390, scrollWidth 375).
 
-Ao testar descarte do rascunho do produto, o navegador travou na confirmação nativa: clique expirou e a API de diálogo não conseguiu recuperar a caixa. Isso também impediu continuar as interações do editor de Kits. Não afirmar concluídas a recusa de descarte em navegador real, a conferência de todos os editores/resumos nos dois temas ou a validação visual de OPERATOR. Essas proteções estão cobertas por testes de componentes, que não substituem a conferência no navegador. A PR permanece em rascunho por esse limite; não se trata de aceite autenticado.
+Apresentação de OPERATOR conferida nas listas e editores de Produtos e Kits. No Kit, Tab do nome alcança descrição e Tab do percentual alcança Remover desconto com foco visível. Aplicar busca por Enter mantém foco na busca; limpar também retorna à busca, confirmando no navegador a correção testada. Retorno sem mudanças fecha o editor normalmente.
+
+Limite específico: a confirmação nativa de descarte foi cancelada manualmente pelo usuário, mas a preservação dos campos após essa recusa não foi reinspecionada na aba anterior, encerrada ao final do turno. Não repetir a alegação como teste automático no navegador. A proteção de campos, galeria, composição e ficha de custo não aplicada está coberta pelos testes de componentes. A prévia não executa API, sessão autenticada nem banco; não é homologação operacional. Não foram encontrados novos problemas visuais na rodada retomada. PR pronta para revisão, mantendo este limite explícito.
+
+CI do código reconciliado 6963ce2: nove checks aprovados, incluindo as suítes de integração remotas existentes. O registro documental posterior exige acompanhar o novo SHA antes do merge; não reapresentar a CI anterior como resultado do SHA seguinte.
 
 Prévia reproduzível sem backend/sessão/banco: PowerShell, definir PORT=4327 e executar node tests/catalog-admin-preview-server.mjs; abrir /tests/catalog-admin-preview.html, ?view=kits e &role=OPERATOR. O breadcrumb da prévia usa o adapter fixo /produtos; não representa o roteamento Next autenticado.
 
