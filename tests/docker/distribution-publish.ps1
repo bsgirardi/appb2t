@@ -7,13 +7,16 @@ function gh {
     $global:b2tTestCalls.Add(($args -join ' '))
     $global:LASTEXITCODE = 0
     if ($args[0] -eq 'repo') { return (@{ isPrivate = ($global:b2tTestCase -ne 'public'); nameWithOwner = 'owner/delivery' } | ConvertTo-Json) }
-    if ($args[0] -eq 'api' -and $args[1] -like '*/releases/tags/*') {
+    # GitHub does not resolve an unpublished draft through releases/tags/:tag.
+    if ($args[0] -eq 'api' -and $args[1] -like '*/releases/tags/*') { $global:LASTEXITCODE = 1; return }
+    if ($args[0] -eq 'api' -and $args[1] -like '*/releases/123') {
         $assets = @('manifest.json', 'images.tar.gz', 'compose.production.yaml') | ForEach-Object {
             @{ name = $_; size = (Get-Item -LiteralPath "$global:b2tTestPackage/$_").Length; digest = 'sha256:' + (Get-FileHash "$global:b2tTestPackage/$_").Hash.ToLowerInvariant() }
         }
         if ($global:b2tTestCase -eq 'incomplete') { $assets = @($assets)[0..1] }
         return (@{ assets = @($assets) } | ConvertTo-Json -Depth 5)
     }
+    if ($args[0] -eq 'api' -and ($args[-1] -match 'select\(.tag_name')) { return '123' }
     if ($args[0] -eq 'api') { if ($global:b2tTestCase -eq 'existing') { return 'app-v1.0.0-aaaaaaaaaaaa-test' }; return }
 }
 function node { $global:LASTEXITCODE = 0 }
