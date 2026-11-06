@@ -1,6 +1,6 @@
 # PDV presencial — entrega local
 
-06/11/2026. Branch `codex/pdv-presencial`, base main `16a6466b4020d1008025506387634026e29d7baa`, versão **1.22.0** preservada. Área isolada gerenciada: `C:/Users/Administrador/.codex/worktrees/pdv-presencial/appb2t`. Código e documentos preparados sem commit, push ou PR. Sem merge, Release, publicação ou migração operacional.
+06/11/2026. [PR #48](https://github.com/bsgirardi/appb2t/pull/48) criada em rascunho, versão **1.23.0**, branch `codex/pdv-presencial`, base main `16a6466b4020d1008025506387634026e29d7baa` / 1.22.0. Implementação `dd45e0e`. Área isolada gerenciada: `C:/Users/Administrador/.codex/worktrees/pdv-presencial/appb2t`. Branch enviada; CI iniciado, ainda pendente. Sem merge, Release, publicação ou migração operacional.
 
 ## O que está implementado
 
@@ -56,7 +56,7 @@ Logs locais completos em `test-results/pdv/` (ignorados pelo Git). Nenhuma crede
 
 ## Continuidade
 
-O pedido autorizou desenho e implementação, não integração ou publicação. Versão local base permanece 1.22.0, sem simular versão publicada. Antes de futura PR, reconsultar main e reconciliar com PRs #46/#47, fazer incremento MINOR único, sincronizar package.json/lock, notas portuguesas e rodapés/Atualizações conforme AGENTS.md. Não reutilizar 1.23.0 sem verificar a integração da calculadora. Nenhuma tag foi criada.
+O pedido posterior “faça pr” autorizou commit, push e PR. Main permanece 1.22.0; esta PR e a PR #47 da calculadora propõem 1.23.0 em paralelo. Antes de merge autorizado, reconsultar main e reconciliar versão/notas e arquivos compartilhados com #46/#47 conforme a ordem de integração. A versão foi incrementada uma vez nesta PR e não deverá ser incrementada novamente só para finalizar sua entrega. Nenhuma tag foi criada; merge, Release e implantação continuam não autorizados.
 
 Não copiar esta árvore sobre `X:/codex/appb2t`: a pasta operacional antiga e seus documentos/skills/alterações de outros chats permaneceram intactos. Revisão e eventual integração devem partir desta branch isolada, preservando os acompanhamentos paralelos.
 
@@ -67,3 +67,7 @@ Desenho: [contratos e recorte](../superpowers/specs/2026-11-06-pdv-presencial-de
 Usuário autorizou commit/push/criação de PR com “faça pr”. Main reconferida em 16a6466 / 1.22.0. Versão 1.23.0 MINOR preparada em package.json e nas duas entradas raiz do lock; nova entrada em português no início de releases.ts, preservando notas anteriores. PR em rascunho devido ao ensaio HTTP autenticado integral pendente. Calculadora #47 ainda aberta também propõe 1.23.0; não confundir PR com integração nem reservar versão como se já estivesse em main. Reconciliar versão/notas e alterações compartilhadas de navegação com #46/#47 antes de merge. As informações anteriores descrevem a entrega local anterior ao pedido de PR. Sem autorização de merge, Release ou implantação. Revalidações e URL registradas após conclusão.
 
 Revalidação da preparação da PR: 890 testes gerais em 215 arquivos (256,60 s), quatro testes específicos de versão/rodapés/Atualizações, tipagem, lint e build webpack aprovados em 1.23.0. Tipagem passou após o build, eliminando a disputa inicial por tipos gerados em .next; nenhum código de produto foi alterado por esse motivo. Capturas permanecem como evidência da implementação anterior ao incremento, e a versão atual nos rodapés foi conferida pelos testes. git diff --check aprovado. Main continua 16a6466 / 1.22.0.
+
+## PR criada
+
+[PR #48](https://github.com/bsgirardi/appb2t/pull/48) confirmada aberta/em rascunho, versão 1.23.0, implementação dd45e0e. Checks do GitHub em execução/fila na criação; não afirmados aprovados. Descrição remota conferida, com os resultados e o limite do HTTP autenticado. PR vinculada a este chat. Registro documental posterior sem novo incremento de versão. Sem merge, Release, publicação ou migração operacional.

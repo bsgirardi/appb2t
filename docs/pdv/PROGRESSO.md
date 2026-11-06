@@ -10,3 +10,5 @@ Task 3: complete — componentes shadcn do projeto, 375 px/desktop, foco por Tab
 Task 4: complete no recorte local — tipos, lint, build, 889 unitários gerais, 11 focados finais, registros e evidências. Build repetido após ajuste adicional.
 Ruling: versão 1.22.0 preservada porque não se está preparando PR; reconciliar e incrementar uma vez para futura PR. Nenhum estado publicado foi presumido.
 Ruling: não executar ensaio HTTP autenticado integral após bloqueio de revisão automática ao iniciar servidor Next isolado — limite registrado sem contorno. Prévia visual usa adaptador sintético, integrações usam PostgreSQL exclusivo real.
+
+Preparação de PR autorizada: incremento único para 1.23.0 sobre main 1.22.0, 890 unitários e quatro testes de versão, tipos/lint/build aprovados. Implementação dd45e0e enviada. PR #48 em rascunho: https://github.com/bsgirardi/appb2t/pull/48 ; CI iniciado/pendente. Sem merge/Release/deploy. Ajustar versão/notas conforme integração das PRs #46/#47 antes de merge.
