@@ -1,5 +1,15 @@
 # appb2t — estado e pendências
 
+## 06/11/2026 — PR da calculadora autorizada
+
+Usuário autorizou preparar e criar PR. Versão 1.23.0 MINOR única sobre main 1.22.0 (`16a6466`), com manifestos e notas portuguesas sincronizados. Revalidação de preparação aprovada: 897 testes, tipagem, lint, build e quatro testes de versão/rodapés; URL será registrada ao criar a PR. Sem autorização de merge, Release ou publicação operacional. O registro de implementação abaixo preserva o estado anterior à preparação da PR.
+
+
+## 06/11/2026 — calculadora unificada em revisão local
+
+Base main reconferida em 1.22.0 / `16a6466`, com #42/#43 integradas; referências anteriores abaixo são históricas. Experiência principal com composição original, recursos por lote existentes e revisão de produto com referências atuais e antes/depois; preço final e memórias preservados. Comparadores E1.1/E1.2 reutilizados. Implementação na worktree `codex/calculadora-unificada`, com 897 testes unitários, tipagem, lint e build aprovados; conferência visual sintética desktop/celular e temas. Sem PR, merge, publicação ou banco operacional. Versão base 1.22.0 mantida; incremento único reservado à futura PR. [Entrega, evidências e limites](docs/calculadora-unificada/ENTREGA.md). Consumo segue por peça até decisão específica sobre entrada total; tempo principal do lote em horas/minutos. PDV presencial é frente separada; tributação brasileira por regime/operação segue direção futura, sem regras fiscais inferidas. A revisão de espaçamentos local de outro chat permanece separada.
+
+
 Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
 ## Estado atual — main 1.21.1; publicação separada

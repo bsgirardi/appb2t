@@ -28,7 +28,7 @@ const server = await createServer({
       },
     },
   ],
-  server: { host: "127.0.0.1", port: 4174, strictPort: true },
+  server: { host: "127.0.0.1", port: Number(process.env.B2T_PREVIEW_PORT ?? 4174), strictPort: true },
 });
 await server.listen();
 server.printUrls();

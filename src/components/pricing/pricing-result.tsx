@@ -38,7 +38,12 @@ export function PricingResult({
         {(
           [
             ["Custo completo por peça", result.unitFullCost],
-            ["Preço sugerido por peça", result.offeredUnitPrice],
+            [
+              input.mode === "INFORMED"
+                ? "Preço informado por peça"
+                : "Preço sugerido por peça",
+              result.offeredUnitPrice,
+            ],
             ["Receita do lote", result.offeredRevenue],
             ["Contribuição estimada", result.contribution],
             ["Resultado após depreciação", result.afterDepreciation],

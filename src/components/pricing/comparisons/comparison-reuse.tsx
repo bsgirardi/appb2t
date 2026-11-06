@@ -7,7 +7,7 @@ import type {
   PricingV2Input,
 } from "@/domain/pricing/types";
 import { reviewComparisonOffer } from "@/domain/pricing/comparisons/reuse";
-import { BatchPricingForm } from "../batch-pricing-form";
+import { GuidedPricingForm } from "../guided-pricing-form";
 import { createEstimate } from "@/lib/pricing-client";
 import { Button } from "@/components/ui/button";
 export function ComparisonReuse({
@@ -64,7 +64,8 @@ export function ComparisonReuse({
           Conferi os parâmetros: abrir rascunho
         </Button>
       ) : (
-        <BatchPricingForm
+        <GuidedPricingForm
+          embedded
           catalog={catalog}
           initialRequest={reviewed.request}
           onApply={apply}

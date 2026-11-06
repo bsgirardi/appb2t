@@ -1,5 +1,8 @@
 "use client";
 
+import { useId, useLayoutEffect, useState } from "react";
+import { Layers3, Droplets, Check } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { formatBRL } from "@/domain/calculation/calculate";
 import { usePricingDraft, type PricingDraftOptions } from "./use-pricing-draft";
 import { PrintingDurationFields } from "./printing-duration-fields";
@@ -24,7 +27,17 @@ import type { PricingRequest } from "@/domain/pricing/types";
 
 const emptyRef = { id: "", version: 1 };
 
-export function GuidedPricingForm(props: PricingDraftOptions) {
+export function GuidedPricingForm(
+  props: PricingDraftOptions & {
+    onDraftChange?: (value: string) => void;
+    embedded?: boolean;
+    applicationHint?: string;
+    previousCost?: string;
+    previousPrice?: string;
+  },
+) {
+  const fieldId = useId();
+  const [comparisonDirty, setComparisonDirty] = useState(false);
   const {
     current,
     review,
@@ -48,7 +61,24 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
     apply,
     refresh,
     accept,
-  } = usePricingDraft(props);
+  } = usePricingDraft({
+    ...props,
+    onApply: async (request) => {
+      if (
+        comparisonDirty &&
+        !window.confirm(
+          "A comparação ainda não foi salva. Aplicar a ficha sem salvar essa comparação?",
+        )
+      )
+        return;
+      await props.onApply(request);
+    },
+  });
+  const { onDraftChange } = props;
+  const fingerprint = JSON.stringify([draft, comparisonDirty]);
+  useLayoutEffect(() => {
+    onDraftChange?.(fingerprint);
+  }, [fingerprint, onDraftChange]);
   const advancedErrors =
     touched &&
     Object.keys(fieldErrors).some(
@@ -59,15 +89,24 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
     );
   return (
     <section
-      aria-label="Calculadora V3"
+      aria-label="Calculadora de impressão"
       className="flex min-w-0 flex-col gap-5"
     >
-      <header>
-        <h1>Calculadora V3</h1>
-        <p className="text-muted-foreground">
-          Do fatiador ao preço de venda. Informe a peça e acompanhe seus custos.
-        </p>
-      </header>
+      {props.embedded ? (
+        <h3>Dados da impressão e formação do preço</h3>
+      ) : (
+        <header className="page-heading">
+          <div>
+            <div className="eyebrow">PRECIFICAÇÃO INTELIGENTE</div>
+            <h1>
+              Calculadora de impressão <span>3D</span>
+            </h1>
+            <p className="text-muted-foreground">
+              Entenda seus custos. Encontre o preço certo para cada peça.
+            </p>
+          </div>
+        </header>
+      )}
       {!current.settings && (
         <Notice kind="info">
           Os parâmetros de custo ainda não foram configurados. Solicite a
@@ -75,14 +114,13 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
         </Notice>
       )}
       {error && <Notice>{error}</Notice>}
-      <fieldset
-        disabled={busy}
-        className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
-      >
+      <fieldset disabled={busy} className="calculator-grid min-w-0">
         <div className="flex min-w-0 flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>1. Sua impressão</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <span className="section-number">01</span>Dados da impressão
+              </CardTitle>
               <CardDescription>
                 Escolha as referências e copie os dados do fatiador. Os campos
                 marcados são obrigatórios.
@@ -90,15 +128,18 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <FieldGroup className="grid gap-4 sm:grid-cols-2">
-                  <div className="field" data-slot="field">
-                    <Label htmlFor="v3-technology">Tecnologia</Label>
-                    <NativeSelect
-                      id="v3-technology"
+                <FieldGroup>
+                  <FieldGroup>
+                    <Label>Tecnologia de impressão</Label>
+                    <ToggleGroup
+                      type="single"
                       value={draft.technology}
-                      onChange={(e) =>
+                      aria-label="Tecnologia de impressão"
+                      className="technology-switch w-full flex-wrap"
+                      onValueChange={(value) => {
+                        if (!value) return;
                         patch({
-                          technology: e.target.value as "FDM" | "RESIN",
+                          technology: value as "FDM" | "RESIN",
                           materials: [
                             {
                               ref: emptyRef,
@@ -107,13 +148,24 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                             },
                           ],
                           printerRef: emptyRef,
-                        })
-                      }
+                        });
+                      }}
                     >
-                      <option value="FDM">Filamento · FDM</option>
-                      <option value="RESIN">Resina · SLA / DLP</option>
-                    </NativeSelect>
-                  </div>
+                      <ToggleGroupItem value="FDM" aria-label="Filamento FDM">
+                        <Layers3 data-icon="inline-start" />
+                        Filamento <small>FDM</small>
+                        {draft.technology === "FDM" && <Check />}
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        value="RESIN"
+                        aria-label="Resina SLA DLP"
+                      >
+                        <Droplets data-icon="inline-start" />
+                        Resina <small>SLA / DLP</small>
+                        {draft.technology === "RESIN" && <Check />}
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </FieldGroup>
                   <Field
                     {...fieldProps("quantity")}
                     required
@@ -142,11 +194,11 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                         !!fieldErrors[`materials.${i}.ref`] || undefined
                       }
                     >
-                      <Label htmlFor={`v3-material-${i}`}>
+                      <Label htmlFor={`${fieldId}-material-${i}`}>
                         Material {i + 1}
                       </Label>
                       <NativeSelect
-                        id={`v3-material-${i}`}
+                        id={`${fieldId}-material-${i}`}
                         required
                         {...selectProps(`materials.${i}.ref`)}
                         value={material.ref.id}
@@ -213,6 +265,10 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                     )}
                   </FieldGroup>
                 ))}
+                <p className="text-sm text-muted-foreground">
+                  O consumo é por peça; a quantidade multiplica o material. O
+                  tempo abaixo é do lote completo.
+                </p>
                 <Button
                   type="button"
                   variant="outline"
@@ -237,9 +293,9 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   data-slot="field"
                   data-invalid={!!fieldErrors.printerRef || undefined}
                 >
-                  <Label htmlFor="v3-printer">Impressora</Label>
+                  <Label htmlFor={`${fieldId}-printer`}>Impressora</Label>
                   <NativeSelect
-                    id="v3-printer"
+                    id={`${fieldId}-printer`}
                     required
                     {...selectProps("printerRef")}
                     value={draft.printerRef.id}
@@ -279,7 +335,9 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>2. Sua venda</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <span className="section-number">02</span>Formação do preço
+              </CardTitle>
               <CardDescription>
                 O canal inclui suas taxas. Escolha como deseja formar o preço.
               </CardDescription>
@@ -291,9 +349,9 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   data-slot="field"
                   data-invalid={!!fieldErrors.channelRef || undefined}
                 >
-                  <Label htmlFor="v3-channel">Canal de venda</Label>
+                  <Label htmlFor={`${fieldId}-channel`}>Canal de venda</Label>
                   <NativeSelect
-                    id="v3-channel"
+                    id={`${fieldId}-channel`}
                     required
                     {...selectProps("channelRef")}
                     value={draft.channelRef.id}
@@ -318,9 +376,9 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   {hint("channelRef")}
                 </div>
                 <div className="field" data-slot="field">
-                  <Label htmlFor="v3-mode">Modalidade de preço</Label>
+                  <Label htmlFor={`${fieldId}-mode`}>Modalidade de preço</Label>
                   <NativeSelect
-                    id="v3-mode"
+                    id={`${fieldId}-mode`}
                     value={draft.mode}
                     onChange={(e) =>
                       patch({ mode: e.target.value as PricingRequest["mode"] })
@@ -369,6 +427,23 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
           </Card>
           <Card>
             <CardContent>
+              {(draft.extras.length > 0 ||
+                [
+                  draft.setupMinutes,
+                  draft.finishingMinutesPerUnit,
+                  draft.machineMinutesPerUnit,
+                  ...draft.materials.map((m) => m.fixedWaste),
+                ].some(
+                  (value) =>
+                    value.trim() !== "" && !/^0+([.,]0+)?$/.test(value),
+                )) && (
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Ajustes em uso: {draft.extras.length} complemento(s);
+                  preparação {draft.setupMinutes} min/lote, acabamento{" "}
+                  {draft.finishingMinutesPerUnit} min/peça. Perdas fixas e tempo
+                  adicional disponíveis abaixo.
+                </p>
+              )}
               <FilterPanel title="Ajustes avançados" hasErrors={advancedErrors}>
                 <FieldGroup>
                   <p className="text-sm text-muted-foreground">
@@ -416,11 +491,11 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   {draft.extras.map((extra, i) => (
                     <FieldGroup key={i}>
                       <div className="field" data-slot="field">
-                        <Label htmlFor={`v3-extra-${i}`}>
+                        <Label htmlFor={`${fieldId}-extra-${i}`}>
                           Complemento {i + 1}
                         </Label>
                         <NativeSelect
-                          id={`v3-extra-${i}`}
+                          id={`${fieldId}-extra-${i}`}
                           {...selectProps(`extras.${i}.ref`)}
                           value={extra.ref.id}
                           onChange={(e) => {
@@ -469,11 +544,11 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                         }
                       />
                       <div className="field" data-slot="field">
-                        <Label htmlFor={`v3-basis-${i}`}>
+                        <Label htmlFor={`${fieldId}-basis-${i}`}>
                           Aplicação {i + 1}
                         </Label>
                         <NativeSelect
-                          id={`v3-basis-${i}`}
+                          id={`${fieldId}-basis-${i}`}
                           value={extra.basis}
                           onChange={(e) =>
                             patch({
@@ -552,23 +627,45 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
           </Card>
         </div>
         <aside
-          className="min-w-0 self-start xl:sticky xl:top-5"
-          aria-label="Resultado da Calculadora V3"
+          className="result-column min-w-0 self-start"
+          aria-label="Preço e custos"
         >
+          <section className="price-card" aria-label="Resumo do preço">
+            <div className="price-top">
+              <span>
+                {draft.mode === "INFORMED"
+                  ? "PREÇO INFORMADO POR PEÇA"
+                  : "PREÇO SUGERIDO POR PEÇA"}
+              </span>
+            </div>
+            <div className="sale-price" aria-live="polite">
+              {result ? formatBRL(result.offeredUnitPrice) : "R$ —"}
+            </div>
+            <p>
+              {result
+                ? `Para ${draft.quantity} peça(s). Taxas do canal incluídas.`
+                : "Preencha os dados para encontrar seu preço."}
+            </p>
+            <div className="price-stats">
+              <div>
+                <span>Custo completo por peça</span>
+                <strong>{result ? formatBRL(result.unitFullCost) : "—"}</strong>
+              </div>
+              <div>
+                <span>Resultado após depreciação · lote</span>
+                <strong>
+                  {result ? formatBRL(result.afterDepreciation) : "—"}
+                </strong>
+              </div>
+            </div>
+          </section>
           <Card>
             <CardHeader>
-              <CardTitle>3. Seu preço e custos</CardTitle>
+              <CardTitle>Composição do custo e resultado</CardTitle>
               <CardDescription>
-                O resultado acompanha os dados preenchidos.
+                Contribuição e resultado do lote, antes das despesas fixas da
+                empresa.
               </CardDescription>
-              {result && (
-                <output
-                  aria-label="Preço calculado por peça"
-                  className="text-4xl font-semibold text-primary tabular-nums"
-                >
-                  {formatBRL(result.offeredUnitPrice)}
-                </output>
-              )}
             </CardHeader>
             <CardContent>
               {result && input ? (
@@ -581,6 +678,28 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                       : "Escolha material, impressora e canal. Informe consumo, quantidade e tempo para ver o preço.")}
                 </Notice>
               )}
+              {result && props.previousCost !== undefined && (
+                <section
+                  aria-label="Conferir custo anterior e revisado"
+                  className="flex flex-col gap-2"
+                >
+                  <h3>Antes e depois · custo por peça</h3>
+                  <p>
+                    {formatBRL(props.previousCost)} →{" "}
+                    {formatBRL(result.unitFullCost)}
+                  </p>
+                  {props.previousPrice !== undefined && (
+                    <p>
+                      Preço calculado anterior: {formatBRL(props.previousPrice)}{" "}
+                      → {formatBRL(result.offeredUnitPrice)}
+                    </p>
+                  )}
+                  <p>
+                    Aplicar a ficha mantém o preço final do produto. Salvar o
+                    cadastro é uma ação posterior.
+                  </p>
+                </section>
+              )}
               {result && input && props.fixedQuantity === undefined && (
                 <PricingScenarios
                   input={input}
@@ -588,6 +707,7 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                 />
               )}
               <ComparisonEditor
+                onDirtyChange={setComparisonDirty}
                 input={comparisonInput}
                 request={draft}
                 catalog={current}
@@ -603,7 +723,8 @@ export function GuidedPricingForm(props: PricingDraftOptions) {
                   : (props.applyLabel ?? "Aplicar estimativa")}
               </Button>
               <p className="text-sm text-muted-foreground">
-                O preço do catálogo só muda ao salvar o produto.
+                {props.applicationHint ??
+                  "O preço do catálogo só muda ao salvar o produto."}
               </p>
             </CardFooter>
           </Card>

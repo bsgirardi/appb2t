@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import {
   Box,
@@ -31,9 +31,11 @@ import { CostBreakdown } from "./cost-breakdown";
 export function CalculatorForm({
   data,
   role,
+  onDraftChange,
 }: {
   data: CalculatorData;
   role: "ADMIN" | "OPERATOR";
+  onDraftChange?: (value: string) => void;
 }) {
   const [snapshot, setSnapshot] = useState(data),
     [technology, setTechnology] = useState<Technology>("FDM"),
@@ -44,6 +46,18 @@ export function CalculatorForm({
     [minutes, setMinutes] = useState("0"),
     [refreshing, setRefreshing] = useState(false),
     [error, setError] = useState("");
+  const fingerprint = JSON.stringify({
+    snapshot,
+    technology,
+    materialId,
+    printerId,
+    consumption,
+    hours,
+    minutes,
+  });
+  useLayoutEffect(() => {
+    onDraftChange?.(fingerprint);
+  }, [fingerprint, onDraftChange]);
   const materials = snapshot.materials.filter(
       (m) => m.technology === technology,
     ),
