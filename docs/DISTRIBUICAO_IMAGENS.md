@@ -86,6 +86,8 @@ pwsh -File scripts/distribution/publish.ps1 -PackageDirectory X:/entregas/b2t/EN
 
 O comando valida o pacote, cria uma Release draft, sobe os três arquivos, compara tamanhos e SHA-256 informados pelo GitHub e publica somente após confirmação. Falha deixa draft para diagnóstico; ele não é consumido pela produção. Não há sobrescrita automática. Para corrigir draft incompleto, revisar e remover explicitamente o draft/tag apenas de distribuição ou gerar outro BuildId. Nunca remover uma entrega publicada usada por servidor sem plano de retenção.
 
+A conferência usa o **identificador numérico da Release**, obtido pela listagem autenticada, porque o endpoint de consulta por tag pode retornar 404 enquanto a entrega ainda é draft e a tag não existe. Em uma recuperação manual, localizar esse ID, confirmar nome/estado e os três assets com tamanho/SHA-256 iguais ao pacote local antes de promover o draft. Um 404 de tag não autoriza presumir perda dos arquivos, reenviar/substituir assets nem ignorar a validação.
+
 ## Instalação inicial do atualizador no Linux
 
 Requisitos: Bash, Docker Engine/Compose com `config --format json`, `config --hash` e `up --pull never --wait`, util-linux/flock, curl **7.76 ou superior**, jq 1.6+, gzip e utilitários GNU. O operador precisa acessar DockerRootDir para medir disco. Os scripts não instalam ferramentas nem mudam limites do host.
