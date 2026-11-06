@@ -1,5 +1,28 @@
 # B2T — evolução de preço, produção e vendas
 
+Atualizado em 05/11/2026. Main de referência: 1.20.0 / 4524ca1.
+
+## Fila atual após as entregas de 05/11/2026
+
+| Estado | Entrega / próxima ação | Evidência e limite |
+| --- | --- | --- |
+| Integrada | E3.2: bloqueios acionáveis, cobertura por pedido e simulação comercial | PR #38, 1.18.0; previsão depende das premissas, sem garantir entrega |
+| Integrada | Metas mensais persistidas, revisões e acompanhamento | PR #39, 1.19.0; histórico das metas não congela realizado; migração operacional pendente nos destinos ainda não atualizados |
+| Integrada | UX de Orçamentos/Vendas e proteção de Voltar/Avançar | PRs #39/#40, 1.19.0/1.19.1 |
+| Integrada | UX de Produção/Estoque, saldos, filtros, resumos e proteção de rascunhos | PR #41, 1.20.0; não encerra todas as expansões de planejamento E3 |
+| Pendente | Publicar a versão integrada no destino escolhido | Backup/restauração, migrações por destino, saúde e versão; merge não comprova publicação |
+| Em validação | Aceite humano dos fluxos reais | Pode acontecer durante o uso; registrar problemas sem operações fictícias na instalação publicada |
+| Pendente | Backup externo automático e restauração periódica | Escolher destino, retenção e responsável |
+| Em detalhamento | Recorte visual aprovado: Catálogo e Kits | Proposta de continuidade: localizar produtos/kits, compreender publicação/disponibilidade e editar sem perda de campos; sem redesenhar a loja pública ou mudar regras |
+| Pendente | E2.4 e alertas internos de propostas | Recorrência, amostra e cobertura a definir; sem mensagens externas ou revisão automática da ficha |
+
+Esta fila substitui as recomendações datadas abaixo que ainda apontam metas salvas, prazo comercial e UX comercial/produtiva como ausências integrais. As PRs #38–#41 foram conferidas no GitHub e as notas da main consultadas; não foi repetida a execução dos testes nesta revisão documental. Publicações: local 1.18.0 (registro operacional local, fora desta PR) e tentativa remota cancelada (registro operacional local, fora desta PR). PR documental preparada em 1.20.1; sem merge ou deploy.
+
+
+[Desenho proposto de Catálogo e Kits](superpowers/specs/2026-11-05-catalogo-kits-ux-design.md), com abordagem, restrições e critérios de aceite; aguardando revisão dos detalhes antes da implementação.
+
+## Registros históricos anteriores à consolidação
+
 ## 04/11/2026 — E3.2: PR e integração autorizadas
 
 Preparação da PR em **1.18.0** (MINOR único sobre main 9797484/1.17.0), com manifestos/notas sincronizados. Usuário autorizou PR e integração; resultados de CI/merge serão registrados quando concluídos. Publicação operacional e homologação humana permanecem separadas. Os registros seguintes preservam as fases anteriores desta entrega.
