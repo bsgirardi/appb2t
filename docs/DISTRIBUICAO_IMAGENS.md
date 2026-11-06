@@ -34,6 +34,9 @@ $commit = gh pr view 44 --json mergeCommit --jq .mergeCommit.oid
 git fetch origin main
 git merge-base --is-ancestor $commit origin/main
 if ($LASTEXITCODE) { throw 'Commit integrado nao confirmado em main.' }
+if (git status --porcelain) { throw 'Use um checkout limpo; preservar alteracoes locais antes de continuar.' }
+git switch --detach $commit
+if ($LASTEXITCODE) { throw 'Nao foi possivel selecionar os scripts do commit integrado.' }
 $buildId = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
 $out = Join-Path $PWD ".b2t/entregas/$buildId"
 pwsh -File scripts/distribution/build.ps1 -Commit $commit -BuildId $buildId -OutputDirectory $out
