@@ -2,7 +2,7 @@ import { D, sum, ratio, inPeriod } from "@/server/dashboard/shared";
 import type { DashboardFilter } from "./types";
 type Sale = {
   id: string;
-  customerId: string;
+  customerId: string | null;
   total: string;
   date: string;
   items: {
@@ -19,7 +19,7 @@ type Quote = {
   approvedAt: string | null;
 };
 export function summarizeCommercial(
-  input: { sales: Sale[]; quotes: Quote[]; priorCustomers: string[] },
+  input: { sales: Sale[]; quotes: Quote[]; priorCustomers: (string | null)[] },
   f: DashboardFilter,
 ) {
   const sales = input.sales.filter((s) => inPeriod(s.date, f));
@@ -32,6 +32,7 @@ export function summarizeCommercial(
   [...sales]
     .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
     .forEach((s) => {
+      if (!s.customerId) return;
       if (seen.has(s.customerId)) recurring.add(s.customerId);
       seen.add(s.customerId);
     });

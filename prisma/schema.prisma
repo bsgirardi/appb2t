@@ -216,6 +216,7 @@ enum Technology {
   RESIN
 }
 model User {
+  posOrders PosOrder[]
   monthlyGoalRevisions MonthlyGoalRevision[]
   advertisingCreated AdvertisingDraft[] @relation("AdCreated")
   advertisingUpdated AdvertisingDraft[] @relation("AdUpdated")
@@ -527,6 +528,7 @@ enum FinancialEntryKind {
  PAYABLE
 }
 model Sale {
+  posOrder PosOrder?
  consignment ConsignmentSale?
  wonOpportunity Opportunity?
  checkout Checkout?
@@ -545,8 +547,8 @@ model Sale {
  sequence Int @unique @default(autoincrement())
  quoteId String? @unique
  quote Quote? @relation(fields:[quoteId],references:[id],onDelete:Restrict)
- customerId String
- customer Customer @relation(fields:[customerId],references:[id],onDelete:Restrict)
+ customerId String?
+ customer Customer? @relation(fields:[customerId],references:[id],onDelete:Restrict)
  status SaleStatus @default(RASCUNHO)
  version Int @default(1)
  document Json
@@ -1838,4 +1840,17 @@ model AdvertisingExport {
  createdById String
  createdBy User @relation(fields:[createdById],references:[id],onDelete:Restrict)
  @@index([draftId,createdAt])
+}
+
+model PosOrder {
+ id String @id @default(cuid())
+ actorId String
+ actor User @relation(fields:[actorId],references:[id],onDelete:Restrict)
+ version Int @default(1)
+ input Json
+ saleId String? @unique
+ sale Sale? @relation(fields:[saleId],references:[id],onDelete:Restrict)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([actorId,createdAt])
 }

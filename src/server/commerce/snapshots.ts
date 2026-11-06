@@ -8,15 +8,24 @@ export async function createDocumentSnapshot(
   input: DocumentInput,
   logoUrl: string,
   owner?: { quoteId: string } | { saleId: string },
-  options: { consignmentCustody?: boolean } = {},
+  options: { consignmentCustody?: boolean; unidentifiedPos?: boolean } = {},
 ): Promise<{
   snapshot: DocumentSnapshot;
   logo: { bytes: Uint8Array; mimeType: string } | null;
 }> {
-  const customer = await tx.customer.findUnique({
-    where: { id: input.customerId },
-  });
-  if (!customer || (!customer.active && !options.consignmentCustody))
+  const unidentified =
+    options.unidentifiedPos &&
+    input.customerId === null &&
+    input.customerIdentification === "UNIDENTIFIED";
+  const customer = input.customerId
+    ? await tx.customer.findUnique({
+        where: { id: input.customerId },
+      })
+    : null;
+  if (
+    !unidentified &&
+    (!customer || (!customer.active && !options.consignmentCustody))
+  )
     throw new AppError("VALIDATION", "Selecione um cliente ativo.");
   const appearance = await tx.companyAppearance.findUnique({
     where: { id: 1 },
@@ -65,14 +74,24 @@ export async function createDocumentSnapshot(
         footer: a.footer,
         logoUrl: appearance?.logo ? logoUrl : null,
       },
-      customer: {
-        name: customer.name,
-        type: customer.type,
-        document: customer.document,
-        email: customer.email,
-        phone: customer.phone,
-        address: customer.address,
-      },
+      customer: unidentified
+        ? {
+            identification: "UNIDENTIFIED",
+            name: "Consumidor não identificado",
+            type: "PERSON",
+            document: "",
+            email: "",
+            phone: "",
+            address: "",
+          }
+        : {
+            name: customer!.name,
+            type: customer!.type,
+            document: customer!.document,
+            email: customer!.email,
+            phone: customer!.phone,
+            address: customer!.address,
+          },
       items,
       issuedAt: new Date().toISOString(),
     },

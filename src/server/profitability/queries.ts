@@ -114,7 +114,15 @@ export async function getProfitabilityReport(
         ...result,
         rankings: buildRankings(
           filtered,
-          Object.fromEntries(candidates.map((s) => [s.id, s.customer])),
+          Object.fromEntries(
+            candidates.map((s) => [
+              s.id,
+              s.customer ?? {
+                id: "__unidentified__",
+                name: "Consumidores não identificados (agrupamento)",
+              },
+            ]),
+          ),
         ),
         page: f.page,
         pageSize: f.pageSize,

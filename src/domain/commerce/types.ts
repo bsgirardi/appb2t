@@ -2,12 +2,7 @@ import type { DocumentCostsDTO } from "@/domain/pricing/types";
 import type { CompanyIdentityDTO } from "@/domain/appearance/types";
 import type { CatalogLineOrigin } from "@/domain/catalog-requests/types";
 export type QuoteStatus =
-  | "RASCUNHO"
-  | "ENVIADO"
-  | "APROVADO"
-  | "REJEITADO"
-  | "EXPIRADO"
-  | "CONVERTIDO";
+  "RASCUNHO" | "ENVIADO" | "APROVADO" | "REJEITADO" | "EXPIRADO" | "CONVERTIDO";
 export type SaleStatus =
   | "RASCUNHO"
   | "CONFIRMADA"
@@ -25,7 +20,8 @@ export interface DocumentItemInput {
 }
 export interface DocumentInput {
   catalogKits?: import("@/domain/kits/document").CatalogKitDocument;
-  customerId: string;
+  customerId: string | null;
+  customerIdentification?: "UNIDENTIFIED";
   items: DocumentItemInput[];
   discount: string;
   shipping: string;
@@ -44,6 +40,7 @@ export interface InstallmentInput {
   dueDate: string;
 }
 export interface CustomerSnapshot {
+  identification?: "UNIDENTIFIED";
   name: string;
   type: "PERSON" | "COMPANY";
   document: string;
@@ -95,6 +92,9 @@ export interface ReceiptSummary {
   overdue: string;
 }
 export interface SaleDTO {
+  posPayment?: ReturnType<
+    typeof import("@/domain/pos/validation").calculatePosPayment
+  >;
   consignmentPartnerId?: string | null;
   art?: import("@/domain/art/types").DocumentArtDTO[];
   fulfillmentMode?: "LEGACY" | "U3" | "CONSIGNMENT";

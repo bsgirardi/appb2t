@@ -1,5 +1,28 @@
 # B2T — evolução de preço, produção e vendas
 
+## 06/11/2026 — preparação da PR do PDV autorizada
+
+Usuário solicitou “faça pr”. Main reconferida em `16a6466` / 1.22.0; incremento MINOR único para 1.23.0, com manifestos e notas portuguesas sincronizados. PR #47 da calculadora também propõe 1.23.0 e permanece aberta; reconciliar versão e histórico antes do merge conforme a ordem de integração, incluindo a PR #46 visual. PR do PDV em preparação como rascunho; revalidação aprovada com 890 testes gerais em 215 arquivos, quatro testes de versão/rodapés/Atualizações, tipagem, lint e build. Ensaio HTTP autenticado integral continua pendente por bloqueio automático anterior, sem contorno. Commit/push/PR estão autorizados por este pedido; merge, Release e implantação operacional permanecem separados e não autorizados. URL será registrada após criação.
+
+
+## 06/11/2026 — PDV presencial implementado localmente
+
+Decisões expressas do usuário: operação conectada; venda sem identificação permitida, com seleção opcional de cliente ativo ou cadastro real durante o atendimento; pagamento combinado dispensável. Implementação em worktree isolada, branch `codex/pdv-presencial`, base `16a6466` / 1.22.0. Tela `/pdv` com skill shadcn do projeto, compra, faixas de quantidade, desconto, Pix/dinheiro/cartão, troco, revisão e conclusão. Sale aceita identificação anônima explícita exclusivamente no contrato do PDV, sem criar cliente fictício. Venda, recebível, compromisso por origem e entrega são atômicos e reutilizam serviços existentes. Sem baixa automática nem ampliação do financeiro para operador. Rascunho versionado e recuperação da mesma compra protegem contra duplicação; outra edição salva exige escolha explícita.
+
+Validação: suíte geral com 889 testes em 215 arquivos; nove integrações PDV e 15 regressões de vendas/entregas/cancelamento/financeiro, banco descartável exclusivo; 11 testes focados finais incluindo recuperação de conflito; migração real com venda/cliente/item legados preservados. Tipagem, lint e build aprovados; nova rodada final de build após ajuste da recuperação registrada no relatório. Conferência visual sintética desktop/375 px, teclado, foco e temas. Revisão independente encontrou dois P2, corrigidos com regressões e rechecados. [Entrega, telas e limites](pdv/ENTREGA.md).
+
+Recorte: produtos simples disponíveis e peças prontas livres; kits, personalizações, encomendas, abertura/fechamento de caixa, evento/local, pagamentos mistos, fiscal e benefícios futuros não implementados nesta entrega. Informação de pagamento não confirma provedor; recebimento continua no financeiro atual. Ensaio HTTP autenticado integral preparado, mas não executado: revisão automática bloqueou iniciar o servidor Next isolado sem informar motivo além de “blocked by policy”. Não houve contorno.
+
+Estado: implementação e validação local, versão base preservada em 1.22.0. Sem commit/push/PR/merge/Release/deploy ou migração operacional. Próxima ação: revisão humana da entrega e decisão externa sobre futura PR. Antes de PR, reconciliar com main e PRs #46/#47, preparar incremento MINOR único e notas conforme AGENTS.md. Não copiar arquivos desta worktree sobre a pasta operacional antiga com alterações de outros chats.
+
+
+## 06/11/2026 — PDV presencial iniciado em isolamento
+
+Necessidade de balcão/feira/rua confirmada pelo pedido; deixou de ser uma decisão sobre existir ou não PDV. Investigação da main 16a6466 / 1.22.0 e [proposta concreta](superpowers/specs/2026-11-06-pdv-presencial-proposta.md) preparadas em área isolada. Recomenda-se entrega imediata de peças disponíveis, reaproveitando confirmação comercial, reservas por origem, entregas e financeiro. Cliente é obrigatório no contrato atual; não há suporte anônimo presumido. Operador não ganhou permissão de baixa financeira. Aguardam resposta: conexão/offline, comprador não identificado e pagamento único/combinado. Caixa completo, encomendas dentro do PDV, eventos/locais e estorno rápido são limites propostos, não requisitos aprovados.
+
+Estado: investigação e proposta; sem implementação, testes funcionais, PR, merge, Release, deploy ou migração operacional. Versão preservada. Calculadora PR #47 e revisão visual PR #46 consultadas por leitura, sem presumir integração/publicação. Alterações da pasta operacional preservadas. Próxima ação: fechar decisões, desenho e plano e implementar o recorte autorizado.
+
+
 Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 
 ## Fila atual após as entregas de 05/11/2026

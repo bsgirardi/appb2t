@@ -8,6 +8,28 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.23.0",
+    date: "2026-11-06",
+    title: "PDV presencial para atendimento e entrega imediata",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Monte vendas presenciais com busca de produtos, quantidades, desconto e entrega imediata de peças prontas disponíveis.",
+          "Atenda sem identificar o comprador ou escolha um cliente cadastrado; se desejar, cadastre um novo cliente junto com a venda.",
+          "Informe Pix, dinheiro ou cartão, com cálculo de troco em dinheiro. O recebimento continua sujeito à conferência no financeiro.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Salve a compra para retomar depois e consulte a mesma operação após falha de conexão, evitando duplicar venda, cadastro ou baixa de peças.",
+          "Confira novamente preços e cadastros alterados antes de concluir. O PDV exige conexão e mantém encomendas, kits e personalizações no fluxo comercial existente.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.22.0",
     date: "2026-11-06",
     title: "Catálogo e Kits mais fáceis de consultar e editar",

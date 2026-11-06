@@ -1,8 +1,13 @@
 import { assertGoalsDatabase } from "../goals/database";
+import { assertPosDatabaseUrl } from "../pos/database";
 export function assertTestDatabase(
   value: string | undefined,
   e3: boolean,
 ): void {
+  if (!e3 && process.env.POS_REGRESSION === "1") {
+    assertPosDatabaseUrl(value ?? "");
+    return;
+  }
   // Opt-in regression runs in this feature's exclusive disposable database.
   if (!e3 && process.env.GOALS_REGRESSION === "1") {
     assertGoalsDatabase(value ?? "");
