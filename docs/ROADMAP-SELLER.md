@@ -1,5 +1,10 @@
 # B2T — evolução de preço, produção e vendas
 
+## 05/11/2026 — Catálogo e Kits: redesign em validação
+
+Recorte e desenho aprovados; implementação na branch codex/catalogo-kits-ux, versão 1.21.0 sobre main 1.20.0. Busca/estado e contexto na URL, estados vazios, resumo dos kits e proteção dos rascunhos (incluindo fotos e ficha de custo) entregues localmente. [Evidências e limites](ux-catalogo-kits/ENTREGA.md). Revisão independente com correções cobertas por testes; validação visual em navegador permanece pendente por indisponibilidade da automação. Sem merge, deploy ou migração operacional. PR #42 mantém a consolidação documental em paralelo; reconciliar versões e notas antes da integração.
+
+
 ## 04/11/2026 — E3.2: PR e integração autorizadas
 
 Preparação da PR em **1.18.0** (MINOR único sobre main 9797484/1.17.0), com manifestos/notas sincronizados. Usuário autorizou PR e integração; resultados de CI/merge serão registrados quando concluídos. Publicação operacional e homologação humana permanecem separadas. Os registros seguintes preservam as fases anteriores desta entrega.

@@ -1,4 +1,9 @@
 "use client";
+import {
+  CatalogFilters,
+  CatalogEmpty,
+  useCatalogFilters,
+} from "@/components/admin/catalog-filters";
 import { useState } from "react";
 import {
   Card,
@@ -24,11 +29,15 @@ export function KitPanel({
     [editing, setEditing] = useState<KitDTO | null | undefined>(undefined);
   const [refreshing, setRefreshing] = useState(false),
     [error, setError] = useState("");
+  const filters = useCatalogFilters();
+  const filtered = kits.filter(filters.matches);
+  const [message, setMessage] = useState("");
   async function refresh() {
     setRefreshing(true);
     setError("");
     try {
       setKits(await api<KitDTO[]>("/api/kits"));
+      setMessage("Lista atualizada.");
     } catch (error) {
       setError((error as Error).message);
     } finally {
@@ -61,6 +70,7 @@ export function KitPanel({
         </div>
       </header>
       {error && <Alert role="alert">{error}</Alert>}
+      {message && editing === undefined && <p role="status">{message}</p>}
       {editing !== undefined ? (
         <Card>
           <KitForm
@@ -74,21 +84,31 @@ export function KitPanel({
                   : [...old, kit],
               );
               setEditing(undefined);
+              setMessage("Kit salvo com sucesso.");
             }}
           />
         </Card>
       ) : (
         <>
-          {!kits.length && (
-            <p>
-              Nenhum kit cadastrado. Crie um conjunto com os produtos que sua
-              equipe permite oferecer juntos.
-            </p>
+          <CatalogFilters
+            filters={filters}
+            count={filtered.length}
+            total={kits.length}
+            kind="kits"
+          />
+          {!filtered.length && (
+            <CatalogEmpty
+              kind="kits"
+              filtered={kits.length > 0}
+              create={() => setEditing(null)}
+            />
           )}
-          {kits.map((kit) => (
+          {filtered.map((kit) => (
             <Card key={kit.id}>
               <CardHeader>
-                <CardTitle>{kit.name}</CardTitle>
+                <CardTitle role="heading" aria-level={2}>
+                  {kit.name}
+                </CardTitle>
                 <CardDescription>
                   {kit.description || "Sem descrição adicional."}
                 </CardDescription>

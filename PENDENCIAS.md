@@ -1,5 +1,10 @@
 # appb2t — estado e pendências
 
+## 05/11/2026 — Catálogo e Kits: redesign em validação
+
+Recorte e desenho aprovados; implementação na branch codex/catalogo-kits-ux, versão 1.21.0 sobre main 1.20.0. Busca/estado e contexto na URL, estados vazios, resumo dos kits e proteção dos rascunhos (incluindo fotos e ficha de custo) entregues localmente. [Evidências e limites](docs/ux-catalogo-kits/ENTREGA.md). Revisão independente com correções cobertas por testes; validação visual em navegador permanece pendente por indisponibilidade da automação. Sem merge, deploy ou migração operacional. PR #42 mantém a consolidação documental em paralelo; reconciliar versões e notas antes da integração.
+
+
 ## 04/11/2026 — PR e integração E3.2 autorizadas
 
 Usuário autorizou criar a PR e integrar E3.2. Preparação em **1.18.0**, incremento MINOR único sobre main 9797484/1.17.0, com manifestos sincronizados e notas em português. Abertura/CI/merge serão registrados após confirmação; publicação operacional não faz parte desta autorização. Os estados locais abaixo preservam a entrega anterior à autorização.

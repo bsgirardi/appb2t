@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CalculationInput } from "@/domain/calculation/types";
 import type {
   PricingCatalogDTO,
@@ -18,23 +18,61 @@ export function ProductPricingEditor({
   materialId,
   printerId,
   onApply,
+  onPendingChange,
 }: {
   snapshot?: PricingSnapshotDTO;
   legacy: CalculationInput;
   materialId?: string | null;
   printerId?: string | null;
   onApply: (snapshot: PricingSnapshotDTO) => void;
+  onPendingChange?: (dirty: boolean) => void;
 }) {
   const [catalog, setCatalog] = useState<PricingCatalogDTO | null>(null),
     [reviewed, setReviewed] = useState(false),
     [error, setError] = useState("");
+  const opening = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const baseline = useRef<string | null>(null);
+  const [draftDirty, setDraftDirty] = useState(false);
+  const trackDraft = useCallback((value: string) => {
+    baseline.current ??= value;
+    setDraftDirty(value !== baseline.current);
+  }, []);
+  useEffect(() => {
+    onPendingChange?.(draftDirty || reviewed || applying);
+  }, [draftDirty, reviewed, applying, onPendingChange]);
+  function closeReview() {
+    if (applying) return;
+    if (
+      (draftDirty || reviewed) &&
+      !window.confirm(
+        "Descartar as alterações não aplicadas da ficha de custo?",
+      )
+    )
+      return;
+    setCatalog(null);
+    setDraftDirty(false);
+    setReviewed(false);
+    baseline.current = null;
+  }
   const operation = useRef<{ body: string; key: string } | null>(null);
   async function open() {
+    if (opening.current) return;
+    opening.current = true;
+    setLoading(true);
     try {
-      setCatalog(await api("/api/pricing/catalog"));
+      const nextCatalog = await api<PricingCatalogDTO>("/api/pricing/catalog");
+      baseline.current = null;
+      setDraftDirty(false);
+      setReviewed(false);
+      setCatalog(nextCatalog);
       setError("");
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      opening.current = false;
+      setLoading(false);
     }
   }
   let legacyRequest: PricingRequest | undefined;
@@ -71,7 +109,7 @@ export function ProductPricingEditor({
     };
   }
   return (
-    <section className="rounded-lg border p-4 space-y-3">
+    <section className="flex flex-col gap-3 rounded-lg border p-4">
       <h2>Ficha de custo</h2>
       <p>
         {snapshot
@@ -80,8 +118,17 @@ export function ProductPricingEditor({
       </p>
       {error && <Notice>{error}</Notice>}
       {!catalog ? (
-        <Button type="button" variant="outline" onClick={open}>
-          {snapshot ? "Revisar ficha por lote" : "Preparar ficha por lote"}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={open}
+          disabled={loading}
+        >
+          {loading
+            ? "Carregando ficha…"
+            : snapshot
+              ? "Revisar ficha por lote"
+              : "Preparar ficha por lote"}
         </Button>
       ) : (
         <>
@@ -106,6 +153,7 @@ export function ProductPricingEditor({
           )}
           <BatchPricingForm
             catalog={catalog}
+            onDraftChange={trackDraft}
             initialInput={snapshot?.input}
             initialRequest={legacyRequest}
             onApply={async (request) => {
@@ -116,18 +164,27 @@ export function ProductPricingEditor({
               const body = JSON.stringify(request);
               if (operation.current?.body !== body)
                 operation.current = { body, key: crypto.randomUUID() };
-              const next = await createEstimate(
-                request,
-                operation.current!.key,
-              );
-              onApply(next);
-              setCatalog(null);
+              setApplying(true);
+              try {
+                const next = await createEstimate(
+                  request,
+                  operation.current!.key,
+                );
+                onApply(next);
+                setCatalog(null);
+                setDraftDirty(false);
+                setReviewed(false);
+                baseline.current = null;
+              } finally {
+                setApplying(false);
+              }
             }}
           />
           <Button
             type="button"
             variant="outline"
-            onClick={() => setCatalog(null)}
+            onClick={closeReview}
+            disabled={applying}
           >
             Cancelar revisão da ficha
           </Button>
