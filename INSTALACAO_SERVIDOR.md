@@ -1,3 +1,7 @@
+# Distribuição de imagens prontas
+
+Para atualizar sem compilar no servidor, seguir [Entregas com imagens prontas](docs/DISTRIBUICAO_IMAGENS.md). O roteiro histórico abaixo constrói imagens no host. A instalação inicial em outra máquina exige restaurar dados e conferir volumes, ambiente, rede e arquitetura antes da atualização.
+
 # Instalação e atualização do servidor B2T
 
 Guia para Linux com Bash. Projeto, configuração e persistência ficam juntos em **`/etc/docker/appb2t`**. Execute os comandos nessa pasta, como usuário com acesso ao Docker. O domínio de referência é `https://somosb2t.com.br`, com porta **1992** e PostgreSQL 17.

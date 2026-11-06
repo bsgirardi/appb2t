@@ -33,3 +33,7 @@ Implementação e revisão concluídas: 880 unitários, 34 focados, tipos/lint/b
 - [ ] Validar no navegador celular/desktop, teclado/foco e temas com fixtures. Automação retornou inventário vazio; prévia reproduzível em tests/catalog-admin-preview.html, porta 4321. Não tratar jsdom como aceite visual.
 
 Versão 1.21.0 preparada, sem merge ou publicação. PR #42 documental separada; reconciliar notas e versões antes da integração.
+
+## Continuidade em 06/11/2026
+
+Reconciliação com main 1.21.1 e PR #42 documental 1.21.2; funcionalidade preparada em 1.22.0, sem novo incremento por commit de resolução. Revisão independente identificou perda de foco nos filtros; duas regressões RED→GREEN e sincronização sem remontar o formulário. Evidências atuais e limite de confirmação nativa em docs/ux-catalogo-kits/ENTREGA.md. A tarefa visual permanece parcialmente aberta; sem autorização de merge ou publicação.

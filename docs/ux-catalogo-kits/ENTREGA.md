@@ -2,7 +2,7 @@
 
 ## Escopo
 
-Branch `codex/catalogo-kits-ux`, base main 1.20.0 (`4524ca1`), versão de funcionalidade 1.21.0. A PR #42 documental (1.20.1) permanece separada; reconciliar histórico/versão antes da integração, preservando suas notas se ela entrar primeiro. Nenhum merge, deploy ou banco operacional alterado.
+PR #43, branch remota `codex/catalogo-kits-ux`, reconciliada em 06/11/2026 com main 1.21.1 (`4786a8b`) e a resolução da PR #42 (`54aad9f`, documental 1.21.2). Versão de funcionalidade 1.22.0; preservadas as notas de distribuição 1.21.0/1.21.1 e o histórico anterior. Ordem proposta: #42 e depois #43, reconferindo main antes de cada integração. Nenhum merge, Release, deploy ou banco operacional alterado.
 
 - Produtos e kits têm busca por nome (ignorando acentos), estado e limpeza dos filtros, com contagem e contexto na URL. O histórico e o retorno da edição preservam os critérios aplicados. Outros parâmetros da URL são preservados.
 - As consultas administrativas existentes carregam o conjunto completo; não há requisição por tecla, paginação fictícia ou mudança de autorização/contrato.
@@ -27,15 +27,28 @@ Revisão independente encontrou o rascunho interno de custos fora da proteção 
 
 Os 15 testes novos cobrem filtros combinados e acentos, limpar/histórico/contexto de edição, falha de atualização, descarte recusado, galeria reordenada, composição, falha/conflito e liberação após salvar, rascunho de custo não aplicado e operações em andamento. A revisão não substitui aceite humano.
 
-## Verificações
+## Verificações anteriores — 05/11/2026
 
 - Primeira suíte unitária completa: 877 testes em 213 arquivos aprovados, antes das últimas correções assíncronas.
 - Rodada final completa: **880 testes unitários em 213 arquivos aprovados**, após as correções da revisão. Casos focados: **34 testes em 6 arquivos aprovados**, incluindo 15 casos novos e a consistência de versão/rodapés/Atualizações.
 - TypeScript, lint completo e build Next finais aprovados. Build de entrega repetido após o ajuste de layout dos filtros; saída final confirma todas as rotas dinâmicas compiladas.
 - `git diff --check` aprovado.
 
-## Limites e prévia
+## Reconciliação e validação — 06/11/2026
 
-A API de automação do navegador retornou inventário vazio nesta sessão. Não foram produzidas capturas nem confirmado o layout renderizado em celular/desktop, temas ou fluxo autenticado. Os componentes e CSS foram inspecionados, e os testes de interface usam jsdom; isso não equivale a homologação visual. Prévia aberta/solicitada no painel do app; execução reproduzível: `node tests/catalog-admin-preview-server.mjs`, depois `/tests/catalog-admin-preview.html` na porta 4321 (`?view=kits` para kits e `&role=OPERATOR` para apresentação de operador).
+- PR #42: três testes de versão aprovados após resolução; manifestos, histórico, login, rodapé administrativo e Atualizações para ADMIN/OPERATOR em 1.21.2.
+- PR #43: conflitos documentais resolvidos preservando o desenho aprovado e os registros dos dois lados. Main #44/#45 preservada, sem alterações funcionais nos scripts de distribuição.
+- Rodada inicial após resolução: 880 testes em 213 arquivos, 33 focados em cinco arquivos, TypeScript, lint e build de produção aprovados. Esses resultados são desta sessão, separados dos anteriores.
+- Revisão independente encontrou perda de foco ao aplicar filtros: a chave do formulário desmontava o campo/botão ativo. Duas regressões falharam com o código anterior e passaram após preservar o formulário, sincronizar os controles diretamente com a URL sem remontagem e devolver o foco à busca ao limpar. Arquivo focado: 17 testes aprovados. A regressão também confirmou a seleção de estado após aplicar; sincronização ajustada e verificada com os mesmos casos.
+- Rodada final após sincronização do seletor: **882 testes unitários em 213 arquivos aprovados**; TypeScript, lint e build de produção novamente aprovados. PR #42: nove checks aprovados no commit 54aad9f.
+- Prévia permite escolher porta via PORT; usada 4327, exclusivamente com fixtures desta worktree.
 
-Não houve migração, mudança de schema, testes no banco operacional ou alteração de permissões. Integrações de banco não foram repetidas localmente neste recorte de apresentação e estado de formulário. Conferir os checks da PR e validar visualmente antes de integrar.
+## Validação visual e limite
+
+Navegador integrado disponível em 06/11. Conferidas lista de Produtos em desktop 1280 px (escuro), celular 390 px (claro e escuro), busca sem acentos com resultado/URL e passagem de Tab da busca ao estado. Celular sem transbordamento horizontal (largura 390, scrollWidth 375). Editor de Produto abriu com dados, seções e ação de salvar na árvore acessível. Lista de Kits renderizada em 390 px no tema escuro, com estado, composição, faixas e edição legíveis.
+
+Ao testar descarte do rascunho do produto, o navegador travou na confirmação nativa: clique expirou e a API de diálogo não conseguiu recuperar a caixa. Isso também impediu continuar as interações do editor de Kits. Não afirmar concluídas a recusa de descarte em navegador real, a conferência de todos os editores/resumos nos dois temas ou a validação visual de OPERATOR. Essas proteções estão cobertas por testes de componentes, que não substituem a conferência no navegador. A PR permanece em rascunho por esse limite; não se trata de aceite autenticado.
+
+Prévia reproduzível sem backend/sessão/banco: PowerShell, definir PORT=4327 e executar node tests/catalog-admin-preview-server.mjs; abrir /tests/catalog-admin-preview.html, ?view=kits e &role=OPERATOR. O breadcrumb da prévia usa o adapter fixo /produtos; não representa o roteamento Next autenticado.
+
+Sem schema ou permissões alterados e sem testes no banco operacional. Integrações de banco não repetidas localmente; consultar CI separadamente. Merge, Release de distribuição e implantação continuam operações distintas e sem execução nesta tarefa.

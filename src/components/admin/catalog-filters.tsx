@@ -1,6 +1,12 @@
 "use client";
 
-import { useId, useSyncExternalStore, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useSyncExternalStore,
+  type FormEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
@@ -79,6 +85,23 @@ export function CatalogFilters({
   kind: "products" | "kits";
 }) {
   const id = useId();
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const search = formRef.current?.querySelector<HTMLInputElement>(
+      'input[name="search"]',
+    );
+    const state = formRef.current?.querySelector<HTMLSelectElement>(
+      'select[name="state"]',
+    );
+    if (search) search.value = filters.search;
+    if (state) state.value = filters.state;
+  }, [filters.search, filters.state]);
+  function clear() {
+    filters.clear();
+    formRef.current
+      ?.querySelector<HTMLInputElement>('input[name="search"]')
+      ?.focus();
+  }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -89,11 +112,7 @@ export function CatalogFilters({
   }
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <form
-        key={`${filters.search}:${filters.state}`}
-        aria-label="Filtrar registros"
-        onSubmit={submit}
-      >
+      <form ref={formRef} aria-label="Filtrar registros" onSubmit={submit}>
         <FieldGroup className="catalog-admin-filters grid gap-3">
           <Field
             label="Buscar por nome"
@@ -121,7 +140,7 @@ export function CatalogFilters({
           <div className="flex flex-wrap gap-2">
             <Button type="submit">Aplicar filtros</Button>
             {(filters.search || filters.state !== "all") && (
-              <Button type="button" variant="outline" onClick={filters.clear}>
+              <Button type="button" variant="outline" onClick={clear}>
                 Limpar filtros
               </Button>
             )}

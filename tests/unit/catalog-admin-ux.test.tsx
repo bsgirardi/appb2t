@@ -386,3 +386,32 @@ it.each(["product", "kit"] as const)(
     expect(screen.queryByRole("heading", { name: /Vaso/ })).toBeNull();
   },
 );
+it.each(["product", "kit"] as const)(
+  "%s: keeps keyboard focus when applying filters and restores values from history",
+  (kind) => {
+    render(panel(kind));
+    const search = screen.getByLabelText("Buscar por nome") as HTMLInputElement;
+    search.focus();
+    fireEvent.change(search, { target: { value: "coracao" } });
+    fireEvent.submit(screen.getByRole("form", { name: "Filtrar registros" }));
+    expect(document.activeElement).toBe(search);
+    const apply = screen.getByRole("button", { name: "Aplicar filtros" });
+    apply.focus();
+    fireEvent.change(screen.getByLabelText("Estado no catálogo"), {
+      target: { value: "inactive" },
+    });
+    fireEvent.submit(screen.getByRole("form", { name: "Filtrar registros" }));
+    expect(document.activeElement).toBe(apply);
+    expect(
+      (screen.getByLabelText("Estado no catálogo") as HTMLSelectElement).value,
+    ).toBe("inactive");
+    window.history.replaceState(null, "", "?search=vaso&state=inactive");
+    fireEvent.popState(window);
+    expect(search.value).toBe("vaso");
+    const clear = screen.getByRole("button", { name: "Limpar filtros" });
+    clear.focus();
+    fireEvent.click(clear);
+    expect(document.activeElement).toBe(search);
+    expect(search.value).toBe("");
+  },
+);
