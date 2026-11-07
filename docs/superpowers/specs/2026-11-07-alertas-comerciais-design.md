@@ -17,3 +17,13 @@ Reutilizar PriorityTable e a transação comercial. Um item por negociação re�
 
 ## Validação
 Testes de domínio (fronteiras civis, estados, principal, duplicidade, lacunas), consulta sintética ADMIN/OPERATOR, interface e links; tipos/lint/build. Prévia sintética, sem operação ou sessão artificial. Não contornar bloqueios anteriores de servidor Next.
+
+## 07/11 — complemento aprovado: sem retorno do cliente
+
+Usuário escolheu envio/resposta explícitos e prazo ADMIN configurável, padrão 14 dias. Reutilizar OpportunityEvent com novos tipos PROPOSAL_SENT/CUSTOMER_REPLY, autor, orçamento e versão atuais. Sem backfill/inferência de notas antigas. Data do registro em São Paulo, sem retrodatação. Resposta encerra a espera; troca de principal/reabertura invalida ciclo anterior; orçamento editado exige novo registro de envio. Novos eventos apenas em oportunidade aberta e principal vigente ENVIADO/APROVADO, sob os locks/idempotência/versão já existentes. Respostas podem registrar encerramento da espera mesmo sem envio anterior, sem gerar espera por si.
+
+Preferência persistida separada de precificação: CommercialSettings singleton, prazo inteiro de 1 a 365 dias (limite técnico), versão otimista; ausência de configuração equivale a 14. Somente ADMIN altera, OPERATOR pode ver critério no painel. Mudança aplica à próxima leitura das esperas atuais, não altera histórico. Migração somente aditiva, sem tabela de notificações. Prazo é civil: envio dia 1 + 14 dias gera alerta dia 15 inclusive.
+
+Contagem pelo primeiro envio ainda sem resposta proposta ao usuário; resposta assíncrona pendente. Lembrete da mesma proposta não deve silenciar uma espera vencida (proposta técnica explícita, alterar se usuário preferir reinício). Alertas sem retorno agrupados com contato/vencimento por negociação, sem dados financeiros novos. Propostas expiradas e terminais não geram sem retorno. Configuração em Configurações; operação manual na interação da negociação. Versão permanece 1.25.0 por ser a mesma PR #50.
+
+Confirmação expressa recebida: “Sim, primeiro envio sem resposta”. Regra aprovada, sem prazo reiniciado por lembretes.

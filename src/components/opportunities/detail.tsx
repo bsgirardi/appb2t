@@ -34,6 +34,8 @@ const eventLabels: Record<string, string> = {
   CREATE: "Oportunidade criada",
   UPDATE: "Dados atualizados",
   INTERACTION: "Interação registrada",
+  PROPOSAL_SENT: "Envio da proposta registrado",
+  CUSTOMER_REPLY: "Resposta do cliente registrada",
   LINK_QUOTE: "Orçamento vinculado",
   SET_PRIMARY: "Orçamento principal alterado",
   LOSE: "Perda registrada",
@@ -54,6 +56,7 @@ export function OpportunityDetail({
     [editing, setEditing] = useState(false),
     [mode, setMode] = useState<"lose" | "reopen" | null>(null),
     [text, setText] = useState(""),
+    [contactKind, setContactKind] = useState("INTERACTION"),
     [reason, setReason] = useState(""),
     [nextAction, setNextAction] = useState(""),
     [date, setDate] = useState(todaySaoPaulo(new Date())),
@@ -65,6 +68,7 @@ export function OpportunityDetail({
   const command = useOpportunityCommand(o.id),
     router = useRouter();
   const open = isOpportunityOpen(o.stage);
+  const principal = o.quotes.find((q) => q.id === o.principalQuoteId);
   async function loadEvents(page: number) {
     setReading(true);
     setReadError("");
@@ -97,7 +101,19 @@ export function OpportunityDetail({
   }
   async function interaction(e: FormEvent) {
     e.preventDefault();
-    if (await run({ action: "INTERACTION", text })) setText("");
+    const payload =
+      contactKind === "INTERACTION"
+        ? { action: contactKind, text }
+        : {
+            action: contactKind,
+            text,
+            quoteId: principal?.id,
+            quoteVersion: principal?.version,
+          };
+    if (await run(payload)) {
+      setText("");
+      setContactKind("INTERACTION");
+    }
   }
   async function close(e: FormEvent) {
     e.preventDefault();
@@ -432,12 +448,44 @@ export function OpportunityDetail({
         <CardHeader>
           <CardTitle>Interações internas</CardTitle>
           <CardDescription>
-            Este registro não envia mensagens ao cliente.
+            Este registro não envia mensagens ao cliente. Para acompanhar
+            retorno, registre o envio efetivo da proposta principal e a resposta
+            recebida. Uma nota interna não inicia nem encerra essa espera.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={interaction} className="flex flex-col gap-3">
             <FieldGroup>
+              <div data-slot="field">
+                <Label htmlFor="op-contact-kind">Tipo de registro</Label>
+                <NativeSelect
+                  id="op-contact-kind"
+                  value={contactKind}
+                  disabled={command.busy}
+                  onChange={(e) => setContactKind(e.target.value)}
+                >
+                  <option value="INTERACTION">Nota interna</option>
+                  {open &&
+                  principal &&
+                  ["ENVIADO", "APROVADO"].includes(principal.status) ? (
+                    <option value="PROPOSAL_SENT">
+                      Proposta enviada ao cliente
+                    </option>
+                  ) : null}
+                  {open && principal ? (
+                    <option value="CUSTOMER_REPLY">
+                      Resposta do cliente recebida
+                    </option>
+                  ) : null}
+                </NativeSelect>
+                {contactKind !== "INTERACTION" && principal ? (
+                  <p>
+                    {principal.number} · versão {principal.version}. Data de
+                    registro em São Paulo; lembretes não reiniciam a espera.
+                    Registre apenas contatos que realmente ocorreram.
+                  </p>
+                ) : null}
+              </div>
               <div data-slot="field">
                 <Label htmlFor="op-interaction">Registrar interação</Label>
                 <Textarea
@@ -521,6 +569,18 @@ function EventDetails({ event }: { event: OpportunityEventDTO }) {
       : "—";
   return (
     <div className="flex flex-col gap-1 whitespace-pre-wrap">
+      {typeof event.data.quoteVersion === "number" ? (
+        <p>
+          {typeof event.data.quoteId === "string" ? (
+            <Link href={`/orcamentos/${event.data.quoteId}`}>
+              Orçamento do registro
+            </Link>
+          ) : (
+            "Orçamento"
+          )}{" "}
+          · versão {event.data.quoteVersion}
+        </p>
+      ) : null}
       {typeof event.data.text === "string" ? <p>{event.data.text}</p> : null}
       {typeof event.data.reason === "string" ? (
         <p>{event.data.reason}</p>

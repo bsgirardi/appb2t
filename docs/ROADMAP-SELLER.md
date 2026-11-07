@@ -1,5 +1,13 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — complemento de retorno do cliente implementado
+
+Usuário aprovou envio/resposta explícitos, prazo ADMIN configurável e padrão 14 dias, contado do primeiro envio ainda sem resposta; lembretes não reiniciam a espera. Tipos de registro no histórico existente, vínculo ao principal/versão atual, alertas agrupados; notas antigas sem inferência. Configuração em Configurações com versão otimista e rota ADMIN; default14 sem preferência salva, mudança aplicada às esperas atuais. Nova migração somente para CommercialSettings; não há persistência de notificações.
+
+Migração real/reaplicação em PostgreSQL exclusivo descartável preservou cliente/orçamento sintéticos e validou constraints. Seis integrações novas aprovadas, incluindo idempotência, permissões, concorrência da preferência, troca/volta do principal e reabertura. Revisão independente e prévia sintética desktop/390 px, temas e teclado; tipos/lint/build aprovados. Suíte unitária final: 928 testes em 224 arquivos aprovados; E4 completa: 27 testes em oito arquivos aprovados. [Entrega e evidências](alertas-comerciais/ENTREGA.md).
+
+Mesma PR #50 e versão 1.25.0, sem segundo incremento. Atualização da PR autorizada pelo pedido anterior e por este complemento; sem merge, Release, implantação ou migração operacional. E2.4 permanece separada. Registros de pendência anteriores descrevem a situação antes dessa decisão e implementação; não os apagar. Alerta interno implementado em validação, com homologação humana/servidor HTTP ainda pendentes.
+
 ## 07/11/2026 — PR de alertas comerciais autorizada
 
 Usuário solicitou “faca pr”. Preparação da branch `codex/alertas-comerciais` em 1.25.0 MINOR sobre main reconferida `bd0b4eb` / 1.24.0, sem novo incremento. Revalidação de 23 testes direcionados aprovada; suíte completa anterior com 915 testes em 220 arquivos, tipos/lint/build finais aprovados. PR em rascunho para o recorte de contatos atrasados e vencimentos; critérios de inatividade/sem retorno continuam pendentes e não foram presumidos aprovados. Commit/push/criação de PR autorizados; merge, Release de distribuição e implantação operacional permanecem separados e não realizados. [PR #50](https://github.com/bsgirardi/appb2t/pull/50) criada em rascunho, implementação eaa8b3f; CI iniciado, resultado ainda pendente. Histórico abaixo preservado.
@@ -195,7 +203,7 @@ Critério proposto: uma alteração de programação deve indicar pedidos afetad
 - [x] Vínculo com orçamentos, identificação da versão atual e orçamento principal (E4.1); comparação imutável entre revisões é escopo distinto.
 - [ ] Margem durante a negociação, incluindo desconto, frete e comissão quando aplicáveis.
 - [ ] Consulta ao prazo produtivo.
-- [ ] Alertas internos de propostas sem retorno ou próximas do vencimento.
+- [x] Alertas internos de propostas sem retorno ou próximas do vencimento (implementados na PR #50, em validação; padrão14 configurável ADMIN e registros explícitos, sem merge/publicação).
 - [x] Fechamento usando a conversão atual, sem duplicar vendas ou recebíveis (E4.1; concorrência real e rollback validados em banco exclusivo).
 
 Critério proposto: acompanhar uma oportunidade até a venda ou perda, com histórico e próxima ação claros. Mensagens externas e automações de envio exigem escopo próprio.

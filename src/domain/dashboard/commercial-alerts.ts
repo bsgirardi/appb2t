@@ -16,6 +16,7 @@ export type AlertOpportunity = {
   nextContactDate: string | null;
   nextAction: string | null;
   ownerName: string | null;
+  waitingSince?: string | null;
 };
 const label = (date: string) => date.split("-").reverse().join("/");
 const active = (q: AlertQuote) => ["ENVIADO", "APROVADO"].includes(q.status);
@@ -24,6 +25,7 @@ export function commercialAlerts(
   quotes: AlertQuote[],
   opportunities: AlertOpportunity[],
   today: string,
+  replyWaitDays = 14,
 ) {
   const open = opportunities.filter((o) =>
     (openStages as readonly string[]).includes(o.stage),
@@ -41,14 +43,30 @@ export function commercialAlerts(
     (q) => q.validUntil && q.validUntil <= shiftDay(today, 7),
   );
   const byPrincipal = new Map(expiring.map((q) => [q.id, q]));
+  const currentPending = new Map(pending.map((q) => [q.id, q]));
+  let unansweredCount = 0;
   const rows: { deadline: string; priority: Priority }[] = [];
   for (const o of open) {
     const overdue = !!o.nextContactDate && o.nextContactDate < today;
     const q = o.principalQuoteId
       ? byPrincipal.get(o.principalQuoteId)
       : undefined;
-    if (!overdue && !q) continue;
+    const proposal = o.principalQuoteId
+      ? currentPending.get(o.principalQuoteId)
+      : undefined;
+    const replyDeadline = o.waitingSince
+      ? shiftDay(o.waitingSince, replyWaitDays)
+      : null;
+    const unanswered =
+      !!proposal?.validUntil && !!replyDeadline && replyDeadline <= today;
+    if (unanswered) unansweredCount++;
+    if (!overdue && !q && !unanswered) continue;
     const reasons = [
+      ...(unanswered
+        ? [
+            `Sem retorno do cliente · envio registrado em ${label(o.waitingSince!)} · prazo de ${replyWaitDays} dias atingido em ${label(replyDeadline!)}`,
+          ]
+        : []),
       ...(overdue
         ? [`Contato agendado atrasado desde ${label(o.nextContactDate!)}`]
         : []),
@@ -59,13 +77,17 @@ export function commercialAlerts(
       `Próxima ação: ${o.nextAction || "definir na negociação"}`,
     ];
     rows.push({
-      deadline: overdue ? o.nextContactDate! : q!.validUntil!,
+      deadline: overdue
+        ? o.nextContactDate!
+        : unanswered
+          ? replyDeadline!
+          : q!.validUntil!,
       priority: {
         id: `commercial:opportunity:${o.id}`,
         title: o.title,
         detail: reasons.join(" · "),
         href: `/negociacoes/${o.id}`,
-        severity: overdue ? "urgent" : "attention",
+        severity: overdue || unanswered ? "urgent" : "attention",
       },
     });
   }
@@ -89,6 +111,7 @@ export function commercialAlerts(
   );
   return {
     priorities: rows.map((r) => r.priority),
+    unansweredCount,
     expiringCount: expiring.length,
     overdueCount: open.filter(
       (o) => o.nextContactDate && o.nextContactDate < today,

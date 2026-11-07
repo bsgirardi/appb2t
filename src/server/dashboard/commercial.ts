@@ -6,6 +6,7 @@ import type {
 } from "@/domain/dashboard/types";
 import { summarizeCommercial } from "@/domain/dashboard/commercial";
 import { commercialAlerts } from "@/domain/dashboard/commercial-alerts";
+import { replyWaitingSince } from "@/domain/opportunities/reply-tracking";
 import { shiftDay } from "@/domain/dashboard/filters";
 import {
   D,
@@ -26,77 +27,104 @@ export async function getCommercialDashboard(
 ): Promise<DashboardPanelDTO> {
   return db.$transaction(
     async (tx) => {
-      const [sales, quotes, requests, requirements, opportunities] =
-        await Promise.all([
-          tx.sale.findMany({
-            where: { status: { notIn: ["RASCUNHO", "CANCELADA"] } },
-            select: {
-              id: true,
-              sequence: true,
-              customerId: true,
-              status: true,
-              createdAt: true,
-              expectedDeliveryDate: true,
-              totals: true,
-              items: {
-                select: {
-                  productId: true,
-                  description: true,
-                  quantity: true,
-                  unitPrice: true,
+      const [
+        sales,
+        quotes,
+        requests,
+        requirements,
+        opportunities,
+        commercialSettings,
+      ] = await Promise.all([
+        tx.sale.findMany({
+          where: { status: { notIn: ["RASCUNHO", "CANCELADA"] } },
+          select: {
+            id: true,
+            sequence: true,
+            customerId: true,
+            status: true,
+            createdAt: true,
+            expectedDeliveryDate: true,
+            totals: true,
+            items: {
+              select: {
+                productId: true,
+                description: true,
+                quantity: true,
+                unitPrice: true,
+              },
+            },
+          },
+        }),
+        tx.quote.findMany({
+          select: {
+            id: true,
+            sequence: true,
+            opportunityId: true,
+            version: true,
+            status: true,
+            createdAt: true,
+            validUntil: true,
+            totals: true,
+            events: {
+              where: { action: "APPROVE" },
+              select: { createdAt: true },
+              orderBy: { createdAt: "asc" },
+              take: 1,
+            },
+            sale: { select: { status: true } },
+          },
+        }),
+        tx.catalogRequest.findMany({
+          select: { id: true, sequence: true, state: true, createdAt: true },
+        }),
+        tx.artLineRequirement.findMany({
+          where: { required: true, request: { state: { not: "ENCERRADA" } } },
+          select: {
+            id: true,
+            requestId: true,
+            request: { select: { sequence: true } },
+            package: {
+              select: {
+                currentRevision: {
+                  select: { state: true, publishedAt: true },
                 },
               },
             },
-          }),
-          tx.quote.findMany({
-            select: {
-              id: true,
-              sequence: true,
-              opportunityId: true,
-              status: true,
-              createdAt: true,
-              validUntil: true,
-              totals: true,
-              events: {
-                where: { action: "APPROVE" },
-                select: { createdAt: true },
-                orderBy: { createdAt: "asc" },
-                take: 1,
-              },
-              sale: { select: { status: true } },
-            },
-          }),
-          tx.catalogRequest.findMany({
-            select: { id: true, sequence: true, state: true, createdAt: true },
-          }),
-          tx.artLineRequirement.findMany({
-            where: { required: true, request: { state: { not: "ENCERRADA" } } },
-            select: {
-              id: true,
-              requestId: true,
-              request: { select: { sequence: true } },
-              package: {
-                select: {
-                  currentRevision: {
-                    select: { state: true, publishedAt: true },
-                  },
+          },
+        }),
+        tx.opportunity.findMany({
+          where: { stage: { notIn: ["GANHO", "PERDIDO"] } },
+          select: {
+            id: true,
+            title: true,
+            stage: true,
+            principalQuoteId: true,
+            events: {
+              where: {
+                type: {
+                  in: [
+                    "PROPOSAL_SENT",
+                    "CUSTOMER_REPLY",
+                    "SET_PRIMARY",
+                    "REOPEN",
+                  ],
                 },
               },
+              select: { id: true, type: true, data: true, createdAt: true },
+              orderBy: [{ createdAt: "asc" }, { id: "asc" }],
             },
-          }),
-          tx.opportunity.findMany({
-            where: { stage: { notIn: ["GANHO", "PERDIDO"] } },
-            select: {
-              id: true,
-              title: true,
-              stage: true,
-              principalQuoteId: true,
-              nextContactDate: true,
-              nextAction: true,
-              owner: { select: { name: true } },
-            },
-          }),
-        ]);
+            nextContactDate: true,
+            nextAction: true,
+            owner: { select: { name: true } },
+          },
+        }),
+        tx.commercialSettings.findUnique({
+          where: { id: 1 },
+          select: { replyWaitDays: true },
+        }),
+      ]);
+      const replyWaitDays = commercialSettings?.replyWaitDays ?? 14;
+      const quoteVersions = new Map(quotes.map((q) => [q.id, q.version]));
       const alerts = commercialAlerts(
         quotes.map((q) => ({
           ...q,
@@ -106,8 +134,19 @@ export async function getCommercialDashboard(
           ...o,
           nextContactDate: o.nextContactDate ? civil(o.nextContactDate) : null,
           ownerName: o.owner?.name ?? null,
+          waitingSince: o.principalQuoteId
+            ? replyWaitingSince(
+                (o.events ?? []).map((e) => ({
+                  ...e,
+                  createdAt: e.createdAt.toISOString(),
+                })),
+                o.principalQuoteId,
+                quoteVersions.get(o.principalQuoteId) ?? 0,
+              )
+            : null,
         })),
         f.today,
+        replyWaitDays,
       );
       const input = {
         sales: sales.map((s) => ({
@@ -442,12 +481,21 @@ export async function getCommercialDashboard(
           { href: "/negociacoes?stage=abertas&due=atrasadas" },
         ),
       );
+      panel.metrics.push(
+        metric(
+          "unanswered",
+          "Sem retorno do cliente",
+          alerts.unansweredCount,
+          "number",
+          `Propostas principais vigentes com envio explícito sem resposta registrada há pelo menos ${replyWaitDays} dias civis. Lembretes não reiniciam o prazo.`,
+        ),
+      );
       panel.priorityContext = [
         alerts.openRecords
           ? "Acompanhamento comercial da posição atual."
           : "Nenhuma negociação aberta ou proposta vigente registrada para acompanhamento comercial.",
         `${alerts.missingValidity} proposta(s) sem validade; ${alerts.missingContact} negociação(ões) sem data de próximo contato; ${alerts.missingPrincipal} negociação(ões) em proposta/negociação sem orçamento principal. Consulte Orçamentos e Negociações para completar os dados.`,
-        "Ausência de alerta não comprova que todos os contatos estejam em dia. O histórico livre não distingue envio de resposta: propostas sem retorno não são inferidas.",
+        `Ausência de alerta não comprova que todos os contatos estejam em dia. Sem retorno exige envio explícito da versão atual e ausência de resposta registrada por ${replyWaitDays} dias civis. Notas antigas não comprovam envio ou resposta. Lembretes não reiniciam o prazo.`,
       ].join(" ");
       panel.notes = [
         "As contagens de carteira, propostas e aprovações pendentes representam a posição atual, independentemente do período.",

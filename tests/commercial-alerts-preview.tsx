@@ -37,6 +37,7 @@ function Preview() {
             nextAction:
               "Confirmar as medidas com o cliente e combinar a próxima conversa",
             ownerName: "Responsável de teste",
+            waitingSince: "2026-10-24",
           },
         ],
     "2026-11-07",
@@ -65,7 +66,7 @@ function Preview() {
         context={
           empty
             ? "Nenhuma negociação aberta ou proposta vigente registrada para acompanhamento comercial. Ausência de alerta não comprova todos os contatos em dia."
-            : "Posição atual: propostas vigentes até 7 dias e contatos agendados antes de hoje. Uma proposta sem validade e uma negociação sem próximo contato precisam de dados. Ausência de alerta não comprova que todos os contatos estejam em dia. Histórico livre não distingue envio de resposta; sem retorno não é inferido."
+            : "Posição atual: propostas vigentes até 7 dias e contatos agendados antes de hoje. Uma proposta sem validade e uma negociação sem próximo contato precisam de dados. Ausência de alerta não comprova que todos os contatos estejam em dia. Sem retorno exige envio explícito da versão atual sem resposta registrada por 14 dias corridos; lembretes não reiniciam a espera."
         }
       />
       <p>

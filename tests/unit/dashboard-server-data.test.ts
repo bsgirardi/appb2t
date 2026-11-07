@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
     sale: { findMany: vi.fn() },
     quote: { findMany: vi.fn() },
     opportunity: { findMany: vi.fn() },
+    commercialSettings: { findUnique: vi.fn() },
     catalogRequest: { findMany: vi.fn() },
     artLineRequirement: { findMany: vi.fn() },
     productionOrder: { findMany: vi.fn() },

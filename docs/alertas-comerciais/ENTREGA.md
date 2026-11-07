@@ -1,3 +1,41 @@
+# Complemento implementado — sem retorno do cliente
+
+07/11/2026 · PR #50 · versão mantida em **1.25.0**, sem segundo incremento.
+
+## Regra confirmada
+
+O usuário aprovou envio/resposta explícitos, prazo configurável pelo ADMIN com padrão 14 dias e contagem pelo primeiro envio ainda sem resposta. Lembretes não reiniciam o prazo. Em Configurações, o administrador pode informar de 1 a 365 dias corridos; a mudança vale para as esperas existentes na próxima leitura. Na ausência de preferência salva, aplica-se 14 sem criar uma linha automaticamente.
+
+Na interação da negociação, equipe ADMIN/OPERATOR pode registrar Nota interna, Proposta enviada ao cliente ou Resposta do cliente recebida. Os dois registros novos guardam autor, instante, orçamento principal e versão. Não enviam mensagem; não interpretam notas antigas e não retrodatam contatos. Envio exige principal emitido/vigente e negociação aberta; resposta exige principal/versão atual e negociação aberta. Versão e chave de operação protegem contra repetição, edição concorrente e envio para a proposta errada.
+
+O alerta aparece no dia civil envio + prazo, em São Paulo (envio dia 1 e prazo 14: alerta dia 15), enquanto não houver resposta registrada e a proposta principal estiver vigente com validade conhecida. Continua agrupado com atraso de contato e vencimento. Nova revisão exige novo envio; troca real de principal e reabertura invalidam ciclos anteriores. Selecionar o mesmo principal não silencia a espera. Registros encerrados, secundários, expirados/convertidos e sem validade não recebem alerta de sem retorno. Ausência de envio explícito continua sendo falta de evidência, não confirmação de contato em dia.
+
+## Persistência e acesso
+
+Novos tipos em OpportunityEvent, sem tabela de notificações. Apenas a preferência exige migração aditiva: `20261107110000_commercial_reply_settings`, singleton CommercialSettings com versão otimista, autor e restrições de prazo. Rota `/api/commercial-settings` é ADMIN e no-store, com proteção de origem existente; OPERATOR continua consultando o critério pelo painel, sem ganhar acesso à configuração/financeiro. Os detalhes e histórico do registro continuam no escopo atual da negociação.
+
+## Evidências do complemento
+
+- Redutor/validação, API, serviço e UI têm testes direcionados; RED observado antes da implementação de regra, configuração e controles.
+- Migração real baseline → nova migração e reaplicação em PostgreSQL 17 **descartável e exclusivo** `127.0.0.1:55434/b2t_e4_test`; Customer e Quote sintéticos anteriores permaneceram idênticos. Ausência de backfill e constraints de singleton/prazo verificadas.
+- Seis integrações novas: envio/resposta de operador, idempotência, lembretes, default14, prazo ADMIN, disputa por primeira gravação, versões/principal/encerramento, troca real e volta ao principal, reabertura; rotas com sessão ADMIN/OPERATOR/inativa e no-store. Sem servidor HTTP Next iniciado: handlers executados diretamente, com sessões somente no banco descartável.
+- Revisão independente sem falhas confirmadas; casos de troca/volta e reabertura sugeridos pelo revisor incorporados à integração.
+- Build de produção, tipagem e lint aprovados. Suíte unitária completa final: **928 testes em 224 arquivos aprovados**; E4 completa: **27 testes em oito arquivos aprovados**, incluindo as seis integrações novas.
+- Prévia sintética em memória: configuração 14, salvar preferência, envio/resposta explícitos, histórico com link ao orçamento, alerta com data/prazo/motivo. Desktop e iframe390 px, claro/escuro e foco até Salvar. A prévia intercepta somente suas chamadas fictícias; nenhum dado real é acessado.
+
+Limite mantido: sem ensaio HTTP autenticado por servidor Next ou homologação humana. Nenhum contorno ao bloqueio anterior de inicialização do Next. Não foram acessados banco, sessão, usuários ou contêineres operacionais; o banco dos testes é novo e descartável. Migração operacional, merge, Release de distribuição e implantação não autorizados/realizados.
+
+Prévia: `node tests/commercial-alerts-preview-server.mjs`, páginas `/tests/reply-tracking-preview.html`, `/tests/reply-tracking-mobile.html` e `/tests/commercial-alerts-preview.html`. Migração: `E4_TEST_DATABASE_URL` exclusiva e `node --import tsx tests/e4/reply-migration-validation.ts` exige banco vazio; testes pelo `npm run test:e4`.
+
+![Configuração administrativa padrão](prazo-14-dias.png)
+![Histórico explícito de envio e resposta](envio-resposta-historico.png)
+![Alerta com primeiro envio e prazo atingido](sem-retorno-14-dias.png)
+![Formulário em celular claro com foco](prazo-celular-claro.png)
+
+---
+
+## Registro histórico anterior ao complemento
+
 # Alertas comerciais — entrega local parcial
 
 07/11/2026 · branch `codex/alertas-comerciais` · base main `bd0b4eb` / 1.24.0 · versão preparada 1.25.0.

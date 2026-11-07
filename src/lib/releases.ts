@@ -16,6 +16,8 @@ export const releases: Release[] = [
         title: "Novidades",
         items: [
           "Encontre contatos agendados atrasados no painel, com responsável, próxima ação e acesso direto à negociação.",
+          "Registre o envio da proposta e a resposta do cliente para acompanhar propostas sem retorno; lembretes não reiniciam a espera.",
+          "Administradores podem configurar o prazo de retorno em dias corridos; o padrão é de 14 dias, aplicado também às esperas já registradas.",
           "Consulte os critérios de acompanhamento e identifique propostas sem validade e negociações sem data de contato ou orçamento principal.",
         ],
       },

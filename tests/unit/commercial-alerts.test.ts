@@ -166,3 +166,26 @@ it("keeps the seven civil days across year-end and São Paulo midnight", async (
     ).overdueCount,
   ).toBe(1);
 });
+
+it("alerts only from explicit unanswered send at the configured civil deadline, grouping reasons", () => {
+  const o = opportunity({
+    waitingSince: "2026-10-24",
+    nextContactDate: "2026-11-06",
+  });
+  const q = quote({ opportunityId: "o" });
+  expect(commercialAlerts([q], [o], "2026-11-06", 14).unansweredCount).toBe(0);
+  const result = commercialAlerts([q], [o], today, 14);
+  expect(result.unansweredCount).toBe(1);
+  expect(result.priorities).toHaveLength(1);
+  expect(result.priorities[0].detail).toContain("Sem retorno do cliente");
+  expect(result.priorities[0].detail).toContain("24/10/2026");
+  expect(commercialAlerts([q], [o], today, 15).unansweredCount).toBe(0);
+  expect(
+    commercialAlerts(
+      [quote({ opportunityId: "o", validUntil: null })],
+      [o],
+      today,
+      14,
+    ).unansweredCount,
+  ).toBe(0);
+});
