@@ -5,7 +5,7 @@ import type {
   PricingCatalogDTO,
   PricingSnapshotDTO,
 } from "@/domain/pricing/types";
-import { BatchPricingForm } from "./batch-pricing-form";
+import { GuidedPricingForm } from "./guided-pricing-form";
 import { createEstimate } from "@/lib/pricing-client";
 import { Label } from "@/components/ui/label";
 export function LinePricingEditor({
@@ -37,7 +37,9 @@ export function LinePricingEditor({
         />
         Revisei os parâmetros e a correspondência com este item
       </Label>
-      <BatchPricingForm
+      <GuidedPricingForm
+        embedded
+        applicationHint="Anexar custo não altera o preço negociado nem documentos emitidos."
         catalog={catalog}
         initialInput={snapshot?.input}
         fixedQuantity={item.quantity}

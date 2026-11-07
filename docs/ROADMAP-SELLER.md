@@ -1,5 +1,9 @@
 # B2T — evolução de preço, produção e vendas
 
+## 06/11/2026 — integração autorizada e versão conciliada
+
+PRs #46 (1.22.1) e #47 (1.23.0) integradas. PDV passa a 1.24.0 MINOR nesta mesma PR #48, preservando notas anteriores. Validação adicional HTTP e migração serão registradas após execução. Publicação operacional não realizada. Registros anteriores mantêm o estado histórico.
+
 ## 06/11/2026 — preparação da PR do PDV autorizada
 
 Usuário solicitou “faça pr”. Main reconferida em `16a6466` / 1.22.0; incremento MINOR único para 1.23.0, com manifestos e notas portuguesas sincronizados. PR #47 da calculadora também propõe 1.23.0 e permanece aberta; reconciliar versão e histórico antes do merge conforme a ordem de integração, incluindo a PR #46 visual. [PR #48 do PDV](https://github.com/bsgirardi/appb2t/pull/48) criada em rascunho; revalidação aprovada com 890 testes gerais em 215 arquivos, quatro testes de versão/rodapés/Atualizações, tipagem, lint e build. Ensaio HTTP autenticado integral continua pendente por bloqueio automático anterior, sem contorno. Commit/push/PR estão autorizados por este pedido; merge, Release e implantação operacional permanecem separados e não autorizados. PR #48 confirmada aberta e em rascunho, branch codex/pdv-presencial, implementação dd45e0e. CI iniciado e ainda pendente; sem merge, Release ou publicação.
@@ -22,6 +26,20 @@ Necessidade de balcão/feira/rua confirmada pelo pedido; deixou de ser uma decis
 
 Estado: investigação e proposta; sem implementação, testes funcionais, PR, merge, Release, deploy ou migração operacional. Versão preservada. Calculadora PR #47 e revisão visual PR #46 consultadas por leitura, sem presumir integração/publicação. Alterações da pasta operacional preservadas. Próxima ação: fechar decisões, desenho e plano e implementar o recorte autorizado.
 
+
+## 06/11/2026 — PR da calculadora autorizada
+
+Usuário autorizou preparar e criar PR. Versão 1.23.0 MINOR única sobre main 1.22.0 (`16a6466`), com manifestos e notas portuguesas sincronizados. Revalidação de preparação aprovada: 897 testes, tipagem, lint, build e quatro testes de versão/rodapés; [PR #47](https://github.com/bsgirardi/appb2t/pull/47) criada para revisão; CI será acompanhado pelo GitHub. Sem autorização de merge, Release ou publicação operacional. O registro de implementação abaixo preserva o estado anterior à preparação da PR.
+
+
+## 06/11/2026 — calculadora unificada em revisão local
+
+Base main reconferida em 1.22.0 / `16a6466`, com #42/#43 integradas; referências anteriores abaixo são históricas. Experiência principal com composição original, recursos por lote existentes e revisão de produto com referências atuais e antes/depois; preço final e memórias preservados. Comparadores E1.1/E1.2 reutilizados. Implementação na worktree `codex/calculadora-unificada`, com 897 testes unitários, tipagem, lint e build aprovados; conferência visual sintética desktop/celular e temas. Sem PR, merge, publicação ou banco operacional. Versão base 1.22.0 mantida; incremento único reservado à futura PR. [Entrega, evidências e limites](calculadora-unificada/ENTREGA.md). Consumo segue por peça até decisão específica sobre entrada total; tempo principal do lote em horas/minutos. PDV presencial é frente separada; tributação brasileira por regime/operação segue direção futura, sem regras fiscais inferidas. A revisão de espaçamentos local de outro chat permanece separada.
+
+
+## 06/11/2026 — ajustes de espaçamento em revisão local
+
+Main 1.22.0 (`16a6466`) reconferida com #42/#43 integradas. Menu com rolagem independente, perfil acessível e espaçamentos corrigidos em campos e cartão de produto. Versão 1.22.1 preparada em isolamento, com inspeção visual sintética desktop/celular e temas, 47 testes de interface/regressão e 4 de versão aprovados; tipagem e lint aprovados. [Evidências e limites](ux-admin-espacamento/ENTREGA.md). Sem PR, merge ou publicação. Registros abaixo mantêm o estado histórico de suas respectivas entregas.
 
 Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 

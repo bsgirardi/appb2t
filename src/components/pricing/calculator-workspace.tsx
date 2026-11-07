@@ -1,13 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { CalculatorData } from "@/domain/calculation/types";
 import type { PricingCatalogDTO } from "@/domain/pricing/types";
 import { CalculatorForm } from "@/components/calculator/calculator-form";
-import { BatchPricingForm } from "./batch-pricing-form";
+import { useDocumentExit } from "@/components/commerce/use-document-exit";
 import { createEstimate } from "@/lib/pricing-client";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import { GuidedPricingForm } from "./guided-pricing-form";
 import type { PricingRequest } from "@/domain/pricing/types";
 export function CalculatorWorkspace({
@@ -20,58 +20,65 @@ export function CalculatorWorkspace({
   catalog: PricingCatalogDTO;
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"legacy" | "batch" | "guided">("legacy");
+  const [originalVisited, setOriginalVisited] = useState(false);
+  const [fingerprint, setFingerprint] = useState("");
+  const baseline = useRef<string | null>(null);
+  const [legacyFingerprint, setLegacyFingerprint] = useState("");
+  const legacyBaseline = useRef<string | null>(null);
+  const trackLegacy = useCallback((value: string) => {
+    legacyBaseline.current ??= value;
+    setLegacyFingerprint(value === legacyBaseline.current ? "" : value);
+  }, []);
+  const exit = useDocumentExit(
+    JSON.stringify([fingerprint, legacyFingerprint]),
+  );
   const operation = useRef<{ body: string; key: string } | null>(null);
-  const [visited, setVisited] = useState(() => new Set(["legacy"]));
+
   async function apply(request: PricingRequest) {
+    if (
+      legacyFingerprint &&
+      !window.confirm(
+        "Ao abrir o produto, a simulação original não aplicada será deixada para trás. Continuar?",
+      )
+    )
+      return;
     const body = JSON.stringify(request);
     if (operation.current?.body !== body)
       operation.current = { body, key: crypto.randomUUID() };
     const snapshot = await createEstimate(request, operation.current!.key);
+    exit.markSaved();
     router.push(`/produtos?pricingSnapshot=${encodeURIComponent(snapshot.id)}`);
   }
   return (
-    <Tabs
-      value={mode}
-      onValueChange={(value) => {
-        setMode(value as typeof mode);
-        setVisited((previous) => new Set([...previous, value]));
-      }}
-    >
-      <p className="mb-4">
+    <div className="flex min-w-0 flex-col gap-5">
+      <GuidedPricingForm
+        catalog={catalog}
+        onApply={apply}
+        applyLabel="Aplicar ao rascunho de produto"
+        onDraftChange={(value) => {
+          baseline.current ??= value;
+          setFingerprint(value === baseline.current ? "" : value);
+        }}
+      />
+      <p>
         <Link href="/calculadora/cenarios">
-          Comparações de canais e descontos salvas
+          Biblioteca de cenários e comparações salvas
         </Link>
       </p>
-      <TabsList
-        aria-label="Tipo de cálculo"
-        className="mb-5 h-auto flex-wrap justify-start gap-1"
+      <details
+        onToggle={(event) => {
+          if (event.currentTarget.open) setOriginalVisited(true);
+        }}
       >
-        <TabsTrigger value="legacy">Cálculo original</TabsTrigger>
-        <TabsTrigger value="batch">Cálculo por lote · V2</TabsTrigger>
-        <TabsTrigger value="guided">Calculadora V3</TabsTrigger>
-      </TabsList>
-      <TabsContent value="legacy" forceMount hidden={mode !== "legacy"}>
-        <CalculatorForm data={data} role={role} />
-      </TabsContent>
-      {visited.has("batch") && (
-        <TabsContent value="batch" forceMount hidden={mode !== "batch"}>
-          <BatchPricingForm
-            catalog={catalog}
-            applyLabel="Aplicar ao rascunho de produto"
-            onApply={apply}
-          />
-        </TabsContent>
-      )}
-      {visited.has("guided") && (
-        <TabsContent value="guided" forceMount hidden={mode !== "guided"}>
-          <GuidedPricingForm
-            catalog={catalog}
-            applyLabel="Aplicar ao rascunho de produto"
-            onApply={apply}
-          />
-        </TabsContent>
-      )}
-    </Tabs>
+        <summary>Consultar cálculo original</summary>
+        <p className="my-4 text-muted-foreground">
+          Memórias antigas mantêm manutenção percentual, acabamento e fixação
+          originais. Não há conversão automática para a ficha por lote.
+        </p>
+        {originalVisited && (
+          <CalculatorForm data={data} role={role} onDraftChange={trackLegacy} />
+        )}
+      </details>
+    </div>
   );
 }

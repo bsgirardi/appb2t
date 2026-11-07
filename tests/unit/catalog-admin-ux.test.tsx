@@ -179,7 +179,12 @@ it("cost editor: deduplicates catalog opening and locks cancellation during esti
   expect(fetch).toHaveBeenCalledTimes(1);
   resolveCatalog(new Response(JSON.stringify({ data: pricingCatalog })));
   fireEvent.click(
-    await screen.findByRole("button", { name: "Aplicar estimativa" }),
+    await screen.findByRole("checkbox", {
+      name: "Conferi as referências atuais da ficha",
+    }),
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Aplicar ficha revisada" }),
   );
   await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
   expect(
