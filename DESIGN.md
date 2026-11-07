@@ -1,6 +1,6 @@
 # Design System APP B2T
 
-Contrato vigente · etapa 1 · 07/11/2026 · base: main 1.27.0 (`a5805f40578a50b7007b4b10b55bf58c85e393d5`).
+Contrato vigente · fundação, piloto e listagens comerciais · 07/11/2026 · base: main 1.27.0 (`a5805f40578a50b7007b4b10b55bf58c85e393d5`).
 
 ## Autoridade e escopo
 
@@ -70,5 +70,7 @@ Espaçamentos de referência: 4/8/12/16/24/32 px. Controles usam em geral rounde
 Novos usos devem cobrir padrão, hover, foco visível, selecionado/expandido, disabled, erro e pending quando aplicáveis. Cor acompanha texto; ações de ícone têm nome acessível. Mensagens longas devem quebrar sem cortar dados. Preservar movimento reduzido e impressão. Não redesenhar menu, rolagem própria da sidebar, prioridades antes dos gráficos ou formulários progressivos já existentes.
 
 ## Responsabilidade futura
+
+As listagens de orçamentos e vendas acrescentam somente a receita `.commercial-list`, sem redefinir variantes ou tokens. Critérios aplicados ficam junto ao resultado; controles recolhidos permanecem montados. [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md) registra consumidores, evidências e limites desta continuidade.
 
 Variantes e estados reutilizáveis pertencem a ui/*; preferência e pares de cor pertencem aos tokens; arranjo e densidade contextual pertencem às receitas. As regras centrais de data-slot mantêm compatibilidade durante a migração, não constituem uma segunda API de variantes. Remover uma regra exige mostrar consumidores, estilo computado antes/depois e estados afetados, incluindo claro/escuro e portais. O piloto de produto aplica os adaptadores locais Field/TextareaField e a receita product-essential-fields, sem migrar variantes/tokens globais. Evidências e limites estão em [PILOTO-PRODUTO.md](docs/design/PILOTO-PRODUTO.md).

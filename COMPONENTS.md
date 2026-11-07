@@ -31,7 +31,9 @@ Módulos instalados em `src/components/ui`: accordion, alert, badge, breadcrumb,
 
 ## Formulários administrativos
 
-`src/components/admin/admin-form.tsx` mantém form nativo, encadeia onInvalidCapture/onSubmitCapture e revela/foca campos inválidos por `form-errors.ts`. A orientação de obrigatoriedade continua habilitada por padrão; `requiredGuide={false}` permite ao consumidor fornecer uma orientação contextual única. O piloto de produto usa essa opção sem modificar os demais formulários/filtros. A opção não chega ao DOM e não altera validação ou eventos.
+`src/components/admin/admin-form.tsx` mantém form nativo, encadeia onInvalidCapture/onSubmitCapture e revela/foca campos inválidos por `form-errors.ts`. A orientação de obrigatoriedade continua habilitada por padrão; `requiredGuide={false}` permite ao consumidor fornecer uma orientação contextual única. O piloto de produto e os filtros opcionais de QuotePanel/SalePanel usam essa opção. A opção não chega ao DOM e não altera validação ou eventos.
+
+Nas duas listagens comerciais, `AppliedListFilters` descreve apenas os filtros recebidos da consulta, sem observar o rascunho dos controles. `commercial-list` delimita a receita de nomes longos, links de documentos e valores tabulares; Table/FilterPanel/Pagination permanecem inalterados. ListFeedback tem somente QuotePanel/SalePanel como consumidores e compõe Empty com as ações anteriores. Inventário e limites em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md).
 
 `FormSection` usa section ou details/summary, mantém filhos e abre se hasErrors. Não substituir por montagem condicional que descarte estado. `FormActions` organiza ações; não implementa submissão, permissões ou bloqueio de repetição. FormData, action, validação de domínio, rascunhos, pending/disabled e chaves de idempotência permanecem sob responsabilidade dos fluxos existentes.
 

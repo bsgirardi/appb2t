@@ -12,7 +12,14 @@ import { Pagination } from "@/components/ui/pagination";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { AppliedListFilters } from "./applied-list-filters";
 import {
   Table,
   TableHeader,
@@ -53,7 +60,7 @@ export function QuotePanel({
     );
   }
   return (
-    <div className="commerce-page">
+    <div className="commerce-page commercial-list">
       <div className="page-heading">
         <div>
           <h1>Orçamentos</h1>
@@ -79,6 +86,9 @@ export function QuotePanel({
       <FilterPanel activeCount={activeCommerceFilters(filters)}>
         <AdminForm
           key={JSON.stringify(filters)}
+          requiredGuide={false}
+          method="get"
+          action="/orcamentos"
           className="commerce-filters"
           onSubmit={filter}
         >
@@ -116,8 +126,8 @@ export function QuotePanel({
             Até
             <Input type="date" name="to" defaultValue={filters.to} />
           </Label>
-          <Button variant="outline" size="sm" className="">
-            Filtrar
+          <Button type="submit" size="sm">
+            Aplicar filtros
           </Button>
           {activeCommerceFilters(filters) > 0 && (
             <Button
@@ -130,37 +140,59 @@ export function QuotePanel({
           )}
         </AdminForm>
       </FilterPanel>
-      <Card asChild>
-        <div className="table-scroll">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Orçamento</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {initial.items.map((q) => (
-                <TableRow key={q.id}>
-                  <TableCell>
-                    <Link href={`/orcamentos/${q.id}`}>{q.number}</Link>
-                  </TableCell>
-                  <TableCell>
-                    {q.snapshot?.customer.name ??
-                      customers.find((c) => c.id === q.input.customerId)
-                        ?.name ??
-                      "Não informado"}
-                  </TableCell>
-                  <TableCell>
-                    <CommerceStatus status={q.status} />
-                  </TableCell>
-                  <TableCell>R$ {q.totals?.total ?? "—"}</TableCell>
+      <Card>
+        <CardHeader>
+          <CardTitle>Resultados</CardTitle>
+          <CardDescription>
+            {initial.total} orçamentos encontrados · {initial.items.length}{" "}
+            nesta página
+          </CardDescription>
+          <AppliedListFilters filters={filters} />
+        </CardHeader>
+        <CardContent>
+          {initial.items.length > 0 && (
+            <Table aria-label="Lista de orçamentos">
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Orçamento</TableHead>
+                  <TableHead scope="col">Cliente</TableHead>
+                  <TableHead scope="col">Estado</TableHead>
+                  <TableHead
+                    scope="col"
+                    className="commercial-amount text-right"
+                  >
+                    Total
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {initial.items.map((q) => (
+                  <TableRow key={q.id}>
+                    <TableCell>
+                      <Link
+                        className="commercial-document-link"
+                        href={`/orcamentos/${q.id}`}
+                      >
+                        {q.number}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="commercial-customer">
+                      {q.snapshot?.customer.name ??
+                        customers.find((c) => c.id === q.input.customerId)
+                          ?.name ??
+                        "Não informado"}
+                    </TableCell>
+                    <TableCell>
+                      <CommerceStatus status={q.status} />
+                    </TableCell>
+                    <TableCell className="commercial-amount">
+                      R$ {q.totals?.total ?? "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
           {!initial.items.length && (
             <ListFeedback
               total={initial.total}
@@ -170,7 +202,7 @@ export function QuotePanel({
               onClear={() => router.push("/orcamentos")}
             />
           )}
-        </div>
+        </CardContent>
       </Card>
       <Pagination className="form-actions">
         <Button
