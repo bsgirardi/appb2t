@@ -79,23 +79,29 @@ jobs:
             database: b2t_e12_test
             port: 55437
             command: npm run test:e12
+          - suite: tax
+            database: b2t_tax_test
+            port: 55442
+            user: tax_test
+            command: npm run test:tax
     services:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: b2t_test
+          POSTGRES_USER: ${{ matrix.user || 'b2t_test' }}
           POSTGRES_PASSWORD: b2t_test_local_only
           POSTGRES_DB: ${{ matrix.database }}
         ports:
           - ${{ matrix.port }}:5432
         options: >-
-          --health-cmd "pg_isready -U b2t_test -d ${{ matrix.database }}"
+          --health-cmd "pg_isready -U ${{ matrix.user || 'b2t_test' }} -d ${{ matrix.database }}"
           --health-interval 2s
           --health-timeout 3s
           --health-retries 30
     env:
       E32_TEST_DATABASE: "1"
-      DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+      DATABASE_URL: postgresql://${{ matrix.user || 'b2t_test' }}:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+      TAX_DISPOSABLE_DATABASE: ${{ matrix.suite == 'tax' && '1' || '0' }}
       E4_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E5_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E6_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}

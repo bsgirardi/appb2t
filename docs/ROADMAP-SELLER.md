@@ -1,5 +1,9 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — autorização de PR e merge da tributação
+
+Usuário autorizou PR/merge da entrega fiscal local; main 1.26.0 reconferida, candidata mantida em 1.27.0. Verificações fiscais passam a integrar a CI em banco sintético exclusivo. Após checks da revisão exata, seguir distribuição oficial pelo SHA integrado, sem implantação operacional. Esta autorização sucede os registros abaixo de desenvolvimento sem PR; o estado efetivo de integração e Release fica no resumo da PR/evidências locais.
+
 ## 07/11/2026 — tributação gerencial implementada, em validação local
 
 Perfil fiscal manual por vigência/revisões em Configurações → Preço e margem; MEI fixa DAS mensal sem percentual por venda, Simples usa alíquota efetiva informada. Integração com calculadora/comparadores/memórias comerciais, efeito separado na rentabilidade e previsão tributária ADMIN com resumos preservados. [Entrega e evidências](tributacao/ENTREGA.md). Base main 1.26.0 / `2351b6f`, candidata 1.27.0; sem push/PR/merge/distribuição ou implantação. Migração aditiva ensaiada somente em PostgreSQL sintético exclusivo; não encerra todas as evoluções E1/E2 nem representa homologação fiscal/contábil. Escopo e histórico das outras frentes preservados.

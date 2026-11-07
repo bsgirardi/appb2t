@@ -1,5 +1,7 @@
 # Tributação gerencial — entrega local 1.27.0
 
+**Atualização de 07/11/2026:** usuário autorizou criar PR e fazer merge com main. Candidata permanece 1.27.0 sobre main 1.26.0 reconferida; suíte fiscal incluída na matriz CI com banco exclusivo. Depois dos checks, a rotina de distribuição será executada pelo SHA integrado; PR, merge e Release efetivos serão registrados no resumo da PR e em `.b2t/`. Implantação não autorizada. O texto abaixo preserva o estado da entrega local anterior a esse pedido.
+
 07/11/2026, America/Sao_Paulo. Desenho aprovado pelo usuário neste chat. Branch `codex/tributacao-brasileira`, worktree gerenciada `34b6/appb2t`, base main `2351b6f4ad5f967f4bbb92b0cf22045adce30862` / 1.26.0. Implementação local para revisão; sem push, PR, merge, distribuição ou implantação operacional.
 
 ## Entregue

@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — PR e merge da tributação autorizados
+
+Usuário autorizou criar PR e integrar a tributação em main. Main reconferida em `2351b6f` / 1.26.0; mesma candidata 1.27.0, sem novo incremento. Suíte fiscal adicionada à matriz CI com banco sintético exclusivo e guarda própria. Merge depende dos checks da revisão exata; distribuição seguirá a rotina obrigatória do projeto a partir do SHA realmente integrado. Implantação operacional permanece fora do pedido. O estado efetivo de PR, merge e Release será registrado no resumo da PR e nas evidências locais, sem inferência pelos registros históricos abaixo.
+
 ## 07/11/2026 — tributação gerencial implementada localmente, candidata 1.27.0
 
 Desenho aprovado e implementado em isolamento `34b6`, branch `codex/tributacao-brasileira`, base main `2351b6f` / 1.26.0. Perfil MEI/Simples manual com vigência/revisões, DAS fixo mensal separado, efeito na calculadora/comparadores e rentabilidade, previsão financeira e memórias salvas ADMIN. Histórico V2 e documentos emitidos preservados; sem guia, apuração fiscal oficial, título ou pagamento automático. [Entrega, migração sintética, testes e limites](docs/tributacao/ENTREGA.md). Parâmetros reais da empresa ainda precisam de preenchimento e conferência pelo responsável. Candidata 1.27.0 preparada uma única vez; sem push/PR/merge/distribuição ou implantação operacional. Registros anteriores preservados como histórico da investigação e aprovação.
