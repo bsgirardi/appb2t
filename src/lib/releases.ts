@@ -8,7 +8,7 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
-    version: "1.25.0",
+    version: "1.26.0",
     date: "2026-11-07",
     title: "Prioridades comerciais com prazos e próxima ação",
     sections: [
@@ -26,6 +26,33 @@ export const releases: Release[] = [
         items: [
           "Os alertas de vencimento consideram propostas vigentes avulsas ou o orçamento principal de negociações abertas; rascunhos, versões secundárias e registros encerrados ficam fora.",
           "Motivos de atenção da mesma negociação aparecem juntos, evitando pendências duplicadas.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.25.0",
+    date: "2026-11-07",
+    title: "Recorrência de desvios produtivos e conferência da ficha",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Administradores podem identificar diferenças recorrentes de custo por produto, configuração produtiva e quantidade, em uma janela própria de 90 dias.",
+          "A sugestão de conferir a ficha mostra os pedidos, as memórias, a composição dos custos e as fontes que a sustentam, sem alterar parâmetros ou fichas automaticamente.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Pedidos que compartilham produção não contam como repetições independentes. Custos provisórios, dados incompletos e conferências desatualizadas continuam visíveis fora da amostra.",
+          "Os critérios exigem pelo menos cinco pedidos independentes, com três e 60% da amostra excedendo simultaneamente 10% e R$ 5 por linha. Preço, desconto, frete, taxas e comissão permanecem separados do desvio produtivo.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Uma memória antiga ilegível no relatório não impede a apresentação independente das evidências de recorrência e dos custos conhecidos.",
         ],
       },
     ],

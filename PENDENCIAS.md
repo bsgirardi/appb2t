@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — integração autorizada e conciliação da PR #50
+
+E2.4 integrada pela PR #49 em main, commit 99f847a1cac56a9611b4163a8aa6b79cf4851faa, versão 1.25.0. Alertas comerciais conciliados nesta mesma PR #50 como 1.26.0 MINOR sobre a nova main; histórico de ambas as frentes preservado. Os relatos anteriores de ausência de autorização e estados de PR são históricos. Merge e distribuição autorizados neste trabalho; implantação e migração operacional não fazem parte da entrega. Homologação humana e ensaio HTTP autenticado permanecem pendentes.
+
 ## 07/11/2026 — complemento de retorno do cliente implementado
 
 Usuário aprovou envio/resposta explícitos, prazo ADMIN configurável e padrão 14 dias, contado do primeiro envio ainda sem resposta; lembretes não reiniciam a espera. Tipos de registro no histórico existente, vínculo ao principal/versão atual, alertas agrupados; notas antigas sem inferência. Configuração em Configurações com versão otimista e rota ADMIN; default14 sem preferência salva, mudança aplicada às esperas atuais. Nova migração somente para CommercialSettings; não há persistência de notificações.
@@ -19,6 +23,19 @@ Base main `bd0b4eb` / 1.24.0, worktree `alertas-comerciais`, branch `codex/alert
 Janela existente de 7 dias preservada, com confirmação solicitada. **Sem retorno continua pendente**: histórico INTERACTION é texto livre, não identifica envio/resposta. Alternativa de inatividade e prazo perguntados ao usuário, sem implementação ou aprovação presumida. Não encerrar a caixa ampla de alertas.
 
 Validação: 915 testes unitários em 220 arquivos, tipos/lint/build finais aprovados; 29 testes direcionados, revisão independente e prévia sintética desktop/390 px, teclado e temas. Sem HTTP autenticado ou consulta a banco real. Versão 1.25.0 preparada uma única vez para revisão local, manifestos/notas sincronizados. Sem commit/push/PR/merge/Release/deploy, migração ou acesso operacional. [Entrega e evidências](docs/alertas-comerciais/ENTREGA.md). Reconciliar main/versão antes de futura PR autorizada. Registros históricos e alterações locais de outros chats preservados.
+## 07/11/2026 — PR #49 da E2.4 aberta
+
+[PR #49](https://github.com/bsgirardi/appb2t/pull/49) aberta para revisão, branch `codex/e24-recorrencia` → `main`, proposta 1.25.0. Build/lint e 40 testes focados da versão aprovados; validação funcional anterior inclui 1.245 testes gerais, 12 integrações E24 e 14 regressões E22. Verificações automáticas iniciadas, ainda pendentes. Sem merge, Release ou implantação operacional. Homologação humana permanece pendente; os registros de ausência de PR abaixo são históricos.
+
+## 07/11/2026 — PR da E2.4 autorizada, versão 1.25.0 preparada
+
+Usuário autorizou abrir a PR após concluir a implementação. Main reconferida em `bd0b4eb`/1.24.0; incremento MINOR único para 1.25.0, manifestos sincronizados e novas notas portuguesas, mantendo o histórico. Os rodapés continuam usando APP_VERSION; 40 testes focados confirmam login, rodapé administrativo, Atualizações ADMIN/OPERATOR e recorrência. Build e lint da versão proposta aprovados. Sem implantação operacional, merge em main ou Release; homologação humana permanece pendente. Resultado da PR será registrado após a criação. Este registro supera a ausência de autorização para PR nos relatos anteriores, sem ampliar a autorização para publicação.
+
+## 07/11/2026 — E2.4 implementada em isolamento; integração e publicação pendentes
+
+Critérios e plano aprovados; implementação local em `codex/e24-recorrencia`, reconciliada com main `bd0b4eb`/1.24.0. Recorrência por produto/configuração congelada/quantidade, janela de 90 dias, cinco pedidos independentes e pelo menos três/60% com excesso simultâneo de 10% e R$ 5 por linha. Fontes, exclusões, memória/vínculo/conferência desatualizados e parcela não reconciliada explícitos; sugestão exclusivamente humana, sem alterar ficha, apuração ou parâmetros. Rentabilidade continua ADMIN.
+
+Validação sintética: 36 testes focados, 12 integrações E24 e 14 regressões E22; revisão independente com um P2 corrigido. [Entrega, verificações gerais e limites](docs/superpowers/reviews/2026-11-06-e24-recorrencia.md). E2.1/E2.2, rankings E2.3 e metas mensais já entregues foram preservados. E2.4 não está integrada/publicada; homologação humana permanece pendente. Sem push/PR/merge em main/Release/deploy, migração operacional ou alteração de contêiner existente. Versão-base preservada em 1.24.0, sem incremento adicional nesta entrega local. A pasta operacional e os documentos paralelos permaneceram intactos. Os acompanhamentos abaixo são registros anteriores; não tratar seus estados de preparação como ausência atual das funções já integradas.
 
 ## 06/11/2026 — integração autorizada e versão conciliada
 
@@ -207,3 +224,9 @@ Desenho/plano aprovados e execução direta na branch codex/e2-2-desvios-produti
 Validação final: 752 unitários Windows; 1.056 testes padrão Linux/Node 22 com banco sintético exclusivo; 14 integrações E22 em Windows e Linux; tipos, lint, build e revisão independente sem achados. Prévia sintética desktop/375 px e teclado conferidos, sem overflow da página. Tentativas Linux anteriores e ajustes exclusivos de ambiente registrados no relatório; nenhuma regra de produto flexibilizada. Recursos descartáveis e prévia removidos após validação, serviços existentes preservados.
 
 [Relatório e limites](docs/superpowers/reviews/2026-11-04-e2-2-desvios-produtivos.md). Versão mantida em 1.14.0; sem PR/push/merge, publicação ou migração operacional. Integração/publicação requerem autorização específica; futura PR exige SemVer/notas únicos sobre main vigente. E2 ampla continua parcial: E2.3/rankings e E2.4/recorrência permanecem separados; homologação humana pendente.
+
+### 06/11/2026 — E2.4: critérios aprovados, desenho e plano preparados
+
+Critérios aprovados no chat: produto/configuração produtiva equivalente/mesma quantidade; 90 dias pela confirmação em São Paulo; pelo menos cinco pedidos independentes; pelo menos três e 60% da amostra elegível com excesso simultâneo de 10% e R$ 5 por linha; somente entregas completas, reconciliadas e conferência vigente. Dependências produtivas não contam como repetições independentes. Dados inelegíveis permanecem explícitos, fora do cálculo; sem alteração automática de ficha.
+
+[Desenho E2.4](docs/superpowers/specs/2026-11-06-e24-recorrencia-design.md) e [plano](docs/superpowers/plans/2026-11-06-e24-recorrencia.md) preparados em worktree própria sobre main 16a6466/1.22.0. Revisão independente de leitura do desenho sem pergunta material pendente. Implementação e testes funcionais ainda não iniciados; revisão do plano pelo usuário é o próximo passo. Sem PR/push/merge/publicação, banco operacional ou alteração de contêineres existentes. Homologação humana permanece pendente; rankings/metas e demais entregas não foram reabertos. Documentos locais de outros chats na pasta operacional preservados. Versão permanece 1.22.0 nesta preparação, sem novo incremento.
