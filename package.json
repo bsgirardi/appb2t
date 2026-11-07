@@ -1,6 +1,6 @@
 {
   "name": "appb2t",
-  "version": "1.27.1",
+  "version": "1.27.2",
   "private": true,
   "scripts": {
     "test:e24": "vitest run --config vitest.e24.config.ts",

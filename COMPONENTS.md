@@ -31,7 +31,7 @@ Módulos instalados em `src/components/ui`: accordion, alert, badge, breadcrumb,
 
 ## Formulários administrativos
 
-`src/components/admin/admin-form.tsx` mantém form nativo, encadeia onInvalidCapture/onSubmitCapture e revela/foca campos inválidos por `form-errors.ts`. Hoje sempre inclui orientação de obrigatoriedade, inclusive quando usado em filtros: ruído conhecido, sem mudança nesta etapa.
+`src/components/admin/admin-form.tsx` mantém form nativo, encadeia onInvalidCapture/onSubmitCapture e revela/foca campos inválidos por `form-errors.ts`. A orientação de obrigatoriedade continua habilitada por padrão; `requiredGuide={false}` permite ao consumidor fornecer uma orientação contextual única. O piloto de produto usa essa opção sem modificar os demais formulários/filtros. A opção não chega ao DOM e não altera validação ou eventos.
 
 `FormSection` usa section ou details/summary, mantém filhos e abre se hasErrors. Não substituir por montagem condicional que descarte estado. `FormActions` organiza ações; não implementa submissão, permissões ou bloqueio de repetição. FormData, action, validação de domínio, rascunhos, pending/disabled e chaves de idempotência permanecem sob responsabilidade dos fluxos existentes.
 
