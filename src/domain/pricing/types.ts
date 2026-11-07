@@ -9,6 +9,7 @@ export type Ref = { id: string; version: number };
 export type PricingMode = "MARKUP" | "CONTRIBUTION" | "INFORMED";
 export interface PricingV2Input {
   version: 2;
+  tax?: import("@/domain/tax/types").TaxPremise;
   technology: Technology;
   quantity: number;
   materials: {
@@ -47,6 +48,7 @@ export interface PricingV2Input {
   informedUnitPrice: string;
 }
 export interface PricingV2Result {
+  tax?: import("@/domain/tax/types").PricingTaxResult;
   material: string;
   energy: string;
   depreciation: string;
@@ -68,6 +70,7 @@ export interface PricingV2Result {
   warnings: ("BELOW_FULL_COST" | "ROUNDED_TARGET")[];
 }
 export interface PricingRequest {
+  tax?: import("@/domain/tax/types").TaxRequest;
   technology: Technology;
   quantity: number;
   materials: { ref: Ref; consumptionPerUnit: string; fixedWaste: string }[];
@@ -106,6 +109,7 @@ export interface PricingExtraDTO {
   active: boolean;
 }
 export interface PricingCatalogDTO {
+  tax?: import("@/domain/tax/types").TaxCatalog;
   settings: (PricingSettingsValues & { version: number }) | null;
   materials: MaterialDTO[];
   printers: PrinterDTO[];

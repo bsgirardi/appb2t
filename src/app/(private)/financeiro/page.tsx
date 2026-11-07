@@ -1,4 +1,6 @@
 import { requireAdmin } from "@/server/auth/guards";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { listAccounts } from "@/server/finance/accounts";
 import { listCategories } from "@/server/finance/categories";
 import { getFinanceDashboard, getCashFlow } from "@/server/finance/reports";
@@ -27,6 +29,9 @@ export default async function FinancePage({
         <Notice>Filtros inválidos. Exibindo todos os registros.</Notice>
       )}
       <FinanceDashboard data={dashboard} today={todaySaoPaulo(new Date())} />
+      <Button asChild variant="outline">
+        <Link href="/financeiro/tributos">Tributos — previsão gerencial</Link>
+      </Button>
       <FinanceFilters
         action="/financeiro"
         query={query}

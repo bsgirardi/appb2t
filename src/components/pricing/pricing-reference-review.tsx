@@ -23,6 +23,14 @@ export function PricingReferenceReview({
       {review && (
         <section className="rounded-lg border p-4 space-y-3">
           <h3>Revisar alterações antes de aplicar</h3>
+          {(current.tax || review.tax) && (
+            <p>
+              Configuração tributária: revisão {current.tax?.version ?? 0} →{" "}
+              {review.tax?.version ?? 0}. Aplicar os parâmetros atuais seleciona
+              novamente o perfil da competência deste cálculo; memórias salvas
+              permanecem preservadas.
+            </p>
+          )}
           <p>
             Energia: {current.settings?.energyRate ?? "não configurada"} →{" "}
             {review.settings?.energyRate ?? "não configurada"} R$/kWh. Trabalho:{" "}

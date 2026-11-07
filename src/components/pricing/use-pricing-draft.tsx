@@ -1,9 +1,10 @@
 "use client";
 import { useState, useRef, useId } from "react";
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { z } from "zod";
 import { AppError } from "@/lib/errors";
 import { api } from "@/lib/client-api";
-import { calculateV2 } from "@/domain/pricing/calculate";
+import { calculatePricing } from "@/domain/pricing/calculate-fiscal";
 import {
   resolveCatalogPricing,
   requestFromInput,
@@ -24,6 +25,15 @@ export type PricingDraftOptions = {
 const emptyRef = { id: "", version: 1 };
 function initial(c: PricingCatalogDTO): PricingRequest {
   return {
+    ...(c.tax
+      ? {
+          tax: {
+            competence: todaySaoPaulo(new Date()).slice(0, 7),
+            operation: "PRODUCT" as const,
+            expectedVersion: c.tax.version,
+          },
+        }
+      : {}),
     technology: "FDM",
     quantity: 1,
     materials: [{ ref: emptyRef, consumptionPerUnit: "", fixedWaste: "0" }],
@@ -52,7 +62,14 @@ export function usePricingDraft({
     () =>
       initialRequest ??
       (initialInput
-        ? requestFromInput(initialInput, catalog.settings?.version ?? 1)
+        ? (() => {
+            const r = requestFromInput(
+              initialInput,
+              catalog.settings?.version ?? 1,
+            );
+            if (r.tax) r.tax.expectedVersion = catalog.tax?.version ?? 0;
+            return r;
+          })()
         : initial(catalog)),
   );
   const draft =
@@ -69,12 +86,12 @@ export function usePricingDraft({
     setDraft((d) => ({ ...d, ...next }));
   };
   let input: PricingV2Input | null = null,
-    result: ReturnType<typeof calculateV2> | null = null;
+    result: ReturnType<typeof calculatePricing> | null = null;
   const fieldErrors: Record<string, string> = {};
   let validationMessage = "";
   try {
     input = resolveCatalogPricing(current, draft);
-    result = calculateV2(input);
+    result = calculatePricing(input);
   } catch (e) {
     if (e instanceof z.ZodError) {
       for (const issue of e.issues) {
@@ -163,6 +180,11 @@ export function usePricingDraft({
     setDraft((d) => ({
       ...d,
       expectedSettingsVersion: review.settings?.version ?? 1,
+      tax: {
+        competence: d.tax?.competence ?? todaySaoPaulo(new Date()).slice(0, 7),
+        operation: d.tax?.operation ?? "PRODUCT",
+        expectedVersion: review.tax?.version ?? 0,
+      },
       materials: d.materials.map((m) => ({
         ...m,
         ref: ref(review.materials, m.ref.id),

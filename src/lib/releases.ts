@@ -8,6 +8,28 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.0",
+    date: "2026-11-07",
+    title: "Tributação gerencial com premissas e histórico",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Configure MEI ou Simples Nacional para estimativas de preço, com vigência e revisões preservadas. O DAS do MEI é tratado como custo fixo mensal, sem percentual por venda; a alíquota do Simples é informada pelo administrador.",
+          "Consulte a previsão tributária no financeiro e salve memórias do resumo, separadas de títulos a pagar e pagamentos. A consulta mostra as vendas e parcelas ainda sem cobertura.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Veja o efeito estimado dos tributos na calculadora, nos comparadores e na rentabilidade, separado das taxas comerciais e da depreciação.",
+          "Memórias anteriores mantêm suas premissas. Atualizar a configuração não recalcula documentos passados; parâmetros ausentes ou fora da vigência são identificados.",
+          "Os cálculos são gerenciais e exigem conferência dos parâmetros aplicáveis; não emitem notas ou guias, não apuram obrigações oficiais e não movimentam dinheiro automaticamente.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.26.0",
     date: "2026-11-07",
     title: "Prioridades comerciais com prazos e próxima ação",

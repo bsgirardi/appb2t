@@ -1,4 +1,6 @@
 import { getCommercialSettings } from "@/server/commercial-settings";
+import { getTaxProfiles } from "@/server/tax/profiles";
+import { TaxSettingsPanel } from "@/components/settings/tax-settings-panel";
 import { CommercialSettingsPanel } from "@/components/settings/commercial-settings-panel";
 import { requireActor } from "@/server/auth/guards";
 import { db } from "@/lib/db";
@@ -39,6 +41,9 @@ export default async function SettingsPage() {
         }}
       />
       <CommercialSettingsPanel initial={commercialSettings} />
+      <div className="mt-8">
+        <TaxSettingsPanel initial={await getTaxProfiles(actor)} />
+      </div>
       <details className="mt-8 rounded-lg border p-5">
         <summary>Configurar precificação por lote</summary>
         <PricingSettingsPanel

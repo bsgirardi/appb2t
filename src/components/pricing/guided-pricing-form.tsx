@@ -1,4 +1,5 @@
 "use client";
+import { TaxFields } from "./tax-fields";
 
 import { useId, useLayoutEffect, useState } from "react";
 import { Layers3, Droplets, Check } from "lucide-react";
@@ -344,6 +345,13 @@ export function GuidedPricingForm(
             </CardHeader>
             <CardContent>
               <FieldGroup>
+                {draft.tax && (
+                  <TaxFields
+                    value={draft.tax}
+                    profiles={current.tax?.profiles}
+                    onChange={(tax) => patch({ tax })}
+                  />
+                )}
                 <div
                   className="field"
                   data-slot="field"
@@ -652,7 +660,13 @@ export function GuidedPricingForm(
                 <strong>{result ? formatBRL(result.unitFullCost) : "—"}</strong>
               </div>
               <div>
-                <span>Resultado após depreciação · lote</span>
+                <span>
+                  {result?.tax?.amount === null
+                    ? "Após depreciação, antes de tributos não identificados"
+                    : result?.tax
+                      ? "Após depreciação e tributos estimados · lote"
+                      : "Resultado após depreciação · lote"}
+                </span>
                 <strong>
                   {result ? formatBRL(result.afterDepreciation) : "—"}
                 </strong>

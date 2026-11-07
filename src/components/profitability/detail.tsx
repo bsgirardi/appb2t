@@ -123,6 +123,50 @@ export function ProfitabilityDetail({
 }) {
   return (
     <div className="flex flex-col gap-4">
+      {v.taxSummary && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Efeito tributário estimado</CardTitle>
+            <CardDescription>
+              Separado dos indicadores operacionais abaixo, que permanecem antes
+              de tributos. Estimativa, mesmo quando os custos realizados estão
+              completos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <p>
+              Parcela conhecida: {moneyText(v.taxSummary.knownAmount)} ·{" "}
+              {v.taxSummary.complete
+                ? "Premissas cobertas"
+                : "Cobertura parcial"}
+            </p>
+            <p>
+              Contribuição realizada após tributos estimados:{" "}
+              {moneyText(v.taxSummary.actualContributionAfter)}
+            </p>
+            <p>
+              Resultado realizado após depreciação e tributos estimados:{" "}
+              {moneyText(v.taxSummary.actualAfterDepreciation)}
+            </p>
+            <p>{v.taxSummary.reasons.join(" ")}</p>
+            <details>
+              <summary>Premissas por linha</summary>
+              <ul>
+                {v.taxSummary.lines.map((l) => (
+                  <li key={l.key}>
+                    Base {moneyText(l.base)} · tributo {moneyText(l.amount)} ·{" "}
+                    {l.reasons.join(" ")}
+                  </li>
+                ))}
+              </ul>
+            </details>
+            <p className="text-sm text-muted-foreground">
+              DAS MEI fixo mensal não é deduzido por venda. Este resumo não é
+              lucro líquido nem demonstração contábil e não cria pagamento.
+            </p>
+          </CardContent>
+        </Card>
+      )}
       {v.excluded ? (
         <Notice kind="info">
           Pedido fora dos indicadores normais: cancelamento ou pendência

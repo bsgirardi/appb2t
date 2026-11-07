@@ -82,6 +82,15 @@ export function PricingScenarios({
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
+                      {r.result.tax && (
+                        <p className="text-sm text-muted-foreground">
+                          {r.result.tax.amount === null
+                            ? "Cobertura fiscal indisponível: resultados antes de tributos não identificados."
+                            : input.tax?.profile?.regime === "MEI"
+                              ? "DAS fixo mensal fora do lote; sem rateio por peça."
+                              : `Tributo gerencial estimado: ${formatBRL(r.result.tax.amount)}, já incluído no resultado.`}
+                        </p>
+                      )}
                       <dl className="grid min-w-0 gap-3 sm:grid-cols-2">
                         {(
                           [

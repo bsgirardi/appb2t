@@ -372,6 +372,7 @@ export async function confirmSaleWithClient(
     where: { id },
     data: {
       status: "CONFIRMADA",
+      taxConfirmedAt: new Date(),
       fulfillmentMode: "U3",
       version: { increment: 1 },
       snapshot: snapshot as unknown as Prisma.InputJsonValue,
@@ -454,6 +455,7 @@ export async function convertQuoteWithClient(
       document: document as unknown as Prisma.InputJsonValue,
       totals: { ...totals },
       status: "CONFIRMADA",
+      taxConfirmedAt: new Date(),
       fulfillmentMode: "U3",
     },
   });

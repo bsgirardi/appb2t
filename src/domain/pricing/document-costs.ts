@@ -1,6 +1,6 @@
 import type { DocumentItemInput } from "@/domain/commerce/types";
 import type { PricingSnapshotDTO, LineCostBinding } from "./types";
-import { calculateV2 } from "./calculate";
+import { calculatePricing } from "./calculate-fiscal";
 export function lineFingerprint(item: DocumentItemInput): string {
   return JSON.stringify([
     item.productId ?? null,
@@ -23,7 +23,7 @@ export function compareLineCost(
 ) {
   if (state === "STALE" || item.quantity !== snapshot.input.quantity)
     return null;
-  return calculateV2({
+  return calculatePricing({
     ...snapshot.input,
     mode: "INFORMED",
     informedUnitPrice: item.unitPrice,

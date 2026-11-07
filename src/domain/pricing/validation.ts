@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
+import { taxPremiseSchema, taxRequestSchema } from "@/domain/tax/validation";
 import {
   decimalSchema,
   printerValuesSchema,
@@ -45,6 +46,7 @@ export const pricingSettingsSchema = z
 export const pricingV2Schema = z
   .object({
     version: z.literal(2),
+    tax: taxPremiseSchema.optional(),
     technology: z.enum(["FDM", "RESIN"]),
     quantity: quantitySchema,
     materials: z
@@ -139,6 +141,7 @@ export const pricingV2Schema = z
   });
 export const pricingRequestSchema = z
   .object({
+    tax: taxRequestSchema.optional(),
     technology: z.enum(["FDM", "RESIN"]),
     quantity: quantitySchema,
     materials: z

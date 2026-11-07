@@ -23,6 +23,13 @@ export function reviewComparisonOffer(
     return { id: row.id, version: row.version };
   };
   const request = requestFromInput(input, catalog.settings?.version ?? 1);
+  if (request.tax) {
+    request.tax.expectedVersion = catalog.tax?.version ?? 0;
+    request.tax.profileId = undefined;
+    changes.push(
+      "Tributação: a competência original é mantida; a nova oferta usa o perfil vigente após confirmar esta revisão. A memória anterior não muda.",
+    );
+  }
   request.mode = "INFORMED";
   request.materials = request.materials.map((m, i) => {
     const current = catalog.materials.find(

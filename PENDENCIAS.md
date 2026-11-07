@@ -1,5 +1,17 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — tributação gerencial implementada localmente, candidata 1.27.0
+
+Desenho aprovado e implementado em isolamento `34b6`, branch `codex/tributacao-brasileira`, base main `2351b6f` / 1.26.0. Perfil MEI/Simples manual com vigência/revisões, DAS fixo mensal separado, efeito na calculadora/comparadores e rentabilidade, previsão financeira e memórias salvas ADMIN. Histórico V2 e documentos emitidos preservados; sem guia, apuração fiscal oficial, título ou pagamento automático. [Entrega, migração sintética, testes e limites](docs/tributacao/ENTREGA.md). Parâmetros reais da empresa ainda precisam de preenchimento e conferência pelo responsável. Candidata 1.27.0 preparada uma única vez; sem push/PR/merge/distribuição ou implantação operacional. Registros anteriores preservados como histórico da investigação e aprovação.
+
+## 07/11/2026 — tributação: configuração manual escolhida e SIMEI conferido
+
+Usuário definiu MEI/Simples configuráveis e DAS mensal separado dos percentuais de venda. Consulta oficial Receita confirmou enquadramento SIMEI desde 29/09/2026; cadastro estadual individual segue sem validação por CAPTCHA. [Desenho para aprovação](docs/tributacao/DESENHO.md) preparado com histórico congelado, parâmetros/vigência e previsão financeira separada. Abordagem manual escolhida; desenho técnico ainda em revisão/aprovação. Nenhuma implementação, migração, alteração de versão ou publicação. Registro anterior preservado como histórico da investigação.
+
+## 07/11/2026 — tributação em investigação, sem implementação
+
+Investigação em worktree gerenciada exclusiva `34b6/appb2t`, branch `codex/tributacao-brasileira`, a partir da main `2351b6f` / 1.26.0. Calculadora, memórias comerciais, rentabilidade, permissões e distinção título/baixa/caixa conferidos por leitura; não há perfil fiscal estruturado no cadastro examinado. [Evidências, fontes oficiais datadas e proposta de recorte](docs/tributacao/INVESTIGACAO.md). Regime/vigência reais, operações, UF/município e parâmetros do contador solicitados ao usuário; abordagem e desenho fiscal ainda não aprovados. Não presumir tributação pela tecnologia de impressão ou por CNPJ. Sem alteração funcional, testes executados, migração, versão nova, push/PR/merge, distribuição ou implantação. Histórico anterior preservado.
+
 ## 07/11/2026 — integração autorizada e conciliação da PR #50
 
 E2.4 integrada pela PR #49 em main, commit 99f847a1cac56a9611b4163a8aa6b79cf4851faa, versão 1.25.0. Alertas comerciais conciliados nesta mesma PR #50 como 1.26.0 MINOR sobre a nova main; histórico de ambas as frentes preservado. Os relatos anteriores de ausência de autorização e estados de PR são históricos. Merge e distribuição autorizados neste trabalho; implantação e migração operacional não fazem parte da entrega. Homologação humana e ensaio HTTP autenticado permanecem pendentes.

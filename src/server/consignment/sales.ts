@@ -28,10 +28,13 @@ export async function consignmentSaleRow(
     where: { id },
     include: {
       lines: {
-        orderBy:{id:"asc"},
-        include: { allocations: {orderBy:{id:"asc"}}, product: { select: { name: true } } },
+        orderBy: { id: "asc" },
+        include: {
+          allocations: { orderBy: { id: "asc" } },
+          product: { select: { name: true } },
+        },
       },
-      financialLinks: {orderBy:{role:"asc"}},
+      financialLinks: { orderBy: { role: "asc" } },
     },
   });
   if (!sale)
@@ -247,6 +250,7 @@ export async function executeConsignmentSaleCommand(
       data: {
         customerId: p.customerId,
         status: "ENTREGUE",
+        taxConfirmedAt: new Date(),
         fulfillmentMode: "CONSIGNMENT",
         document: document as unknown as Prisma.InputJsonValue,
         totals: {

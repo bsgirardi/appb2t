@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { taxEvidence } from "@/server/tax/profiles";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -81,6 +82,7 @@ export async function createPricingComparison(
               operationKey: `comparison:${comparison.id}:${position}`,
               requestHash: hash,
               input: json(value.input),
+              taxEvidence: await taxEvidence(tx, value.input.tax?.profile?.id),
               result: json(value.result),
             },
           });
