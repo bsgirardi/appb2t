@@ -1,4 +1,5 @@
 import { StockDecimal as D } from "@/domain/stock/quantities";
+import { assessSaleTax } from "@/domain/tax/sale";
 import { AppError } from "@/lib/errors";
 import { allocate } from "./allocation";
 import { metric, resolveCoverage } from "./coverage";
@@ -224,18 +225,49 @@ export function calculateSale(
       ),
     };
   });
+  const expected = combineScenarios(
+    totals.total,
+    output.map((l) => l.expectedScenario),
+  );
+  const actual = combineScenarios(
+    totals.total,
+    output.map((l) => l.actualScenario),
+  );
+  const assessment =
+    input.taxCompetence === undefined
+      ? undefined
+      : assessSaleTax(
+          lines.map((l) => ({
+            key: l.key,
+            position: l.position,
+            gross: l.grossRevenue,
+            tax: l.expected?.tax,
+          })),
+          totals.discount,
+          totals.shipping,
+          input.taxCompetence,
+        );
+  const after = (m: Metric) =>
+    assessment?.complete && m.value !== null
+      ? new D(m.value).minus(assessment.knownAmount).toFixed()
+      : null;
   return {
     ...input,
+    ...(assessment
+      ? {
+          taxSummary: {
+            ...assessment,
+            expectedContributionAfter: after(expected.contribution),
+            actualContributionAfter: after(actual.contribution),
+            expectedAfterDepreciation: after(expected.afterDepreciation),
+            actualAfterDepreciation: after(actual.afterDepreciation),
+          },
+        }
+      : {}),
     lines: output,
     revenue: new D(totals.total).toFixed(),
-    expected: combineScenarios(
-      totals.total,
-      output.map((l) => l.expectedScenario),
-    ),
-    actual: combineScenarios(
-      totals.total,
-      output.map((l) => l.actualScenario),
-    ),
+    expected,
+    actual,
     compositionMissing: lines.some(
       (l) => l.actual.total !== null && l.actual.components === null,
     ),

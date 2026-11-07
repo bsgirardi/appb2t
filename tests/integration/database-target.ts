@@ -1,9 +1,14 @@
 import { assertGoalsDatabase } from "../goals/database";
+import { assertTaxDatabase } from "../tax/database";
 import { assertPosDatabaseUrl } from "../pos/database";
 export function assertTestDatabase(
   value: string | undefined,
   e3: boolean,
 ): void {
+  if (!e3 && process.env.TAX_REGRESSION === "1") {
+    assertTaxDatabase(value);
+    return;
+  }
   if (!e3 && process.env.POS_REGRESSION === "1") {
     assertPosDatabaseUrl(value ?? "");
     return;

@@ -2,8 +2,7 @@ import type { DocumentTotals, SaleStatus } from "@/domain/commerce/types";
 export type Money = string;
 export type Coverage = "UNAVAILABLE" | "PARTIAL" | "PROVISIONAL" | "COMPLETE";
 export type DeclaredAmount =
-  | { state: "UNKNOWN" }
-  | { state: "DECLARED"; value: Money };
+  { state: "UNKNOWN" } | { state: "DECLARED"; value: Money };
 export type Metric = {
   value: Money | null;
   knownValue: Money;
@@ -74,6 +73,7 @@ export type ExpectedProductiveComponents = {
   failure: Money;
 };
 export type ExpectedCost = {
+  tax?: import("@/domain/tax/types").TaxPremise;
   components?: ExpectedProductiveComponents;
   snapshotId: string;
   variable: Money;
@@ -106,6 +106,7 @@ export type ProfitabilityLineInput = {
   sourceHash: string;
 };
 export type SaleProfitabilityInput = {
+  taxCompetence?: string | null;
   consignment?: boolean;
   saleId: string;
   number: string;
@@ -138,6 +139,12 @@ export type ProfitabilityLineDTO = ProfitabilityLineInput & {
   actualScenario: Scenario;
 };
 export type SaleProfitabilityDTO = Omit<SaleProfitabilityInput, "lines"> & {
+  taxSummary?: import("@/domain/tax/sale").SaleTaxAssessment & {
+    expectedContributionAfter: string | null;
+    actualContributionAfter: string | null;
+    expectedAfterDepreciation: string | null;
+    actualAfterDepreciation: string | null;
+  };
   lines: ProfitabilityLineDTO[];
   revenue: Money;
   expected: Scenario;

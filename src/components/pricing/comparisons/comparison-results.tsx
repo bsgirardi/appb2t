@@ -67,6 +67,15 @@ export function ComparisonResults({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          {result.tax && (
+            <p className="text-sm text-muted-foreground">
+              {result.tax.amount === null
+                ? "Cobertura tributária indisponível: indicadores e preços de cobertura abaixo não incluem tributos não identificados."
+                : input.tax?.profile?.regime === "MEI"
+                  ? "DAS MEI fixo mensal, sem rateio por venda; resultados antes dos custos fixos do mês."
+                  : `Tributo estimado ${formatBRL(result.tax.amount)}, já deduzido da contribuição; alíquota informada ${input.tax?.profile?.percent}%.`}
+            </p>
+          )}
           <p className="muted">
             Taxas configuradas:{" "}
             {input.channel.fees

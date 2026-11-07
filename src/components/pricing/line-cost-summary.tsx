@@ -48,7 +48,11 @@ export function LineCostSummary({
             <dd>{formatBRL(snapshot.result.unitFullCost)}</dd>
           </div>
           <div>
-            <dt>Contribuição estimada do item</dt>
+            <dt>
+              {comparison.tax?.amount === null
+                ? "Contribuição antes de tributos não identificados"
+                : "Contribuição estimada do item"}
+            </dt>
             <dd>{formatBRL(comparison.contribution)}</dd>
           </div>
           <div>
@@ -61,6 +65,15 @@ export function LineCostSummary({
         Antes de descontos e frete do documento. Trabalho precificado por
         atividade; taxas estimadas não geram lançamentos financeiros.
       </p>
+      {comparison?.tax && (
+        <p>
+          {comparison.tax.amount === null
+            ? "Cobertura tributária indisponível nesta premissa."
+            : snapshot.input.tax?.profile?.regime === "MEI"
+              ? "DAS MEI é custo fixo mensal, sem rateio por peça."
+              : `Tributo estimado do item: ${formatBRL(comparison.tax.amount)}.`}
+        </p>
+      )}
       <details>
         <summary>Memória preservada do item</summary>
         <p>

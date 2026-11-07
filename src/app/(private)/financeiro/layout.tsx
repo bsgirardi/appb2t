@@ -20,6 +20,7 @@ export default async function FinanceLayout({
         <Link href="/financeiro/lancamentos">A pagar e receber</Link>
         <Link href="/financeiro/contas">Contas e categorias</Link>
         <Link href="/financeiro/movimentos">Movimentos e exportação</Link>
+        <Link href="/financeiro/tributos">Previsão tributária</Link>
       </nav>
       {children}
     </div>

@@ -6,6 +6,7 @@ import type {
   Ref,
 } from "./types";
 import { pricingRequestSchema, pricingV2Schema } from "./validation";
+import { resolveTaxProfile } from "@/domain/tax/periods";
 function pick<T extends { id: string; version: number; active: boolean }>(
   rows: T[],
   ref: Ref,
@@ -31,6 +32,8 @@ export function resolveCatalogPricing(
   const r = pricingRequestSchema.parse(raw),
     s = catalog.settings;
   if (!s || s.version !== r.expectedSettingsVersion) throw conflict();
+  if (r.tax && r.tax.expectedVersion !== (catalog.tax?.version ?? 0))
+    throw conflict();
   const p = pick(catalog.printers, r.printerRef, "printerRef", "Impressora");
   if (p.technology !== r.technology)
     throw new AppError(
@@ -45,6 +48,30 @@ export function resolveCatalogPricing(
   );
   return pricingV2Schema.parse({
     version: 2,
+    ...(r.tax
+      ? {
+          tax: {
+            algorithm: 1,
+            competence: r.tax.competence,
+            operation: r.tax.operation,
+            profile:
+              r.tax.profileId === null
+                ? null
+                : r.tax.profileId
+                  ? (() => {
+                      const profile = catalog.tax?.profiles.find(
+                        (p) => p.id === r.tax!.profileId,
+                      );
+                      if (!profile) throw conflict();
+                      return profile;
+                    })()
+                  : resolveTaxProfile(
+                      catalog.tax?.profiles ?? [],
+                      r.tax.competence,
+                    ),
+          },
+        }
+      : {}),
     technology: r.technology,
     quantity: r.quantity,
     materials: r.materials.map((m, i) => {
@@ -109,6 +136,16 @@ export function requestFromInput(
   settingsVersion: number,
 ): PricingRequest {
   return {
+    ...(input.tax
+      ? {
+          tax: {
+            competence: input.tax.competence,
+            operation: input.tax.operation,
+            expectedVersion: 0,
+            profileId: input.tax.profile?.id ?? null,
+          },
+        }
+      : {}),
     technology: input.technology,
     quantity: input.quantity,
     materials: input.materials.map(

@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { readTaxCatalog } from "@/server/tax/profiles";
 import type { Actor } from "../auth/session";
 import { printerDTO } from "../catalog-inputs";
 import { pricingSettingsSchema, feesSchema } from "@/domain/pricing/validation";
@@ -17,6 +18,7 @@ export async function resolvePricingRequest(
   ]);
   return resolveCatalogPricing(
     {
+      tax: await readTaxCatalog(tx),
       settings: s
         ? { ...pricingSettingsSchema.parse(s.values), version: s.version }
         : null,

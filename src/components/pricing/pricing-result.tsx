@@ -1,6 +1,7 @@
 import { formatBRL } from "@/domain/calculation/calculate";
 import type { PricingV2Input, PricingV2Result } from "@/domain/pricing/types";
 import { Notice } from "@/components/ui/field";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 export function PricingResult({
   input,
   result,
@@ -45,8 +46,22 @@ export function PricingResult({
               result.offeredUnitPrice,
             ],
             ["Receita do lote", result.offeredRevenue],
-            ["Contribuição estimada", result.contribution],
-            ["Resultado após depreciação", result.afterDepreciation],
+            [
+              result.tax?.amount === null
+                ? "Contribuição antes de tributos não identificados"
+                : result.tax
+                  ? "Contribuição após tributos estimados"
+                  : "Contribuição estimada",
+              result.contribution,
+            ],
+            [
+              result.tax?.amount === null
+                ? "Após depreciação, antes de tributos não identificados"
+                : result.tax
+                  ? "Após depreciação e tributos estimados"
+                  : "Resultado após depreciação",
+              result.afterDepreciation,
+            ],
           ] as const
         ).map(([label, value]) => (
           <div key={label}>
@@ -63,6 +78,31 @@ export function PricingResult({
           </dd>
         </div>
       </dl>
+      {result.tax && (
+        <Alert>
+          <AlertTitle>
+            {result.tax.amount === null
+              ? "Cobertura tributária indisponível"
+              : input.tax?.profile?.regime === "MEI"
+                ? "DAS do MEI: custo fixo mensal"
+                : `Tributo estimado: ${formatBRL(result.tax.amount)}`}
+          </AlertTitle>
+          <AlertDescription>
+            {result.tax.reasons.join(" ")}{" "}
+            {input.tax?.profile?.regime === "SIMPLES" &&
+            result.tax.amount !== null
+              ? `Base: ${formatBRL(result.tax.base)} · alíquota ${input.tax.profile.percent}% · competência ${input.tax.competence}.`
+              : ""}{" "}
+            Nenhum título ou pagamento é criado pelo cálculo.
+          </AlertDescription>
+        </Alert>
+      )}
+      {!input.tax && (
+        <p className="text-sm text-muted-foreground">
+          Memória anterior sem tributação identificada. Atualize as referências
+          explicitamente para uma nova estimativa fiscal.
+        </p>
+      )}
       {result.warnings.includes("BELOW_FULL_COST") && (
         <Notice kind="info">
           O preço não cobre o custo completo modelado. Revise sua decisão

@@ -22,6 +22,7 @@ import { revisionDTO } from "./revisions";
 import { readConsignmentSaleCost } from "@/server/consignment/costs";
 import { readOpeningCost } from "./origin-values";
 import { readExpectedComponents } from "@/domain/profitability/expected-components";
+import { todaySaoPaulo } from "@/domain/commerce/dates";
 const add = (a: string, b: string) => new D(a).plus(b).toFixed();
 export async function readSaleSources(
   tx: Prisma.TransactionClient,
@@ -124,6 +125,7 @@ export async function readSaleSources(
           r = snap.result as unknown as PricingV2Result;
         if (input.version === 2 && input.quantity === item.quantity) {
           expected = {
+            ...(input.tax ? { tax: input.tax } : {}),
             ...(() => {
               const components = readExpectedComponents(r);
               return components ? { components } : {};
@@ -342,6 +344,9 @@ export async function readSaleSources(
       version: sale.version,
       status: sale.status,
       confirmedAt: sale.events[0]?.createdAt.toISOString() ?? null,
+      taxCompetence: sale.taxConfirmedAt
+        ? todaySaoPaulo(sale.taxConfirmedAt).slice(0, 7)
+        : null,
       totals: sale.totals as unknown as DocumentTotals,
       lines,
       administrative: administrative

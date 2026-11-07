@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { taxEvidence } from "@/server/tax/profiles";
 import { Prisma, type PricingSnapshot } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -8,7 +9,7 @@ import {
   pricingRequestSchema,
   pricingV2Schema,
 } from "@/domain/pricing/validation";
-import { calculateV2 } from "@/domain/pricing/calculate";
+import { calculatePricing } from "@/domain/pricing/calculate-fiscal";
 import type {
   PricingSnapshotDTO,
   PricingV2Result,
@@ -54,11 +55,12 @@ export async function createPricingEstimate(
     return await db.$transaction(
       async (tx) => {
         const input = await resolvePricingRequest(tx, actor, request),
-          result = calculateV2(input);
+          result = calculatePricing(input);
         return dto(
           await tx.pricingSnapshot.create({
             data: {
               input: input as unknown as Prisma.InputJsonValue,
+              taxEvidence: await taxEvidence(tx, input.tax?.profile?.id),
               result: result as unknown as Prisma.InputJsonValue,
               actorId: actor.id,
               actorName: actor.name,

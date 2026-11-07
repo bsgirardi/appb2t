@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { readTaxCatalog } from "@/server/tax/profiles";
 import { db } from "@/lib/db";
 import { conflict } from "@/lib/errors";
 import type { Actor } from "../auth/session";
@@ -43,6 +44,7 @@ export async function getPricingCatalog(
           }),
         ]);
       return {
+        tax: await readTaxCatalog(tx),
         settings: settings
           ? {
               ...pricingSettingsSchema.parse(settings.values),

@@ -1,5 +1,21 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — autorização de PR e merge da tributação
+
+Usuário autorizou PR/merge da entrega fiscal local; main 1.26.0 reconferida, candidata mantida em 1.27.0. Verificações fiscais passam a integrar a CI em banco sintético exclusivo. Após checks da revisão exata, seguir distribuição oficial pelo SHA integrado, sem implantação operacional. Esta autorização sucede os registros abaixo de desenvolvimento sem PR; o estado efetivo de integração e Release fica no resumo da PR/evidências locais.
+
+## 07/11/2026 — tributação gerencial implementada, em validação local
+
+Perfil fiscal manual por vigência/revisões em Configurações → Preço e margem; MEI fixa DAS mensal sem percentual por venda, Simples usa alíquota efetiva informada. Integração com calculadora/comparadores/memórias comerciais, efeito separado na rentabilidade e previsão tributária ADMIN com resumos preservados. [Entrega e evidências](tributacao/ENTREGA.md). Base main 1.26.0 / `2351b6f`, candidata 1.27.0; sem push/PR/merge/distribuição ou implantação. Migração aditiva ensaiada somente em PostgreSQL sintético exclusivo; não encerra todas as evoluções E1/E2 nem representa homologação fiscal/contábil. Escopo e histórico das outras frentes preservados.
+
+## 07/11/2026 — tributação: preferência recebida e desenho concreto
+
+Escolhida configuração manual MEI/Simples nas configurações da empresa, com DAS fixo mensal separado. SIMEI desde 29/09/2026 confirmado na Receita; sem inferência de tributação por CNAE. [Desenho para aprovação](tributacao/DESENHO.md), ainda sem implementação, diferencia estimativa, memória histórica, obrigação apurada externamente, título e pagamento. Custos fixos mensais sem rateio fictício por venda. Revisão/aprovação do desenho pendente; base 1.26.0 preservada, sem PR/merge/deploy ou migração operacional.
+
+## 07/11/2026 — tributação: primeiro levantamento verificável
+
+Frente transversal calculadora/financeiro em detalhamento sobre main `2351b6f` / 1.26.0, em isolamento próprio. [Investigação, fontes oficiais, alternativas e critérios](tributacao/INVESTIGACAO.md). Recomendação apresentada: perfil fiscal vigente e versionado com parâmetros conferidos pelo contador, memórias preservadas e estimativas separadas de títulos/pagamentos. Não foi escolhida ou implementada regra fiscal; aguardam-se regime/vigência, operação, localidade e parâmetros reais para fechar o desenho. E1/E2 e financeiro existentes serão reutilizados. Emissão fiscal, declarações, guias e integrações SEFAZ ficam fora. Nenhuma implantação, migração operacional ou integração de código nesta etapa; registros anteriores preservados.
+
 ## 07/11/2026 — integração autorizada e conciliação da PR #50
 
 E2.4 integrada pela PR #49 em main, commit 99f847a1cac56a9611b4163a8aa6b79cf4851faa, versão 1.25.0. Alertas comerciais conciliados nesta mesma PR #50 como 1.26.0 MINOR sobre a nova main; histórico de ambas as frentes preservado. Os relatos anteriores de ausência de autorização e estados de PR são históricos. Merge e distribuição autorizados neste trabalho; implantação e migração operacional não fazem parte da entrega. Homologação humana e ensaio HTTP autenticado permanecem pendentes.

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { calculateV2 } from "./calculate";
+import { calculatePricing } from "./calculate-fiscal";
 import { pricingV2Schema, quantitySchema } from "./validation";
 import type { PricingV2Input, PricingV2Result } from "./types";
 const D = Decimal.clone({ precision: 40, rounding: Decimal.ROUND_HALF_UP });
@@ -21,7 +21,7 @@ export function calculateScenarios(
     .parse(quantities)
     .map((quantity) => {
       const scenario = pricingV2Schema.parse({ ...input, quantity });
-      const result = calculateV2(scenario);
+      const result = calculatePricing(scenario);
       const machineMinutes = new D(scenario.machineFixedMinutes).plus(
         new D(scenario.machineMinutesPerUnit).times(quantity),
       );
