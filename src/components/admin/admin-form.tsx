@@ -7,8 +7,9 @@ export function AdminForm({
   children,
   onInvalidCapture,
   onSubmitCapture,
+  requiredGuide = true,
   ...props
-}: ComponentProps<"form">) {
+}: ComponentProps<"form"> & { requiredGuide?: boolean }) {
   return (
     <form
       {...props}
@@ -25,9 +26,11 @@ export function AdminForm({
         });
       }}
     >
-      <p className="admin-form-note admin-required-guide">
-        Campos com “Obrigatório” precisam ser preenchidos para esta operação.
-      </p>
+      {requiredGuide && (
+        <p className="admin-form-note admin-required-guide">
+          Campos com “Obrigatório” precisam ser preenchidos para esta operação.
+        </p>
+      )}
       {children}
     </form>
   );

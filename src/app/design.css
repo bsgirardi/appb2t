@@ -107,6 +107,15 @@
   .admin-ui .product-main-card > .admin-form-note {
     margin: 0;
   }
+  /* Product recipe: let long text use the available width; controls own states. */
+  .admin-ui .product-essential-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .admin-ui .product-essential-fields > [data-slot="field"] {
+    margin: 0;
+  }
   .admin-ui .field:not(label) {
     display: flex;
     flex-direction: column;
