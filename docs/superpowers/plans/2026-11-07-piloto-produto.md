@@ -25,4 +25,4 @@ Salvar inválido sem requisição; erros em seções recolhidas; preço negociad
 
 ## Resultado
 
-46 testes passaram em 11 arquivos; typecheck e ESLint dos arquivos alterados passaram. Revisão independente sem achados, com 20 testes repetidos. Inspeção em desktop e celular claro/escuro, foco e erro recolhido descrita em [PILOTO-PRODUTO.md](../../design/PILOTO-PRODUTO.md). Cancelamento com diálogo nativo teve timeout na ferramenta, coberto por teste automatizado. Sem commit nem publicação.
+46 testes passaram em 11 arquivos; typecheck e ESLint dos arquivos alterados passaram. Revisão independente sem achados, com 20 testes repetidos. Inspeção em desktop e celular claro/escuro, foco e erro recolhido descrita em [PILOTO-PRODUTO.md](../../design/PILOTO-PRODUTO.md). Cancelamento com diálogo nativo teve timeout na ferramenta, coberto por teste automatizado. Abertura de PR autorizada após a execução. Sem merge nem publicação.

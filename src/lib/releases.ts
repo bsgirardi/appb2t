@@ -8,15 +8,25 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.3",
+    date: "2026-11-07",
+    title: "Clareza nos filtros e listagens comerciais",
+    sections: [{ title: "Melhorias", items: ["Orçamentos e vendas mostram os critérios aplicados junto aos resultados, com leitura aprimorada de clientes, documentos, valores e estados vazios, preservando os filtros em edição."] }],
+  },
+  {
+    version: "1.27.2",
+    date: "2026-11-07",
+    title: "Clareza no cadastro de produtos",
+    sections: [{ title: "Melhorias", items: ["Cadastro e edição de produtos com orientação mais direta, indicação consistente dos campos obrigatórios e mais espaço para descrição e formas de pagamento."] }],
+  },
+  {
     version: "1.27.1",
     date: "2026-11-07",
-    title: "Clareza nos produtos e nas listagens comerciais",
+    title: "Documentação dos padrões da interface",
     sections: [
       {
         title: "Melhorias",
         items: [
-          "Orçamentos e vendas com resumo dos filtros aplicados sempre visível, ação de aplicação mais clara e tabelas com melhor leitura de clientes, documentos e valores, incluindo mensagens para listas vazias.",
-          "Cadastro e edição de produtos com orientação mais direta, indicação consistente dos campos obrigatórios e mais espaço para descrição e formas de pagamento.",
           "Documentados os padrões de cores, temas e componentes para orientar a evolução gradual da interface, preservando as preferências de Aparência e os formulários atuais.",
         ],
       },

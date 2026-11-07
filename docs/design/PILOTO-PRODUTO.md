@@ -44,4 +44,4 @@ Capturas locais entregues fora do repositório: produto-desktop-claro.png, produ
 
 Verificação final: **46 testes aprovados em 11 arquivos**, cobrindo produto, revisão do fluxo, ficha de preço, requisição/FormData, galeria, campos, contratos, versão, paletas, tema e shell. Typecheck, ESLint dos arquivos TypeScript alterados e diff --check aprovados. O teste de versão renderiza login, rodapé e atualizações para ADMIN/OPERATOR usando 1.27.1. Houve aviso jsdom de navegação não implementada, sem falha. Não foi executado build de produção nem teste com banco.
 
-Sem commit, PR, merge, Release ou implantação. Versão preparada 1.27.1; conferir main novamente antes da futura integração.
+Preparado para revisão em PR, com versão única 1.27.1. Sem merge, Release ou implantação. Main reconferida antes da abertura: permanece no SHA base 1.27.0; conferir novamente antes da futura integração.
