@@ -14,6 +14,7 @@ export type RecurrenceCandidate = {
   configuration: PricingV2Input | null;
   productionKeys: string[];
   provenanceComplete: boolean;
+  memoryIssue?: string;
 };
 export type RecurrenceEvidence = {
   productId: string | null;
@@ -159,7 +160,7 @@ export function buildRecurrence(
     if (c.configuration && c.configuration.quantity !== line.quantity)
       reasons.push("Quantidade da memória incompatível com a linha");
     if (!line.expected)
-      reasons.push("Memória prevista indisponível ou vínculo desatualizado");
+      reasons.push(c.memoryIssue ?? "Memória prevista indisponível");
     const confirmedDate = civilDate(sale.confirmedAt);
     if (
       !confirmedDate ||
@@ -182,8 +183,18 @@ export function buildRecurrence(
         r.complete &&
         r.sourceHash === line.sourceHash,
     );
-    if (!reviewed)
-      reasons.push("Conferência da linha ausente ou desatualizada");
+    if (!reviewed) {
+      const previous = sale.administrative?.lineReviews.find(
+        (r) => r.lineKey === line.key,
+      );
+      reasons.push(
+        !previous
+          ? "Conferência da linha ausente"
+          : previous.sourceHash !== line.sourceHash
+            ? "Conferência da linha desatualizada"
+            : "Conferência da linha incompleta",
+      );
+    }
     if (line.actual.provisional) reasons.push("Custo produtivo provisório");
     if (!c.provenanceComplete || !c.productionKeys.length)
       reasons.push("Origem produtiva independente não rastreável");

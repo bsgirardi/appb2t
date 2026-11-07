@@ -1,6 +1,6 @@
 # E2.4 — plano de implementação
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Sugerir conferência humana da ficha com recorrência produtiva rastreável, sem escritas de negócio.
 
@@ -45,14 +45,14 @@
 
 **Interfaces:** `productiveConfigurationKey(productId: string, input: PricingV2Input): string | null`; `buildRecurrence(candidates: RecurrenceCandidate[], period: {from: string; to: string}): RecurrenceReport`. Expor os tipos pelo mesmo módulo. Chave deve usar JSON canônico de campos explicitamente permitidos, sem dependência de crypto/servidor.
 
-- [ ] Escrever teste com cinco pedidos independentes, três excedendo exatamente R$ 5 e 10%: `eligibleCount === 5`, `materialCount === 3`, `suggestReview === true`.
-- [ ] Rodar teste e observar falha pela ausência do módulo.
-- [ ] Implementar assinatura canônica e projeção com Decimal existente. Agrupar dependência por componentes conexos de pedido/chave produtiva antes de agrupar configurações. Excluir componente com múltiplas linhas/pedidos; preservar motivos e fontes.
-- [ ] Adicionar e executar fronteiras 4 pedidos, 2/5, 3/6, valor ligeiramente abaixo de cada limite, previsto zero, nulos, decimais equivalentes, ordem de materiais e duplicatas.
-- [ ] Adicionar e executar testes de quantidade/configuração/versão distintas; nomes e campos comerciais diferentes não mudam chave. Alterar preço/frete/desconto/comissão não muda K/N com mesmos custos produtivos.
-- [ ] Adicionar e executar dependência transitiva A-X, B-X/Y, C-Y, linhas repetidas no mesmo pedido e origem desconhecida. Nenhuma delas sustenta sugestão independente.
-- [ ] Adicionar e executar cancelada, conferência ausente/vencida, consignação sem conferência, parcial/provisória, entrega parcial, parcela não reconciliada e perda já incluída sem duplicação.
-- [ ] Verificar janela inclusiva e que candidatos inelegíveis continuam nas evidências. Executar regressões E2.1/E2.2 e cálculo existentes.
+- [x] Escrever teste com cinco pedidos independentes, três excedendo exatamente R$ 5 e 10%: `eligibleCount === 5`, `materialCount === 3`, `suggestReview === true`.
+- [x] Rodar teste e observar falha pela ausência do módulo.
+- [x] Implementar assinatura canônica e projeção com Decimal existente. Agrupar dependência por componentes conexos de pedido/chave produtiva antes de agrupar configurações. Excluir componente com múltiplas linhas/pedidos; preservar motivos e fontes.
+- [x] Adicionar e executar fronteiras 4 pedidos, 2/5, 3/6, valor ligeiramente abaixo de cada limite, previsto zero, nulos, decimais equivalentes, ordem de materiais e duplicatas.
+- [x] Adicionar e executar testes de quantidade/configuração/versão distintas; nomes e campos comerciais diferentes não mudam chave. Alterar preço/frete/desconto/comissão não muda K/N com mesmos custos produtivos.
+- [x] Adicionar e executar dependência transitiva A-X, B-X/Y, C-Y, linhas repetidas no mesmo pedido e origem desconhecida. Nenhuma delas sustenta sugestão independente.
+- [x] Adicionar e executar cancelada, conferência ausente/vencida, consignação sem conferência, parcial/provisória, entrega parcial, parcela não reconciliada e perda já incluída sem duplicação.
+- [x] Verificar janela inclusiva e que candidatos inelegíveis continuam nas evidências. Executar regressões E2.1/E2.2 e cálculo existentes.
 
 ### Tarefa 2 — leitura autorizada e proveniência
 
@@ -60,14 +60,14 @@
 
 **Interfaces:** `getProductiveRecurrence(actor: Actor, productId?: string): Promise<RecurrenceReport>`. Construir janela a partir de relógio do servidor, civil em São Paulo. Autorizar antes de ler. Retornar apenas o recorte de produto depois de calcular dependências na janela inteira.
 
-- [ ] Ler guias Next locais sobre Server Components, leitura de dados e cache; registrar os guias consultados no relatório. Preparar dependências próprias e conferir baseline focada antes de implementar.
-- [ ] Escrever teste sintético de consulta que exige cinco produções distintas, origens e memórias válidas, com fronteira temporal São Paulo; verificar erro por função ausente.
-- [ ] Implementar transação RepeatableRead somente leitura. Usar readSaleSources/calculateSale/reconcileProductiveLine existentes. Ler revisões congeladas e snapshots para metadados, repetindo exatamente os predicados de validade do leitor existente; não confiar apenas no snapshotId sem vínculo válido.
-- [ ] Mapear entregas por compromisso/origem até productionLine.id; mapear LOSS pela linha produtiva; mapear CONSIGNMENT_SOLD via alocação/remessa/origem. Exigir completude de proveniência para todas as fontes da linha. Não usar id de entrega como chave produtiva. Não gravar revisões produtivas para valorizar origem.
-- [ ] Validar entrada V2 por schema existente ou parser estrito reutilizável; JSON malformado deve produzir motivo legível, sem derrubar consulta inteira nem inventar configuração.
-- [ ] Executar testes de duas origens da mesma produção, dependência entre produtos, consignação, estoque de abertura, memória incompatível e revisão vencida. Produto selecionado não pode esconder fonte compartilhada.
-- [ ] Verificar ADMIN ativo, recusa OPERATOR/anônimo/inativo e ausência de cache compartilhado. Alterar somente despesa comercial não deve criar desvio produtivo.
-- [ ] Executar em PostgreSQL descartável próprio com transação READ ONLY, verificar quantidades/conteúdo de revisões e apurações antes/depois e preservação de histórico/hash. Reexecutar integrações pertinentes de fontes/consultas E22.
+- [x] Ler guias Next locais sobre Server Components, leitura de dados e cache; registrar os guias consultados no relatório. Preparar dependências próprias e conferir baseline focada antes de implementar.
+- [x] Escrever teste sintético de consulta que exige cinco produções distintas, origens e memórias válidas, com fronteira temporal São Paulo; verificar erro por função ausente.
+- [x] Implementar transação RepeatableRead somente leitura. Usar readSaleSources/calculateSale/reconcileProductiveLine existentes. Ler revisões congeladas e snapshots para metadados, repetindo exatamente os predicados de validade do leitor existente; não confiar apenas no snapshotId sem vínculo válido.
+- [x] Mapear entregas por compromisso/origem até productionLine.id; mapear LOSS pela linha produtiva; mapear CONSIGNMENT_SOLD via alocação/remessa/origem. Exigir completude de proveniência para todas as fontes da linha. Não usar id de entrega como chave produtiva. Não gravar revisões produtivas para valorizar origem.
+- [x] Validar entrada V2 por schema existente ou parser estrito reutilizável; JSON malformado deve produzir motivo legível, sem derrubar consulta inteira nem inventar configuração.
+- [x] Executar testes de duas origens da mesma produção, dependência entre produtos, consignação, estoque de abertura, memória incompatível e revisão vencida. Produto selecionado não pode esconder fonte compartilhada.
+- [x] Verificar ADMIN ativo, recusa OPERATOR/anônimo/inativo e ausência de cache compartilhado. Alterar somente despesa comercial não deve criar desvio produtivo.
+- [x] Executar em PostgreSQL descartável próprio com transação READ ONLY, verificar quantidades/conteúdo de revisões e apurações antes/depois e preservação de histórico/hash. Reexecutar integrações pertinentes de fontes/consultas E22.
 
 ### Tarefa 3 — apresentação administrativa
 
@@ -75,23 +75,23 @@
 
 **Interfaces:** `RecurrencePanel({value}: {value: RecurrenceReport})`. Consumir exclusivamente projeção; links GET ao detalhe existente. Nenhum comando de gravação.
 
-- [ ] Ler skill shadcn do projeto e componentes instalados. Escrever teste de critérios, 3/5, link de pedido, fonte, motivos e texto “Conferir a ficha”; observar falha por componente ausente.
-- [ ] Implementar seção com título, janela independente de 90 dias, configuração/quantidade, N/K e evidências expansíveis. Integrar consulta na página sem mudar filtros/rankings/metas existentes. Não vazar novo parâmetro para schema estrito do relatório antigo.
-- [ ] Mostrar estados “amostra insuficiente”, “critério não atingido”, “sem linhas comparáveis” e “dados pendentes”; elegíveis/total e exclusões sobrepostas explicitadas. Evitar declarar normalidade/ausência causal.
-- [ ] Testar dados conhecidos/provisórios/incompletos, revisão vencida, resíduo não reconciliado e provisão de falhas. Separar diferença em reais de percentual indisponível; usar formatação existente.
-- [ ] Verificar paginação de evidências após o cálculo e invariância de N/K; nenhum filtro remove silenciosamente o denominador. Controles de expansão acessíveis e ids únicos.
-- [ ] Executar prévia fictícia desktop/celular, teclado, claro/escuro e rolagem local; sem autenticação artificial ou operações no banco publicado.
+- [x] Ler skill shadcn do projeto e componentes instalados. Escrever teste de critérios, 3/5, link de pedido, fonte, motivos e texto “Conferir a ficha”; observar falha por componente ausente.
+- [x] Implementar seção com título, janela independente de 90 dias, configuração/quantidade, N/K e evidências expansíveis. Integrar consulta na página sem mudar filtros/rankings/metas existentes. Não vazar novo parâmetro para schema estrito do relatório antigo.
+- [x] Mostrar estados “amostra insuficiente”, “critério não atingido”, “sem linhas comparáveis” e “dados pendentes”; elegíveis/total e exclusões sobrepostas explicitadas. Evitar declarar normalidade/ausência causal.
+- [x] Testar dados conhecidos/provisórios/incompletos, revisão vencida, resíduo não reconciliado e provisão de falhas. Separar diferença em reais de percentual indisponível; usar formatação existente.
+- [x] Verificar paginação de evidências após o cálculo e invariância de N/K; nenhum filtro remove silenciosamente o denominador. Controles de expansão acessíveis e ids únicos.
+- [x] Executar prévia fictícia desktop/celular, teclado, claro/escuro e rolagem local; sem autenticação artificial ou operações no banco publicado.
 
 ### Tarefa 4 — revisão e entrega local
 
 **Files:** relatório novo e acompanhamentos indicados. Não sobrescrever acompanhamentos locais do checkout operacional: transportar apenas informações novas necessárias para documentos da worktree.
 
-- [ ] Executar unitários completos e integrações pertinentes no banco exclusivo; tipos, lint, build e diff check. Registrar comandos/resumos e falhas reais, sem declarar suíte não executada como aprovada.
-- [ ] Revisar toda a alteração, focando ausência de escritas, imutabilidade de hashes/DTOs históricos, dependências e filtros. Usar skill de revisão aplicável; corrigir achados com regressões.
-- [ ] Reconferir main e diferenças paralelas. Não rebasear automaticamente sobre conflitos nem incrementar versão só por existir entrega local.
-- [ ] Atualizar roadmap e pendências com critérios aprovados, implementação/testes efetivos e homologação humana pendente. Registrar que publicação/PR/merge continuam fora da autorização.
-- [ ] Entregar links dos arquivos, verificações, limitações e versão-base; manter branch/worktree e evidências. Encerrar apenas processos/recursos descartáveis criados nesta tarefa.
+- [x] Executar unitários completos e integrações pertinentes no banco exclusivo; tipos, lint, build e diff check. Registrar comandos/resumos e falhas reais, sem declarar suíte não executada como aprovada.
+- [x] Revisar toda a alteração, focando ausência de escritas, imutabilidade de hashes/DTOs históricos, dependências e filtros. Usar skill de revisão aplicável; corrigir achados com regressões.
+- [x] Reconferir main e diferenças paralelas. Não rebasear automaticamente sobre conflitos nem incrementar versão só por existir entrega local.
+- [x] Atualizar roadmap e pendências com critérios aprovados, implementação/testes efetivos e homologação humana pendente. Registrar que publicação/PR/merge continuam fora da autorização.
+- [x] Entregar links dos arquivos, verificações, limitações e versão-base; manter branch/worktree e evidências. Encerrar apenas processos/recursos descartáveis criados nesta tarefa.
 
 ## Autorrevisão do plano
 
-Contratos transitórios separam metadados do histórico persistido; cada risco do Review Focus tem teste na tarefa proprietária. Numéricos aprovados preservados. Decisões conservadoras sobre assinatura, dependência e consulta fixa constam no desenho para revisão do usuário. Método recomendado: execução direta nesta sessão, com revisão final independente. Revisão do plano pelo usuário pendente antes da implementação, conforme skill writing-plans.
+Contratos transitórios separam metadados do histórico persistido; cada risco do Review Focus tem teste na tarefa proprietária. Numéricos aprovados preservados. Decisões conservadoras sobre assinatura, dependência e consulta fixa constam no desenho para revisão do usuário. Método aprovado: execução direta nesta sessão, com revisão final independente. Plano e critérios aprovados pelo usuário; tarefas 1–4 concluídas e verificadas, com homologação humana e integração/publicação pendentes. Base reconciliada com main bd0b4eb/1.24.0. Evidências e limites no relatório docs/superpowers/reviews/2026-11-06-e24-recorrencia.md.

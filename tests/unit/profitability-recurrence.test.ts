@@ -62,6 +62,16 @@ describe("recorrência produtiva", () => {
     rows[0].line.actual.components!.material = "105";
     expect(buildRecurrence(rows, period).groups[0].materialCount).toBe(2);
   });
+  it("requires five reais even when the percentage is well above ten", () => {
+    const c = recurrenceCandidate(1, "14.99");
+    c.line.expected!.variable = "10";
+    c.line.expected!.components!.material = "10";
+    c.line.expectedScenario.productive.value = "10";
+    const group = buildRecurrence([c], period).groups[0];
+    expect(group.eligibleCount).toBe(1);
+    expect(group.materialCount).toBe(0);
+    expect(group.evidence[0].differencePercent).toBe("49.9");
+  });
   it.each([
     "zero",
     "provisional",

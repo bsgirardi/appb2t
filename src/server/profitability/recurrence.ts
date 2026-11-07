@@ -8,6 +8,8 @@ import {
   type RecurrenceReport,
 } from "@/domain/profitability/recurrence";
 import { pricingV2Schema } from "@/domain/pricing/validation";
+import { lineFingerprint } from "@/domain/pricing/document-costs";
+import { StockDecimal as D } from "@/domain/stock/quantities";
 import type { Actor } from "@/server/auth/session";
 import { requireProfitabilityAdmin } from "./authorization";
 import { readSaleSources } from "./sources";
@@ -30,6 +32,7 @@ export async function getProductiveRecurrence(
         where: { status: { not: "RASCUNHO" } },
         select: {
           id: true,
+          costRevisionId: true,
           events: {
             where: { action: { in: ["CONFIRM", "CONVERT"] } },
             orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -47,11 +50,14 @@ export async function getProductiveRecurrence(
         })
         .map((s) => s.id);
       const candidates: RecurrenceCandidate[] = [];
+      const currentRevisions = new Map(
+        sales.map((s) => [s.id, s.costRevisionId]),
+      );
       for (let offset = 0; offset < ids.length; offset += 50) {
         const batch = ids.slice(offset, offset + 50);
         const revisions = await tx.documentCostRevision.findMany({
           where: { saleId: { in: batch }, frozenAt: { not: null } },
-          select: { bindings: true },
+          select: { id: true, saleId: true, bindings: true },
         });
         const snapshotIds = [
           ...new Set(
@@ -181,6 +187,50 @@ export async function getProductiveRecurrence(
                 : null,
               productionKeys: [...keys].sort(),
               provenanceComplete: complete,
+              memoryIssue: (() => {
+                if (line.expected) return undefined;
+                const revision = revisions.find(
+                  (r) =>
+                    r.id === currentRevisions.get(sale.saleId) &&
+                    r.saleId === sale.saleId,
+                );
+                const raw =
+                  revision && Array.isArray(revision.bindings)
+                    ? revision.bindings.find(
+                        (b) =>
+                          b &&
+                          typeof b === "object" &&
+                          "lineId" in b &&
+                          b.lineId === line.key,
+                      )
+                    : null;
+                if (!raw) return "Memória prevista não vinculada";
+                const parsed = z
+                  .object({
+                    snapshotId: z.string(),
+                    fingerprint: z.string(),
+                    state: z.enum(["VALID", "STALE"]),
+                  })
+                  .safeParse(raw);
+                if (!parsed.success) return "Vínculo da memória ilegível";
+                const binding = parsed.data;
+                const fingerprint = lineFingerprint({
+                  description: line.description,
+                  quantity: line.quantity,
+                  productId: line.productId ?? undefined,
+                  unitPrice: new D(line.grossRevenue)
+                    .div(line.quantity)
+                    .toFixed(2),
+                });
+                if (
+                  binding.state === "STALE" ||
+                  binding.fingerprint !== fingerprint
+                )
+                  return "Vínculo da memória desatualizado";
+                if (unavailableSnapshotIds.has(binding.snapshotId))
+                  return "Entrada da memória congelada ilegível";
+                return "Memória prevista indisponível ou quantidade incompatível";
+              })(),
             });
           }
         }

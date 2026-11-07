@@ -1,5 +1,11 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — E2.4 implementada localmente e validada em isolamento
+
+Critérios e plano aprovados pelo usuário. Implementação na branch `codex/e24-recorrencia`, reconciliada com main `bd0b4eb`/1.24.0: produto/configuração produtiva congelada/mesma quantidade; 90 dias pela confirmação em São Paulo; cinco pedidos independentes elegíveis; ao menos três e 60% acima de 10% e R$ 5 por linha simultaneamente. Entrega completa, reconciliação fechada e conferência vigente são obrigatórias. Dependências por pedido/produção, custos provisórios/incompletos, vínculo de memória e conferências vencidas ficam visíveis fora da amostra. Sugestão “Conferir a ficha”, com evidências e sem alteração automática.
+
+Validação sintética, revisão independente e limites em [relatório E2.4](superpowers/reviews/2026-11-06-e24-recorrencia.md): 36 testes focados, 12 integrações E24 e 14 regressões E22 aprovados; um P2 de composição da página corrigido e rechecado. Rankings E2.3, E2.1/E2.2 e metas mensais já integrados não foram refeitos. Rentabilidade permanece ADMIN. E2 ampla continua em validação: esta implementação local não equivale a PR/merge/publicação ou homologação humana. Versão-base 1.24.0 preservada; sem nova migração de produto, push/PR/merge em main/Release/deploy ou uso mutável de dados operacionais. Registros históricos abaixo não reabrem entregas já integradas.
+
 ## 06/11/2026 — integração autorizada e versão conciliada
 
 PRs #46 (1.22.1) e #47 (1.23.0) integradas. PDV passa a 1.24.0 MINOR nesta mesma PR #48, preservando notas anteriores. Validação adicional HTTP e migração serão registradas após execução. Publicação operacional não realizada. Registros anteriores mantêm o estado histórico.
@@ -54,8 +60,9 @@ Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 | Pendente | Publicar a versão integrada no destino escolhido | Backup/restauração, migrações por destino, saúde e versão; merge não comprova publicação |
 | Em validação | Aceite humano dos fluxos reais | Pode acontecer durante o uso; registrar problemas sem operações fictícias na instalação publicada |
 | Pendente | Backup externo automático e restauração periódica | Escolher destino, retenção e responsável |
-| Em validação | Recorte visual aprovado: Catálogo e Kits (PR #43, sem merge) | Implementação: localizar produtos/kits, compreender publicação/disponibilidade e editar sem perda de campos; sem redesenhar a loja pública ou mudar regras |
-| Pendente | E2.4 e alertas internos de propostas | Recorrência, amostra e cobertura a definir; sem mensagens externas ou revisão automática da ficha |
+| Integrada | Catálogo e Kits, PR #43 / 1.22.0 | Integração conferida na main; implantação operacional não é inferida |
+| Implementada localmente | E2.4 — recorrência produtiva | Critérios aprovados e código validado em isolamento; PR/merge/publicação e homologação pendentes; ver registro de 07/11/2026 |
+| Pendente | Alertas internos de propostas E4 | Recorte separado; sem mensagens externas ou revisão automática da ficha |
 
 Esta fila substitui as recomendações datadas abaixo que ainda apontam metas salvas, prazo comercial e UX comercial/produtiva como ausências integrais. As PRs #38–#41 foram conferidas no GitHub e as notas da main consultadas; não foi repetida a execução dos testes nesta revisão documental. Publicações: local 1.18.0 (registro operacional local, fora desta PR) e tentativa remota cancelada (registro operacional local, fora desta PR). PR documental reconciliada em 1.21.2 sobre main 1.21.1; sem merge ou deploy.
 

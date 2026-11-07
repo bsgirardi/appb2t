@@ -503,3 +503,87 @@ it("renders independent recurrence evidence when the prior report cannot read a 
   expect(html).toContain("Dados sem grupo comparável");
   expect(html).toContain("Conhecido de origem");
 });
+
+it("includes a traced closed productive loss once without creating a second independent observation", async () => {
+  const f = await population();
+  const loss = await db.productionOrder.create({
+    data: {
+      origin: "SALE",
+      saleId: f.sales[0].saleId,
+      status: "CONCLUIDA",
+      lines: {
+        create: {
+          saleLineKey: "line1",
+          description: "Perda vinculada",
+          technology: "FDM",
+          targetUnits: 1,
+          events: {
+            create: {
+              kind: "REPORT",
+              goodUnits: 0,
+              failedUnits: 1,
+              reason: "Falha sintética",
+              materialComplete: true,
+              timeComplete: true,
+              machineMinutes: "0",
+              setupMinutes: "60",
+              finishingMinutes: "0",
+              premises: { settings: { values: { laborPerHour: "30" } } },
+              actorId: f.actor.id,
+              effectiveDate: new Date("2026-10-30"),
+            },
+          },
+        },
+      },
+    },
+    include: { lines: true },
+  });
+  await f.sales[0].review(1);
+  const report = await getProductiveRecurrence(f.actor);
+  expect(report.groups[0]).toMatchObject({
+    eligibleCount: 5,
+    materialCount: 3,
+    suggestReview: true,
+  });
+  const e = report.groups[0].evidence.find(
+    (e) => e.saleId === f.sales[0].saleId,
+  )!;
+  expect(e).toMatchObject({ actual: "110", difference: "60" });
+  expect(e.productionKeys).toEqual(
+    [f.sales[0].lineId, loss.lines[0].id].sort(),
+  );
+  expect(e.reconciliation.includedLosses).toMatchObject([
+    { id: loss.lines[0].id, value: "30" },
+  ]);
+});
+
+it("distinguishes missing memory, stale binding and stale human review", async () => {
+  const f = await population();
+  const revision = await db.documentCostRevision.findFirstOrThrow({
+    where: { saleId: f.sales[0].saleId },
+  });
+  const bindings = revision.bindings as Prisma.JsonObject[];
+  bindings[0].state = "STALE";
+  await db.documentCostRevision.update({
+    where: { id: revision.id },
+    data: { bindings: bindings as Prisma.InputJsonValue },
+  });
+  await db.sale.update({
+    where: { id: f.sales[1].saleId },
+    data: { costRevisionId: null },
+  });
+  await db.productionEvent.update({
+    where: { id: f.sales[2].eventId },
+    data: { setupMinutes: "120" },
+  });
+  const r = await getProductiveRecurrence(f.actor);
+  expect(
+    r.ungrouped.find((e) => e.saleId === f.sales[0].saleId)?.reasons,
+  ).toContain("Vínculo da memória desatualizado");
+  expect(
+    r.ungrouped.find((e) => e.saleId === f.sales[1].saleId)?.reasons,
+  ).toContain("Memória prevista não vinculada");
+  expect(
+    r.groups[0].evidence.find((e) => e.saleId === f.sales[2].saleId)?.reasons,
+  ).toContain("Conferência da linha desatualizada");
+});

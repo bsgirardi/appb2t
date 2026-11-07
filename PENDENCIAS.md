@@ -1,5 +1,11 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — E2.4 implementada em isolamento; integração e publicação pendentes
+
+Critérios e plano aprovados; implementação local em `codex/e24-recorrencia`, reconciliada com main `bd0b4eb`/1.24.0. Recorrência por produto/configuração congelada/quantidade, janela de 90 dias, cinco pedidos independentes e pelo menos três/60% com excesso simultâneo de 10% e R$ 5 por linha. Fontes, exclusões, memória/vínculo/conferência desatualizados e parcela não reconciliada explícitos; sugestão exclusivamente humana, sem alterar ficha, apuração ou parâmetros. Rentabilidade continua ADMIN.
+
+Validação sintética: 36 testes focados, 12 integrações E24 e 14 regressões E22; revisão independente com um P2 corrigido. [Entrega, verificações gerais e limites](docs/superpowers/reviews/2026-11-06-e24-recorrencia.md). E2.1/E2.2, rankings E2.3 e metas mensais já entregues foram preservados. E2.4 não está integrada/publicada; homologação humana permanece pendente. Sem push/PR/merge em main/Release/deploy, migração operacional ou alteração de contêiner existente. Versão-base preservada em 1.24.0, sem incremento adicional nesta entrega local. A pasta operacional e os documentos paralelos permaneceram intactos. Os acompanhamentos abaixo são registros anteriores; não tratar seus estados de preparação como ausência atual das funções já integradas.
+
 ## 06/11/2026 — integração autorizada e versão conciliada
 
 PRs #46 (1.22.1) e #47 (1.23.0) integradas. PDV passa a 1.24.0 MINOR nesta mesma PR #48, preservando notas anteriores. Validação adicional HTTP e migração serão registradas após execução. Publicação operacional não realizada. Registros anteriores mantêm o estado histórico.

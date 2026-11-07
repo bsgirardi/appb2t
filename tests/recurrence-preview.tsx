@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { RecurrencePanel } from "@/components/profitability/recurrence-panel";
 import { buildRecurrence } from "@/domain/profitability/recurrence";
+import { calculateSale } from "@/domain/profitability/calculate";
 import {
   recurrenceCandidate,
   recurrencePopulation,
@@ -12,6 +13,8 @@ import "@/app/design.css";
 const rows = recurrencePopulation();
 const pending = recurrenceCandidate(6);
 pending.line.actual.provisional = true;
+pending.sale = calculateSale(pending.sale);
+pending.line = pending.sale.lines[0];
 rows.push(pending);
 const incomplete = recurrenceCandidate(7);
 incomplete.configuration = null;
