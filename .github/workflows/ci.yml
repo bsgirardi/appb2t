@@ -71,6 +71,10 @@ jobs:
             database: b2t_e22_test
             port: 55438
             command: npm run test:e22
+          - suite: e24
+            database: b2t_e24_test
+            port: 55441
+            command: npm run test:e24
           - suite: e12
             database: b2t_e12_test
             port: 55437
@@ -97,6 +101,7 @@ jobs:
       E6_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E12_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
       E22_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
+      E24_TEST_DATABASE_URL: postgresql://b2t_test:b2t_test_local_only@127.0.0.1:${{ matrix.port }}/${{ matrix.database }}
     steps:
       - uses: actions/checkout@v7
         with:

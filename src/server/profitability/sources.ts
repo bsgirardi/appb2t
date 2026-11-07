@@ -26,6 +26,7 @@ const add = (a: string, b: string) => new D(a).plus(b).toFixed();
 export async function readSaleSources(
   tx: Prisma.TransactionClient,
   saleIds: string[],
+  options?: { unavailableSnapshotIds: ReadonlySet<string> },
 ): Promise<SaleProfitabilityInput[]> {
   const sales = await tx.sale.findMany({
     where: { id: { in: saleIds } },
@@ -112,7 +113,11 @@ export async function readSaleSources(
               unitPrice: item.unitPrice.toFixed(2),
             }),
       );
-      const snap = snapshots.find((s) => s.id === binding?.snapshotId);
+      const snap = snapshots.find(
+        (s) =>
+          s.id === binding?.snapshotId &&
+          !options?.unavailableSnapshotIds.has(s.id),
+      );
       let expected: ExpectedCost | null = null;
       if (snap) {
         const input = snap.input as unknown as PricingV2Input,

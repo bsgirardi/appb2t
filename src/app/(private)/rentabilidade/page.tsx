@@ -10,6 +10,8 @@ import {
 import { db } from "@/lib/db";
 import { ProfitabilityReport } from "@/components/profitability/report";
 import { IntelligencePanel } from "@/components/profitability/intelligence-panel";
+import { RecurrencePanel } from "@/components/profitability/recurrence-panel";
+import { getProductiveRecurrence } from "@/server/profitability/recurrence";
 import { todaySaoPaulo } from "@/domain/commerce/dates";
 import { moneyText } from "@/components/profitability/detail";
 import { Field, Notice } from "@/components/ui/field";
@@ -38,8 +40,13 @@ export default async function ProfitabilityPage({
   );
   const { lossFrom, lossTo, lossPage, ...filter } = params,
     period = defaultPeriod();
-  const [result, losses, channels, products] = await Promise.all([
-    getProfitabilityReport(actor, filter),
+  const [result, losses, channels, products, recurrence] = await Promise.all([
+    getProfitabilityReport(actor, filter).catch((error: unknown) => {
+      // Legacy unreadable snapshot shapes must not hide the independent E2.4
+      // evidence. Authorization/validation/database failures still propagate.
+      if (!(error instanceof TypeError)) throw error;
+      return null;
+    }),
     listUnassignedLosses(actor, {
       from: lossFrom ?? period.from,
       to: lossTo ?? period.to,
@@ -53,6 +60,7 @@ export default async function ProfitabilityPage({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    getProductiveRecurrence(actor),
   ]);
   const href = (p: Record<string, string>) =>
     `/rentabilidade?${new URLSearchParams({ ...params, ...p })}`;
@@ -142,30 +150,45 @@ export default async function ProfitabilityPage({
         contêm esse produto. Estes indicadores não representam DRE nem lucro
         líquido.
       </Notice>
-      <IntelligencePanel
-        key={JSON.stringify(filter)}
-        summary={result.summary}
-        rankings={result.rankings}
-        period={{
-          from: filter.from ?? period.from,
-          to: filter.to ?? period.to,
-          today: todaySaoPaulo(new Date()),
-          undated: filter.undated === "true",
-          enabled:
-            filter.undated !== "true" &&
-            (filter.situation ?? "NORMAL") === "NORMAL",
-        }}
-      />
-      <ProfitabilityReport result={result} />
-      <nav aria-label="Paginação de pedidos" className="flex gap-3">
-        {result.page > 1 ? (
-          <Link href={href({ page: String(result.page - 1) })}>Anterior</Link>
-        ) : null}
-        <span>Página {result.page}</span>
-        {result.page * result.pageSize < result.total ? (
-          <Link href={href({ page: String(result.page + 1) })}>Próxima</Link>
-        ) : null}
-      </nav>
+      {result ? (
+        <>
+          <IntelligencePanel
+            key={JSON.stringify(filter)}
+            summary={result.summary}
+            rankings={result.rankings}
+            period={{
+              from: filter.from ?? period.from,
+              to: filter.to ?? period.to,
+              today: todaySaoPaulo(new Date()),
+              undated: filter.undated === "true",
+              enabled:
+                filter.undated !== "true" &&
+                (filter.situation ?? "NORMAL") === "NORMAL",
+            }}
+          />
+          <ProfitabilityReport result={result} />
+          <nav aria-label="Paginação de pedidos" className="flex gap-3">
+            {result.page > 1 ? (
+              <Link href={href({ page: String(result.page - 1) })}>
+                Anterior
+              </Link>
+            ) : null}
+            <span>Página {result.page}</span>
+            {result.page * result.pageSize < result.total ? (
+              <Link href={href({ page: String(result.page + 1) })}>
+                Próxima
+              </Link>
+            ) : null}
+          </nav>
+        </>
+      ) : (
+        <Notice kind="error">
+          Relatório temporariamente indisponível: há uma memória que não pôde
+          ser lida. A recorrência abaixo mantém sua leitura independente; a
+          indisponibilidade não equivale a custo zero.
+        </Notice>
+      )}
+      <RecurrencePanel value={recurrence} />
       <Card>
         <CardHeader>
           <CardTitle>Perdas não atribuídas a pedidos</CardTitle>
