@@ -1,5 +1,9 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — E2.4 entregue na PR #49
+
+[PR #49](https://github.com/bsgirardi/appb2t/pull/49) aberta para revisão na versão proposta 1.25.0, base main 1.24.0 (`bd0b4eb`). Incremento único e notas sincronizadas; build/lint e 40 testes focados da versão aprovados, preservadas as evidências funcionais gerais e E24/E22 do relatório. Verificações automáticas pendentes; sem merge/Release/implantação operacional. E2.4 segue em validação e homologação humana pendente. Não reiniciar implementação com base nos registros históricos anteriores à PR.
+
 ## 07/11/2026 — preparação autorizada da PR E2.4
 
 PR autorizada pelo usuário após a implementação local. Main reconferida em `bd0b4eb`/1.24.0; versão proposta 1.25.0, incremento MINOR único com manifestos/histórico sincronizados e notas em português. 40 testes focados aprovados, incluindo versão/rodapés/Atualizações para ADMIN e OPERATOR. Build e lint aprovados; resultado/URL da PR serão registrados após a criação. Sem merge em main, Release, migração ou implantação operacional; E2.4 segue em validação e homologação humana pendente. Os registros anteriores de “sem autorização de PR” são históricos.
@@ -65,7 +69,7 @@ Atualizado em 06/11/2026. Main de referência: 1.21.1 / 4786a8b.
 | Em validação | Aceite humano dos fluxos reais | Pode acontecer durante o uso; registrar problemas sem operações fictícias na instalação publicada |
 | Pendente | Backup externo automático e restauração periódica | Escolher destino, retenção e responsável |
 | Integrada | Catálogo e Kits, PR #43 / 1.22.0 | Integração conferida na main; implantação operacional não é inferida |
-| Implementada localmente | E2.4 — recorrência produtiva | Critérios aprovados e código validado em isolamento; PR/merge/publicação e homologação pendentes; ver registro de 07/11/2026 |
+| Em validação | E2.4 — recorrência produtiva, PR #49 | Proposta 1.25.0 com critérios aprovados e código validado; verificações da PR, merge/publicação e homologação pendentes; ver registro de 07/11/2026 |
 | Pendente | Alertas internos de propostas E4 | Recorte separado; sem mensagens externas ou revisão automática da ficha |
 
 Esta fila substitui as recomendações datadas abaixo que ainda apontam metas salvas, prazo comercial e UX comercial/produtiva como ausências integrais. As PRs #38–#41 foram conferidas no GitHub e as notas da main consultadas; não foi repetida a execução dos testes nesta revisão documental. Publicações: local 1.18.0 (registro operacional local, fora desta PR) e tentativa remota cancelada (registro operacional local, fora desta PR). PR documental reconciliada em 1.21.2 sobre main 1.21.1; sem merge ou deploy.

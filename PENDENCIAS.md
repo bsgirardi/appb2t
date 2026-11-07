@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — PR #49 da E2.4 aberta
+
+[PR #49](https://github.com/bsgirardi/appb2t/pull/49) aberta para revisão, branch `codex/e24-recorrencia` → `main`, proposta 1.25.0. Build/lint e 40 testes focados da versão aprovados; validação funcional anterior inclui 1.245 testes gerais, 12 integrações E24 e 14 regressões E22. Verificações automáticas iniciadas, ainda pendentes. Sem merge, Release ou implantação operacional. Homologação humana permanece pendente; os registros de ausência de PR abaixo são históricos.
+
 ## 07/11/2026 — PR da E2.4 autorizada, versão 1.25.0 preparada
 
 Usuário autorizou abrir a PR após concluir a implementação. Main reconferida em `bd0b4eb`/1.24.0; incremento MINOR único para 1.25.0, manifestos sincronizados e novas notas portuguesas, mantendo o histórico. Os rodapés continuam usando APP_VERSION; 40 testes focados confirmam login, rodapé administrativo, Atualizações ADMIN/OPERATOR e recorrência. Build e lint da versão proposta aprovados. Sem implantação operacional, merge em main ou Release; homologação humana permanece pendente. Resultado da PR será registrado após a criação. Este registro supera a ausência de autorização para PR nos relatos anteriores, sem ampliar a autorização para publicação.
