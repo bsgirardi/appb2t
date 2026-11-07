@@ -5,6 +5,7 @@ import type {
   DashboardPanelDTO,
 } from "@/domain/dashboard/types";
 import { summarizeCommercial } from "@/domain/dashboard/commercial";
+import { commercialAlerts } from "@/domain/dashboard/commercial-alerts";
 import { shiftDay } from "@/domain/dashboard/filters";
 import {
   D,
@@ -25,61 +26,89 @@ export async function getCommercialDashboard(
 ): Promise<DashboardPanelDTO> {
   return db.$transaction(
     async (tx) => {
-      const [sales, quotes, requests, requirements] = await Promise.all([
-        tx.sale.findMany({
-          where: { status: { notIn: ["RASCUNHO", "CANCELADA"] } },
-          select: {
-            id: true,
-            sequence: true,
-            customerId: true,
-            status: true,
-            createdAt: true,
-            expectedDeliveryDate: true,
-            totals: true,
-            items: {
-              select: {
-                productId: true,
-                description: true,
-                quantity: true,
-                unitPrice: true,
+      const [sales, quotes, requests, requirements, opportunities] =
+        await Promise.all([
+          tx.sale.findMany({
+            where: { status: { notIn: ["RASCUNHO", "CANCELADA"] } },
+            select: {
+              id: true,
+              sequence: true,
+              customerId: true,
+              status: true,
+              createdAt: true,
+              expectedDeliveryDate: true,
+              totals: true,
+              items: {
+                select: {
+                  productId: true,
+                  description: true,
+                  quantity: true,
+                  unitPrice: true,
+                },
               },
             },
-          },
-        }),
-        tx.quote.findMany({
-          select: {
-            id: true,
-            sequence: true,
-            status: true,
-            createdAt: true,
-            validUntil: true,
-            totals: true,
-            events: {
-              where: { action: "APPROVE" },
-              select: { createdAt: true },
-              orderBy: { createdAt: "asc" },
-              take: 1,
+          }),
+          tx.quote.findMany({
+            select: {
+              id: true,
+              sequence: true,
+              opportunityId: true,
+              status: true,
+              createdAt: true,
+              validUntil: true,
+              totals: true,
+              events: {
+                where: { action: "APPROVE" },
+                select: { createdAt: true },
+                orderBy: { createdAt: "asc" },
+                take: 1,
+              },
+              sale: { select: { status: true } },
             },
-            sale: { select: { status: true } },
-          },
-        }),
-        tx.catalogRequest.findMany({
-          select: { id: true, sequence: true, state: true, createdAt: true },
-        }),
-        tx.artLineRequirement.findMany({
-          where: { required: true, request: { state: { not: "ENCERRADA" } } },
-          select: {
-            id: true,
-            requestId: true,
-            request: { select: { sequence: true } },
-            package: {
-              select: {
-                currentRevision: { select: { state: true, publishedAt: true } },
+          }),
+          tx.catalogRequest.findMany({
+            select: { id: true, sequence: true, state: true, createdAt: true },
+          }),
+          tx.artLineRequirement.findMany({
+            where: { required: true, request: { state: { not: "ENCERRADA" } } },
+            select: {
+              id: true,
+              requestId: true,
+              request: { select: { sequence: true } },
+              package: {
+                select: {
+                  currentRevision: {
+                    select: { state: true, publishedAt: true },
+                  },
+                },
               },
             },
-          },
-        }),
-      ]);
+          }),
+          tx.opportunity.findMany({
+            where: { stage: { notIn: ["GANHO", "PERDIDO"] } },
+            select: {
+              id: true,
+              title: true,
+              stage: true,
+              principalQuoteId: true,
+              nextContactDate: true,
+              nextAction: true,
+              owner: { select: { name: true } },
+            },
+          }),
+        ]);
+      const alerts = commercialAlerts(
+        quotes.map((q) => ({
+          ...q,
+          validUntil: q.validUntil ? civil(q.validUntil) : null,
+        })),
+        opportunities.map((o) => ({
+          ...o,
+          nextContactDate: o.nextContactDate ? civil(o.nextContactDate) : null,
+          ownerName: o.owner?.name ?? null,
+        })),
+        f.today,
+      );
       const input = {
         sales: sales.map((s) => ({
           id: s.id,
@@ -123,11 +152,6 @@ export async function getCommercialDashboard(
             q.validUntil &&
             civil(q.validUntil) >= f.today),
       );
-      const expiring = activeQuotes
-        .filter(
-          (q) => q.validUntil && civil(q.validUntil) <= shiftDay(f.today, 7),
-        )
-        .sort((a, b) => a.validUntil!.getTime() - b.validUntil!.getTime());
       const pendingSales = sales.filter((s) => s.status !== "ENTREGUE");
       const waitingArts = requirements.filter(
         (r) => r.package?.currentRevision?.state !== "APPROVED",
@@ -241,9 +265,9 @@ export async function getCommercialDashboard(
         metric(
           "expiring",
           "Propostas a vencer",
-          expiring.length,
+          alerts.expiringCount,
           "number",
-          "Vencimento entre hoje e os próximos 7 dias.",
+          "Propostas vigentes avulsas ou principais de negociações abertas, de hoje até 7 dias à frente.",
         ),
         metric(
           "requests",
@@ -375,13 +399,7 @@ export async function getCommercialDashboard(
         },
       ];
       panel.priorities = [
-        ...expiring.map((q) => ({
-          id: q.id,
-          title: `Orçamento #${q.sequence}`,
-          detail: `Vence em ${civil(q.validUntil!)}`,
-          href: `/orcamentos/${q.id}`,
-          severity: "attention" as const,
-        })),
+        ...alerts.priorities,
         ...pendingSales
           .filter(
             (s) =>
@@ -414,6 +432,23 @@ export async function getCommercialDashboard(
           severity: "attention" as const,
         })),
       ];
+      panel.metrics.push(
+        metric(
+          "overdueContacts",
+          "Contatos atrasados",
+          alerts.overdueCount,
+          "number",
+          "Negociações abertas com contato agendado antes de hoje; posição atual.",
+          { href: "/negociacoes?stage=abertas&due=atrasadas" },
+        ),
+      );
+      panel.priorityContext = [
+        alerts.openRecords
+          ? "Acompanhamento comercial da posição atual."
+          : "Nenhuma negociação aberta ou proposta vigente registrada para acompanhamento comercial.",
+        `${alerts.missingValidity} proposta(s) sem validade; ${alerts.missingContact} negociação(ões) sem data de próximo contato; ${alerts.missingPrincipal} negociação(ões) em proposta/negociação sem orçamento principal. Consulte Orçamentos e Negociações para completar os dados.`,
+        "Ausência de alerta não comprova que todos os contatos estejam em dia. O histórico livre não distingue envio de resposta: propostas sem retorno não são inferidas.",
+      ].join(" ");
       panel.notes = [
         "As contagens de carteira, propostas e aprovações pendentes representam a posição atual, independentemente do período.",
         "As artes são contadas por linha requerida. A aplicabilidade final à configuração do pedido continua sendo validada no fluxo de produção.",

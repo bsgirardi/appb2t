@@ -1,5 +1,17 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — PR de alertas comerciais autorizada
+
+Usuário solicitou “faca pr”. Preparação da branch `codex/alertas-comerciais` em 1.25.0 MINOR sobre main reconferida `bd0b4eb` / 1.24.0, sem novo incremento. Revalidação de 23 testes direcionados aprovada; suíte completa anterior com 915 testes em 220 arquivos, tipos/lint/build finais aprovados. PR em rascunho para o recorte de contatos atrasados e vencimentos; critérios de inatividade/sem retorno continuam pendentes e não foram presumidos aprovados. Commit/push/criação de PR autorizados; merge, Release de distribuição e implantação operacional permanecem separados e não realizados. URL será registrada após criação. Histórico abaixo preservado.
+
+## 07/11/2026 — alertas comerciais implementados parcialmente em isolamento
+
+Base main `bd0b4eb` / 1.24.0, worktree `alertas-comerciais`, branch `codex/alertas-comerciais`. Contatos agendados atrasados e vencimento de propostas vigentes avulsas/principais integrados à prioridade atual; motivos da mesma negociação agrupados, responsável/próxima ação e links diretos. Encerradas, convertidas, rascunhos, propostas secundárias e expiradas não geram alerta de vencimento. Cobertura incompleta explícita, sem notificações persistidas ou mensagens externas; acesso ADMIN/OPERATOR preservado. E2.4 segue frente separada.
+
+Janela existente de 7 dias preservada, com confirmação solicitada. **Sem retorno continua pendente**: histórico INTERACTION é texto livre, não identifica envio/resposta. Alternativa de inatividade e prazo perguntados ao usuário, sem implementação ou aprovação presumida. Não encerrar a caixa ampla de alertas.
+
+Validação: 915 testes unitários em 220 arquivos, tipos/lint/build finais aprovados; 29 testes direcionados, revisão independente e prévia sintética desktop/390 px, teclado e temas. Sem HTTP autenticado ou consulta a banco real. Versão 1.25.0 preparada uma única vez para revisão local, manifestos/notas sincronizados. Sem commit/push/PR/merge/Release/deploy, migração ou acesso operacional. [Entrega e evidências](alertas-comerciais/ENTREGA.md). Reconciliar main/versão antes de futura PR autorizada. Registros históricos e alterações locais de outros chats preservados.
+
 ## 06/11/2026 — integração autorizada e versão conciliada
 
 PRs #46 (1.22.1) e #47 (1.23.0) integradas. PDV passa a 1.24.0 MINOR nesta mesma PR #48, preservando notas anteriores. Validação adicional HTTP e migração serão registradas após execução. Publicação operacional não realizada. Registros anteriores mantêm o estado histórico.

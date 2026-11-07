@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   tx: {
     sale: { findMany: vi.fn() },
     quote: { findMany: vi.fn() },
+    opportunity: { findMany: vi.fn() },
     catalogRequest: { findMany: vi.fn() },
     artLineRequirement: { findMany: vi.fn() },
     productionOrder: { findMany: vi.fn() },
@@ -166,4 +167,60 @@ it("overview keeps ready sales visible and never loads finances for an operator"
   const data = await getOverviewDashboard({ ...actor, role: "OPERATOR" }, f);
   expect(data.metrics.find((m) => m.id === "ready")?.value).toBe("0");
   expect(mocks.tx.financialAccount.findMany).not.toHaveBeenCalled();
+});
+
+it("commercial merges overdue contact and principal expiry for both roles without finance queries", async () => {
+  mocks.tx.opportunity.findMany.mockResolvedValue([
+    {
+      id: "o",
+      title: "Negociação teste",
+      stage: "PROPOSTA",
+      principalQuoteId: "q",
+      nextContactDate: new Date("2026-10-25"),
+      nextAction: "Telefonar",
+      owner: { name: "Ana" },
+    },
+  ]);
+  mocks.tx.quote.findMany.mockResolvedValue([
+    {
+      id: "q",
+      sequence: 12,
+      status: "ENVIADO",
+      createdAt: new Date("2026-10-01"),
+      validUntil: new Date("2026-10-27"),
+      totals: { total: "10" },
+      events: [],
+      sale: null,
+      opportunityId: "o",
+    },
+  ]);
+  for (const role of ["ADMIN", "OPERATOR"] as const) {
+    const panel = await getCommercialDashboard({ ...actor, role }, f);
+    expect(panel.priorities).toHaveLength(1);
+    expect(panel.priorities[0]).toMatchObject({
+      href: "/negociacoes/o",
+      severity: "urgent",
+    });
+    expect(panel.priorities[0].detail).toContain("Ana");
+    expect(panel.metrics.find((m) => m.id === "overdueContacts")?.value).toBe(
+      "1",
+    );
+  }
+  expect(mocks.tx.financialAccount.findMany).not.toHaveBeenCalled();
+});
+it("commercial coverage identifies missing source dates instead of all clear", async () => {
+  mocks.tx.opportunity.findMany.mockResolvedValue([
+    {
+      id: "o",
+      title: "Sem data",
+      stage: "PROPOSTA",
+      principalQuoteId: null,
+      nextContactDate: null,
+      nextAction: null,
+      owner: { name: "Ana" },
+    },
+  ]);
+  const panel = await getCommercialDashboard(actor, f);
+  expect(panel.priorityContext).toContain("1 negociação(ões) sem data");
+  expect(panel.priorityContext).toContain("não comprova");
 });

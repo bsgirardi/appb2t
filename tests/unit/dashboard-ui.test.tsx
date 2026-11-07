@@ -96,3 +96,37 @@ it("clears an existing margin reference instead of restoring the previous URL va
   expect(mocks.push).toHaveBeenCalled();
   expect(mocks.push.mock.calls[0][0]).not.toContain("margin=");
 });
+
+it("offers commercial coverage progressively and preserves direct actions", () => {
+  render(
+    <PriorityTable
+      priorities={[
+        {
+          id: "o",
+          title: "Contato teste",
+          detail: "Contato atrasado · Ana · Telefonar",
+          href: "/negociacoes/o",
+          severity: "urgent",
+        },
+      ]}
+      context="1 negociação sem data. Não comprova retorno."
+    />,
+  );
+  const toggle = screen.getByRole("button", {
+    name: "Critérios e cobertura comercial",
+  });
+  expect(toggle.getAttribute("aria-expanded")).toBe("false");
+  fireEvent.click(toggle);
+  expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  expect(screen.getByText(/1 negociação sem data/)).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: "Abrir operação: Contato teste" })
+      .getAttribute("href"),
+  ).toBe("/negociacoes/o");
+  expect(
+    screen
+      .getByRole("link", { name: "Consultar negociações" })
+      .getAttribute("href"),
+  ).toBe("/negociacoes");
+});
