@@ -2,6 +2,24 @@ import { expect, it } from "vitest";
 import { summarizeCommercial } from "@/domain/dashboard/commercial";
 import { resolveDashboardFilter } from "@/domain/dashboard/filters";
 const f = resolveDashboardFilter({}, "ADMIN", new Date("2026-10-26T15:00Z"));
+it("contabiliza vendas anônimas sem inventar cliente recorrente", () => {
+  const result = summarizeCommercial(
+    {
+      sales: ["one", "two"].map((id) => ({
+        id,
+        customerId: null,
+        total: "10.00",
+        date: "2026-10-01",
+        items: [],
+      })),
+      quotes: [],
+      priorCustomers: [null],
+    },
+    f,
+  );
+  expect(result.salesValue).toBe("20.00");
+  expect(result.recurringCustomers).toBe(0);
+});
 it("uses the quote creation cohort, real approval events and exact money", () => {
   const result = summarizeCommercial(
     {

@@ -404,7 +404,7 @@ export function ProductForm({
         >
           <div className="product-form">
             <Card asChild>
-              <section className="">
+              <section className="product-main-card">
                 <h2>Dados principais</h2>
                 <p className="admin-form-note">
                   Identifique a peça e defina o que será apresentado ao cliente.

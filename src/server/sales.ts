@@ -1,4 +1,9 @@
 import {
+  posDocumentSchema,
+  posDraftSchema,
+  calculatePosPayment,
+} from "@/domain/pos/validation";
+import {
   assertOpportunityQuoteOpen,
   recordOpportunityWon,
 } from "./opportunities/commerce";
@@ -84,6 +89,7 @@ async function row(tx: Prisma.TransactionClient, id: string) {
   const sale = await tx.sale.findUnique({
     where: { id },
     include: {
+      posOrder: { select: { input: true } },
       installments: { orderBy: { number: "asc" } },
       consignment: { select: { partnerId: true } },
       events: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
@@ -94,7 +100,17 @@ async function row(tx: Prisma.TransactionClient, id: string) {
 }
 async function dto(tx: Prisma.TransactionClient, id: string): Promise<SaleDTO> {
   const s = await row(tx, id);
+  const pos = s.posOrder ? posDraftSchema.parse(s.posOrder.input) : null;
   return {
+    ...(pos
+      ? {
+          posPayment: calculatePosPayment(
+            (s.totals as unknown as DocumentTotals).total,
+            pos.method,
+            pos.tendered,
+          ),
+        }
+      : {}),
     id: s.id,
     consignmentPartnerId: s.consignment?.partnerId ?? null,
     number: `VEN-${String(s.sequence).padStart(6, "0")}`,
@@ -334,7 +350,10 @@ export async function confirmSaleWithClient(
   const sale = await row(tx, id);
   if (sale.version !== expectedVersion || sale.status !== "RASCUNHO")
     throw conflict();
-  const input = documentSchema.parse(sale.document),
+  const isPos = !!(await tx.posOrder.findUnique({ where: { saleId: id } }));
+  const input = (isPos ? posDocumentSchema : documentSchema).parse(
+      sale.document,
+    ),
     totals = calculateDocumentTotals(
       input.items,
       input.discount,
@@ -347,6 +366,7 @@ export async function confirmSaleWithClient(
     input,
     `/api/sales/${id}/logo`,
     { saleId: id },
+    { unidentifiedPos: isPos },
   );
   await tx.sale.update({
     where: { id },
@@ -418,6 +438,7 @@ export async function convertQuoteWithClient(
   void _validUntil;
   document.items = await readLineItems(tx, { quoteId }, document.items);
   if (
+    !document.customerId ||
     !(await tx.customer.findFirst({
       where: { id: document.customerId, active: true },
     }))

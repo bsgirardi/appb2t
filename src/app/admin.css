@@ -19,7 +19,10 @@
   }
   .admin-ui .sidebar {
     padding: 20px 12px 12px;
-    overflow-y: auto;
+    overflow: hidden;
+  }
+  .admin-ui .sidebar > :not(.admin-desktop-nav) {
+    flex-shrink: 0;
   }
   .admin-ui .brand {
     font-size: 23px;
@@ -32,7 +35,7 @@
     margin: 0 8px 8px;
   }
   .admin-ui .nav-item {
-    margin: 2px 0;
+    margin: 0;
     padding: 8px 10px;
     font-size: 13px;
     gap: 9px;
@@ -62,7 +65,12 @@
     text-decoration: none;
   }
   .admin-ui .admin-desktop-nav {
-    flex-shrink: 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px;
+    margin: -4px;
   }
   .admin-ui.admin-mobile-menu {
     overflow-y: auto;

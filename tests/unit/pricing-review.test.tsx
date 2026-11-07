@@ -81,12 +81,16 @@ it.each(["material", "printer", "both", "unset"] as const)(
     const consumption = await screen.findByLabelText("Consumo por peça 1 (ml)");
     expect((consumption as HTMLInputElement).value).toBe("37.5");
     expect(
+      (screen.getByLabelText("Horas de impressão do lote") as HTMLInputElement)
+        .value,
+    ).toBe("2");
+    expect(
       (
         screen.getByLabelText(
-          "Tempo fixo de máquina (min/lote)",
+          "Minutos de impressão do lote",
         ) as HTMLInputElement
       ).value,
-    ).toBe("135");
+    ).toBe("15");
     expect(
       (screen.getByLabelText("Quantidade do lote") as HTMLInputElement).value,
     ).toBe("1");

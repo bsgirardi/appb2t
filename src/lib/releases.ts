@@ -8,6 +8,70 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.24.0",
+    date: "2026-11-06",
+    title: "PDV presencial para atendimento e entrega imediata",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Monte vendas presenciais com busca de produtos, quantidades, desconto e entrega imediata de peças prontas disponíveis.",
+          "Atenda sem identificar o comprador ou escolha um cliente cadastrado; se desejar, cadastre um novo cliente junto com a venda.",
+          "Informe Pix, dinheiro ou cartão, com cálculo de troco em dinheiro. O recebimento continua sujeito à conferência no financeiro.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Salve a compra para retomar depois e consulte a mesma operação após falha de conexão, evitando duplicar venda, cadastro ou baixa de peças.",
+          "Confira novamente preços e cadastros alterados antes de concluir. O PDV exige conexão e mantém encomendas, kits e personalizações no fluxo comercial existente.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.23.0",
+    date: "2026-11-06",
+    title: "Calculadora unificada e revisão de custos do produto",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "A calculadora reúne impressão por lote, múltiplos materiais, trabalho, complementos e comparações em uma tela principal com a organização da original.",
+          "Revise a ficha de um produto com referências atuais e confira custo e preço calculado antes e depois, mantendo o mesmo cadastro e o preço final até sua decisão comercial.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "O cálculo original permanece disponível para consulta, sem converter automaticamente suas bases. Comparadores de quantidade, canais e descontos e a biblioteca de cenários continuam disponíveis.",
+          "Produtos e itens comerciais usam a mesma composição de cálculo. Consumo por peça e tempo total do lote têm orientações explícitas, com custos adicionais recolhidos e indicação dos ajustes em uso.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "A proteção de saída da calculadora também considera a simulação original e comparações ainda não salvas. Entradas inválidas removem o resultado vigente e bloqueiam a aplicação.",
+          "O preço informado tem identificação própria; atualizar custos ou anexar uma estimativa continua separado de alterar o preço de venda.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.22.1",
+    date: "2026-11-06",
+    title: "Mais equilíbrio no menu e nos formulários",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "O menu lateral rola separadamente no computador, mantendo o perfil e a saída acessíveis mesmo com vários grupos abertos.",
+          "Campos, orientações, ações e seções do cadastro de produto têm espaçamentos consistentes, preservando a leitura no celular e nos dois temas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.22.0",
     date: "2026-11-06",
     title: "Catálogo e Kits mais fáceis de consultar e editar",
