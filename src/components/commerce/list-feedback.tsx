@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
 
 export function activeCommerceFilters(filters: Record<string, unknown>) {
   return Object.entries(filters).filter(
@@ -54,25 +60,29 @@ export function ListFeedback({
   onClear: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 p-4" role="status">
-      <p>
-        {total > 0
-          ? "Esta página está fora dos resultados."
-          : filtered
-            ? "Nenhum resultado para os filtros aplicados."
-            : `Ainda não há ${noun}. Use a ação no início da página para criar.`}
-      </p>
-      {total > 0 ? (
-        <Button type="button" variant="outline" onClick={onFirst}>
-          Voltar à primeira página
-        </Button>
-      ) : (
-        filtered && (
-          <Button type="button" variant="outline" onClick={onClear}>
-            Limpar filtros
+    <Empty role="status">
+      <EmptyHeader>
+        <EmptyDescription>
+          {total > 0
+            ? "Esta página está fora dos resultados."
+            : filtered
+              ? "Nenhum resultado para os filtros aplicados."
+              : `Ainda não há ${noun}. Use a ação no início da página para criar.`}
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        {total > 0 ? (
+          <Button type="button" variant="outline" onClick={onFirst}>
+            Voltar à primeira página
           </Button>
-        )
-      )}
-    </div>
+        ) : (
+          filtered && (
+            <Button type="button" variant="outline" onClick={onClear}>
+              Limpar filtros
+            </Button>
+          )
+        )}
+      </EmptyContent>
+    </Empty>
   );
 }

@@ -12,7 +12,14 @@ import { Pagination } from "@/components/ui/pagination";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { AppliedListFilters } from "./applied-list-filters";
 import {
   Table,
   TableHeader,
@@ -63,7 +70,7 @@ export function SalePanel({
     router.push(`/vendas?${params}`);
   }
   return (
-    <div className="commerce-page">
+    <div className="commerce-page commercial-list">
       <div className="page-heading">
         <div>
           <h1>Vendas</h1>
@@ -89,6 +96,9 @@ export function SalePanel({
       <FilterPanel activeCount={activeCommerceFilters(filters)}>
         <AdminForm
           key={JSON.stringify(filters)}
+          requiredGuide={false}
+          method="get"
+          action="/vendas"
           className="commerce-filters"
           onSubmit={filter}
         >
@@ -145,8 +155,8 @@ export function SalePanel({
             Até
             <Input type="date" name="to" defaultValue={filters.to} />
           </Label>
-          <Button variant="outline" size="sm" className="">
-            Filtrar
+          <Button type="submit" size="sm">
+            Aplicar filtros
           </Button>
           {activeCommerceFilters(filters) > 0 && (
             <Button
@@ -159,38 +169,73 @@ export function SalePanel({
           )}
         </AdminForm>
       </FilterPanel>
-      <Card asChild>
-        <div className="table-scroll">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Venda</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Pendente</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {initial.items.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>
-                    <Link href={`/vendas/${s.id}`}>{s.number}</Link>
-                  </TableCell>
-                  <TableCell>
-                    {s.snapshot?.customer.name ??
-                      customers.find((c) => c.id === s.document.customerId)
-                        ?.name}
-                  </TableCell>
-                  <TableCell>
-                    <CommerceStatus status={s.status} />
-                  </TableCell>
-                  <TableCell>R$ {s.totals.total}</TableCell>
-                  <TableCell>R$ {s.receiptSummary.pending}</TableCell>
+      <Card>
+        <CardHeader>
+          <CardTitle>Resultados</CardTitle>
+          <CardDescription>
+            {initial.total} vendas encontradas · {initial.items.length} nesta
+            página
+          </CardDescription>
+          <AppliedListFilters
+            filters={filters}
+            customerName={
+              customers.find((c) => c.id === filters.customerId)?.name
+            }
+          />
+        </CardHeader>
+        <CardContent>
+          {initial.items.length > 0 && (
+            <Table aria-label="Lista de vendas">
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Venda</TableHead>
+                  <TableHead scope="col">Cliente</TableHead>
+                  <TableHead scope="col">Estado</TableHead>
+                  <TableHead
+                    scope="col"
+                    className="commercial-amount text-right"
+                  >
+                    Total
+                  </TableHead>
+                  <TableHead
+                    scope="col"
+                    className="commercial-amount text-right"
+                  >
+                    Pendente
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {initial.items.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      <Link
+                        className="commercial-document-link"
+                        href={`/vendas/${s.id}`}
+                      >
+                        {s.number}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="commercial-customer">
+                      {s.snapshot?.customer.name ??
+                        customers.find((c) => c.id === s.document.customerId)
+                          ?.name ??
+                        "Não informado"}
+                    </TableCell>
+                    <TableCell>
+                      <CommerceStatus status={s.status} />
+                    </TableCell>
+                    <TableCell className="commercial-amount">
+                      R$ {s.totals.total}
+                    </TableCell>
+                    <TableCell className="commercial-amount">
+                      R$ {s.receiptSummary.pending}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
           {!initial.items.length && (
             <ListFeedback
               total={initial.total}
@@ -200,7 +245,7 @@ export function SalePanel({
               onClear={() => router.push("/vendas")}
             />
           )}
-        </div>
+        </CardContent>
       </Card>
       <Pagination className="form-actions">
         <Button

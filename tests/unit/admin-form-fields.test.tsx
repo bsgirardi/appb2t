@@ -7,6 +7,24 @@ import { AdminForm } from "@/components/admin/admin-form";
 import { revealAndFocusInvalid } from "@/components/admin/form-errors";
 afterEach(cleanup);
 
+it("allows a contextual form guide without leaking the option to HTML", () => {
+  const view = render(
+    <AdminForm requiredGuide={false}>
+      <Field label="Nome" required />
+    </AdminForm>,
+  );
+  expect(view.container.querySelector(".admin-required-guide")).toBeNull();
+  expect(
+    view.container.querySelector("form")?.hasAttribute("requiredGuide"),
+  ).toBe(false);
+  view.rerender(
+    <AdminForm>
+      <Field label="Nome" required />
+    </AdminForm>,
+  );
+  expect(screen.getByText(/Campos com/)).toBeTruthy();
+});
+
 it("identifies required fields without changing the accessible label", () => {
   render(
     <>
@@ -69,7 +87,12 @@ it("keeps a section with pending requirements expanded", () => {
 it("reveals native invalid fields without dispatching validation recursively", () => {
   const view = render(
     <AdminForm>
-      <FormSection id="native-required" title="Dados nativos" collapsible defaultOpen={false}>
+      <FormSection
+        id="native-required"
+        title="Dados nativos"
+        collapsible
+        defaultOpen={false}
+      >
         <Field label="Nome obrigatório" required />
       </FormSection>
     </AdminForm>,
@@ -100,8 +123,12 @@ it("skips controls barred from native validation when choosing the first error",
       <Field label="Campo pendente" required />
     </form>,
   );
-  (screen.getByLabelText("Campo desabilitado") as HTMLInputElement).setCustomValidity("Erro antigo");
-  (screen.getByLabelText("Campo somente leitura") as HTMLInputElement).setCustomValidity("Erro antigo");
+  (
+    screen.getByLabelText("Campo desabilitado") as HTMLInputElement
+  ).setCustomValidity("Erro antigo");
+  (
+    screen.getByLabelText("Campo somente leitura") as HTMLInputElement
+  ).setCustomValidity("Erro antigo");
   revealAndFocusInvalid(view.container.querySelector("form")!);
   expect(document.activeElement).toBe(screen.getByLabelText("Campo pendente"));
 });

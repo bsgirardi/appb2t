@@ -107,6 +107,15 @@
   .admin-ui .product-main-card > .admin-form-note {
     margin: 0;
   }
+  /* Product recipe: let long text use the available width; controls own states. */
+  .admin-ui .product-essential-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .admin-ui .product-essential-fields > [data-slot="field"] {
+    margin: 0;
+  }
   .admin-ui .field:not(label) {
     display: flex;
     flex-direction: column;
@@ -777,5 +786,61 @@
     .topbar .internal-chip {
       display: none;
     }
+  }
+}
+
+/* Listagens comerciais: consumidores exclusivos QuotePanel e SalePanel. */
+@layer components {
+  .admin-ui .commercial-list .commercial-applied-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 8px;
+  }
+  .admin-ui .commercial-list .commercial-applied-filters p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  .admin-ui .commercial-list .commercial-applied-filters ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .admin-ui .commercial-list .commercial-applied-filters li {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-ui .commercial-list .commercial-applied-filters [data-slot="badge"] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .commercial-list .commercial-customer {
+    min-width: 180px;
+    max-width: 360px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .commercial-list .commercial-amount {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .commercial-list .commercial-document-link {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    text-underline-offset: 4px;
+  }
+  .admin-ui .commercial-list .commercial-document-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }

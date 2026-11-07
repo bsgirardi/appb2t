@@ -13,6 +13,69 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+it("keeps edited text when cancelling exit and exits only after confirmation", () => {
+  const onCancel = vi.fn();
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  render(
+    <ProductForm
+      product={productDTO}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={onCancel}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Descrição"), {
+    target: { value: "Rascunho preservado" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Voltar aos produtos" }));
+  expect(confirm).toHaveBeenCalledTimes(1);
+  expect(onCancel).not.toHaveBeenCalled();
+  expect(
+    (screen.getByLabelText("Descrição") as HTMLTextAreaElement).value,
+  ).toBe("Rascunho preservado");
+  confirm.mockReturnValue(true);
+  fireEvent.click(screen.getByRole("button", { name: "Voltar aos produtos" }));
+  expect(onCancel).toHaveBeenCalledTimes(1);
+});
+it("shows one contextual guide and consistent required textarea contracts", () => {
+  const view = render(
+    <ProductForm
+      product={productDTO}
+      data={calculatorData}
+      role="ADMIN"
+      onSaved={vi.fn()}
+      onCancel={vi.fn()}
+    />,
+  );
+  expect(view.container.querySelectorAll(".admin-required-guide")).toHaveLength(
+    0,
+  );
+  expect(screen.getByText(/Preencha os campos.*Obrigatório/)).toBeTruthy();
+  for (const [label, name, limit] of [
+    ["Descrição", "description", 5000],
+    ["Formas de pagamento", "paymentTerms", 1000],
+  ] as const) {
+    const control = screen.getByLabelText(label) as HTMLTextAreaElement;
+    expect(control.required).toBe(true);
+    expect(control.name).toBe(name);
+    expect(control.maxLength).toBe(limit);
+    expect(control.closest('[data-slot="field"]')?.textContent).toContain(
+      "Obrigatório",
+    );
+    fireEvent.change(control, { target: { value: "" } });
+  }
+  fireEvent.click(screen.getByRole("button", { name: "Salvar produto" }));
+  for (const label of ["Descrição", "Formas de pagamento"]) {
+    const control = screen.getByLabelText(label);
+    expect(control.getAttribute("aria-invalid")).toBe("true");
+    expect(
+      document
+        .getElementById(control.getAttribute("aria-describedby")!)
+        ?.getAttribute("role"),
+    ).toBe("alert");
+  }
+});
 it("uploads selected photo with the draft and preserves it after server error", async () => {
   const createURL = vi.fn(() => "blob:test-photo"),
     revokeURL = vi.fn();

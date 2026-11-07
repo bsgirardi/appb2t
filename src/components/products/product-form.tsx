@@ -41,7 +41,12 @@ import { calculationSchema } from "@/domain/calculation/validation";
 import { calculate, formatBRL } from "@/domain/calculation/calculate";
 import { api } from "@/lib/client-api";
 import { saveProductRequest } from "@/lib/product-client";
-import { Field, Notice } from "@/components/ui/field";
+import {
+  Field,
+  FieldGroup,
+  TextareaField,
+  Notice,
+} from "@/components/ui/field";
 import { CostBreakdown } from "@/components/calculator/cost-breakdown";
 import Image from "next/image";
 import { productPath, summary } from "@/domain/products/storefront";
@@ -341,6 +346,7 @@ export function ProductForm({
   return (
     <AdminForm
       className="product-form"
+      requiredGuide={false}
       onSubmit={save}
       onChangeCapture={() => {
         setFieldErrors({});
@@ -366,10 +372,8 @@ export function ProductForm({
         </span>
       </div>
       <p className="admin-form-note">
-        Para salvar: informe nome, descrição, formas de pagamento, preço final,
-        pelo menos uma foto e os dados de produção. Campos marcados como
-        “Obrigatório” precisam estar preenchidos; opções adicionais podem ficar
-        vazias.
+        Preencha os campos “Obrigatório”, adicione pelo menos uma foto e confira
+        os dados de produção antes de salvar.
       </p>
       {error && <Notice>{error}</Notice>}
       {info && <Notice kind="info">{info}</Notice>}
@@ -409,7 +413,7 @@ export function ProductForm({
                 <p className="admin-form-note">
                   Identifique a peça e defina o que será apresentado ao cliente.
                 </p>
-                <div className="admin-essential-grid">
+                <FieldGroup className="product-essential-fields">
                   <Field
                     name="name"
                     error={fieldErrors.name}
@@ -421,63 +425,31 @@ export function ProductForm({
                       setDraft({ ...draft, name: e.target.value })
                     }
                   />
-                  <div className="field">
-                    <Label htmlFor="product-description">Descrição</Label>
-                    <Textarea
-                      name="description"
-                      aria-invalid={!!fieldErrors.description}
-                      aria-describedby={
-                        fieldErrors.description
-                          ? "product-description-error"
-                          : undefined
-                      }
-                      id="product-description"
-                      value={draft.description}
-                      maxLength={5000}
-                      required
-                      onChange={(e) =>
-                        setDraft({ ...draft, description: e.target.value })
-                      }
-                    />
-                    {fieldErrors.description && (
-                      <small
-                        id="product-description-error"
-                        className="field-error"
-                        role="alert"
-                      >
-                        {fieldErrors.description}
-                      </small>
-                    )}
-                  </div>
-                  <div className="field">
-                    <Label htmlFor="product-payment">Formas de pagamento</Label>
-                    <Textarea
-                      name="paymentTerms"
-                      aria-invalid={!!fieldErrors.paymentTerms}
-                      aria-describedby={
-                        fieldErrors.paymentTerms
-                          ? "product-payment-error"
-                          : undefined
-                      }
-                      id="product-payment"
-                      value={draft.paymentTerms}
-                      maxLength={1000}
-                      placeholder="Ex.: Pix ou cartão em até 3 vezes sem juros"
-                      required
-                      onChange={(e) =>
-                        setDraft({ ...draft, paymentTerms: e.target.value })
-                      }
-                    />
-                    {fieldErrors.paymentTerms && (
-                      <small
-                        id="product-payment-error"
-                        className="field-error"
-                        role="alert"
-                      >
-                        {fieldErrors.paymentTerms}
-                      </small>
-                    )}
-                  </div>
+                  <TextareaField
+                    id="product-description"
+                    name="description"
+                    label="Descrição"
+                    error={fieldErrors.description}
+                    value={draft.description}
+                    maxLength={5000}
+                    required
+                    onChange={(e) =>
+                      setDraft({ ...draft, description: e.target.value })
+                    }
+                  />
+                  <TextareaField
+                    id="product-payment"
+                    name="paymentTerms"
+                    label="Formas de pagamento"
+                    error={fieldErrors.paymentTerms}
+                    value={draft.paymentTerms}
+                    maxLength={1000}
+                    placeholder="Ex.: Pix ou cartão em até 3 vezes sem juros"
+                    required
+                    onChange={(e) =>
+                      setDraft({ ...draft, paymentTerms: e.target.value })
+                    }
+                  />
                   <Field
                     name="price"
                     error={fieldErrors.price}
@@ -490,7 +462,7 @@ export function ProductForm({
                     }
                     hint="Valor publicado no catálogo. Independente da sugestão de custos."
                   />
-                </div>
+                </FieldGroup>
                 <Button
                   variant="outline"
                   size="sm"
