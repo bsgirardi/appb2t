@@ -24,6 +24,8 @@ Antes de finalizar e integrar qualquer PR, atualizar a versão do sistema e regi
 
 Usar sempre a skill `shadcn` deste projeto (`.agents/skills/shadcn/SKILL.md`) em alterações visuais. Reutilizar os componentes instalados e seguir seus padrões de composição e acessibilidade.
 
+Consultar [DESIGN.md](DESIGN.md), [COMPONENTS.md](COMPONENTS.md) e [UI_ROADMAP.md](UI_ROADMAP.md) antes de alterar tokens, variantes ou receitas visuais. A fonte oficial da marca continua sendo [IDENTIDADE-B2T.md](docs/identidade/IDENTIDADE-B2T.md); preservar preferências de Aparência e adaptações nativas dos componentes locais.
+
 ## Entrega obrigatória após integração em main
 
 Quando a tarefa autorizar merge e entrega, seguir integralmente [docs/DISTRIBUICAO_IMAGENS.md](docs/DISTRIBUICAO_IMAGENS.md), seção "Rotina obrigatória para cada integração em main". Uma integração não encerra a entrega: gerar localmente e publicar a Release oficial no repositório privado `bsgirardi/appb2t-distribuicao`, a partir do SHA completo realmente integrado, e conferir os assets publicados.
