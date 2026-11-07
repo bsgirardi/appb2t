@@ -240,6 +240,26 @@ export function SaleDetail({
           }
         />
       )}
+      {sale.posPayment && (
+        <Notice kind="info">
+          Pagamento informado no PDV:{" "}
+          {sale.posPayment.method === "CASH"
+            ? "Dinheiro"
+            : sale.posPayment.method === "PIX"
+              ? "Pix"
+              : "Cartão"}
+          .
+          {sale.posPayment.tendered && (
+            <>
+              {" "}
+              Valor entregue: R$ {sale.posPayment.tendered}. Troco: R${" "}
+              {sale.posPayment.change}.
+            </>
+          )}{" "}
+          Esta informação não confirma provedor nem substitui a baixa no
+          financeiro.
+        </Notice>
+      )}
       <SalePlanningForecast saleId={sale.id} saleVersion={sale.version} />
       <SaleStock sale={sale} />
       <DocumentCostSummary

@@ -64,74 +64,79 @@ export async function assertFinalDelivery(
 }
 export async function recordDelivery(actor: Actor, raw: unknown) {
   const v = deliverySchema.parse(raw);
-  return runProductionCommand(actor, "DELIVERY", v, async (tx) => {
-    await lockProduction(tx, { saleIds: [v.saleId] });
-    const sale = await activeSale(tx, v.saleId);
-    if (sale.version !== v.expectedVersion) throw conflict();
-    checkDate(v.effectiveDate, v.reason);
-    const ids = v.lines.flatMap((l) =>
-      l.allocations.map((a) => a.commitmentId),
-    );
-    if (new Set(ids).size !== ids.length)
-      invalid("Compromisso repetido na entrega.");
-    const cs = await tx.finishedCommitment.findMany({
-      where: { id: { in: ids } },
-      include: { origin: true },
-    });
-    if (cs.length !== ids.length) invalid("Compromisso não encontrado.");
-    await lockProduction(tx, { finishedIds: cs.map((c) => c.origin.stockId) });
-    const d = await tx.productionDelivery.create({
-      data: {
-        saleId: v.saleId,
-        actorId: actor.id,
-        effectiveDate: civilDateToDb(v.effectiveDate),
-        notes: v.notes,
-      },
-    });
-    for (const l of v.lines)
-      for (const a of l.allocations) {
-        const c = cs.find((c) => c.id === a.commitmentId)!;
-        if (c.saleId !== v.saleId || c.lineKey !== l.lineKey)
-          invalid("Peças de outra venda ou linha.");
-        if (a.units > (await commitmentRemaining(tx, c.id)))
-          invalid("Entrega excede peças comprometidas.");
-        const m = await tx.finishedMovement.create({
-          data: {
-            originId: c.originId,
-            kind: "DELIVERY",
-            units: -a.units,
-            actorId: actor.id,
-            effectiveDate: d.effectiveDate,
-            reason: v.reason ?? "",
-          },
-        });
-        await tx.finishedCommitmentEvent.create({
-          data: {
-            commitmentId: c.id,
-            kind: "DELIVER",
-            units: -a.units,
-            actorId: actor.id,
-          },
-        });
-        await tx.productionDeliveryLine.create({
-          data: {
-            deliveryId: d.id,
-            lineKey: l.lineKey,
-            commitmentId: c.id,
-            units: a.units,
-            movementId: m.id,
-          },
-        });
-      }
-    for (const id of new Set(cs.map((c) => c.origin.stockId)))
-      await tx.finishedStock.update({
-        where: { id },
-        data: { version: { increment: 1 } },
-      });
-    await assertFinalDelivery(tx, v.saleId);
-    await projectSale(tx, v.saleId);
-    return deliveryDTO(tx, d.id);
+  return runProductionCommand(actor, "DELIVERY", v, (tx) =>
+    recordDeliveryWithClient(tx, actor, v),
+  );
+}
+export async function recordDeliveryWithClient(
+  tx: Prisma.TransactionClient,
+  actor: Actor,
+  v: ReturnType<typeof deliverySchema.parse>,
+) {
+  await lockProduction(tx, { saleIds: [v.saleId] });
+  const sale = await activeSale(tx, v.saleId);
+  if (sale.version !== v.expectedVersion) throw conflict();
+  checkDate(v.effectiveDate, v.reason);
+  const ids = v.lines.flatMap((l) => l.allocations.map((a) => a.commitmentId));
+  if (new Set(ids).size !== ids.length)
+    invalid("Compromisso repetido na entrega.");
+  const cs = await tx.finishedCommitment.findMany({
+    where: { id: { in: ids } },
+    include: { origin: true },
   });
+  if (cs.length !== ids.length) invalid("Compromisso não encontrado.");
+  await lockProduction(tx, { finishedIds: cs.map((c) => c.origin.stockId) });
+  const d = await tx.productionDelivery.create({
+    data: {
+      saleId: v.saleId,
+      actorId: actor.id,
+      effectiveDate: civilDateToDb(v.effectiveDate),
+      notes: v.notes,
+    },
+  });
+  for (const l of v.lines)
+    for (const a of l.allocations) {
+      const c = cs.find((c) => c.id === a.commitmentId)!;
+      if (c.saleId !== v.saleId || c.lineKey !== l.lineKey)
+        invalid("Peças de outra venda ou linha.");
+      if (a.units > (await commitmentRemaining(tx, c.id)))
+        invalid("Entrega excede peças comprometidas.");
+      const m = await tx.finishedMovement.create({
+        data: {
+          originId: c.originId,
+          kind: "DELIVERY",
+          units: -a.units,
+          actorId: actor.id,
+          effectiveDate: d.effectiveDate,
+          reason: v.reason ?? "",
+        },
+      });
+      await tx.finishedCommitmentEvent.create({
+        data: {
+          commitmentId: c.id,
+          kind: "DELIVER",
+          units: -a.units,
+          actorId: actor.id,
+        },
+      });
+      await tx.productionDeliveryLine.create({
+        data: {
+          deliveryId: d.id,
+          lineKey: l.lineKey,
+          commitmentId: c.id,
+          units: a.units,
+          movementId: m.id,
+        },
+      });
+    }
+  for (const id of new Set(cs.map((c) => c.origin.stockId)))
+    await tx.finishedStock.update({
+      where: { id },
+      data: { version: { increment: 1 } },
+    });
+  await assertFinalDelivery(tx, v.saleId);
+  await projectSale(tx, v.saleId);
+  return deliveryDTO(tx, d.id);
 }
 export async function correctDelivery(actor: Actor, raw: unknown) {
   assertAdmin(actor);

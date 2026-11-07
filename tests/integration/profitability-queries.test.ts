@@ -31,6 +31,7 @@ it("uses confirmation in Sao Paulo and keeps totals independent from pagination"
     include: { customer: true },
   });
   const customer = sourceSale.customer;
+  if (!customer) throw new Error("Fixture exige cliente identificado.");
   expect(p1.rankings.customers.find((g) => g.id === customer.id)).toMatchObject(
     {
       name: customer.name,

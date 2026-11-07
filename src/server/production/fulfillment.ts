@@ -77,68 +77,75 @@ export async function projectSale(
 }
 export async function reserveFinished(actor: Actor, raw: unknown) {
   const v = reserveFinishedSchema.parse(raw);
-  return runProductionCommand(actor, "FINISHED_RESERVE", v, async (tx) => {
-    await lockProduction(tx, { saleIds: [v.saleId], finishedIds: [v.stockId] });
-    const sale = await activeSale(tx, v.saleId);
-    if (sale.version !== v.saleVersion) throw conflict();
-    const s = await finishedRow(tx, v.stockId);
-    if (s.version !== v.expectedVersion) throw conflict();
-    if (!s.active || !s.inventoriedAt)
-      invalid("Peças não inventariadas ou inativas.");
-    const d = await demand(tx, v.saleId, v.lineKey);
-    if (
-      s.productId
-        ? d.item.productId !== s.productId
-        : s.ownerSaleId !== v.saleId || s.lineKey !== v.lineKey
-    )
-      invalid("Peças incompatíveis com a linha da venda.");
-    if (v.units > d.remaining) invalid("Quantidade excede a demanda restante.");
-    if (
-      new Set(v.originAllocations.map((a) => a.originId)).size !==
-        v.originAllocations.length ||
-      v.originAllocations.reduce((n, a) => n + a.units, 0) !== v.units
-    )
-      invalid("Confira a distribuição por origem.");
-    for (const a of v.originAllocations) {
-      const origin = await tx.finishedOrigin.findUnique({
-        where: { id: a.originId },
-      });
-      if (origin?.stockId !== s.id) invalid("Origem incompatível.");
-      const restricted = await restrictedOriginSale(tx, a.originId);
-      if (restricted && restricted !== v.saleId)
-        invalid(
-          "Peças exclusivas de outra venda. Um administrador deve registrar a destinação para estoque antes de realocar.",
-        );
-      if (a.units > Number((await originBalance(tx, a.originId)).available))
-        invalid("Peças disponíveis insuficientes.");
-      const c = await tx.finishedCommitment.upsert({
-        where: {
-          saleId_lineKey_originId: {
-            saleId: v.saleId,
-            lineKey: v.lineKey,
-            originId: a.originId,
-          },
-        },
-        create: { saleId: v.saleId, lineKey: v.lineKey, originId: a.originId },
-        update: {},
-      });
-      await tx.finishedCommitmentEvent.create({
-        data: {
-          commitmentId: c.id,
-          kind: "RESERVE",
-          units: a.units,
-          actorId: actor.id,
-          reason: v.reason ?? "",
-        },
-      });
-    }
-    await tx.finishedStock.update({
-      where: { id: s.id },
-      data: { version: { increment: 1 } },
+  return runProductionCommand(actor, "FINISHED_RESERVE", v, (tx) =>
+    reserveFinishedWithClient(tx, actor, v),
+  );
+}
+export async function reserveFinishedWithClient(
+  tx: Prisma.TransactionClient,
+  actor: Actor,
+  v: ReturnType<typeof reserveFinishedSchema.parse>,
+) {
+  await lockProduction(tx, { saleIds: [v.saleId], finishedIds: [v.stockId] });
+  const sale = await activeSale(tx, v.saleId);
+  if (sale.version !== v.saleVersion) throw conflict();
+  const s = await finishedRow(tx, v.stockId);
+  if (s.version !== v.expectedVersion) throw conflict();
+  if (!s.active || !s.inventoriedAt)
+    invalid("Peças não inventariadas ou inativas.");
+  const d = await demand(tx, v.saleId, v.lineKey);
+  if (
+    s.productId
+      ? d.item.productId !== s.productId
+      : s.ownerSaleId !== v.saleId || s.lineKey !== v.lineKey
+  )
+    invalid("Peças incompatíveis com a linha da venda.");
+  if (v.units > d.remaining) invalid("Quantidade excede a demanda restante.");
+  if (
+    new Set(v.originAllocations.map((a) => a.originId)).size !==
+      v.originAllocations.length ||
+    v.originAllocations.reduce((n, a) => n + a.units, 0) !== v.units
+  )
+    invalid("Confira a distribuição por origem.");
+  for (const a of v.originAllocations) {
+    const origin = await tx.finishedOrigin.findUnique({
+      where: { id: a.originId },
     });
-    await projectSale(tx, v.saleId);
-    return finishedDTO(tx, s.id);
+    if (origin?.stockId !== s.id) invalid("Origem incompatível.");
+    const restricted = await restrictedOriginSale(tx, a.originId);
+    if (restricted && restricted !== v.saleId)
+      invalid(
+        "Peças exclusivas de outra venda. Um administrador deve registrar a destinação para estoque antes de realocar.",
+      );
+    if (a.units > Number((await originBalance(tx, a.originId)).available))
+      invalid("Peças disponíveis insuficientes.");
+    const c = await tx.finishedCommitment.upsert({
+      where: {
+        saleId_lineKey_originId: {
+          saleId: v.saleId,
+          lineKey: v.lineKey,
+          originId: a.originId,
+        },
+      },
+      create: { saleId: v.saleId, lineKey: v.lineKey, originId: a.originId },
+      update: {},
+    });
+    await tx.finishedCommitmentEvent.create({
+      data: {
+        commitmentId: c.id,
+        kind: "RESERVE",
+        units: a.units,
+        actorId: actor.id,
+        reason: v.reason ?? "",
+      },
+    });
+  }
+  await tx.finishedStock.update({
+    where: { id: s.id },
+    data: { version: { increment: 1 } },
   });
+  await projectSale(tx, v.saleId);
+  return finishedDTO(tx, s.id);
 }
 export async function releaseFinished(actor: Actor, raw: unknown) {
   const v = releaseFinishedSchema.parse(raw);
