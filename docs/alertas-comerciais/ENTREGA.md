@@ -44,3 +44,5 @@ Worktree separada; pasta operacional X:/codex/appb2t e seus documentos/skills lo
 ## Preparação da PR autorizada — 07/11/2026
 
 Usuário solicitou “faca pr”. Main reconferida bd0b4eb/1.24.0; versão 1.25.0 já preparada foi mantida, sem segundo incremento. Revalidação de 23 testes em quatro arquivos aprovada (domínio, consulta, UI e versão/rodapés/Atualizações). Commit/push/PR autorizados; abertura em rascunho para revisão do recorte entregue, sem presumir aprovação do critério comercial pendente. Estados anteriores descrevem a entrega local antes dessa autorização. Sem merge, Release de distribuição ou implantação operacional.
+
+[PR #50](https://github.com/bsgirardi/appb2t/pull/50) criada em rascunho, implementação `eaa8b3f`, versão 1.25.0. CI iniciado, resultado ainda pendente; sem merge/Release/deploy.

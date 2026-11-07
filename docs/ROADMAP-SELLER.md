@@ -2,7 +2,7 @@
 
 ## 07/11/2026 — PR de alertas comerciais autorizada
 
-Usuário solicitou “faca pr”. Preparação da branch `codex/alertas-comerciais` em 1.25.0 MINOR sobre main reconferida `bd0b4eb` / 1.24.0, sem novo incremento. Revalidação de 23 testes direcionados aprovada; suíte completa anterior com 915 testes em 220 arquivos, tipos/lint/build finais aprovados. PR em rascunho para o recorte de contatos atrasados e vencimentos; critérios de inatividade/sem retorno continuam pendentes e não foram presumidos aprovados. Commit/push/criação de PR autorizados; merge, Release de distribuição e implantação operacional permanecem separados e não realizados. URL será registrada após criação. Histórico abaixo preservado.
+Usuário solicitou “faca pr”. Preparação da branch `codex/alertas-comerciais` em 1.25.0 MINOR sobre main reconferida `bd0b4eb` / 1.24.0, sem novo incremento. Revalidação de 23 testes direcionados aprovada; suíte completa anterior com 915 testes em 220 arquivos, tipos/lint/build finais aprovados. PR em rascunho para o recorte de contatos atrasados e vencimentos; critérios de inatividade/sem retorno continuam pendentes e não foram presumidos aprovados. Commit/push/criação de PR autorizados; merge, Release de distribuição e implantação operacional permanecem separados e não realizados. [PR #50](https://github.com/bsgirardi/appb2t/pull/50) criada em rascunho, implementação eaa8b3f; CI iniciado, resultado ainda pendente. Histórico abaixo preservado.
 
 ## 07/11/2026 — alertas comerciais implementados parcialmente em isolamento
 
