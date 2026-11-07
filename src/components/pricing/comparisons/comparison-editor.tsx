@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type {
   PricingCatalogDTO,
@@ -30,11 +30,13 @@ export function ComparisonEditor({
   request,
   catalog,
   onUseOffer,
+  onDirtyChange,
 }: {
   input: PricingV2Input | null;
   request: PricingRequest;
   catalog: PricingCatalogDTO;
   onUseOffer: (ref: Ref, price: string) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -91,6 +93,19 @@ export function ComparisonEditor({
     reference,
     alternatives,
   };
+  const comparisonFingerprint = JSON.stringify({
+    name,
+    kind,
+    price,
+    alternatives,
+  });
+  const [savedFingerprint, setSavedFingerprint] = useState(
+    comparisonFingerprint,
+  );
+  const comparisonDirty = comparisonFingerprint !== savedFingerprint;
+  useLayoutEffect(() => {
+    onDirtyChange?.(comparisonDirty);
+  }, [comparisonDirty, onDirtyChange]);
   const canSave =
     comparisonDraftSchema.safeParse(draft).success &&
     preview?.alternatives.every((r) => r.status === "VALID");
@@ -109,6 +124,7 @@ export function ComparisonEditor({
     try {
       const response = await saveComparison(draft, operation.current.key);
       setSaved({ id: response.id, name: response.name });
+      setSavedFingerprint(comparisonFingerprint);
     } catch (e) {
       setError((e as Error).message);
     } finally {

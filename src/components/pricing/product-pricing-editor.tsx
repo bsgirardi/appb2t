@@ -8,7 +8,9 @@ import type {
 } from "@/domain/pricing/types";
 import { api } from "@/lib/client-api";
 import { createEstimate } from "@/lib/pricing-client";
-import { BatchPricingForm } from "./batch-pricing-form";
+import { GuidedPricingForm } from "./guided-pricing-form";
+import { reviewProductPricing } from "@/domain/pricing/review-product-pricing";
+import { calculate } from "@/domain/calculation/calculate";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
@@ -108,6 +110,19 @@ export function ProductPricingEditor({
       expectedSettingsVersion: catalog.settings?.version ?? 1,
     };
   }
+  const referenceReview =
+    snapshot && catalog ? reviewProductPricing(snapshot.input, catalog) : null;
+  let previousCost = snapshot?.result.unitFullCost;
+  let previousPrice = snapshot?.result.offeredUnitPrice;
+  if (!snapshot) {
+    try {
+      const old = calculate(legacy);
+      previousCost = old.total;
+      previousPrice = old.sale;
+    } catch {
+      /* New product has no historical result yet. */
+    }
+  }
   return (
     <section className="flex flex-col gap-3 rounded-lg border p-4">
       <h2>Ficha de custo</h2>
@@ -132,6 +147,38 @@ export function ProductPricingEditor({
         </Button>
       ) : (
         <>
+          {referenceReview && (
+            <section
+              aria-label="Referências da revisão"
+              className="flex flex-col gap-3"
+            >
+              <h3>Conferir referências históricas e atuais</h3>
+              <p>
+                Memória anterior: {snapshot?.input.quantity} peça(s). Custos
+                atuais serão calculados em rascunho; a memória e o preço final
+                do produto permanecem preservados.
+              </p>
+              <details>
+                <summary>
+                  Ver alterações de materiais, máquina, custos e canal
+                </summary>
+                <ul>
+                  {referenceReview.changes.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              </details>
+              <Label className="flex gap-2">
+                <input
+                  type="checkbox"
+                  checked={reviewed}
+                  onChange={(e) => setReviewed(e.target.checked)}
+                  disabled={reviewed}
+                />
+                Conferi as referências atuais da ficha
+              </Label>
+            </section>
+          )}
           {!snapshot && (
             <>
               <Notice kind="info">
@@ -151,35 +198,42 @@ export function ProductPricingEditor({
               </Label>
             </>
           )}
-          <BatchPricingForm
-            catalog={catalog}
-            onDraftChange={trackDraft}
-            initialInput={snapshot?.input}
-            initialRequest={legacyRequest}
-            onApply={async (request) => {
-              if (!snapshot && !reviewed)
-                throw new Error(
-                  "Confirme a revisão das bases de custo antes de aplicar.",
-                );
-              const body = JSON.stringify(request);
-              if (operation.current?.body !== body)
-                operation.current = { body, key: crypto.randomUUID() };
-              setApplying(true);
-              try {
-                const next = await createEstimate(
-                  request,
-                  operation.current!.key,
-                );
-                onApply(next);
-                setCatalog(null);
-                setDraftDirty(false);
-                setReviewed(false);
-                baseline.current = null;
-              } finally {
-                setApplying(false);
+          {(!snapshot || reviewed) && (
+            <GuidedPricingForm
+              embedded
+              catalog={catalog}
+              onDraftChange={trackDraft}
+              initialRequest={referenceReview?.request ?? legacyRequest}
+              previousCost={previousCost}
+              previousPrice={previousPrice}
+              applyLabel={
+                snapshot ? "Aplicar ficha revisada" : "Aplicar estimativa"
               }
-            }}
-          />
+              onApply={async (request) => {
+                if (!snapshot && !reviewed)
+                  throw new Error(
+                    "Confirme a revisão das bases de custo antes de aplicar.",
+                  );
+                const body = JSON.stringify(request);
+                if (operation.current?.body !== body)
+                  operation.current = { body, key: crypto.randomUUID() };
+                setApplying(true);
+                try {
+                  const next = await createEstimate(
+                    request,
+                    operation.current!.key,
+                  );
+                  onApply(next);
+                  setCatalog(null);
+                  setDraftDirty(false);
+                  setReviewed(false);
+                  baseline.current = null;
+                } finally {
+                  setApplying(false);
+                }
+              }}
+            />
+          )}
           <Button
             type="button"
             variant="outline"
