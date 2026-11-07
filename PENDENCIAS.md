@@ -1,5 +1,9 @@
 # appb2t — estado e pendências
 
+## 07/11/2026 — PR da E2.4 autorizada, versão 1.25.0 preparada
+
+Usuário autorizou abrir a PR após concluir a implementação. Main reconferida em `bd0b4eb`/1.24.0; incremento MINOR único para 1.25.0, manifestos sincronizados e novas notas portuguesas, mantendo o histórico. Os rodapés continuam usando APP_VERSION; 40 testes focados confirmam login, rodapé administrativo, Atualizações ADMIN/OPERATOR e recorrência. Build e lint da versão proposta aprovados. Sem implantação operacional, merge em main ou Release; homologação humana permanece pendente. Resultado da PR será registrado após a criação. Este registro supera a ausência de autorização para PR nos relatos anteriores, sem ampliar a autorização para publicação.
+
 ## 07/11/2026 — E2.4 implementada em isolamento; integração e publicação pendentes
 
 Critérios e plano aprovados; implementação local em `codex/e24-recorrencia`, reconciliada com main `bd0b4eb`/1.24.0. Recorrência por produto/configuração congelada/quantidade, janela de 90 dias, cinco pedidos independentes e pelo menos três/60% com excesso simultâneo de 10% e R$ 5 por linha. Fontes, exclusões, memória/vínculo/conferência desatualizados e parcela não reconciliada explícitos; sugestão exclusivamente humana, sem alterar ficha, apuração ou parâmetros. Rentabilidade continua ADMIN.

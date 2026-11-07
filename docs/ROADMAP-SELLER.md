@@ -1,5 +1,9 @@
 # B2T — evolução de preço, produção e vendas
 
+## 07/11/2026 — preparação autorizada da PR E2.4
+
+PR autorizada pelo usuário após a implementação local. Main reconferida em `bd0b4eb`/1.24.0; versão proposta 1.25.0, incremento MINOR único com manifestos/histórico sincronizados e notas em português. 40 testes focados aprovados, incluindo versão/rodapés/Atualizações para ADMIN e OPERATOR. Build e lint aprovados; resultado/URL da PR serão registrados após a criação. Sem merge em main, Release, migração ou implantação operacional; E2.4 segue em validação e homologação humana pendente. Os registros anteriores de “sem autorização de PR” são históricos.
+
 ## 07/11/2026 — E2.4 implementada localmente e validada em isolamento
 
 Critérios e plano aprovados pelo usuário. Implementação na branch `codex/e24-recorrencia`, reconciliada com main `bd0b4eb`/1.24.0: produto/configuração produtiva congelada/mesma quantidade; 90 dias pela confirmação em São Paulo; cinco pedidos independentes elegíveis; ao menos três e 60% acima de 10% e R$ 5 por linha simultaneamente. Entrega completa, reconciliação fechada e conferência vigente são obrigatórias. Dependências por pedido/produção, custos provisórios/incompletos, vínculo de memória e conferências vencidas ficam visíveis fora da amostra. Sugestão “Conferir a ficha”, com evidências e sem alteração automática.
