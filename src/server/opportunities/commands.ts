@@ -119,6 +119,28 @@ export async function executeOpportunityCommand(
         )
           throw new AppError("CONFLICT", "A oportunidade está encerrada.");
         switch (input.action) {
+          case "PROPOSAL_SENT":
+          case "CUSTOMER_REPLY": {
+            const quote = before.quotes.find((q) => q.id === input.quoteId);
+            if (
+              before.principalQuoteId !== input.quoteId ||
+              !quote ||
+              quote.version !== input.quoteVersion
+            )
+              throw new AppError(
+                "CONFLICT",
+                "O orçamento principal ou sua versão mudou. Recarregue a negociação.",
+              );
+            if (
+              input.action === "PROPOSAL_SENT" &&
+              !["ENVIADO", "APROVADO"].includes(quote.status)
+            )
+              throw new AppError(
+                "VALIDATION",
+                "Registre envio somente de proposta principal emitida e vigente.",
+              );
+            break;
+          }
           case "INTERACTION":
             break;
           case "REOPEN":
@@ -192,7 +214,10 @@ export async function executeOpportunityCommand(
         json({
           before: editable(before),
           after: editable(result),
-          ...(input.action === "INTERACTION" ? { text: input.text } : {}),
+          ...("text" in input ? { text: input.text } : {}),
+          ...("quoteVersion" in input
+            ? { quoteVersion: input.quoteVersion }
+            : {}),
           ...("reason" in input ? { reason: input.reason } : {}),
           ...("quoteId" in input ? { quoteId: input.quoteId } : {}),
         }),

@@ -95,20 +95,93 @@ it("keeps won opportunities read only and shows cancelled sale", () => {
 });
 
 it("only closes loss after explicit confirmation with reason and keeps text on error", async () => {
- vi.spyOn(globalThis,"fetch").mockResolvedValue(new Response(JSON.stringify({error:{code:"CONFLICT",message:"Retire a oferta privada ativa pelo atendimento antes de registrar a perda."}}),{status:409}));
- render(<OpportunityDetail initial={opportunity} initialEvents={{items:[],total:0,page:1,pageSize:20}} options={opportunityOptions}/>);
- fireEvent.click(screen.getByRole("button",{name:"Registrar perda"}));
- expect(screen.getByText(/Orçamentos e ofertas não serão cancelados/)).toBeTruthy();
- fireEvent.change(screen.getByLabelText("Motivo"),{target:{value:"Sem retorno do cliente"}});
- fireEvent.click(screen.getByRole("button",{name:"Confirmar perda"}));
- await screen.findByText("Retire a oferta privada ativa pelo atendimento antes de registrar a perda.");
- expect((screen.getByLabelText("Motivo") as HTMLInputElement).value).toBe("Sem retorno do cliente");
- expect(screen.getByText("Ligar para confirmar")).toBeTruthy();
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        error: {
+          code: "CONFLICT",
+          message:
+            "Retire a oferta privada ativa pelo atendimento antes de registrar a perda.",
+        },
+      }),
+      { status: 409 },
+    ),
+  );
+  render(
+    <OpportunityDetail
+      initial={opportunity}
+      initialEvents={{ items: [], total: 0, page: 1, pageSize: 20 }}
+      options={opportunityOptions}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Registrar perda" }));
+  expect(
+    screen.getByText(/Orçamentos e ofertas não serão cancelados/),
+  ).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Motivo"), {
+    target: { value: "Sem retorno do cliente" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Confirmar perda" }));
+  await screen.findByText(
+    "Retire a oferta privada ativa pelo atendimento antes de registrar a perda.",
+  );
+  expect((screen.getByLabelText("Motivo") as HTMLInputElement).value).toBe(
+    "Sem retorno do cliente",
+  );
+  expect(screen.getByText("Ligar para confirmar")).toBeTruthy();
 });
 it("offers reopening with a new next contact instead of editable terminal data", () => {
- render(<OpportunityDetail initial={{...opportunity,stage:"PERDIDO",nextAction:null,nextContactDate:null,lossReason:"Preço"}} initialEvents={{items:[],total:0,page:1,pageSize:20}} options={opportunityOptions}/>);
- fireEvent.click(screen.getByRole("button",{name:"Reabrir oportunidade"}));
- expect(screen.getByLabelText("Nova próxima ação")).toBeTruthy();
- expect(screen.getByLabelText("Nova data de contato")).toBeTruthy();
- expect(screen.queryByRole("button",{name:"Editar oportunidade"})).toBeNull();
+  render(
+    <OpportunityDetail
+      initial={{
+        ...opportunity,
+        stage: "PERDIDO",
+        nextAction: null,
+        nextContactDate: null,
+        lossReason: "Preço",
+      }}
+      initialEvents={{ items: [], total: 0, page: 1, pageSize: 20 }}
+      options={opportunityOptions}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Reabrir oportunidade" }));
+  expect(screen.getByLabelText("Nova próxima ação")).toBeTruthy();
+  expect(screen.getByLabelText("Nova data de contato")).toBeTruthy();
+  expect(
+    screen.queryByRole("button", { name: "Editar oportunidade" }),
+  ).toBeNull();
+});
+
+it("records explicit send for the current principal without treating a note as reply", async () => {
+  const calls: Record<string, unknown>[] = [];
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+    calls.push(JSON.parse(String(init?.body)));
+    throw new Error("offline");
+  });
+  render(
+    <OpportunityDetail
+      initial={{
+        ...opportunity,
+        principalQuoteId: "q",
+        quotes: [
+          { id: "q", number: "ORC-000001", version: 2, status: "ENVIADO" },
+        ],
+      }}
+      initialEvents={{ items: [], total: 0, page: 1, pageSize: 20 }}
+      options={opportunityOptions}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Tipo de registro"), {
+    target: { value: "PROPOSAL_SENT" },
+  });
+  fireEvent.change(screen.getByLabelText("Registrar interação"), {
+    target: { value: "Proposta enviada por telefone" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar interação" }));
+  await screen.findByText(/Não foi possível conectar/);
+  expect(calls[0]).toMatchObject({
+    action: "PROPOSAL_SENT",
+    quoteId: "q",
+    quoteVersion: 2,
+  });
 });

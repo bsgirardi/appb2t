@@ -1854,3 +1854,11 @@ model PosOrder {
  updatedAt DateTime @updatedAt
  @@index([actorId,createdAt])
 }
+
+model CommercialSettings {
+  id Int @id @default(1)
+  replyWaitDays Int @default(14)
+  version Int @default(1)
+  updatedAt DateTime @updatedAt
+  updatedById String
+}

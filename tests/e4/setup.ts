@@ -6,6 +6,7 @@ export const password = "Teste-interno-123!";
 export function setupDatabase() {
   beforeEach(async () => {
     assertE4DatabaseUrl(process.env.DATABASE_URL ?? "");
+    await db.commercialSettings.deleteMany();
     await db.$executeRawUnsafe(
       'TRUNCATE "OpportunityOperation", "OpportunityEvent", "Opportunity" CASCADE',
     );

@@ -62,6 +62,7 @@ export async function getOverviewDashboard(
         production.map((o) => o.status),
       ),
     ],
+    priorityContext: commercial.priorityContext,
     priorities: [
       ...overdue
         .sort((a, b) => a.dueDate!.getTime() - b.dueDate!.getTime())

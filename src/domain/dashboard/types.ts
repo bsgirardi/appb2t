@@ -80,6 +80,7 @@ export type DashboardPanelDTO = {
   metrics: Metric[];
   charts: Series[];
   priorities: Priority[];
+  priorityContext?: string;
   tables: DataTable[];
   notes: string[];
 };

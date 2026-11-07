@@ -1,3 +1,5 @@
+import { getCommercialSettings } from "@/server/commercial-settings";
+import { CommercialSettingsPanel } from "@/components/settings/commercial-settings-panel";
 import { requireActor } from "@/server/auth/guards";
 import { db } from "@/lib/db";
 import { printerDTO } from "@/server/catalog-inputs";
@@ -15,12 +17,14 @@ export default async function SettingsPage() {
     throw e;
   });
   if (actor.role !== "ADMIN") return null;
-  const [materials, printers, settings, users] = await Promise.all([
-    db.material.findMany({ orderBy: { name: "asc" } }),
-    db.printer.findMany({ orderBy: { name: "asc" } }),
-    db.calculationSettings.findUnique({ where: { id: 1 } }),
-    db.user.findMany({ select: userSelect, orderBy: { name: "asc" } }),
-  ]);
+  const [materials, printers, settings, users, commercialSettings] =
+    await Promise.all([
+      db.material.findMany({ orderBy: { name: "asc" } }),
+      db.printer.findMany({ orderBy: { name: "asc" } }),
+      db.calculationSettings.findUnique({ where: { id: 1 } }),
+      db.user.findMany({ select: userSelect, orderBy: { name: "asc" } }),
+      getCommercialSettings(),
+    ]);
   return (
     <>
       <SettingsPanel
@@ -34,6 +38,7 @@ export default async function SettingsPage() {
           users,
         }}
       />
+      <CommercialSettingsPanel initial={commercialSettings} />
       <details className="mt-8 rounded-lg border p-5">
         <summary>Configurar precificação por lote</summary>
         <PricingSettingsPanel

@@ -11,6 +11,11 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +33,13 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty";
-export function PriorityTable({ priorities }: { priorities: Priority[] }) {
+export function PriorityTable({
+  priorities,
+  context,
+}: {
+  priorities: Priority[];
+  context?: string;
+}) {
   const [page, setPage] = useState(0),
     pages = Math.ceil(priorities.length / 8),
     current = Math.min(page, Math.max(0, pages - 1));
@@ -49,7 +60,27 @@ export function PriorityTable({ priorities }: { priorities: Priority[] }) {
           primeiro.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex min-w-0 flex-col gap-4">
+        {context && (
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" size="sm">
+                Critérios e cobertura comercial
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex flex-col gap-3 pt-3">
+              <p className="text-muted-foreground">{context}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/negociacoes">Consultar negociações</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/orcamentos">Consultar orçamentos</Link>
+                </Button>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
         {!priorities.length ? (
           <Empty>
             <EmptyHeader>
@@ -90,8 +121,8 @@ export function PriorityTable({ priorities }: { priorities: Priority[] }) {
                           : "Informação"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
+                  <TableCell className="min-w-48 whitespace-normal">
+                    <div className="flex flex-col gap-1 break-words">
                       <strong>{p.title}</strong>
                       <span className="text-muted-foreground">{p.detail}</span>
                     </div>

@@ -8,6 +8,29 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.26.0",
+    date: "2026-11-07",
+    title: "Prioridades comerciais com prazos e próxima ação",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "Encontre contatos agendados atrasados no painel, com responsável, próxima ação e acesso direto à negociação.",
+          "Registre o envio da proposta e a resposta do cliente para acompanhar propostas sem retorno; lembretes não reiniciam a espera.",
+          "Administradores podem configurar o prazo de retorno em dias corridos; o padrão é de 14 dias, aplicado também às esperas já registradas.",
+          "Consulte os critérios de acompanhamento e identifique propostas sem validade e negociações sem data de contato ou orçamento principal.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Os alertas de vencimento consideram propostas vigentes avulsas ou o orçamento principal de negociações abertas; rascunhos, versões secundárias e registros encerrados ficam fora.",
+          "Motivos de atenção da mesma negociação aparecem juntos, evitando pendências duplicadas.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.25.0",
     date: "2026-11-07",
     title: "Recorrência de desvios produtivos e conferência da ficha",

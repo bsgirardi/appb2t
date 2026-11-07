@@ -20,7 +20,15 @@ export const opportunityFieldsSchema = z
 const key = { operationKey: z.string().min(8).max(160) };
 const command = { ...key, expectedVersion: z.number().int().positive() };
 const reason = z.string().trim().min(3).max(2000);
+const trackedContact = {
+  ...command,
+  quoteId: id,
+  quoteVersion: z.number().int().positive(),
+  text: z.string().trim().min(1).max(4000),
+};
 export const opportunityCommandSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("PROPOSAL_SENT"), ...trackedContact }).strict(),
+  z.object({ action: z.literal("CUSTOMER_REPLY"), ...trackedContact }).strict(),
   z
     .object({
       action: z.literal("CREATE"),
