@@ -844,3 +844,36 @@
     border-radius: 4px;
   }
 }
+/* Local reading recipe: profitability reports, evidence and monthly goals. */
+@layer components {
+  .profitability-reading { min-width: 0; }
+  .profitability-reading [data-slot="card-title"],
+  .profitability-reading p,
+  .profitability-reading li,
+  .profitability-reading summary { overflow-wrap: anywhere; }
+  .profitability-reading [data-slot="table"] { table-layout: fixed; }
+  .profitability-reading [data-slot="table"] :is(td, th) {
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+    vertical-align: top;
+  }
+  .profitability-reading .profitability-amount {
+    display: block;
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .profitability-reading table[aria-label="Comparação de custos e resultados"] :is(td, th):not(:first-child),
+  .profitability-reading table:is([aria-label="Por produto"], [aria-label="Por canal"]) :is(td, th):not(:first-child),
+  .profitability-reading table[aria-label="Pedidos da rentabilidade"] :is(td, th):nth-child(3),
+  .profitability-reading table[aria-label="Pedidos da rentabilidade"] :is(td, th):nth-child(4) { text-align: right; }
+  .profitability-reading summary { cursor: pointer; padding-block: 0.5rem; }
+  .profitability-reading summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .profitability-applied-filters ul {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    padding: 0; list-style: none;
+  }
+  @media (max-width: 767px) {
+    .profitability-reading summary { min-height: 44px; }
+  }
+}
