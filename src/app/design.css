@@ -598,6 +598,32 @@
     color: inherit;
   }
   @media (max-width: 767px) {
+    /* The associated label is the checkbox target; keep the native glyph compact. */
+    label:has(> input[type="checkbox"]) {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+    }
+    label > input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    [data-slot="combobox-item"],
+    [data-slot="input-group"],
+    [data-slot="combobox-trigger"],
+    [data-slot="combobox-clear"],
+    [data-slot="input-group-button"] {
+      min-height: 44px;
+    }
+    [data-slot="input-group-button"],
+    [data-slot="combobox-trigger"],
+    [data-slot="combobox-clear"] {
+      min-width: 44px;
+      flex-shrink: 0;
+    }
     [data-slot="input"],
     [data-slot="native-select"],
     [data-slot="button"],
@@ -634,6 +660,27 @@
     .admin-desktop-nav {
       display: none;
     }
+  }
+}
+
+/* Keyboard focus must remain visible even when the chosen brand matches the surface. */
+@layer utilities {
+  :is(
+    [data-slot="button"],
+    [data-slot="input-group-button"],
+    [data-slot="combobox-clear"],
+    [data-slot="combobox-trigger"],
+    [data-slot="dialog-close"],
+    [data-slot="input"],
+    [data-slot="input-group-control"],
+    [data-slot="native-select"],
+    [data-slot="textarea"],
+    [data-slot="checkbox"],
+    [role="tab"],
+    [role="combobox"]
+  ):focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
   }
 }
 

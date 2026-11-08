@@ -69,6 +69,8 @@ Espaçamentos de referência: 4/8/12/16/24/32 px. Controles usam em geral rounde
 
 Novos usos devem cobrir padrão, hover, foco visível, selecionado/expandido, disabled, erro e pending quando aplicáveis. Cor acompanha texto; ações de ícone têm nome acessível. Mensagens longas devem quebrar sem cortar dados. Preservar movimento reduzido e impressão. Não redesenhar menu, rolagem própria da sidebar, prioridades antes dos gráficos ou formulários progressivos já existentes.
 
+Na continuidade 1.27.12, o foco recebe também um contorno sólido de foreground, pois a cor primária configurável pode coincidir com a superfície. O anel semântico anterior permanece; nenhuma paleta salva é substituída. A receita móvel amplia opções do Combobox, ações de InputGroup e labels com checkbox filho direto. DialogContent passa a limitar altura e oferecer rolagem interna. Comparações antes/depois, cobertura e limitações estão no [relatório da integração](docs/design/INTEGRACAO-HOMOLOGACAO-2026-11-08.md); isso não certifica todos os contrastes nem substitui zoom/leitor de tela reais.
+
 ## Responsabilidade futura
 
 As listagens de orçamentos e vendas acrescentam somente a receita `.commercial-list`, sem redefinir variantes ou tokens. Critérios aplicados ficam junto ao resultado; controles recolhidos permanecem montados. [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md) registra consumidores, evidências e limites desta continuidade.

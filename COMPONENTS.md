@@ -41,6 +41,8 @@ InputGroup deve usar seus controles e addons próprios. Em novos formulários, r
 
 ## Matriz de revisão por mudança
 
+Complemento 1.27.12: DialogContent genérico limita a altura a `100dvh - 2rem` e permite rolagem interna; ContextEditor mantém sua composição e proteção de rascunho. Foco visível dos controles compartilhados ganha contorno com foreground, independente da cor primária. Em até 767 px, opções do Combobox e ações de InputGroup têm 44 px mínimos; labels com checkbox filho direto fornecem a área acionável, mantendo o input nativo compacto. Associações por htmlFor separado ou wrappers intermediários exigem conferência própria. [Evidências e limites](docs/design/INTEGRACAO-HOMOLOGACAO-2026-11-08.md).
+
 | Mudança             | Evidência necessária                                                                                         |
 | ------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Campo / seleção     | FormData, required vazio, erro associado, disabled em fieldset, foco e rascunho                              |
