@@ -50,5 +50,5 @@ it("describes an empty collection without claiming the entire catalog is empty",
       context={{ collection: "c1", search: "", order: "nome", page: 1 }}
     />,
   );
-  expect(screen.getByText("Esta coleção está sendo preparada.")).toBeTruthy();
+  expect(screen.getByText("Nenhum produto nesta coleção.")).toBeTruthy();
 });

@@ -66,6 +66,11 @@ Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em ma
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
 
+## Continuidade: login e catálogo público
+
+Recorte de 08/11/2026 na branch `codex/login-catalogo-publico`, baseado em main 1.27.3 (`0a73e718ef994e7bd7868def8c2ce9d1a094bcda`). Login com linguagem voltada à operação atual e feedback de entrada; catálogo com busca junto aos resultados, filtros GET preservados ao recolher, vazio factual e composição móvel/escura do mascote original. Sem alteração de paletas, variantes globais, dados ou regras comerciais. Inventário, capturas e limites em [LOGIN-CATALOGO-PUBLICO.md](docs/design/LOGIN-CATALOGO-PUBLICO.md).
+
+A inspeção sintética não homologa autenticação/persistência real nem teclado integral. Próxima etapa: revisão transversal de acessibilidade/responsividade/temas/portais e remoção de CSS somente com equivalência demonstrada. PRs #55–#58 seguem separadas e devem ser conciliadas com main antes de futura integração; versão candidata deste recorte 1.27.4. Sem merge, Release ou implantação inferidos.
 ## Continuidade: financeiro e tributação
 
 08/11/2026. Recorte autorizado executado sobre main 1.27.3 (`0a73e718ef994e7bd7868def8c2ce9d1a094bcda`), sem incorporar as PRs abertas #55/#56/#57. Critérios financeiros permanecem visíveis com o painel recolhido; títulos, movimentos realizados e projeção identificam o significado das datas, valores e estados vazios. O detalhe informa leitura pendente, bloqueia consultas concorrentes e devolve foco à origem. Previsão tributária destaca cobertura incompleta e fontes/vigência do perfil mensal, sem substituir snapshots nem misturar estimativa com pagamento.
