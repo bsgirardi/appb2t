@@ -28,7 +28,13 @@ const server = await createServer({
       },
     },
   ],
-  server: { host: "127.0.0.1", port: Number(process.env.B2T_PREVIEW_PORT ?? 4174), strictPort: true },
+  server: {
+    host: "127.0.0.1",
+    port: Number(process.env.B2T_PREVIEW_PORT ?? 4174),
+    strictPort: true,
+    // Next build rewrites these files on Windows; they are not preview sources.
+    watch: { ignored: ["**/.next/**"] },
+  },
 });
 await server.listen();
 server.printUrls();

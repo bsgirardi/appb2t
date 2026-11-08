@@ -59,7 +59,7 @@ O bootstrap em `src/lib/theme-preference.ts` aplica `data-theme` na raiz. Seleç
 | Sheet móvel       | AdminThemeProvider e paletteStyle no AppShell | AppShell reaplica estilo e classes administrativas no conteúdo portado; Sheet genérico não faz isso sozinho |
 | Dialog / Combobox | Portal próprio da primitiva                   | Não presumir que herdam variáveis de um ancestral React: validar o DOM e escopo de cada novo uso            |
 
-O `ChartStyle` de ui/chart.tsx ainda usa seletor `.dark` para configuração por tema. É uma divergência potencial com data-theme; não há falha demonstrada no dashboard atual, que usa variáveis CSS. Não registrar como correção já realizada.
+Nesta branch, `ChartStyle` foi alinhado ao `data-theme` da raiz e ao escuro automático somente sem preferência explícita, após reprodução com config.theme. A mudança ainda não está integrada em main. O dashboard atual usa variáveis CSS e não apresentou falha demonstrada nesse consumidor. Evidências e limites em [REVISAO-TRANSVERSAL.md](docs/design/REVISAO-TRANSVERSAL.md).
 
 ## Tipografia, dimensões e estados
 

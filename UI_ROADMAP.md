@@ -1,5 +1,16 @@
 # Consolidação visual — diagnóstico e próximos passos
 
+## Estado atual — revisão transversal de 08/11/2026
+
+Base real reconferida: main **1.27.3**, `0a73e718ef994e7bd7868def8c2ce9d1a094bcda`. Fundação #53, piloto #54 e filtros #52 integrados, com Releases oficiais anteriores. As seções seguintes preservam o registro histórico; suas versões e estados de entrega não substituem esta conferência.
+
+Implementado na branch `codex/revisao-transversal-design`: ChartStyle alinhado à preferência explícita/automática após reprodução; nomes acessíveis padrão de ações do Combobox; fixture e inventário transversal. Versão candidata única **1.27.4**, concorrente com outras PRs e sujeita a reconciliação. Abertura de PR solicitada após o fechamento da implementação; consultar o GitHub para o estado atual de revisão. Sem merge, Release ou implantação desta etapa.
+
+Cobertura e aceite em [REVISAO-TRANSVERSAL.md](docs/design/REVISAO-TRANSVERSAL.md), com [inventário nominal](docs/design/REVISAO-TRANSVERSAL-CONSUMIDORES.json). Amostras de teclado/portais e quatro larguras validadas; zoom, leitor de tela, movimento reduzido ativo e estados completos continuam pendentes. Nenhum CSS removido sem equivalência. Próximos recortes: alvos móveis de Checkbox/Combobox, contraste de estados e paletas, zoom/overlays extensos e remoção por família com prova antes/depois.
+
+**Integração conjunta bloqueada pela base:** #55 PDV, #56 produção/estoque, #57 planejamento, #58 clientes/negociações/solicitações, #59 financeiro/tributação e #60 login/catálogo permanecem abertas; rentabilidade/metas/recorrência tem entrega local sem commit. Não foram incorporadas. Antes de declarar a sequência homologada, revisar/integrar cada recorte com autorização própria, reconciliar versões e executar a matriz nos SHAs finais. Publicar imagem e implantar são etapas distintas, dependentes de autorização; nenhuma é inferida deste trabalho.
+
+## Registro histórico das etapas anteriores
 ## Continuidade: rentabilidade, metas e recorrência
 
 Recorte implementado em worktree nova sobre main 1.27.3. Critérios aplicados fora dos filtros recolhidos, subtotais cobertos explícitos, comparação com sinal explicado, tabelas nomeadas e receita local para fontes extensas/valores. Metas ausentes e simulação temporária mais claras; recorrência exibe filtro e amostra junto à sugestão. Domínio, consultas, fórmulas e formulários preservados. [Inventário, plano, evidências e limites](docs/design/RENTABILIDADE-METAS-RECORRENCIA.md). As etapas de financeiro, PDV, produção/estoque e planejamento de outras branches não foram incorporadas. Versão candidata única 1.27.4, sujeita à conciliação com main antes de futura PR/integração. Sem merge, Release ou implantação.
