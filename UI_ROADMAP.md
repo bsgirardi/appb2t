@@ -50,3 +50,9 @@ Etapa 2 executada na branch codex/piloto-produto, incluindo os documentos e orie
 Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em main. Diff rastreado e documentos/skills pertinentes do piloto conciliados com bases idênticas; origem preservada sem checkout/reset/stash/commit. Orçamentos e vendas mostram critérios aplicados, contagem, tabelas nomeadas e vazio contextual. Receitas restritas aos dois painéis; nenhum componente global de tabela/filtro/paginação mudou. Proteções de rascunho e fluxos de criação/edição permanecem nos consumidores anteriores.
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
+
+## Continuidade: planejamento
+
+Recorte executado na worktree 67ba, branch `codex/planejamento-composicao`, sobre main 1.27.3. Fila e contexto de lote receberam hierarquia local, filtros recolhíveis com resumo persistente e distinção entre sequência proposta e previsões da fila registrada. Sugestões explicam que a revisão não confirma um lote. Calendário, simulações e consumidores comerciais foram inventariados e preservados. Sem mudança no motor, consultas, comandos, temas ou marca.
+
+Ver [inventário, decisões, evidências e limites](docs/design/PLANEJAMENTO.md). Versão única preparada 1.27.4, sujeita à conciliação antes de futura integração: PRs #55/#56 continuam abertas na conferência desta etapa. Entrega como diff revisável; sem commit/PR próprios, merge, Release ou implantação. Não tratar os recortes dessas PRs como integrados.
