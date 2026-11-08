@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
   AccountDTO,
@@ -33,6 +33,7 @@ import {
 } from "./shared";
 import { EntryForm } from "./entry-form";
 import { SettlementForm } from "./settlement-form";
+import { FinanceEmpty } from "./reading";
 type Detail = EntryDTO & {
   settlements: SettlementDTO[];
   events: FinancialEventDTO[];
@@ -56,17 +57,35 @@ export function EntryPanel({
       "list",
     ),
     [reversal, setReversal] = useState<string | null>(null),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
+  const detailHeading = useRef<HTMLHeadingElement>(null);
+  const detailTrigger = useRef<HTMLButtonElement | null>(null);
+  const focusDetail = useRef(false);
+  useEffect(() => {
+    if (!loading && focusDetail.current && detail) {
+      detailHeading.current?.focus();
+      focusDetail.current = false;
+    }
+  }, [detail, loading]);
   async function load(id: string) {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
     try {
       setError("");
       setDetail(
         await api<Detail>(`/api/finance/entries/${encodeURIComponent(id)}`),
       );
+      focusDetail.current = true;
       setMode("list");
       setReversal(null);
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
     }
   }
   function done() {
@@ -76,16 +95,21 @@ export function EntryPanel({
     router.refresh();
   }
   return (
-    <section>
+    <section className="finance-reading">
       <div className="page-heading">
         <div>
           <h1>Contas a pagar e receber</h1>
-          <p>Obrigações previstas, parcelas de vendas e histórico de baixas.</p>
+          <p>
+            Títulos a pagar ou receber, com vencimento e valor em aberto. O
+            título é uma obrigação; a baixa registra o pagamento ou recebimento
+            na conta.
+          </p>
         </div>
         <Button
           variant="default"
           size="sm"
           className=""
+          disabled={loading}
           onClick={() => {
             setDetail(null);
             setMode("new");
@@ -94,6 +118,11 @@ export function EntryPanel({
           Novo lançamento
         </Button>
       </div>
+      {loading && (
+        <Notice kind="info">
+          Carregando título… Aguarde para consultar ou alterar o detalhe.
+        </Notice>
+      )}
       {error && <Notice>{error}</Notice>}
       {(mode === "new" || mode === "edit") && (
         <EntryForm
@@ -104,12 +133,14 @@ export function EntryPanel({
           onCancel={() => setMode("list")}
         />
       )}
-      {detail && (
+      {detail && !loading && (
         <Card asChild>
           <section className="commerce-form">
             <div className="page-heading">
               <div>
-                <h2>{detail.description}</h2>
+                <h2 ref={detailHeading} tabIndex={-1}>
+                  {detail.description}
+                </h2>
                 <p>
                   {detail.counterparty} · {dateLabel(detail.dueDate)} ·{" "}
                   {detail.state}
@@ -124,6 +155,7 @@ export function EntryPanel({
                   setDetail(null);
                   setMode("list");
                   setReversal(null);
+                  detailTrigger.current?.focus();
                 }}
               >
                 Fechar detalhe
@@ -291,14 +323,18 @@ export function EntryPanel({
       )}
       <Card asChild>
         <div className="table-scroll">
-          <Table>
+          <Table aria-label="Títulos a pagar e receber">
             <TableHeader>
               <TableRow>
                 <TableHead>Lançamento</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Vencimento</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Restante</TableHead>
+                <TableHead className="finance-amount text-right">
+                  Valor do título
+                </TableHead>
+                <TableHead className="finance-amount text-right">
+                  Em aberto
+                </TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -307,15 +343,21 @@ export function EntryPanel({
               {result.items.map((e) => (
                 <TableRow key={e.id}>
                   <TableCell>
-                    <strong>{e.description}</strong>
+                    <strong className="finance-description">
+                      {e.description}
+                    </strong>
                     <small>{e.counterparty}</small>
                   </TableCell>
                   <TableCell>
                     {e.kind === "RECEIVABLE" ? "A receber" : "A pagar"}
                   </TableCell>
                   <TableCell>{dateLabel(e.dueDate)}</TableCell>
-                  <TableCell>{money(e.amount)}</TableCell>
-                  <TableCell>{money(e.remainingAmount)}</TableCell>
+                  <TableCell className="finance-amount">
+                    {money(e.amount)}
+                  </TableCell>
+                  <TableCell className="finance-amount">
+                    {money(e.remainingAmount)}
+                  </TableCell>
                   <TableCell>
                     {e.state}
                     {e.overdue && <small>Vencido</small>}
@@ -325,7 +367,12 @@ export function EntryPanel({
                       variant="outline"
                       size="sm"
                       className=""
-                      onClick={() => void load(e.id)}
+                      disabled={loading}
+                      aria-label={`Ver detalhes de ${e.description}`}
+                      onClick={(event) => {
+                        detailTrigger.current = event.currentTarget;
+                        void load(e.id);
+                      }}
                     >
                       Ver detalhes
                     </Button>
@@ -335,7 +382,12 @@ export function EntryPanel({
             </TableBody>
           </Table>
           {!result.items.length && (
-            <p className="commerce-form">Nenhum lançamento encontrado.</p>
+            <FinanceEmpty
+              noun="títulos"
+              total={result.total}
+              base="/financeiro/lancamentos"
+              query={query}
+            />
           )}
         </div>
       </Card>

@@ -8,6 +8,26 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.8",
+    date: "2026-11-08",
+    title: "Clareza na leitura financeira e tributária",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Financeiro mostra os critérios aplicados e diferencia datas, títulos em aberto e movimentos realizados, com leitura aprimorada de valores e estados vazios.",
+          "Previsão tributária destaca cobertura incompleta, origem e vigência do perfil mensal, preservando a separação entre estimativas, DAS mensal e pagamentos.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Consulta de títulos informa carregamento e evita leituras concorrentes; ao fechar o detalhe, o foco retorna à linha de origem.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.27.7",
     date: "2026-11-08",
     title: "Clareza no acompanhamento comercial",

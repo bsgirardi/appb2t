@@ -63,6 +63,11 @@ Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em ma
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
 
+## Continuidade: financeiro e tributação
+
+08/11/2026. Recorte autorizado executado sobre main 1.27.3 (`0a73e718ef994e7bd7868def8c2ce9d1a094bcda`), sem incorporar as PRs abertas #55/#56/#57. Critérios financeiros permanecem visíveis com o painel recolhido; títulos, movimentos realizados e projeção identificam o significado das datas, valores e estados vazios. O detalhe informa leitura pendente, bloqueia consultas concorrentes e devolve foco à origem. Previsão tributária destaca cobertura incompleta e fontes/vigência do perfil mensal, sem substituir snapshots nem misturar estimativa com pagamento.
+
+Receita local `.finance-reading`, Roboto e tokens existentes; sem mudança global de variantes/paletas, regras de domínio, permissões, endpoints, banco ou formulários de operação. Configurações tributárias inspecionadas e preservadas. [Inventário, decisões, validação e limites](docs/design/FINANCEIRO-TRIBUTACAO.md). Versão candidata 1.27.4, sujeita à ordem real de integração. Sem merge, Release ou implantação autorizados. Metas e recorrência não foram incluídas neste recorte.
 ## Continuidade: planejamento
 
 Recorte executado na worktree 67ba, branch `codex/planejamento-composicao`, sobre main 1.27.3. Fila e contexto de lote receberam hierarquia local, filtros recolhíveis com resumo persistente e distinção entre sequência proposta e previsões da fila registrada. Sugestões explicam que a revisão não confirma um lote. Calendário, simulações e consumidores comerciais foram inventariados e preservados. Sem mudança no motor, consultas, comandos, temas ou marca.
