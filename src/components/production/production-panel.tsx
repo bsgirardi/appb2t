@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { OperationWorkspace } from "@/components/admin/operation-workspace";
 import { OrderSummary } from "./order-summary";
+import { OrderQuantities } from "./order-quantities";
 import { Notice } from "@/components/ui/field";
 import { api } from "@/lib/client-api";
 import type { OrderDTO } from "@/domain/production/types";
@@ -150,23 +151,22 @@ export function ProductionPanel({
                   }}
                 />
               ) : (
-                <div className="grid gap-3 lg:grid-cols-2">
+                <div className="operation-list flex min-w-0 flex-col gap-3">
                   {orders.map((o) => (
                     <Card key={o.id}>
                       <CardHeader>
                         <CardTitle>
                           <h2>OP-{String(o.sequence).padStart(6, "0")}</h2>
                         </CardTitle>
-                        <p className="break-words">
-                          {o.lines.map((l) => l.description).join(", ")}
-                        </p>
                       </CardHeader>
                       <CardContent>
                         <OrderSummary
                           order={o}
                           users={options.users}
                           printers={options.printers}
+                          showRecordedTotals={false}
                         />
+                        <OrderQuantities order={o} />
                       </CardContent>
                       <CardFooter>
                         <Button

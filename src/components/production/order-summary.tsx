@@ -6,10 +6,12 @@ export function OrderSummary({
   order,
   users,
   printers,
+  showRecordedTotals = true,
 }: {
   order: OrderDTO;
   users: { id: string; name: string }[];
   printers: { id: string; name: string }[];
+  showRecordedTotals?: boolean;
 }) {
   const totals = order.lines.reduce(
     (sum, line) => ({
@@ -74,10 +76,12 @@ export function OrderSummary({
           </dd>
         </div>
       </dl>
-      <p>
-        {totals.good} boas · {totals.failed} falhas · {totals.canceled}{" "}
-        canceladas
-      </p>
+      {showRecordedTotals && (
+        <p>
+          {totals.good} boas · {totals.failed} falhas · {totals.canceled}{" "}
+          canceladas
+        </p>
+      )}
       <p className="text-muted-foreground">
         Próxima etapa: <span>{next[order.status] ?? "Consultar ordem"}</span>
       </p>

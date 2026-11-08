@@ -1,5 +1,7 @@
 "use client";
 import { FormSection } from "@/components/admin/form-section";
+import { relationshipReturn } from "@/lib/relationship-return";
+import { Badge } from "@/components/ui/badge";
 
 import Link from "next/link";
 import { TeamArtPanel } from "@/components/art/team-panel";
@@ -34,11 +36,13 @@ export function RequestDetail({
   users,
   actorId,
   customers,
+  returnTo,
 }: {
   initial: CatalogRequestDTO;
   users: { id: string; name: string }[];
   actorId: string;
   customers: CustomerDTO[];
+  returnTo?: string;
 }) {
   const [request, setRequest] = useState(initial);
   const [assigneeId, setAssigneeId] = useState(initial.assigneeId ?? actorId);
@@ -93,16 +97,18 @@ export function RequestDetail({
     }
   }
   return (
-    <div className="commerce-page request-detail">
-      <Link href="/solicitacoes">← Solicitações</Link>
-      <h1>{request.protocol}</h1>
-      <TeamArtPanel requestId={request.id} lines={request.lines} />
-      {request.checkoutId && (
-        <CheckoutTeamPanel checkoutId={request.checkoutId} />
-      )}
-      <p>
-        Estado: <strong>{requestStateLabels[request.state]}</strong>
-      </p>
+    <div className="commerce-page request-detail relationship-reading">
+      <Link
+        className="relationship-link"
+        href={relationshipReturn(returnTo, "/solicitacoes")}
+      >
+        ← Solicitações
+      </Link>
+      <header className="flex flex-col gap-2">
+        <h1>{request.protocol}</h1>
+        <Badge variant="outline">{requestStateLabels[request.state]}</Badge>
+        <p>Responsável: {request.assigneeName ?? "Não atribuído"}</p>
+      </header>
       <p>
         Recebida em{" "}
         {new Date(request.createdAt).toLocaleString("pt-BR", {
@@ -121,11 +127,21 @@ export function RequestDetail({
           Canal preferido:{" "}
           {request.contact.preferredChannel === "email" ? "E-mail" : "WhatsApp"}
         </p>
-        <p>
-          {request.contact.phone || "WhatsApp não informado"} ·{" "}
-          {request.contact.email || "E-mail não informado"}
-        </p>
+        <dl className="relationship-contacts">
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>{request.contact.phone || "Não informado"}</dd>
+          </div>
+          <div>
+            <dt>E-mail</dt>
+            <dd>{request.contact.email || "Não informado"}</dd>
+          </div>
+        </dl>
       </section>
+      <TeamArtPanel requestId={request.id} lines={request.lines} />
+      {request.checkoutId && (
+        <CheckoutTeamPanel checkoutId={request.checkoutId} />
+      )}
       <section>
         <h2>Seleção recebida</h2>
         <p>

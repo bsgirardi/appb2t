@@ -36,6 +36,20 @@ export function ReservationAction({
     <ActionForm
       revision={item?.version}
       title={`${reservation.saleNumber} · ${reservation.name}`}
+      summary={
+        <section className="admin-summary-card">
+          <h3>{reservation.name}</h3>
+          <p>
+            Restante reservado: {reservation.remaining}{" "}
+            {units[reservation.unit]}
+          </p>
+          <p>
+            {action === "CONSUME"
+              ? "Consumo reduz o saldo físico e libera a reserva correspondente."
+              : "Liberação desfaz a reserva sem baixar material do estoque."}
+          </p>
+        </section>
+      }
       onDone={onDone}
       onCancel={onCancel}
       onSubmit={(f, operationKey) => {

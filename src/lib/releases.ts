@@ -8,7 +8,7 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
-    version: "1.27.4",
+    version: "1.27.8",
     date: "2026-11-08",
     title: "Clareza na leitura financeira e tributária",
     sections: [
@@ -23,6 +23,37 @@ export const releases: Release[] = [
         title: "Correções",
         items: [
           "Consulta de títulos informa carregamento e evita leituras concorrentes; ao fechar o detalhe, o foco retorna à linha de origem.",
+        ],
+      },
+    ],
+  },
+  {
+    version: "1.27.7",
+    date: "2026-11-08",
+    title: "Clareza no acompanhamento comercial",
+    sections: [{ title: "Melhorias", items: ["Clientes exibem e-mail e telefone separadamente. Negociações e solicitações mostram critérios aplicados, responsáveis e vínculos comerciais com mais clareza, mantendo a seleção ao voltar dos detalhes."] }],
+  },
+  {
+    version: "1.27.6",
+    date: "2026-11-08",
+    title: "Clareza na fila de planejamento",
+    sections: [{ title: "Melhorias", items: ["Planejamento com resumo dos filtros recolhidos, leitura organizada da disponibilidade e do contexto dos lotes e distinção explícita entre sequência simulada e fila registrada."] }],
+  },
+  {
+    version: "1.27.5",
+    date: "2026-11-08",
+    title: "Clareza na produção e no estoque",
+    sections: [{ title: "Melhorias", items: ["Ordens mostram metas e quantidades registradas por item. Estoque e reservas apresentam saldos com unidades e orientação contextual; filtros aplicados permanecem visíveis junto aos resultados."] }],
+  },
+  {
+    version: "1.27.4",
+    date: "2026-11-07",
+    title: "Clareza no atendimento presencial",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "PDV com separação mais clara entre itens, cliente opcional, pagamento e resumo, além de orientações para compra vazia, produtos indisponíveis e processamento.",
         ],
       },
     ],

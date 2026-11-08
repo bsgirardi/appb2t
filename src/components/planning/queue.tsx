@@ -4,6 +4,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/field";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 import { states, instantLabel, type PlanningData } from "./shared";
 import { useQueueSimulation } from "./queue-simulation";
 const reasons = {
@@ -19,15 +25,35 @@ type QueueProps = {
   onDone: () => void;
 };
 export function Queue(props: QueueProps) {
-  return <QueueBody key={`${props.data.revision}:${props.data.asOf}`} {...props} />;
+  return (
+    <QueueBody key={`${props.data.revision}:${props.data.asOf}`} {...props} />
+  );
 }
 function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
   const { panel, propose, busy, staged } = useQueueSimulation(data, onDone);
-  const reorder = (printerId: string, batchIds: string[]) => propose({ printerId, batchIds });
+  const reorder = (printerId: string, batchIds: string[]) =>
+    propose({ printerId, batchIds });
   return (
     <div className="flex min-w-0 flex-col gap-3">
       {panel}
-      {!batches.length && <p>Nenhum lote nesta seleção.</p>}
+      {staged && (
+        <Notice kind="info">
+          Sequência proposta, ainda não registrada. Previsões abaixo
+          correspondem à fila registrada; compare os novos horários na simulação
+          antes de confirmar.
+        </Notice>
+      )}
+      {!batches.length && (
+        <Empty role="region" aria-label="Fila vazia">
+          <EmptyHeader>
+            <EmptyTitle>Nenhum lote nesta seleção.</EmptyTitle>
+            <EmptyDescription>
+              Revise os filtros da fila ou use Novo lote para preparar uma
+              composição.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
       {data.printers
         .filter((p) => batches.some((b) => b.printerId === p.id))
         .map((printer) => {
@@ -37,15 +63,18 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
                 b.printerId === printer.id &&
                 ["PENDING", "SCHEDULED"].includes(b.state),
             )
-            .sort(
-              (a, b) => staged?.printerId === printer.id
+            .sort((a, b) =>
+              staged?.printerId === printer.id
                 ? staged.batchIds.indexOf(a.id) - staged.batchIds.indexOf(b.id)
                 : a.position - b.position || a.id.localeCompare(b.id),
             );
           const positions = new Map(future.map((b, index) => [b.id, index]));
-          const visible = batches.filter(b => b.printerId === printer.id).sort((a,b) =>
-            (positions.get(a.id) ?? -1) - (positions.get(b.id) ?? -1),
-          );
+          const visible = batches
+            .filter((b) => b.printerId === printer.id)
+            .sort(
+              (a, b) =>
+                (positions.get(a.id) ?? -1) - (positions.get(b.id) ?? -1),
+            );
           const move = (index: number, direction: number) => {
             const ids = future.map((b) => b.id);
             [ids[index], ids[index + direction]] = [
@@ -91,14 +120,19 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
                     return (
                       <li
                         key={b.id}
-                        className="flex flex-col gap-2 rounded-lg border p-3"
+                        className="planning-batch flex min-w-0 flex-col gap-3 rounded-lg border p-3"
                       >
                         <div className="flex flex-wrap items-center gap-2">
-                          <Button variant="link" onClick={() => onSelect(b.id)}>
+                          <Button
+                            variant="link"
+                            aria-label={`Abrir lote ${b.sequence} · ${b.colorLabel}`}
+                            onClick={() => onSelect(b.id)}
+                          >
                             Lote {b.sequence} · {b.colorLabel}
                           </Button>
                           <Badge variant="secondary">{states[b.state]}</Badge>
                         </div>
+                        <p>Posição registrada: {b.position}</p>
                         <ul>
                           {b.participants.map((p, i) => (
                             <li key={p.lineId ?? i}>
@@ -107,32 +141,41 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
                             </li>
                           ))}
                         </ul>
-                        {f?.removal ? (
-                          <p>
-                            Retirada prevista: {instantLabel(f.removal.end)}
-                            {f.late ? " · Após o prazo de produção" : ""}
-                          </p>
-                        ) : (
-                          <p>
-                            Previsão indisponível.{" "}
-                            {f?.reason
-                              ? reasons[f.reason]
-                              : "Lote fora da programação."}
-                          </p>
-                        )}
-                        {f?.print && (
-                          <p>
-                            Impressão: {instantLabel(f.print.start)} →{" "}
-                            {instantLabel(f.print.end)}
-                          </p>
-                        )}
-                        {f?.waitingRemoval && (
-                          <p>
-                            Máquina aguardando equipe:{" "}
-                            {instantLabel(f.waitingRemoval.start)} →{" "}
-                            {instantLabel(f.waitingRemoval.end)}
-                          </p>
-                        )}
+                        <section
+                          aria-label={`Previsão do lote ${b.sequence}`}
+                          className="planning-forecast"
+                        >
+                          {f?.removal ? (
+                            <p>
+                              Retirada prevista: {instantLabel(f.removal.end)}
+                              {f.late ? " · Após o prazo de produção" : ""}
+                            </p>
+                          ) : (
+                            <p>
+                              Previsão indisponível.{" "}
+                              {f?.reason
+                                ? reasons[f.reason]
+                                : "Lote fora da programação."}
+                            </p>
+                          )}
+                          {f?.print && (
+                            <p>
+                              Impressão: {instantLabel(f.print.start)} →{" "}
+                              {instantLabel(f.print.end)}
+                            </p>
+                          )}
+                          {f?.waitingRemoval && (
+                            <p>
+                              Máquina aguardando equipe:{" "}
+                              {instantLabel(f.waitingRemoval.start)} →{" "}
+                              {instantLabel(f.waitingRemoval.end)}
+                            </p>
+                          )}
+                        </section>
+                        {!!b.blockers.length &&
+                          !["CANCELED", "CLOSED"].includes(b.state) && (
+                            <h3>Pendências para revisão</h3>
+                          )}
                         {!["CANCELED", "CLOSED"].includes(b.state) &&
                           b.blockers.map((x) => <p key={x}>{x}</p>)}
                         {b.state === "CLOSED" &&
@@ -149,6 +192,9 @@ function QueueBody({ data, batches, onSelect, onDone }: QueueProps) {
                           )}
                         {index >= 0 && (
                           <div className="flex flex-wrap gap-2">
+                            <span className="planning-move-label">
+                              Simular posição:
+                            </span>
                             <Button
                               variant="outline"
                               aria-label={`Subir lote ${b.sequence}`}

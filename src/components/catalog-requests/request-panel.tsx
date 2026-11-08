@@ -1,5 +1,14 @@
 "use client";
 import { FilterPanel } from "@/components/admin/filter-panel";
+import { RelationshipCriteria } from "@/components/commerce/relationship-criteria";
+import { Badge } from "@/components/ui/badge";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
 import { AdminForm } from "@/components/admin/admin-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,7 +36,7 @@ export function RequestPanel({
   const url = (page: number) =>
     `/solicitacoes?${new URLSearchParams({ ...filters, page: String(page) })}`;
   return (
-    <div className="commerce-page request-page">
+    <div className="commerce-page request-page relationship-reading">
       <div className="page-heading">
         <div>
           <h1>Solicitações</h1>
@@ -40,6 +49,8 @@ export function RequestPanel({
         }
       >
         <AdminForm
+          key={JSON.stringify(filters)}
+          requiredGuide={false}
           className="commerce-filters"
           onSubmit={(e) => {
             e.preventDefault();
@@ -68,15 +79,45 @@ export function RequestPanel({
           <Button type="submit">Filtrar</Button>
         </AdminForm>
       </FilterPanel>
+      <RelationshipCriteria
+        criteria={[
+          ...(filters.search ? [`Busca: ${filters.search}`] : []),
+          ...(filters.state !== "all" && filters.state
+            ? [
+                `Estado: ${requestStateLabels[filters.state as keyof typeof requestStateLabels] ?? "Selecionado"}`,
+              ]
+            : []),
+        ]}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p role="status">{initial.total} solicitações nesta seleção</p>
+        {(filters.search || filters.state !== "all") && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.push("/solicitacoes")}
+          >
+            Limpar filtros
+          </Button>
+        )}
+      </div>
       <div className="request-inbox">
         {initial.items.map((item) => (
           <article key={item.id} className="request-inbox-item">
             <h2>
-              <Link href={`/solicitacoes/${item.id}`}>{item.protocol}</Link>
+              <Link
+                className="relationship-link"
+                href={`/solicitacoes/${item.id}?${new URLSearchParams({ returnTo: url(initial.page) })}`}
+              >
+                {item.protocol}
+              </Link>
             </h2>
             <p>{item.name}</p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline">{requestStateLabels[item.state]}</Badge>
+            </div>
             <p>
-              {requestStateLabels[item.state]} ·{" "}
+              Recebida em{" "}
               {new Date(item.createdAt).toLocaleString("pt-BR", {
                 timeZone: "America/Sao_Paulo",
               })}
@@ -86,10 +127,43 @@ export function RequestPanel({
               Canal: {item.preferredChannel === "email" ? "E-mail" : "WhatsApp"}
             </p>
             <p>Responsável: {item.assigneeName ?? "Não atribuído"}</p>
+            {item.quoteId ? (
+              <Button asChild variant="outline">
+                <Link href={`/orcamentos/${item.quoteId}`}>
+                  Abrir orçamento vinculado
+                </Link>
+              </Button>
+            ) : (
+              <p>Sem orçamento vinculado.</p>
+            )}
           </article>
         ))}
       </div>
-      {!initial.total && <p>Nenhuma solicitação encontrada.</p>}
+      {!initial.items.length && (
+        <Empty role="status">
+          <EmptyHeader>
+            <EmptyTitle>
+              {initial.total > 0
+                ? "Nenhuma solicitação nesta página"
+                : "Nenhuma solicitação nesta seleção"}
+            </EmptyTitle>
+            <EmptyDescription>
+              {initial.total > 0
+                ? "Os resultados mudaram. Volte à primeira página para continuar."
+                : filters.search || filters.state !== "all"
+                  ? "Ajuste a busca ou o estado para encontrar outras solicitações."
+                  : "As seleções recebidas pelo catálogo aparecerão aqui para atendimento."}
+            </EmptyDescription>
+          </EmptyHeader>
+          {initial.total > 0 && (
+            <EmptyContent>
+              <Button variant="outline" onClick={() => router.push(url(1))}>
+                Voltar à primeira página
+              </Button>
+            </EmptyContent>
+          )}
+        </Empty>
+      )}
       <Pagination className="form-actions">
         <Button
           type="button"
@@ -105,7 +179,7 @@ export function RequestPanel({
         <Button
           type="button"
           variant="outline"
-          disabled={initial.page * 20 >= initial.total}
+          disabled={initial.page * initial.pageSize >= initial.total}
           onClick={() => router.push(url(initial.page + 1))}
         >
           Próxima

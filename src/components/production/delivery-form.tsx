@@ -29,12 +29,27 @@ export function DeliveryForm({
   return (
     <div className="space-y-4">
       <h2>Separação e entrega</h2>
-      {sale.lines.map((l) => (
-        <p key={l.id}>
-          {l.description}: vendidas {l.sold}, entregues {l.delivered}, prontas{" "}
-          {l.commitments.reduce((n, c) => n + c.remaining, 0)}
-        </p>
-      ))}
+      <ul className="operation-lines">
+        {sale.lines.map((l) => (
+          <li key={l.id}>
+            <p className="operation-line-name">{l.description}</p>
+            <dl className="operation-balances">
+              <div>
+                <dt>Vendidas</dt>
+                <dd>{l.sold} un</dd>
+              </div>
+              <div>
+                <dt>Entregues</dt>
+                <dd>{l.delivered} un</dd>
+              </div>
+              <div>
+                <dt>Separadas para entrega</dt>
+                <dd>{l.commitments.reduce((n, c) => n + c.remaining, 0)} un</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ul>
       <ActionForm
         revision={`${sale.version}:${stock?.version}`}
         title="Separar peças prontas para esta venda"
