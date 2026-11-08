@@ -8,6 +8,12 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.9",
+    date: "2026-11-08",
+    title: "Clareza na rentabilidade, metas e recorrência",
+    sections: [{ title: "Melhorias", items: ["Rentabilidade mostra os critérios aplicados, identifica subtotais cobertos e explica a diferença entre previsto e realizado. Metas distinguem ausência de objetivo de realizado indisponível; recorrência apresenta produto e amostra junto à sugestão de conferência, sem aplicar alterações automaticamente."] }],
+  },
+  {
     version: "1.27.8",
     date: "2026-11-08",
     title: "Clareza na leitura financeira e tributária",

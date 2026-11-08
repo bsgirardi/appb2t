@@ -35,6 +35,7 @@ afterEach(() => {
 it("labels missing targets, incomplete contribution, source and estimate", () => {
   render(<MonthlyGoals initial={data} />);
   expect(screen.getAllByText(/Meta salva: Não definida/)).toHaveLength(3);
+  expect(screen.getAllByText(/Meta não definida — sem percentual/)).toHaveLength(3);
   expect(screen.getByText(/Cobertura da contribuição: 0\/0/)).toBeTruthy();
   expect(
     screen.getByRole("link", { name: /Conferir pedidos/ }).getAttribute("href"),

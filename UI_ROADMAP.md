@@ -1,5 +1,8 @@
 # Consolidação visual — diagnóstico e próximos passos
 
+## Continuidade: rentabilidade, metas e recorrência
+
+Recorte implementado em worktree nova sobre main 1.27.3. Critérios aplicados fora dos filtros recolhidos, subtotais cobertos explícitos, comparação com sinal explicado, tabelas nomeadas e receita local para fontes extensas/valores. Metas ausentes e simulação temporária mais claras; recorrência exibe filtro e amostra junto à sugestão. Domínio, consultas, fórmulas e formulários preservados. [Inventário, plano, evidências e limites](docs/design/RENTABILIDADE-METAS-RECORRENCIA.md). As etapas de financeiro, PDV, produção/estoque e planejamento de outras branches não foram incorporadas. Versão candidata única 1.27.4, sujeita à conciliação com main antes de futura PR/integração. Sem merge, Release ou implantação.
 ## Estado reconciliado em 07/11/2026
 
 Main atual: **1.27.3**, SHA `0a73e718ef994e7bd7868def8c2ce9d1a094bcda`, conferida por fetch nesta continuidade. Fundação documental (1.27.1), piloto de produto (PR #54, 1.27.2) e filtros/tabelas comerciais (PR #52, 1.27.3) estão integrados. As referências abaixo a versões preparadas, ausência de PR/merge e backlog do PDV são registros históricos das etapas, não o estado atual. Merge não comprova implantação.

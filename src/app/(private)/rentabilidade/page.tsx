@@ -9,6 +9,7 @@ import {
 } from "@/server/profitability/queries";
 import { db } from "@/lib/db";
 import { ProfitabilityReport } from "@/components/profitability/report";
+import { ProfitabilityAppliedFilters } from "@/components/profitability/applied-filters";
 import { IntelligencePanel } from "@/components/profitability/intelligence-panel";
 import { RecurrencePanel } from "@/components/profitability/recurrence-panel";
 import { getProductiveRecurrence } from "@/server/profitability/recurrence";
@@ -65,7 +66,7 @@ export default async function ProfitabilityPage({
   const href = (p: Record<string, string>) =>
     `/rentabilidade?${new URLSearchParams({ ...params, ...p })}`;
   return (
-    <section className="flex min-w-0 flex-col gap-4">
+    <section className="profitability-reading flex min-w-0 flex-col gap-4">
       <h1>Rentabilidade operacional</h1>
       <p>Vendas confirmadas no período — resultado acumulado atualizado</p>
       <FilterPanel>
@@ -144,6 +145,7 @@ export default async function ProfitabilityPage({
           <Button>Atualizar visão</Button>
         </form>
       </FilterPanel>
+      <ProfitabilityAppliedFilters filters={filter} period={period} products={products} channels={channels} />
       <Notice kind="info">
         O período seleciona a confirmação das vendas. Custos posteriores entram
         na visão atual. O filtro de produto inclui os pedidos inteiros que
@@ -153,6 +155,7 @@ export default async function ProfitabilityPage({
       {result ? (
         <>
           <IntelligencePanel
+            returnHref={href({})}
             key={JSON.stringify(filter)}
             summary={result.summary}
             rankings={result.rankings}
@@ -166,7 +169,7 @@ export default async function ProfitabilityPage({
                 (filter.situation ?? "NORMAL") === "NORMAL",
             }}
           />
-          <ProfitabilityReport result={result} />
+          <ProfitabilityReport result={result} returnHref={href({})} />
           <nav aria-label="Paginação de pedidos" className="flex gap-3">
             {result.page > 1 ? (
               <Link href={href({ page: String(result.page - 1) })}>
@@ -218,6 +221,7 @@ export default async function ProfitabilityPage({
               <Button variant="outline">Filtrar perdas</Button>
             </form>
           </FilterPanel>
+          <p>Perdas pela data do fato: {lossFrom ?? period.from} a {lossTo ?? period.to} (São Paulo). Total: {losses.total} registros.</p>
           {!losses.total ? (
             <p>Nenhuma perda encontrada neste período.</p>
           ) : (
