@@ -6,6 +6,8 @@ PRs #55–#61 e a entrega local de rentabilidade (#62) revisadas e integradas em
 
 Complemento **1.27.12**: alvos móveis de Combobox/InputGroup/labels de Checkbox, foco contrastante em paletas extremas e diálogo extenso com limite de tela/rolagem interna. Sem mudança de marca, fontes, preferências ou contratos de negócio; nenhuma remoção especulativa de CSS. Tipos/lint/build e 1.038 testes unitários aprovados no complemento; suítes com banco exclusivo constam no relatório.
 
+**PR #63 ainda aberta:** execução dos checks bloqueada pela cobrança/limite da conta GitHub antes de iniciar os jobs. Não houve merge nem bypass; main continua 1.27.11. Regularizar Billing & plans e repetir os checks do head exato antes de integrar o complemento 1.27.12, sem novo incremento desta mesma PR.
+
 Acessibilidade permanece **parcial**, com pendências explícitas: zoom real 200%/400%, leitor de tela real, listas extensas/multisseleção e expansão de contraste/overlays para os demais consumidores. Movimento reduzido foi observado realmente ativo e validado nos overlays amostrados. Não confundir matriz de larguras com zoom nem árvore acessível com tecnologia assistiva.
 
 **Distribuição, Release, tags e implantação NÃO EXECUTADAS**, por exclusão expressa da etapa 5 pelo usuário, apesar da rotina usual de AGENTS.md após integração. Merge não atualizou a aplicação operacional. Distribuição oficial permanece pendente para etapa posterior.

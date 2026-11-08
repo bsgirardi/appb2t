@@ -2,6 +2,8 @@
 
 08/11/2026. Escopo autorizado: etapas 1–4. A distribuição oficial, Release, tags e implantação (etapa 5) foram expressamente excluídas. Essa delimitação prevalece nesta tarefa sobre a rotina usual de distribuição após merge em AGENTS.md. Imagem disponível e aplicação instalada não foram consultadas nem alteradas.
 
+**Estado de entrega:** as oito PRs da tabela estão integradas, main em **1.27.11**. O complemento **1.27.12** está na [PR #63](https://github.com/bsgirardi/appb2t/pull/63), ainda **sem merge**. Os onze jobs da [execução 42534052373](https://github.com/bsgirardi/appb2t/actions/runs/42534052373) falharam antes de iniciar, sem etapas ou logs: a anotação do GitHub informa pagamentos recentes da conta com falha ou necessidade de aumentar o limite de gastos em Billing & plans. Não é falha de teste do produto. Nenhuma cobrança, limite, proteção ou workflow foi alterado; os checks não foram contornados. A regularização depende do titular da conta; após a liberação, repetir os checks do novo head exato, conferir main/versão e só então integrar a mesma PR, sem novo incremento por commit documental.
+
 ## Revisão e integrações
 
 Base inicial: main **1.27.3**, `0a73e718ef994e7bd7868def8c2ce9d1a094bcda`. Trabalho na worktree isolada 13af. Origens preservadas, sem reset/stash/checkout amplo nem cópia de ambientes, dados operacionais ou backups.
