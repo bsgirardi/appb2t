@@ -13,11 +13,14 @@ export const metadata = {
 };
 export default async function RequestPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }) {
   const actor = await requireActor();
   const { id } = await params;
+  const { returnTo } = await searchParams;
   const data = await (async () => {
     try {
       return await Promise.all([
@@ -42,6 +45,7 @@ export default async function RequestPage({
       users={users}
       actorId={actor.id}
       customers={customers}
+      returnTo={typeof returnTo === "string" ? returnTo : undefined}
     />
   );
 }

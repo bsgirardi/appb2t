@@ -33,6 +33,12 @@ Decisões do usuário ainda necessárias: eventual azul como padrão administrat
 
 Já entregues na base e fora do backlog: reorganização inicial da navegação, sidebar com rolagem própria, prioridades do dashboard antes dos gráficos e formulários progressivos.
 
+## Continuidade: clientes, negociações e solicitações
+
+Recorte autorizado implementado sobre main 1.27.3, sem incorporar branches paralelas. Critérios aplicados permanecem visíveis; clientes mostram ambos contatos; negociações identificam próxima ação, pendências e orçamento principal; solicitações separam estado, recebimento e vínculo. Retorno dos detalhes preserva consulta/página e aceita somente a listagem correspondente. Componentes globais e regras comerciais preservados; receita local `relationship-reading`.
+
+Evidências, inventário e limitações em [CLIENTES-NEGOCIACOES-SOLICITACOES.md](docs/design/CLIENTES-NEGOCIACOES-SOLICITACOES.md). Versão candidata única 1.27.4; criação de PR autorizada após entrega do diff, sem merge, Release ou implantação. Consultar o GitHub para o estado atual da revisão. Etapas de outras worktrees continuam independentes e não são consideradas integradas por este registro.
+
 ## Verificação e limites
 
 Executados nesta worktree: 23 testes aprovados em seis arquivos (`app-version`, `ui-contracts`, `admin-form-fields`, `appearance-palettes`, `theme`, `admin-shell`), com pool threads e um worker. O teste app-version renderiza login, rodapé administrativo e atualizações para ADMIN/OPERATOR com a versão 1.27.1. O runner emitiu aviso jsdom de navegação entre documentos não implementada, sem falhas de teste.

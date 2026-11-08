@@ -844,3 +844,71 @@
     border-radius: 4px;
   }
 }
+
+/* Clientes, negociações e solicitações: composição local, sem novos tokens. */
+@layer components {
+  .admin-ui .relationship-reading {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .relationship-reading :is([data-slot="card"], .request-inbox-item, [data-slot="card-header"], [data-slot="card-content"]) {
+    min-width: 0;
+  }
+  .admin-ui .relationship-reading .relationship-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-ui .relationship-reading .relationship-criteria p {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  .admin-ui .relationship-reading .relationship-criteria ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-criteria li {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-ui .relationship-reading [data-slot="badge"] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+  .admin-ui .relationship-reading :is(th, td) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .relationship-reading table {
+    table-layout: fixed;
+  }
+  .admin-ui .relationship-reading .relationship-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-contacts dt {
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .admin-ui .relationship-reading .relationship-contacts dd {
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-underline-offset: 4px;
+  }
+  .admin-ui .relationship-reading :is(.relationship-link, .table-scroll):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
