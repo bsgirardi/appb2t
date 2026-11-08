@@ -30,29 +30,34 @@ export const kinds: Record<string, string> = {
 };
 export function StockSummary({ item }: { item: StockItemDTO }) {
   if (!item.inventoriedAt)
-    return <p className="text-muted-foreground">Não inventariado</p>;
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="text-muted-foreground">Não inventariado</p>
+        <p>O saldo ainda não foi contado; não representa estoque zero.</p>
+      </div>
+    );
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
-      <p>
-        Físico (em mãos):{" "}
-        <strong>
-          {item.physical} {units[item.unit]}
-        </strong>
-      </p>
-      <p>
-        Reservado (comprometido):{" "}
-        <strong>
-          {item.reserved} {units[item.unit]}
-        </strong>
-      </p>
-      <p>
-        Disponível (físico − reservado):{" "}
-        <strong
-          className={new D(item.available).lt(0) ? "text-destructive" : ""}
-        >
-          {item.available} {units[item.unit]}
-        </strong>
-      </p>
+    <div>
+      <dl className="operation-balances grid gap-2 sm:grid-cols-3">
+        <div>
+          <dt>Físico (em mãos)</dt>
+          <dd>
+            {item.physical} {units[item.unit]}
+          </dd>
+        </div>
+        <div>
+          <dt>Reservado (comprometido)</dt>
+          <dd>
+            {item.reserved} {units[item.unit]}
+          </dd>
+        </div>
+        <div>
+          <dt>Disponível (físico − reservado)</dt>
+          <dd className={new D(item.available).lt(0) ? "text-destructive" : ""}>
+            {item.available} {units[item.unit]}
+          </dd>
+        </div>
+      </dl>
       {new D(item.shortage).gt(0) && (
         <p className="text-destructive">
           Falta repor {item.shortage} {units[item.unit]}

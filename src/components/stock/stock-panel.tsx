@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Field, Notice } from "@/components/ui/field";
 import { ActionForm, money } from "@/components/finance/shared";
 import { api } from "@/lib/client-api";
@@ -288,7 +289,7 @@ export function StockPanel({
         </ActionForm>
       )}
       {detail && (mode === "detail" || mode === "list") && (
-        <Card className="space-y-4 p-4">
+        <Card className="operation-entry flex flex-col gap-4">
           <div className="flex flex-wrap justify-between gap-2">
             <h2 ref={heading} tabIndex={-1}>
               {detail.name}
@@ -376,7 +377,11 @@ export function StockPanel({
         !detail &&
         (view === "receipts" ? (
           receipts.map((r) => (
-            <Card key={r.id} id={`receipt-${r.id}`} className="space-y-2 p-4">
+            <Card
+              key={r.id}
+              id={`receipt-${r.id}`}
+              className="operation-entry flex flex-col gap-3"
+            >
               <h2>
                 {r.supplier} {r.document && `· ${r.document}`}
               </h2>
@@ -388,6 +393,14 @@ export function StockPanel({
                     ? "Cancelado"
                     : "Conferido"}
               </p>
+              {r.status === "PENDING" && (
+                <p className="text-muted-foreground">
+                  Entrada física registrada.{" "}
+                  {admin
+                    ? "Confira os valores e o vínculo das contas a seguir."
+                    : "Um administrador pode conferir os valores e o vínculo das contas."}
+                </p>
+              )}
               {r.lines.map((l) => (
                 <p key={l.id}>
                   {l.name}: {l.quantity} {units[l.unit]}
@@ -448,15 +461,36 @@ export function StockPanel({
           ))
         ) : view === "reservations" ? (
           reservations.map((r) => (
-            <Card key={r.id} className="space-y-2 p-4">
+            <Card key={r.id} className="operation-entry flex flex-col gap-3">
               <Link className="underline" href={`/vendas/${r.saleId}`}>
                 {r.saleNumber}
               </Link>
               <h2>{r.name}</h2>
-              <p>
-                Reservado restante: {r.remaining} {units[r.unit]} · consumido:{" "}
-                {r.consumed} · liberado: {r.released}
-              </p>
+              <Badge variant="outline">
+                {Number(r.remaining) > 0
+                  ? "Reserva com saldo"
+                  : "Sem saldo reservado"}
+              </Badge>
+              <dl className="operation-balances">
+                <div>
+                  <dt>Reservado restante</dt>
+                  <dd>
+                    {r.remaining} {units[r.unit]}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Consumido</dt>
+                  <dd>
+                    {r.consumed} {units[r.unit]}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Liberado</dt>
+                  <dd>
+                    {r.released} {units[r.unit]}
+                  </dd>
+                </div>
+              </dl>
               {Number(r.remaining) > 0 && (
                 <Button
                   variant="outline"
@@ -488,9 +522,9 @@ export function StockPanel({
         ) : (
           <div className="grid gap-4">
             {items.map((i) => (
-              <Card key={i.id} className="space-y-3 p-4">
+              <Card key={i.id} className="operation-entry flex flex-col gap-3">
                 <div className="flex flex-wrap justify-between gap-2">
-                  <h2>
+                  <h2 className="min-w-0 break-words">
                     {i.name}
                     {!i.active && " · Inativo"}
                   </h2>
