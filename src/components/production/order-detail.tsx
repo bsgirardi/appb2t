@@ -1,6 +1,7 @@
 "use client";
 import { FormSection } from "@/components/admin/form-section";
 import { OrderSummary } from "./order-summary";
+import { OrderQuantities } from "./order-quantities";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -57,6 +58,7 @@ export function OrderDetail({
         order={order}
         users={options.users}
         printers={options.printers}
+        showRecordedTotals={false}
       />
       {order.saleId && (
         <p>
@@ -65,12 +67,7 @@ export function OrderDetail({
           </Link>
         </p>
       )}
-      {order.lines.map((l) => (
-        <p key={l.id}>
-          {l.description}: meta {l.targetUnits}, boas {l.goodUnits}, falhas{" "}
-          {l.failedUnits}, canceladas {l.canceledUnits}
-        </p>
-      ))}
+      <OrderQuantities order={order} />
       {active && (
         <Button onClick={() => setMode("report")}>Registrar execução</Button>
       )}

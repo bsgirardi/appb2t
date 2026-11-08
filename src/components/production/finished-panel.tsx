@@ -4,6 +4,7 @@ import { Select } from "@/components/finance/shared";
 import { ActionForm } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardHeader,
@@ -117,7 +118,7 @@ export function FinishedPanel({
         </ActionForm>
       )}
       {!mode && (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="operation-list grid gap-3 lg:grid-cols-2">
           {items.map((s) => (
             <Card key={s.id}>
               <CardHeader>
@@ -127,7 +128,7 @@ export function FinishedPanel({
               </CardHeader>
               <CardContent>
                 {s.inventoriedAt ? (
-                  <dl className="grid gap-3 sm:grid-cols-3">
+                  <dl className="operation-balances grid gap-3 sm:grid-cols-3">
                     <div>
                       <dt>Físico</dt>
                       <dd>{s.physical} un</dd>
@@ -142,7 +143,13 @@ export function FinishedPanel({
                     </div>
                   </dl>
                 ) : (
-                  <p>Não inventariado</p>
+                  <div className="flex flex-col gap-2">
+                    <Badge variant="outline">Não inventariado</Badge>
+                    <p>
+                      A contagem inicial ainda não foi registrada; o saldo
+                      disponível é desconhecido.
+                    </p>
+                  </div>
                 )}
               </CardContent>
               {admin && (
@@ -164,8 +171,8 @@ export function FinishedPanel({
                 <summary>Origens das peças</summary>
                 {s.origins.map((o) => (
                   <p key={o.id}>
-                    {names[o.kind] ?? o.kind}: físico {o.physical}, disponível{" "}
-                    {o.available}
+                    {names[o.kind] ?? o.kind}: físico {o.physical} un,
+                    disponível {o.available} un
                   </p>
                 ))}
               </details>

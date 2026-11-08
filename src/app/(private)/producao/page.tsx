@@ -1,4 +1,5 @@
 import { OperationResults } from "@/components/admin/operation-results";
+import { OperationListContext } from "@/components/admin/operation-list-context";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import { NativeSelect } from "@/components/ui/native-select";
 import Link from "next/link";
@@ -49,16 +50,17 @@ export default async function ProductionPage({
   const clearHref = `/producao?${context}`;
   const filtered = !!(
     filter.query ||
-    filter.status ||
-    filter.origin ||
-    filter.responsibleId ||
-    filter.dueFrom ||
-    filter.dueTo
+    (view === "orders" &&
+      (filter.status ||
+        filter.origin ||
+        filter.responsibleId ||
+        filter.dueFrom ||
+        filter.dueTo))
   );
   const href = (page: number) =>
     `/producao?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}), ...(filter.status ? { status: filter.status } : {}), ...(filter.origin ? { origin: filter.origin } : {}), ...(filter.responsibleId ? { responsibleId: filter.responsibleId } : {}), ...(filter.dueFrom ? { dueFrom: filter.dueFrom } : {}), ...(filter.dueTo ? { dueTo: filter.dueTo } : {}) })}`;
   return (
-    <section className="flex min-w-0 flex-col gap-5">
+    <section className="operation-composition flex min-w-0 flex-col gap-5">
       <div className="page-heading">
         <div>
           <h1>Produção e entrega</h1>
@@ -93,12 +95,16 @@ export default async function ProductionPage({
       <FilterPanel
         activeCount={
           Object.entries(filter).filter(
-            ([k, v]) => v && !["page", "pageSize", "saleId"].includes(k),
+            ([k, v]) =>
+              v &&
+              (view === "finished"
+                ? k === "query"
+                : !["page", "pageSize", "saleId"].includes(k)),
           ).length
         }
         hasErrors={!parsed.success}
       >
-        <form className="admin-filter-grid">
+        <form method="get" action="/producao" className="admin-filter-grid">
           <input type="hidden" name="view" value={view} />
           {saleId && <input type="hidden" name="saleId" value={saleId} />}
           <Field label="Buscar item" name="query" defaultValue={filter.query} />
@@ -157,7 +163,7 @@ export default async function ProductionPage({
               </label>
             </>
           )}
-          <Button>Filtrar</Button>
+          <Button>Aplicar filtros</Button>
           {filtered && (
             <Button asChild variant="outline">
               <Link href={clearHref}>Limpar filtros</Link>
@@ -165,6 +171,29 @@ export default async function ProductionPage({
           )}
         </form>
       </FilterPanel>
+      <OperationListContext
+        title={view === "finished" ? "Peças prontas" : "Ordens de produção"}
+        total={total}
+        criteria={[
+          !!filter.query && `Busca: ${filter.query}`,
+          view === "orders" &&
+            !!filter.status &&
+            `Estado: ${{ RASCUNHO: "Rascunho", LIBERADA: "Liberada", EM_EXECUCAO: "Em execução", CONCLUIDA: "Concluída", CANCELADA: "Cancelada" }[filter.status]}`,
+          view === "orders" &&
+            !!filter.origin &&
+            `Destino: ${filter.origin === "SALE" ? "Venda" : "Estoque"}`,
+          view === "orders" &&
+            !!filter.responsibleId &&
+            `Responsável: ${options.users.find((user) => user.id === filter.responsibleId)?.name ?? "Responsável selecionado"}`,
+          view === "orders" &&
+            !!filter.dueFrom &&
+            `Prazo a partir de: ${filter.dueFrom.split("-").reverse().join("/")}`,
+          view === "orders" &&
+            !!filter.dueTo &&
+            `Prazo até: ${filter.dueTo.split("-").reverse().join("/")}`,
+          !!saleId && "Venda selecionada",
+        ]}
+      />
       <ProductionPanel
         key={`${view}:${saleId ?? ""}`}
         orders={orders.items}
