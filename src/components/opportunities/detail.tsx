@@ -26,6 +26,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { relationshipReturn } from "@/lib/relationship-return";
 import { OpportunityForm } from "./form";
 import { CommercialForecast } from "@/components/planning/commercial-forecast";
 import { OpportunityDecision } from "./decision";
@@ -46,10 +47,12 @@ export function OpportunityDetail({
   initial,
   initialEvents,
   options,
+  returnTo,
 }: {
   initial: OpportunityDTO;
   initialEvents: Page<OpportunityEventDTO>;
   options: OpportunityOptions;
+  returnTo?: string;
 }) {
   const [o, setOpportunity] = useState(initial),
     [events, setEvents] = useState(initialEvents),
@@ -143,14 +146,19 @@ export function OpportunityDetail({
     }
   }
   return (
-    <div className="flex min-w-0 flex-col gap-5 break-words">
-      <Link href="/negociacoes">← Negociações</Link>
+    <div className="relationship-reading flex min-w-0 flex-col gap-5 break-words">
+      <Link
+        className="relationship-link"
+        href={relationshipReturn(returnTo, "/negociacoes")}
+      >
+        ← Negociações
+      </Link>
       <header className="flex flex-col gap-2">
         <h1>{o.title}</h1>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">{stageLabels[o.stage]}</Badge>
           <span>
-            {o.customer.name} · {o.owner.name}
+            Cliente: {o.customer.name} · Responsável: {o.owner.name}
           </span>
         </div>
       </header>

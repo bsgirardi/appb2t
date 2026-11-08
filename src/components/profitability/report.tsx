@@ -16,11 +16,17 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Notice } from "@/components/ui/field";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 import { moneyText, coverageNames } from "./detail";
+import { profitabilitySaleHref } from "./navigation";
 export function SummaryCards({ summary: s }: { summary: Summary }) {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <div className="profitability-reading grid min-w-0 gap-3 md:grid-cols-3">
       {[
         ["Contribuição prevista", s.expected],
         ["Contribuição realizada", s.actual],
@@ -36,7 +42,15 @@ export function SummaryCards({ summary: s }: { summary: Summary }) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <strong>{moneyText(metric.value)}</strong>
+              <strong className="profitability-amount">
+                {moneyText(metric.value)}
+              </strong>
+              {metric.count < s.count && (
+                <p>
+                  Subtotal dos pedidos cobertos; não representa o total da
+                  população.
+                </p>
+              )}
               <p>Receita coberta: {moneyText(metric.coveredRevenue)}</p>
             </CardContent>
           </Card>
@@ -45,9 +59,15 @@ export function SummaryCards({ summary: s }: { summary: Summary }) {
     </div>
   );
 }
-export function ProfitabilityReport({ result: r }: { result: ReportDTO }) {
+export function ProfitabilityReport({
+  result: r,
+  returnHref,
+}: {
+  result: ReportDTO;
+  returnHref?: string;
+}) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="profitability-reading flex min-w-0 flex-col gap-4">
       <p>
         {r.total} pedidos · Receita da população normal:{" "}
         {moneyText(r.summary.revenue)}
@@ -61,11 +81,22 @@ export function ProfitabilityReport({ result: r }: { result: ReportDTO }) {
         completos.
       </p>
       {!r.items.length ? (
-        <Notice kind="info">
-          Nenhum pedido encontrado para os filtros selecionados.
-        </Notice>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>
+              {r.total
+                ? "Nenhum pedido nesta página"
+                : "Nenhum pedido encontrado para os filtros selecionados."}
+            </EmptyTitle>
+            <EmptyDescription>
+              {r.total
+                ? "Use a paginação para voltar aos pedidos. Os totais acima consideram todas as páginas."
+                : "Revise os filtros de confirmação, situação e cobertura para consultar outro recorte."}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
-        <Table>
+        <Table aria-label="Pedidos da rentabilidade">
           <TableHeader>
             <TableRow>
               <TableHead>Pedido</TableHead>
@@ -79,7 +110,7 @@ export function ProfitabilityReport({ result: r }: { result: ReportDTO }) {
             {r.items.map((s) => (
               <TableRow key={s.saleId}>
                 <TableCell>
-                  <Link href={`/rentabilidade/${s.saleId}`}>
+                  <Link href={profitabilitySaleHref(s.saleId, returnHref)}>
                     Pedido {s.number}
                   </Link>
                 </TableCell>
@@ -112,7 +143,7 @@ export function ProfitabilityReport({ result: r }: { result: ReportDTO }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table aria-label={title}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Grupo</TableHead>

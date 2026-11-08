@@ -418,7 +418,7 @@ export function PosPanel({
     );
   }
   return (
-    <div className="flex min-w-0 flex-col gap-6 pb-24 lg:pb-0">
+    <div className="pos-workspace flex min-w-0 flex-col gap-6 pb-24 lg:pb-0">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1>PDV presencial</h1>
@@ -470,7 +470,7 @@ export function PosPanel({
       )}
       <p role="status" className="text-sm text-muted-foreground">
         {busy
-          ? "Aguarde…"
+          ? "Processando solicitação. Aguarde antes de continuar."
           : dirty
             ? "Alterações ainda não salvas. Salve a compra para retomá-la depois."
             : notice ||
@@ -483,6 +483,13 @@ export function PosPanel({
           className="flex min-w-0 flex-col gap-4"
           aria-label="Produtos para atendimento"
         >
+          <div>
+            <h2>Produtos para atendimento</h2>
+            <p className="text-sm text-muted-foreground">
+              Peças prontas livres, com preço definido. Kits, configurações e
+              encomendas seguem em Vendas.
+            </p>
+          </div>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -505,8 +512,11 @@ export function PosPanel({
             </Button>
           </form>
           <p className="text-sm text-muted-foreground">
-            Peças prontas livres, com preço definido. Kits, configurações e
-            encomendas seguem em Vendas.
+            {visibleProducts.length}{" "}
+            {visibleProducts.length === 1
+              ? "produto nesta busca."
+              : "produtos nesta busca."}
+            {visibleProducts.length > 0 && " Adicione as peças à compra."}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             {visibleProducts.map((p) => (
@@ -544,11 +554,19 @@ export function PosPanel({
                       (input.items.find((i) => i.productId === p.id)
                         ?.quantity ?? 0) >= p.available
                     }
-                    aria-label={`Adicionar ${p.name}`}
+                    aria-label={
+                      p.reason || p.available === 0
+                        ? `Indisponível: ${p.name}`
+                        : `Adicionar ${p.name}`
+                    }
                     onClick={() => add(p)}
                   >
-                    <Plus data-icon="inline-start" />
-                    Adicionar
+                    {!p.reason && p.available > 0 && (
+                      <Plus data-icon="inline-start" />
+                    )}
+                    {p.reason || p.available === 0
+                      ? "Indisponível"
+                      : "Adicionar"}
                   </Button>
                 </CardFooter>
               </Card>
@@ -559,123 +577,142 @@ export function PosPanel({
               <EmptyHeader>
                 <EmptyTitle>Nenhum produto encontrado</EmptyTitle>
                 <EmptyDescription>
-                  Tente outro nome ou código e consulte novamente.
+                  {query
+                    ? "Tente outro nome ou código e use Buscar para consultar novamente."
+                    : "Não há peças nesta consulta. Use Buscar para consultar a disponibilidade novamente."}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
         </section>
-        <Card className="h-fit lg:sticky lg:top-6" id="compra">
+        <Card className="h-fit" id="compra">
           <CardHeader>
-            <CardTitle>Compra atual</CardTitle>
+            <CardTitle>
+              <h2>Compra atual</h2>
+            </CardTitle>
             <CardDescription>
               {input.items.reduce((s, i) => s + i.quantity, 0)} peças · entrega
               imediata
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
-            {!input.items.length && (
-              <Empty>
-                <EmptyHeader>
-                  <ShoppingCart aria-hidden="true" />
-                  <EmptyTitle>Comece pelos produtos</EmptyTitle>
-                  <EmptyDescription>
-                    Adicione as peças que o cliente vai levar.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            )}
-            {input.items.map((i) => {
-              const p = products.find((p) => p.id === i.productId),
-                name = p?.name ?? "Produto da compra";
-              return (
-                <div key={i.productId} className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <strong>{name}</strong>
-                      <p className="text-sm text-muted-foreground">
-                        {money(i.unitPrice)} por peça
-                      </p>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-11"
-                      aria-label={`Remover ${name}`}
-                      disabled={disabled}
-                      onClick={() =>
-                        change({
-                          ...input,
-                          items: input.items.filter(
-                            (row) => row.productId !== i.productId,
-                          ),
-                        })
-                      }
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-11"
-                      aria-label={`Diminuir ${name}`}
-                      disabled={
-                        disabled || i.quantity <= (p?.minimumQuantity ?? 1)
-                      }
-                      onClick={() => quantity(i.productId, i.quantity - 1)}
-                    >
-                      <Minus />
-                    </Button>
-                    <FieldGroup className="min-w-0 flex-1">
-                      <Field
-                        label={`Quantidade de ${name}`}
-                        type="number"
-                        min={p?.minimumQuantity ?? 1}
-                        max={100000}
-                        value={i.quantity}
+            <section
+              aria-labelledby="pos-items-title"
+              className="flex min-w-0 flex-col gap-4"
+            >
+              <h3 id="pos-items-title">Itens da compra</h3>
+              {!input.items.length && (
+                <Empty>
+                  <EmptyHeader>
+                    <ShoppingCart aria-hidden="true" />
+                    <EmptyTitle>Comece pelos produtos</EmptyTitle>
+                    <EmptyDescription>
+                      Adicione as peças que o cliente vai levar.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              )}
+              {input.items.map((i) => {
+                const p = products.find((p) => p.id === i.productId),
+                  name = p?.name ?? "Produto da compra";
+                return (
+                  <div key={i.productId} className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <strong>{name}</strong>
+                        <p className="text-sm text-muted-foreground">
+                          {money(i.unitPrice)} por peça
+                        </p>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-11"
+                        aria-label={`Remover ${name}`}
                         disabled={disabled}
-                        onChange={(e) =>
-                          quantity(i.productId, Number(e.target.value))
+                        onClick={() =>
+                          change({
+                            ...input,
+                            items: input.items.filter(
+                              (row) => row.productId !== i.productId,
+                            ),
+                          })
                         }
-                      />
-                    </FieldGroup>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-11"
-                      aria-label={`Aumentar ${name}`}
-                      disabled={
-                        disabled || i.quantity >= (p?.available ?? 100000)
-                      }
-                      onClick={() => quantity(i.productId, i.quantity + 1)}
-                    >
-                      <Plus />
-                    </Button>
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-11"
+                        aria-label={`Diminuir ${name}`}
+                        disabled={
+                          disabled || i.quantity <= (p?.minimumQuantity ?? 1)
+                        }
+                        onClick={() => quantity(i.productId, i.quantity - 1)}
+                      >
+                        <Minus />
+                      </Button>
+                      <FieldGroup className="min-w-0 flex-1">
+                        <Field
+                          label="Quantidade"
+                          aria-label={`Quantidade de ${name}`}
+                          type="number"
+                          min={p?.minimumQuantity ?? 1}
+                          max={100000}
+                          value={i.quantity}
+                          disabled={disabled}
+                          onChange={(e) =>
+                            quantity(i.productId, Number(e.target.value))
+                          }
+                        />
+                      </FieldGroup>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-11"
+                        aria-label={`Aumentar ${name}`}
+                        disabled={
+                          disabled || i.quantity >= (p?.available ?? 100000)
+                        }
+                        onClick={() => quantity(i.productId, i.quantity + 1)}
+                      >
+                        <Plus />
+                      </Button>
+                    </div>
+                    {p?.reason && (
+                      <p className="text-sm text-muted-foreground">
+                        {p.reason} Confira a disponibilidade antes de concluir.
+                      </p>
+                    )}
+                    <Separator />
                   </div>
-                  <Separator />
-                </div>
-              );
-            })}
-            {input.items.length > 0 && (
-              <Button
-                variant="outline"
-                disabled={disabled}
-                onClick={updateCartReferences}
-              >
-                Atualizar itens da compra
-              </Button>
-            )}
-            <FieldGroup>
-              <Field
-                label="Desconto na compra (R$)"
-                inputMode="decimal"
-                value={input.discount}
-                disabled={disabled}
-                onChange={(e) => change({ ...input, discount: e.target.value })}
-              />
-            </FieldGroup>
+                );
+              })}
+              {input.items.length > 0 && (
+                <Button
+                  variant="outline"
+                  disabled={disabled}
+                  onClick={updateCartReferences}
+                >
+                  Atualizar itens da compra
+                </Button>
+              )}
+              <FieldGroup>
+                <Field
+                  label="Desconto na compra (R$)"
+                  inputMode="decimal"
+                  value={input.discount}
+                  disabled={disabled}
+                  onChange={(e) =>
+                    change({ ...input, discount: e.target.value })
+                  }
+                />
+              </FieldGroup>
+            </section>
+            <Separator />
             <fieldset
               disabled={disabled}
               className="flex min-w-0 flex-col gap-3"
@@ -684,6 +721,7 @@ export function PosPanel({
               <ToggleGroup
                 type="single"
                 variant="outline"
+                spacing={1}
                 value={mode}
                 onValueChange={(value) => {
                   if (!value) return;
@@ -817,6 +855,7 @@ export function PosPanel({
                 </FieldGroup>
               )}
             </fieldset>
+            <Separator />
             <fieldset
               disabled={disabled}
               className="flex min-w-0 flex-col gap-3"
@@ -825,6 +864,7 @@ export function PosPanel({
               <ToggleGroup
                 type="single"
                 variant="outline"
+                spacing={1}
                 value={input.method}
                 aria-label="Forma de pagamento"
                 onValueChange={(value) => {
@@ -855,6 +895,7 @@ export function PosPanel({
               </p>
             </fieldset>
             <Separator />
+            <h3>Resumo da compra</h3>
             <dl className="flex flex-col gap-2">
               <div className="flex justify-between gap-3">
                 <dt>Subtotal</dt>
@@ -879,6 +920,24 @@ export function PosPanel({
                   A conclusão registra a entrega física imediatamente.
                 </AlertDescription>
               </Alert>
+            )}
+            {!input.items.length && (
+              <p className="text-sm text-muted-foreground">
+                Adicione pelo menos uma peça para revisar a venda.
+              </p>
+            )}
+            {input.items.length > 0 &&
+              mode === "existing" &&
+              !input.customerId && (
+                <p className="text-sm text-muted-foreground">
+                  Selecione o cliente cadastrado ou escolha Sem identificar para
+                  continuar sem cadastro.
+                </p>
+              )}
+            {input.items.length > 0 && !payment && input.method === "CASH" && (
+              <p className="text-sm text-muted-foreground">
+                Confira o valor entregue em dinheiro antes de revisar a venda.
+              </p>
             )}
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
@@ -932,7 +991,10 @@ export function PosPanel({
           </CardFooter>
         </Card>
       </div>
-      <div className="fixed inset-x-0 bottom-0 flex items-center justify-between gap-3 border-t bg-background p-3 lg:hidden">
+      <div
+        className="pos-mobile-summary fixed inset-x-0 bottom-0 flex items-center justify-between gap-3 border-t bg-background p-3 lg:hidden"
+        aria-label="Resumo e acesso à compra"
+      >
         <span>
           {input.items.length
             ? `${input.items.reduce((s, i) => s + i.quantity, 0)} peças`

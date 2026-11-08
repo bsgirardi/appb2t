@@ -1,5 +1,11 @@
 "use client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import {
   Accordion,
   AccordionItem,
@@ -25,22 +31,27 @@ export function FinanceDashboard({
     ["Saídas realizadas no período", data.realizedOut],
   ];
   return (
-    <section>
+    <section className="finance-reading">
       <div className="page-heading">
         <div>
-          <div className="eyebrow">GESTÃO INTERNA</div>
           <h1>Financeiro</h1>
           <p>
-            Posição em {today.split("-").reverse().join("/")} · Valores
-            previstos e realizados separados.
+            Posição em {today.split("-").reverse().join("/")} · Saldo atual,
+            títulos em aberto e movimentos realizados têm alcances diferentes.
           </p>
         </div>
       </div>
+      <h2>Posição e obrigações</h2>
       <div className="dashboard-metrics">
         {cards.slice(0, 3).map(([label, value]) => (
           <Card key={label}>
             <CardHeader>
               <CardTitle>{label}</CardTitle>
+              <CardDescription>
+                {label === "Saldo atual das contas"
+                  ? "Posição atual das contas selecionadas; independe do período e dos demais filtros."
+                  : "Valor ainda em aberto nos títulos selecionados, incluindo vencidos. Não é movimento realizado."}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <strong className="finance-value">{money(value)}</strong>

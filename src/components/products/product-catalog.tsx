@@ -13,6 +13,13 @@ import { availabilityLabels } from "@/domain/products/commercial";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductProductionTime } from "./product-production-time";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
 
 export function ProductCatalog({
   products,
@@ -29,26 +36,30 @@ export function ProductCatalog({
   );
   if (!products.length)
     return (
-      <div className="store-empty">
-        <Box size={36} aria-hidden="true" />
-        <h2>
-          {hasSearchCriteria
-            ? "Nenhum produto encontrado."
-            : context?.collection
-              ? "Esta coleção está sendo preparada."
-              : "Nenhum produto publicado ainda."}
-        </h2>
-        <p>
-          {context?.search
-            ? "Confira a grafia ou tente menos palavras. Você também pode remover apenas a busca e manter os outros filtros."
-            : hasSearchCriteria
-              ? "Tente outro termo ou remova os filtros para explorar o catálogo."
+      <Empty className="store-empty">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Box aria-hidden="true" />
+          </EmptyMedia>
+          <h2>
+            {hasSearchCriteria
+              ? "Nenhum produto encontrado."
               : context?.collection
-                ? "Explore outras coleções para conhecer as peças disponíveis."
-                : "Estamos preparando novas peças. Volte em breve para conhecer nossa coleção."}
-        </p>
+                ? "Nenhum produto nesta coleção."
+                : "Nenhum produto publicado ainda."}
+          </h2>
+          <EmptyDescription>
+            {context?.search
+              ? "Confira a grafia ou tente menos palavras. Você também pode remover apenas a busca e manter os outros filtros."
+              : hasSearchCriteria
+                ? "Tente outro termo ou remova os filtros para explorar o catálogo."
+                : context?.collection
+                  ? "Explore outras coleções para conhecer as peças disponíveis."
+                  : "Quando houver produtos publicados, eles aparecerão aqui."}
+          </EmptyDescription>
+        </EmptyHeader>
         {(hasSearchCriteria || context?.collection) && (
-          <div className="flex flex-wrap justify-center gap-3">
+          <EmptyContent>
             {context?.search && (
               <Button asChild variant="outline">
                 <Link
@@ -61,9 +72,9 @@ export function ProductCatalog({
             <Button asChild variant="outline">
               <Link href="/#all-products">Ver todos os produtos</Link>
             </Button>
-          </div>
+          </EmptyContent>
         )}
-      </div>
+      </Empty>
     );
   return (
     <div className="grid grid-cols-1 gap-6 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

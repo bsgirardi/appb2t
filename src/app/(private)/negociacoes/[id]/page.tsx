@@ -7,11 +7,14 @@ import {
 import { OpportunityDetail } from "@/components/opportunities/detail";
 export default async function OpportunityPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }) {
   const actor = await requireActor(),
     { id } = await params;
+  const { returnTo } = await searchParams;
   const [initial, initialEvents, options] = await Promise.all([
     getOpportunity(actor, id),
     listOpportunityEvents(actor, id),
@@ -23,6 +26,7 @@ export default async function OpportunityPage({
       initial={initial}
       initialEvents={initialEvents}
       options={options}
+      returnTo={typeof returnTo === "string" ? returnTo : undefined}
     />
   );
 }
