@@ -6,7 +6,7 @@ import * as RechartsPrimitive from "recharts";
 import type { TooltipValueType } from "recharts";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
-const THEMES = { light: "", dark: ".dark" } as const;
+const THEMES = { light: "", dark: ':root[data-theme="dark"]' } as const;
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 type TooltipNameType = number | string;
@@ -93,20 +93,25 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
+          .map(([theme, prefix]) => {
+            const declarations = colorConfig
+              .map(([key, itemConfig]) => {
+                const color =
+                  itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
+                  itemConfig.color;
+                return color ? `  --color-${key}: ${color};` : null;
+              })
+              .join("\n");
+            const rule = `
 ${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
+${declarations}
 }
-`,
-          )
+`;
+            // Automatic dark only applies without an explicit application preference.
+            return theme === "dark"
+              ? `${rule}\n@media (prefers-color-scheme: dark) {\n:root:not([data-theme]) [data-chart=${id}] {\n${declarations}\n}\n}`
+              : rule;
+          })
           .join("\n"),
       }}
     />
