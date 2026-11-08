@@ -50,3 +50,9 @@ Etapa 2 executada na branch codex/piloto-produto, incluindo os documentos e orie
 Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em main. Diff rastreado e documentos/skills pertinentes do piloto conciliados com bases idênticas; origem preservada sem checkout/reset/stash/commit. Orçamentos e vendas mostram critérios aplicados, contagem, tabelas nomeadas e vazio contextual. Receitas restritas aos dois painéis; nenhum componente global de tabela/filtro/paginação mudou. Proteções de rascunho e fluxos de criação/edição permanecem nos consumidores anteriores.
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
+
+## Continuidade: login e catálogo público
+
+Recorte de 08/11/2026 na branch `codex/login-catalogo-publico`, baseado em main 1.27.3 (`0a73e718ef994e7bd7868def8c2ce9d1a094bcda`). Login com linguagem voltada à operação atual e feedback de entrada; catálogo com busca junto aos resultados, filtros GET preservados ao recolher, vazio factual e composição móvel/escura do mascote original. Sem alteração de paletas, variantes globais, dados ou regras comerciais. Inventário, capturas e limites em [LOGIN-CATALOGO-PUBLICO.md](docs/design/LOGIN-CATALOGO-PUBLICO.md).
+
+A inspeção sintética não homologa autenticação/persistência real nem teclado integral. Próxima etapa: revisão transversal de acessibilidade/responsividade/temas/portais e remoção de CSS somente com equivalência demonstrada. PRs #55–#58 seguem separadas e devem ser conciliadas com main antes de futura integração; versão candidata deste recorte 1.27.4. Sem merge, Release ou implantação inferidos.

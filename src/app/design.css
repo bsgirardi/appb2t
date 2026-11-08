@@ -844,3 +844,107 @@
     border-radius: 4px;
   }
 }
+
+/* Login and discovery: local recipes; saved admin/site palettes stay independent. */
+@layer components {
+  .login-page .login-story,
+  .login-page .login-panel {
+    min-width: 0;
+  }
+  .login-page .story-main h1 {
+    font-size: clamp(30px, 3.4vw, 48px);
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+  }
+  .login-page .story-features {
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    font-size: 12px;
+  }
+  .login-page .login-help {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .login-page .login-help a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .login-page .secure-note {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .login-page .tag,
+  .login-page .eyebrow {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .storefront .catalog-discovery-search {
+    display: flex;
+    align-items: start;
+    gap: 16px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .storefront .catalog-discovery-search > div {
+    flex: 1;
+  }
+  .storefront .catalog-discovery-search > button {
+    margin-top: 28px;
+  }
+  .storefront .catalog-discovery [role="region"][data-state="closed"] {
+    display: none;
+  }
+  .storefront .store-welcome-art {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    background: white;
+  }
+  .storefront .store-welcome-mascot {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 440px;
+    object-fit: contain;
+  }
+  .storefront .store-welcome-caption {
+    color: var(--color-b2t-navy);
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  @media (max-width: 767px) {
+    .storefront .catalog-discovery-search {
+      flex-direction: column;
+    }
+    .storefront .catalog-discovery-search > div,
+    .storefront .catalog-discovery-search > button {
+      width: 100%;
+    }
+    .storefront .catalog-discovery-search > button {
+      margin-top: 0;
+    }
+    .storefront .store-welcome-art {
+      padding: 16px;
+    }
+    .storefront .store-welcome-mascot {
+      max-height: 220px;
+      max-width: 200px;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .storefront .store-welcome-mascot {
+      max-height: 300px;
+      max-width: 300px;
+    }
+  }
+}

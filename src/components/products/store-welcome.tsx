@@ -7,10 +7,10 @@ export function StoreWelcome() {
   return (
     <section
       aria-labelledby="store-welcome"
-      className="my-6 grid overflow-hidden rounded-[32px] border border-border bg-card lg:my-8 lg:grid-cols-[1.15fr_1fr]"
+      className="store-welcome my-6 grid overflow-hidden rounded-[32px] border border-border bg-card lg:my-8 lg:grid-cols-[1.15fr_1fr]"
     >
       <div className="flex flex-col justify-center p-6 text-foreground sm:p-10 lg:p-12">
-        <span className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
+        <span className="mb-5 flex items-center gap-2 text-sm font-semibold">
           <span className="size-2 rounded-full bg-b2t-green" /> Bem-vindo à B2T
         </span>
         <h1
@@ -21,7 +21,7 @@ export function StoreWelcome() {
           <br />
           Nosso jeito de
           <br />
-          <span className="text-primary">dar forma.</span>
+          dar forma.
         </h1>
         <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">
           Produtos personalizados, presentes e soluções em 3D para conectar
@@ -64,17 +64,17 @@ export function StoreWelcome() {
           </span>
         </div>
       </div>
-      <div className="relative flex items-center justify-center bg-muted p-6 lg:p-8">
+      <div className="store-welcome-art">
         <Image
           src="/brand/b2t-mascote.png"
           alt="Mascote B2T com cabelos cacheados, moletom e um gesto de boas-vindas"
           width={1122}
           height={1402}
-          sizes="(max-width: 1023px) 80vw, 480px"
+          sizes="(max-width: 767px) 200px, (max-width: 1023px) 300px, 400px"
           loading="eager"
-          className="h-auto max-h-[470px] w-full object-contain"
+          className="store-welcome-mascot"
         />
-        <span className="absolute right-4 bottom-4 rounded-full bg-b2t-navy px-5 py-3 text-xs font-semibold text-white">
+        <span className="store-welcome-caption">
           Pequenas ideias. Grandes conexões.
         </span>
       </div>

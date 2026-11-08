@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { themeVariables } from "@/domain/appearance/theme";
 import { AuthForm } from "@/components/auth-form";
@@ -22,16 +23,14 @@ export default async function Login({
       <section className="login-story">
         <Brand identity={identity} />
         <div className="story-main">
-          <div className="eyebrow">DA IDEIA AO PREÇO CERTO</div>
+          <div className="eyebrow">Da ideia à entrega</div>
           <h1>
-            Precisão em
-            <br />
-            cada camada.
-            <br />
-            <span>Lucro em cada peça.</span>
+            Sua operação 3D, <br />
+            em um só lugar.
           </h1>
           <p>
-            Uma visão completa dos seus custos de impressão 3D, em um só lugar.
+            Produtos, orçamentos, vendas e produção conectados para acompanhar o
+            trabalho da equipe.
           </p>
           <div className="layer-art" aria-hidden="true">
             <Layers3 size={170} strokeWidth={0.75} />
@@ -39,7 +38,7 @@ export default async function Login({
           <div className="story-features">
             <span>
               <Check size={16} />
-              Custos detalhados
+              Do orçamento à produção
             </span>
             <span>
               <Check size={16} />
@@ -52,15 +51,16 @@ export default async function Login({
       <section className="login-panel">
         <div className="login-box">
           <ThemeToggle />
-          <span className="tag">WORKSPACE INTERNO</span>
+          <span className="tag">Área da equipe</span>
           <h2>Bom ter você por aqui.</h2>
-          <p>Entre para continuar suas simulações.</p>
+          <p>Entre para acompanhar sua operação.</p>
           {changed && (
             <Notice kind="success">Senha atualizada. Entre novamente.</Notice>
           )}
           <AuthForm />
           <div className="login-help">
-            Precisa de acesso? Fale com o administrador da sua equipe.
+            <p>Precisa de acesso? Fale com o administrador da sua equipe.</p>
+            <Link href="/#all-products">Explorar o catálogo público</Link>
           </div>
           <footer className="mt-4 text-center text-xs text-muted-foreground">
             Versão {APP_VERSION}
