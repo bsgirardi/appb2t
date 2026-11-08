@@ -57,6 +57,11 @@ Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em ma
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
 
+## Continuidade: planejamento
+
+Recorte executado na worktree 67ba, branch `codex/planejamento-composicao`, sobre main 1.27.3. Fila e contexto de lote receberam hierarquia local, filtros recolhíveis com resumo persistente e distinção entre sequência proposta e previsões da fila registrada. Sugestões explicam que a revisão não confirma um lote. Calendário, simulações e consumidores comerciais foram inventariados e preservados. Sem mudança no motor, consultas, comandos, temas ou marca.
+
+Ver [inventário, decisões, evidências e limites](docs/design/PLANEJAMENTO.md). Versão única preparada 1.27.4, sujeita à conciliação antes de futura integração: PRs #55/#56 continuam abertas na conferência desta etapa. Entrega como diff revisável; sem commit/PR próprios, merge, Release ou implantação. Não tratar os recortes dessas PRs como integrados.
 ## Continuidade: produção e estoque
 
 Recorte incremental autorizado e implementado na worktree 5661, sobre main 1.27.3 (`0a73e71`), branch `codex/producao-estoque-composicao`. [Relatório do recorte](docs/design/PRODUCAO-ESTOQUE.md) registra inventário, decisões, testes e limites. Ordens distinguem metas e quantidades registradas por item; materiais/reservas mantêm unidades e saldos legíveis; contexto aplicado permanece visível com filtros recolhidos; recebimento físico e conferência, separação e entrega têm rótulos distintos.
