@@ -1,5 +1,11 @@
 # Consolidação visual — diagnóstico e próximos passos
 
+## Estado reconciliado em 07/11/2026
+
+Main atual: **1.27.3**, SHA `0a73e718ef994e7bd7868def8c2ce9d1a094bcda`, conferida por fetch nesta continuidade. Fundação documental (1.27.1), piloto de produto (PR #54, 1.27.2) e filtros/tabelas comerciais (PR #52, 1.27.3) estão integrados. As referências abaixo a versões preparadas, ausência de PR/merge e backlog do PDV são registros históricos das etapas, não o estado atual. Merge não comprova implantação.
+
+Etapa 4: recorte de composição do **PDV presencial**, autorizado no handoff e implementado em `codex/pdv-composicao`, versão preparada **1.27.4**. Ver [diagnóstico, alterações, evidências e limites](docs/design/PDV-PRESENCIAL.md). Commit e PR autorizados na continuidade. Sem expansão para outras telas e sem merge, Release ou implantação nesta etapa. Decisões de marca continuam abertas.
+
 07/11/2026. Base inspecionada: main 1.27.0, SHA `a5805f40578a50b7007b4b10b55bf58c85e393d5`. A auditoria revisada de 07/11/2026 é evidência histórica externa; seus 25 testes e capturas não constituem uma nova homologação desta etapa. Não incorporar backups privados ao repositório.
 
 ## Etapa 1: contratos vigentes
@@ -56,3 +62,18 @@ Etapa 2 executada na branch codex/piloto-produto, incluindo os documentos e orie
 Etapa 3 na branch `codex/filtros-tabelas-comercial`, worktree nova baseada em main. Diff rastreado e documentos/skills pertinentes do piloto conciliados com bases idênticas; origem preservada sem checkout/reset/stash/commit. Orçamentos e vendas mostram critérios aplicados, contagem, tabelas nomeadas e vazio contextual. Receitas restritas aos dois painéis; nenhum componente global de tabela/filtro/paginação mudou. Proteções de rascunho e fluxos de criação/edição permanecem nos consumidores anteriores.
 
 Validação conjunta: 71 testes em 18 arquivos, tipos e lint aprovados. Inspeção sintética em 320/390/768/1440 px; limitações de interação do navegador registradas em [FILTROS-TABELAS-COMERCIAL.md](docs/design/FILTROS-TABELAS-COMERCIAL.md). Versão única 1.27.1; sem commit, PR, merge, Release ou implantação. Próximo passo é avaliar este recorte; não há expansão automática para o restante do aplicativo.
+
+## Continuidade: planejamento
+
+Recorte executado na worktree 67ba, branch `codex/planejamento-composicao`, sobre main 1.27.3. Fila e contexto de lote receberam hierarquia local, filtros recolhíveis com resumo persistente e distinção entre sequência proposta e previsões da fila registrada. Sugestões explicam que a revisão não confirma um lote. Calendário, simulações e consumidores comerciais foram inventariados e preservados. Sem mudança no motor, consultas, comandos, temas ou marca.
+
+Ver [inventário, decisões, evidências e limites](docs/design/PLANEJAMENTO.md). Versão única preparada 1.27.4, sujeita à conciliação antes de futura integração: PRs #55/#56 continuam abertas na conferência desta etapa. Entrega como diff revisável; sem commit/PR próprios, merge, Release ou implantação. Não tratar os recortes dessas PRs como integrados.
+## Continuidade: produção e estoque
+
+Recorte incremental autorizado e implementado na worktree 5661, sobre main 1.27.3 (`0a73e71`), branch `codex/producao-estoque-composicao`. [Relatório do recorte](docs/design/PRODUCAO-ESTOQUE.md) registra inventário, decisões, testes e limites. Ordens distinguem metas e quantidades registradas por item; materiais/reservas mantêm unidades e saldos legíveis; contexto aplicado permanece visível com filtros recolhidos; recebimento físico e conferência, separação e entrega têm rótulos distintos.
+
+Sem alterações em domínio, consultas, endpoints, permissões, tokens, paletas ou componentes globais. Rascunhos, recuperação, concorrência e bloqueio de reenvio mantidos. CSS novo delimitado às duas rotas. Fora deste recorte continuam planejamento, financeiro e demais áreas administrativas.
+
+Validação: 91 testes em 21 arquivos, tipos, lint e build aprovados; revisão independente com P2 corrigido e teste de regressão. Prévia sintética em 320/390/768/1440, claro/escuro, sem acesso ao banco. Interação manual completa e persistência não homologadas; detalhes no relatório. Versão única preparada 1.27.4, sem commit/PR/merge/Release/implantação deste recorte. PDV na PR #55 ainda aberta na última conferência; conciliar versão conforme main real antes de futura integração.
+
+Em 08/11/2026 o usuário autorizou commit e abertura da PR de produção/estoque. Main permanece 1.27.3 e PDV #55 aberta; versão proposta deste recorte segue 1.27.4, sujeita à conciliação antes da integração. Estado de PR deve ser consultado no GitHub; merge, Release e implantação continuam sem autorização.

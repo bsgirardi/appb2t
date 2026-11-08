@@ -79,7 +79,7 @@ export function BatchDetail({
     });
   const material = data.materials.find((m) => m.id === b.materialItemId);
   return (
-    <section className="flex flex-col gap-4">
+    <section className="planning-detail flex min-w-0 flex-col gap-4">
       <div className="flex flex-wrap gap-3">
         <h2>
           Lote {b.sequence} · {states[b.state]}
@@ -93,39 +93,63 @@ export function BatchDetail({
           </Button>
         )}
       </div>
-      <p>
-        {material?.name} · {b.colorLabel} · impressão{" "}
-        {b.durationMinutes ?? "não informada"} min · preparação{" "}
-        {b.prepareMinutes} min · retirada {b.removeMinutes} min
-      </p>
+      <dl className="planning-facts">
+        <div>
+          <dt>Material e cor declarada</dt>
+          <dd>
+            {material?.name ?? "Material não identificado"} · {b.colorLabel}
+          </dd>
+        </div>
+        <div>
+          <dt>Impressão estimada</dt>
+          <dd>
+            {b.durationMinutes === null
+              ? "Não informada"
+              : `${b.durationMinutes} min`}
+          </dd>
+        </div>
+        <div>
+          <dt>Preparação</dt>
+          <dd>{b.prepareMinutes} min</dd>
+        </div>
+        <div>
+          <dt>Retirada</dt>
+          <dd>{b.removeMinutes} min</dd>
+        </div>
+      </dl>
       <Notice kind="info">
         A cor depende de confirmação manual: o estoque não separa saldo por cor.
         Os marcos deste lote não registram consumo nem custos. Os apontamentos
         de produção permanecem por item.
       </Notice>
-      <ul>
-        {times && (
-          <li>
-            Tempo real de impressão:{" "}
-            {times.actualMachineMinutes ?? "sem término confirmado"} min. Soma
-            dos apontamentos exclusivos:{" "}
-            {times.reportedMachineMinutes ?? "não determinada"} min.{" "}
-            {times.complete
-              ? "Tempos e peças conferem."
-              : "Cobertura incompleta: confira peças e tempos por linha. Não há rateio automático de apontamentos compartilhados."}
-          </li>
-        )}
-        {b.participants.map((p) => (
-          <li key={p.id}>
-            OP {p.orderSequence} · {p.description}: {p.settledUnits}/{p.units}{" "}
-            peças conciliadas; {p.releasedUnits} liberadas sem execução. Prazo{" "}
-            {p.dueDate ?? "não informado"}.{" "}
-            <Link href={`/producao?query=${encodeURIComponent(p.description)}`}>
-              Abrir produção para apontar peças e tempos
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <section aria-label="Peças e tempos registrados">
+        <h3>Peças e tempos registrados</h3>
+        <ul className="planning-participants">
+          {times && (
+            <li>
+              Tempo real de impressão:{" "}
+              {times.actualMachineMinutes ?? "sem término confirmado"} min. Soma
+              dos apontamentos exclusivos:{" "}
+              {times.reportedMachineMinutes ?? "não determinada"} min.{" "}
+              {times.complete
+                ? "Tempos e peças conferem."
+                : "Cobertura incompleta: confira peças e tempos por linha. Não há rateio automático de apontamentos compartilhados."}
+            </li>
+          )}
+          {b.participants.map((p) => (
+            <li key={p.id}>
+              OP {p.orderSequence} · {p.description}: {p.settledUnits}/{p.units}{" "}
+              peças conciliadas; {p.releasedUnits} liberadas sem execução. Prazo{" "}
+              {p.dueDate ?? "não informado"}.{" "}
+              <Link
+                href={`/producao?query=${encodeURIComponent(p.description)}`}
+              >
+                Abrir produção para apontar peças e tempos
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
       {b.state !== "CANCELED" &&
         (b.issues?.length ? (
           <PlanningIssues

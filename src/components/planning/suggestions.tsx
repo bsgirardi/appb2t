@@ -1,6 +1,12 @@
 "use client";
 import type { Suggestion } from "@/domain/planning/types";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 import type { PlanningData } from "./shared";
 export function Suggestions({
   data,
@@ -13,12 +19,23 @@ export function Suggestions({
     <section className="flex flex-col gap-3">
       <h2>Sugestões para revisão</h2>
       <p>
+        Propostas de composição: revisar uma sugestão não confirma um lote nem
+        reserva capacidade.
+      </p>
+      <p>
         Agrupam peças livres com máquina, material e cor já declarados em lotes.
         Dados ausentes ou divergentes exigem montagem manual. Confira perfil,
         encaixe e tempo no fatiador.
       </p>
       {!data.suggestions.length && (
-        <p>Nenhum agrupamento com dados suficientes.</p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>Nenhum agrupamento com dados suficientes.</EmptyTitle>
+            <EmptyDescription>
+              Use Novo lote para revisar a composição manualmente.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
       {data.suggestions.map((s, i) => (
         <div key={i} className="flex flex-wrap items-center gap-3">
