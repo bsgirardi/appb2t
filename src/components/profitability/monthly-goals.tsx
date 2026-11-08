@@ -250,7 +250,7 @@ export function MonthlyGoals({ initial }: { initial: MonthlyGoalDTO }) {
     }
   }
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="profitability-reading flex min-w-0 flex-col gap-4">
       <Card>
         <CardHeader>
           <CardTitle>Metas mensais</CardTitle>
@@ -337,7 +337,9 @@ export function MonthlyGoals({ initial }: { initial: MonthlyGoalDTO }) {
                   {m.progress === null
                     ? m.target === "0.00" || m.target === "0"
                       ? "Meta zero — sem percentual"
-                      : "Indisponível"
+                      : m.target === null
+                        ? "Meta não definida — sem percentual"
+                        : "Realizado indisponível — confira o período e a cobertura"
                     : `${Number(m.progress).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}%`}
                 </p>
                 {m.progress !== null && (
@@ -504,7 +506,7 @@ export function MonthlyGoals({ initial }: { initial: MonthlyGoalDTO }) {
               consultar seu histórico.
             </p>
           ) : (
-            <Table>
+            <Table aria-label={`Histórico de metas de ${saved.month}`}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Revisão / data</TableHead>

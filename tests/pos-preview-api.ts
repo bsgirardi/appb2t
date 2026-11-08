@@ -52,7 +52,17 @@ export const previewProducts: PosProduct[] = [
   },
 ];
 let current: PosOrderDTO | null = null;
+export function initializePreviewOrder(order: PosOrderDTO | null) {
+  current = structuredClone(order);
+}
 export async function api<T>(url: string, body?: unknown): Promise<T> {
+  const scenario = new URLSearchParams(window.location.search).get("scenario");
+  if (url.includes("catalog") && scenario === "error")
+    throw new Error(
+      "Consulta indisponível nesta prévia. Use Buscar para tentar novamente. Sua compra foi mantida.",
+    );
+  if (url.includes("catalog") && scenario === "pending")
+    return new Promise<T>(() => {});
   const data = body as
     { input?: PosOrderDTO["input"]; expectedVersion?: number } | undefined;
   if (url.includes("catalog")) return structuredClone(previewProducts) as T;

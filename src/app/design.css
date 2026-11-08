@@ -845,6 +845,330 @@
   }
 }
 
+/* PDV presencial: composição local, sem redefinir controles compartilhados. */
+@layer components {
+  .admin-ui .pos-workspace {
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .pos-workspace h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .admin-ui .pos-workspace fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .admin-ui .pos-workspace [data-slot="toggle-group"] {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .admin-ui .pos-workspace dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace #compra {
+    scroll-margin-block: 24px 96px;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > span {
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > a {
+    flex-shrink: 0;
+  }
+  @media (max-width: 767px) {
+    .admin-ui .pos-workspace [data-slot="toggle-group-item"] {
+      min-height: 44px;
+    }
+  }
+}
+
+/* Only production/stock routes: presentation of existing operational values. */
+@layer components {
+  .admin-ui .operation-composition .operation-list-context {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-ui .operation-composition .operation-list-context ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .admin-ui .operation-composition .operation-list-context li,
+  .admin-ui .operation-composition [data-slot="badge"] {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition .operation-balances {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+    gap: 12px;
+    margin: 0;
+  }
+  .admin-ui .operation-composition .operation-balances > div {
+    min-width: 0;
+  }
+  .admin-ui .operation-composition .operation-balances dt {
+    color: var(--muted-foreground);
+  }
+  .admin-ui .operation-composition .operation-balances dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition .operation-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .admin-ui .operation-composition .operation-line-name {
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .admin-ui .operation-composition .operation-quantities {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+  }
+  .admin-ui .operation-composition .operation-entry h2,
+  .admin-ui .operation-composition .operation-entry p,
+  .admin-ui .operation-composition .operation-list [data-slot="card-title"],
+  .admin-ui .operation-composition .operation-quantities {
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition details > summary {
+    cursor: pointer;
+    min-height: 44px;
+    padding-block: 12px;
+  }
+  .admin-ui .operation-composition details > summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (max-width: 480px) {
+    .admin-ui .operation-composition .operation-balances {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .admin-ui .operation-composition .operation-balances > div {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .admin-ui .operation-composition .operation-balances dd {
+      text-align: right;
+    }
+  }
+}
+
+/* Clientes, negociações e solicitações: composição local, sem novos tokens. */
+@layer components {
+  .admin-ui .relationship-reading {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .relationship-reading :is([data-slot="card"], .request-inbox-item, [data-slot="card-header"], [data-slot="card-content"]) {
+    min-width: 0;
+  }
+  .admin-ui .relationship-reading .relationship-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-ui .relationship-reading .relationship-criteria p {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  .admin-ui .relationship-reading .relationship-criteria ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-criteria li {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-ui .relationship-reading [data-slot="badge"] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+  .admin-ui .relationship-reading :is(th, td) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .relationship-reading table {
+    table-layout: fixed;
+  }
+  .admin-ui .relationship-reading .relationship-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-contacts dt {
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .admin-ui .relationship-reading .relationship-contacts dd {
+    margin: 0;
+  }
+  .admin-ui .relationship-reading .relationship-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-underline-offset: 4px;
+  }
+  .admin-ui .relationship-reading :is(.relationship-link, .table-scroll):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Leitura financeira: consumidores locais em components/finance, sem novos tokens. */
+@layer components {
+  .admin-ui .finance-reading {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-ui .finance-reading .finance-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-block: 16px;
+  }
+  .admin-ui .finance-reading .finance-criteria p {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  .admin-ui .finance-reading .finance-criteria ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .admin-ui .finance-reading .finance-criteria li {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-ui .finance-reading .finance-amount {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .finance-reading .finance-value {
+    display: block;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .finance-reading strong.finance-description {
+    display: block;
+  }
+  .admin-ui .finance-reading .finance-description {
+    min-width: 180px;
+    max-width: 360px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .finance-reading .finance-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin: 0;
+  }
+  .admin-ui .finance-reading .finance-summary dt {
+    color: var(--muted-foreground);
+  }
+  .admin-ui .finance-reading .finance-summary dd {
+    margin: 8px 0 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .finance-reading .finance-source {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .admin-ui .finance-reading details > summary {
+    cursor: pointer;
+    min-height: 44px;
+    padding-block: 12px;
+  }
+  .admin-ui .finance-reading details > summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .admin-ui .finance-reading [data-slot="badge"],
+  .admin-ui .finance-reading .finance-source,
+  .admin-ui .finance-reading details li {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 767px) {
+    .admin-ui .finance-reading .finance-summary {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+/* Local reading recipe: profitability reports, evidence and monthly goals. */
+@layer components {
+  .profitability-reading { min-width: 0; }
+  .profitability-reading [data-slot="card-title"],
+  .profitability-reading p,
+  .profitability-reading li,
+  .profitability-reading summary { overflow-wrap: anywhere; }
+  .profitability-reading [data-slot="table"] { table-layout: fixed; }
+  .profitability-reading [data-slot="table"] :is(td, th) {
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+    vertical-align: top;
+  }
+  .profitability-reading .profitability-amount {
+    display: block;
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .profitability-reading table[aria-label="Comparação de custos e resultados"] :is(td, th):not(:first-child),
+  .profitability-reading table:is([aria-label="Por produto"], [aria-label="Por canal"]) :is(td, th):not(:first-child),
+  .profitability-reading table[aria-label="Pedidos da rentabilidade"] :is(td, th):nth-child(3),
+  .profitability-reading table[aria-label="Pedidos da rentabilidade"] :is(td, th):nth-child(4) { text-align: right; }
+  .profitability-reading summary { cursor: pointer; padding-block: 0.5rem; }
+  .profitability-reading summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .profitability-applied-filters ul {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    padding: 0; list-style: none;
+  }
+  @media (max-width: 767px) {
+    .profitability-reading summary { min-height: 44px; }
+  }
+}
+
 /* Login and discovery: local recipes; saved admin/site palettes stay independent. */
 @layer components {
   .login-page .login-story,

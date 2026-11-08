@@ -34,14 +34,17 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Badge } from "@/components/ui/badge";
 import { moneyText } from "./format";
+import { profitabilitySaleHref } from "./navigation";
 
 export function IntelligencePanel({
   summary,
   rankings,
   period,
+  returnHref,
 }: {
   summary: Summary;
   rankings: Rankings;
+  returnHref?: string;
   period: {
     from: string;
     to: string;
@@ -66,7 +69,7 @@ export function IntelligencePanel({
         ? `${Number(value).toLocaleString("pt-BR")} pedidos`
         : moneyText(value);
   return (
-    <Card className="profitability-intelligence">
+    <Card className="profitability-intelligence profitability-reading">
       <CardHeader>
         <CardTitle>Inteligência da operação</CardTitle>
         <CardDescription>
@@ -108,7 +111,7 @@ export function IntelligencePanel({
                 {!rankings[key].length ? (
                   <p>Nenhum grupo elegível no período.</p>
                 ) : (
-                  <Table>
+                  <Table aria-label={title}>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Posição / grupo</TableHead>
@@ -150,7 +153,12 @@ export function IntelligencePanel({
                               <ul>
                                 {group.sources.map((source) => (
                                   <li key={source.id}>
-                                    <Link href={`/rentabilidade/${source.id}`}>
+                                    <Link
+                                      href={profitabilitySaleHref(
+                                        source.id,
+                                        returnHref,
+                                      )}
+                                    >
                                       Pedido {source.number}
                                     </Link>
                                   </li>
@@ -169,6 +177,10 @@ export function IntelligencePanel({
         </Accordion>
         <div className="flex flex-col gap-3">
           <h2>Meta e simulação histórica</h2>
+          <p>
+            Simulação sem gravação. Para definir uma meta mensal persistente,
+            use o acompanhamento de metas mensais.
+          </p>
           <p>
             Meta para {period.from} a {period.to}. Simulação temporária: os
             valores são descartados ao sair ou atualizar os filtros. Não cria

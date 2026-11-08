@@ -589,3 +589,25 @@
     font-family: var(--font-admin);
   }
 }
+/* Planejamento: leitura local de contexto, sem alterar variantes compartilhadas. */
+@layer components {
+  .admin-ui .planning-composition { overflow-wrap: anywhere; }
+  .admin-ui .planning-selection,
+  .admin-ui .planning-capacity { display: flex; flex-direction: column; gap: 12px; }
+  .admin-ui .planning-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; margin: 0; }
+  .admin-ui .planning-facts > div { min-width: 0; }
+  .admin-ui .planning-facts dt { color: var(--muted-foreground); font-size: 12px; }
+  .admin-ui .planning-facts dd { margin: 4px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .admin-ui .planning-capacity > div > section { min-width: 0; border-top: 1px solid var(--border); padding-top: 12px; }
+  .admin-ui .planning-forecast { display: flex; flex-direction: column; gap: 6px; border-left: 2px solid var(--border); padding-left: 12px; }
+  .admin-ui .planning-batch > ul,
+  .admin-ui .planning-participants { display: flex; flex-direction: column; gap: 10px; padding-left: 20px; }
+  .admin-ui .planning-move-label { align-self: center; color: var(--muted-foreground); }
+  @media (min-width: 1024px) {
+    .admin-ui .planning-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .admin-ui .planning-capacity .planning-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 389px) {
+    .admin-ui .planning-facts { grid-template-columns: minmax(0, 1fr); }
+  }
+}

@@ -68,52 +68,58 @@ export function Comparison({
     ],
   ];
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Componente</TableHead>
-          <TableHead>Previsto</TableHead>
-          <TableHead>Realizado</TableHead>
-          <TableHead>Diferença</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {labels.map(([key, label]) => (
-          <TableRow key={key}>
-            <TableCell>{label}</TableCell>
-            <TableCell>
-              <Value metric={expected[key]} />
-            </TableCell>
-            <TableCell>
-              <Value metric={actual[key]} />
-            </TableCell>
-            <TableCell>
-              {expected[key].value !== null && actual[key].value !== null
-                ? moneyText(
-                    new D(actual[key].value!)
-                      .minus(expected[key].value!)
-                      .toFixed(),
-                  )
-                : "Indisponível"}
-            </TableCell>
+    <div className="profitability-reading flex min-w-0 flex-col gap-2">
+      <p>
+        Diferença = realizado menos previsto. Em custos, valor positivo indica
+        aumento; em contribuição e resultado, indica aumento do indicador.
+      </p>
+      <Table aria-label="Comparação de custos e resultados">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Componente</TableHead>
+            <TableHead>Previsto</TableHead>
+            <TableHead>Realizado</TableHead>
+            <TableHead>Diferença</TableHead>
           </TableRow>
-        ))}
-        <TableRow>
-          <TableCell>Margem de contribuição</TableCell>
-          <TableCell>
-            {expected.margin.value === null
-              ? "Indisponível"
-              : `${new D(expected.margin.value).toFixed(2)}%`}
-          </TableCell>
-          <TableCell>
-            {actual.margin.value === null
-              ? "Indisponível"
-              : `${new D(actual.margin.value).toFixed(2)}%`}
-          </TableCell>
-          <TableCell>—</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {labels.map(([key, label]) => (
+            <TableRow key={key}>
+              <TableCell>{label}</TableCell>
+              <TableCell>
+                <Value metric={expected[key]} />
+              </TableCell>
+              <TableCell>
+                <Value metric={actual[key]} />
+              </TableCell>
+              <TableCell>
+                {expected[key].value !== null && actual[key].value !== null
+                  ? moneyText(
+                      new D(actual[key].value!)
+                        .minus(expected[key].value!)
+                        .toFixed(),
+                    )
+                  : "Indisponível"}
+              </TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell>Margem de contribuição</TableCell>
+            <TableCell>
+              {expected.margin.value === null
+                ? "Indisponível"
+                : `${new D(expected.margin.value).toFixed(2).replace(".", ",")}%`}
+            </TableCell>
+            <TableCell>
+              {actual.margin.value === null
+                ? "Indisponível"
+                : `${new D(actual.margin.value).toFixed(2).replace(".", ",")}%`}
+            </TableCell>
+            <TableCell>—</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 export function ProfitabilityDetail({
@@ -122,7 +128,7 @@ export function ProfitabilityDetail({
   value: SaleProfitabilityDTO;
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="profitability-reading flex min-w-0 flex-col gap-4">
       {v.taxSummary && (
         <Card>
           <CardHeader>

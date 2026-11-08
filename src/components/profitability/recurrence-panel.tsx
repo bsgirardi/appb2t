@@ -314,7 +314,7 @@ export function RecurrencePanel({ value }: { value: RecurrenceReport }) {
   );
   const maxPage = Math.max(1, Math.ceil(groups.length / 5));
   return (
-    <Card id="recorrencia-produtiva" className="min-w-0">
+    <Card id="recorrencia-produtiva" className="profitability-reading min-w-0">
       <CardHeader>
         <CardTitle>Recorrência de desvios produtivos</CardTitle>
         <CardDescription>
@@ -371,6 +371,14 @@ export function RecurrencePanel({ value }: { value: RecurrenceReport }) {
           Janela e filtro próprios por linha, independentes dos filtros do
           relatório acima. A paginação não muda a amostra.
         </p>
+        <p role="status">
+          Produto aplicado:{" "}
+          {product === "__none__"
+            ? "Sem produto vinculado"
+            : (products.get(product) ?? "Todos os produtos")}
+          . {groups.length} configurações comparáveis; {ungrouped.length} linhas
+          sem grupo comparável.
+        </p>
         {!groups.length ? (
           <Empty>
             <EmptyHeader>
@@ -404,6 +412,10 @@ export function RecurrencePanel({ value }: { value: RecurrenceReport }) {
                           ? "Amostra insuficiente"
                           : "Critério não atingido"}
                     </Badge>
+                    <span>
+                      {g.eligibleCount} de {g.candidateCount} linhas elegíveis;{" "}
+                      {g.materialCount} pedidos com desvio material.
+                    </span>
                   </span>
                 </AccordionTrigger>
                 <AccordionContent>

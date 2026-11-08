@@ -1,6 +1,7 @@
 "use client";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import { ContextEditor } from "@/components/admin/context-editor";
+import { RelationshipCriteria } from "@/components/commerce/relationship-criteria";
 
 import { AdminForm } from "@/components/admin/admin-form";
 import { Pagination } from "@/components/ui/pagination";
@@ -62,10 +63,9 @@ export function CustomerPanel({
     );
   }
   return (
-    <>
+    <div className="commerce-page relationship-reading">
       <div className="page-heading">
         <div>
-          <div className="eyebrow">RELACIONAMENTO COM CLIENTES</div>
           <h1>Clientes</h1>
           <p>Cadastros privados da equipe para orçamentos e vendas.</p>
         </div>
@@ -100,7 +100,11 @@ export function CustomerPanel({
         <FilterPanel
           activeCount={Number(!!search) + Number(!!active && active !== "all")}
         >
-          <AdminForm onSubmit={filter} className="product-toolbar">
+          <AdminForm
+            requiredGuide={false}
+            onSubmit={filter}
+            className="product-toolbar"
+          >
             <Field
               label="Buscar cliente"
               value={query}
@@ -123,13 +127,20 @@ export function CustomerPanel({
             </Button>
           </AdminForm>
         </FilterPanel>
+        <RelationshipCriteria
+          criteria={[
+            ...(search ? [`Busca: ${search}`] : []),
+            ...(active === "true"
+              ? ["Situação: Ativos"]
+              : active === "false"
+                ? ["Situação: Inativos"]
+                : []),
+          ]}
+        />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-muted-foreground" role="status">
             {initial.total} clientes
             {filtered ? " nesta seleção" : " cadastrados"}
-            {search && <> · Busca: “{search}”</>}
-            {active === "true" && " · Ativos"}
-            {active === "false" && " · Inativos"}
           </p>
           {filtered && (
             <Button
@@ -142,50 +153,65 @@ export function CustomerPanel({
           )}
         </div>
         <Card asChild>
-          <div className="table-scroll">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Contato</TableHead>
-                  <TableHead>Situação</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {initial.items.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <strong>{c.name}</strong>
-                        <span className="text-muted-foreground">
-                          {c.document || "Documento não informado"}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {c.email || c.phone || "Não informado"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={c.active ? "secondary" : "outline"}>
-                        {c.active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className=""
-                        onClick={() => setEditing(c)}
-                        aria-label={`Editar cliente: ${c.name}`}
-                      >
-                        Editar
-                      </Button>
-                    </TableCell>
+          <div
+            className="table-scroll"
+            role="region"
+            aria-label="Lista de clientes"
+          >
+            {initial.items.length > 0 && (
+              <Table aria-label="Clientes cadastrados">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead scope="col">Cliente</TableHead>
+                    <TableHead scope="col">Contatos cadastrados</TableHead>
+                    <TableHead scope="col">Situação</TableHead>
+                    <TableHead scope="col">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {initial.items.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <strong>{c.name}</strong>
+                          <span className="text-muted-foreground">
+                            {c.document || "Documento não informado"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <dl className="relationship-contacts">
+                          <div>
+                            <dt>E-mail</dt>
+                            <dd>{c.email || "Não informado"}</dd>
+                          </div>
+                          <div>
+                            <dt>Telefone</dt>
+                            <dd>{c.phone || "Não informado"}</dd>
+                          </div>
+                        </dl>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={c.active ? "secondary" : "outline"}>
+                          {c.active ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className=""
+                          onClick={() => setEditing(c)}
+                          aria-label={`Editar cliente: ${c.name}`}
+                        >
+                          Editar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
             {!initial.items.length && (
               <Empty>
                 <EmptyHeader>
@@ -248,6 +274,6 @@ export function CustomerPanel({
           </div>
         </Pagination>
       </>
-    </>
+    </div>
   );
 }

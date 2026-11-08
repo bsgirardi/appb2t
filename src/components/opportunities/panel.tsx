@@ -25,6 +25,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { OpportunityForm } from "./form";
 import { FilterPanel } from "@/components/admin/filter-panel";
+import { RelationshipCriteria } from "@/components/commerce/relationship-criteria";
+import { commerceStatusLabel } from "@/components/commerce/list-feedback";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
 export function OpportunityPanel({
   initial,
   filters,
@@ -47,7 +56,7 @@ export function OpportunityPanel({
     );
   }
   return (
-    <div className="commerce-page">
+    <div className="commerce-page relationship-reading">
       <div className="page-heading">
         <div>
           <h1>Negociações</h1>
@@ -141,16 +150,46 @@ export function OpportunityPanel({
           </FieldGroup>
         </form>
       </FilterPanel>
-      <p>{initial.total} oportunidade(s)</p>
+      <RelationshipCriteria
+        criteria={[
+          ...(filters.search ? [`Busca: ${filters.search}`] : []),
+          `Etapa: ${filters.stage === "abertas" ? "Abertas" : filters.stage === "todas" ? "Todas" : stageLabels[filters.stage]}`,
+          ...(filters.owner !== "todos"
+            ? [
+                `Responsável: ${filters.owner === "eu" ? "Eu" : (options.owners.find((owner) => owner.id === filters.owner)?.name ?? "Responsável selecionado")}`,
+              ]
+            : []),
+          ...(filters.due !== "todas"
+            ? [`Próxima ação: ${filters.due === "hoje" ? "Hoje" : "Atrasadas"}`]
+            : []),
+        ]}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p role="status">{initial.total} negociações nesta seleção</p>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => router.push("/negociacoes")}
+        >
+          Restaurar filtros padrão
+        </Button>
+      </div>
       <div className="grid gap-3 lg:grid-cols-2">
         {initial.items.map((o) => (
           <Card key={o.id}>
             <CardHeader>
               <CardTitle className="break-words">
-                <Link href={`/negociacoes/${o.id}`}>{o.title}</Link>
+                <Link
+                  className="relationship-link"
+                  href={`/negociacoes/${o.id}?${new URLSearchParams({ returnTo: href(initial.page) })}`}
+                >
+                  {o.title}
+                </Link>
               </CardTitle>
               <CardDescription>
-                {o.customer.name} · {o.owner.name}
+                Cliente: {o.customer.name}
+                <br />
+                Responsável: {o.owner.name}
                 {!o.owner.active ? " (responsável inativo)" : ""}
               </CardDescription>
             </CardHeader>
@@ -179,14 +218,66 @@ export function OpportunityPanel({
                 ) : null}
               </div>
               <p className="break-words">
+                <strong>Próxima ação: </strong>
                 {o.nextAction ?? "Oportunidade encerrada"}
               </p>
+              <p>
+                {o.principalQuoteId
+                  ? (() => {
+                      const principal = o.quotes.find(
+                        (q) => q.id === o.principalQuoteId,
+                      );
+                      return principal
+                        ? `Principal: ${principal.number} · versão ${principal.version} · ${commerceStatusLabel(principal.status)}`
+                        : "Orçamento principal indisponível nesta consulta.";
+                    })()
+                  : o.quotes.length
+                    ? "Orçamentos vinculados; principal não definido."
+                    : "Sem orçamento vinculado."}
+              </p>
+              {o.pendingNotes && (
+                <p className="whitespace-pre-wrap">
+                  <strong>Pendências: </strong>
+                  {o.pendingNotes}
+                </p>
+              )}
+              {o.lossReason && (
+                <p className="whitespace-pre-wrap">
+                  <strong>Motivo da perda: </strong>
+                  {o.lossReason}
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
       {!initial.items.length ? (
-        <p>Nenhuma oportunidade para os filtros selecionados.</p>
+        <Empty role="status">
+          <EmptyHeader>
+            <EmptyTitle>
+              {initial.total > 0
+                ? "Nenhuma negociação nesta página"
+                : "Nenhuma negociação nesta seleção"}
+            </EmptyTitle>
+            <EmptyDescription>
+              {initial.total > 0
+                ? "Os resultados mudaram. Volte à primeira página para continuar."
+                : "Revise os filtros, incluindo a etapa, ou crie uma oportunidade pela ação no início da página."}
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push(initial.total > 0 ? href(1) : "/negociacoes")
+              }
+            >
+              {initial.total > 0
+                ? "Voltar à primeira página"
+                : "Restaurar filtros padrão"}
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : null}
       <nav
         aria-label="Páginas de negociações"
