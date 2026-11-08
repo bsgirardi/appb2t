@@ -18,6 +18,7 @@ import type {
 } from "@/domain/finance/types";
 import type { Page } from "@/domain/shared/pagination";
 import { money, dateLabel, Pagination, ReversalForm } from "./shared";
+import { FinanceEmpty } from "./reading";
 export function MovementPanel({
   result,
   accounts,
@@ -37,11 +38,15 @@ export function MovementPanel({
     REVERSAL: "Estorno",
   };
   return (
-    <section>
+    <section className="finance-reading">
       <div className="page-heading">
         <div>
           <h1>Movimentos realizados</h1>
-          <p>Histórico preservado. Correções são registradas por estorno.</p>
+          <p>
+            Pagamentos, recebimentos, transferências e ajustes já registrados.
+            Data efetiva é a data do movimento, não o vencimento do título.
+            Correções são registradas por estorno.
+          </p>
         </div>
         <Button asChild variant="outline">
           <a href={`/api/finance/export?${new URLSearchParams(query)}`}>
@@ -49,6 +54,11 @@ export function MovementPanel({
           </a>
         </Button>
       </div>
+      <p>
+        Valor com sinal: positivo aumenta o saldo da conta; negativo reduz. Os
+        totais de entradas e saídas abaixo seguem a natureza do movimento, com
+        estornos descontados.
+      </p>
       <div className="finance-grid">
         {[
           ["Entradas", result.totals.incoming],
@@ -57,7 +67,7 @@ export function MovementPanel({
           ["Ajustes líquidos", result.totals.adjustmentsNet],
         ].map(([name, value]) => (
           <Card key={name} asChild>
-            <div className="finance-account" >
+            <div className="finance-account">
               <small>{name} · todos os registros filtrados</small>
               <strong className="finance-value">{money(value)}</strong>
             </div>
@@ -76,14 +86,16 @@ export function MovementPanel({
       )}
       <Card asChild>
         <div className="table-scroll">
-          <Table>
+          <Table aria-label="Movimentos realizados">
             <TableHeader>
               <TableRow>
-                <TableHead>Data</TableHead>
+                <TableHead>Data efetiva</TableHead>
                 <TableHead>Conta</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Descrição</TableHead>
-                <TableHead>Valor</TableHead>
+                <TableHead className="finance-amount text-right">
+                  Valor com sinal (R$)
+                </TableHead>
                 <TableHead>Autor</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -97,8 +109,12 @@ export function MovementPanel({
                       "Conta"}
                   </TableCell>
                   <TableCell>{labels[m.kind]}</TableCell>
-                  <TableCell>{m.description}</TableCell>
-                  <TableCell>{money(m.amount)}</TableCell>
+                  <TableCell className="finance-description">
+                    {m.description}
+                  </TableCell>
+                  <TableCell className="finance-amount">
+                    {money(m.amount)}
+                  </TableCell>
                   <TableCell>{m.actorName}</TableCell>
                   <TableCell>
                     {m.reversed && <span>Estornado</span>}
@@ -138,7 +154,12 @@ export function MovementPanel({
             </TableBody>
           </Table>
           {!result.items.length && (
-            <p className="commerce-form">Nenhum movimento encontrado.</p>
+            <FinanceEmpty
+              noun="movimentos"
+              total={result.total}
+              base="/financeiro/movimentos"
+              query={query}
+            />
           )}
         </div>
       </Card>
