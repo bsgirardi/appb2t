@@ -36,7 +36,11 @@ const server = await createServer({
       },
     },
   ],
-  server: { host: "127.0.0.1", port: 4178, strictPort: true },
+  server: {
+    host: "127.0.0.1",
+    port: Number(process.env.POS_PREVIEW_PORT ?? 4178),
+    strictPort: true,
+  },
 });
 await server.listen();
 server.printUrls();

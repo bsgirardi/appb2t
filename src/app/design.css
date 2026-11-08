@@ -844,3 +844,138 @@
     border-radius: 4px;
   }
 }
+
+/* PDV presencial: composição local, sem redefinir controles compartilhados. */
+@layer components {
+  .admin-ui .pos-workspace {
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .pos-workspace h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .admin-ui .pos-workspace fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .admin-ui .pos-workspace [data-slot="toggle-group"] {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .admin-ui .pos-workspace dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace #compra {
+    scroll-margin-block: 24px 96px;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > span {
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > a {
+    flex-shrink: 0;
+  }
+  @media (max-width: 767px) {
+    .admin-ui .pos-workspace [data-slot="toggle-group-item"] {
+      min-height: 44px;
+    }
+  }
+}
+
+/* Only production/stock routes: presentation of existing operational values. */
+@layer components {
+  .admin-ui .operation-composition .operation-list-context {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-ui .operation-composition .operation-list-context ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .admin-ui .operation-composition .operation-list-context li,
+  .admin-ui .operation-composition [data-slot="badge"] {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition .operation-balances {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+    gap: 12px;
+    margin: 0;
+  }
+  .admin-ui .operation-composition .operation-balances > div {
+    min-width: 0;
+  }
+  .admin-ui .operation-composition .operation-balances dt {
+    color: var(--muted-foreground);
+  }
+  .admin-ui .operation-composition .operation-balances dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition .operation-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .admin-ui .operation-composition .operation-line-name {
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .admin-ui .operation-composition .operation-quantities {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+  }
+  .admin-ui .operation-composition .operation-entry h2,
+  .admin-ui .operation-composition .operation-entry p,
+  .admin-ui .operation-composition .operation-list [data-slot="card-title"],
+  .admin-ui .operation-composition .operation-quantities {
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .operation-composition details > summary {
+    cursor: pointer;
+    min-height: 44px;
+    padding-block: 12px;
+  }
+  .admin-ui .operation-composition details > summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (max-width: 480px) {
+    .admin-ui .operation-composition .operation-balances {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .admin-ui .operation-composition .operation-balances > div {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .admin-ui .operation-composition .operation-balances dd {
+      text-align: right;
+    }
+  }
+}

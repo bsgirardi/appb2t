@@ -1,4 +1,5 @@
 import { OperationResults } from "@/components/admin/operation-results";
+import { OperationListContext } from "@/components/admin/operation-list-context";
 import { FilterPanel } from "@/components/admin/filter-panel";
 import Link from "next/link";
 import { requireActor } from "@/server/auth/guards";
@@ -67,7 +68,7 @@ export default async function StockPage({
   const href = (page: number) =>
     `/estoque?${new URLSearchParams({ view, query: filter.query, page: String(page), ...(saleId ? { saleId } : {}), ...(receiptId ? { receiptId } : {}) })}`;
   return (
-    <section className="flex min-w-0 flex-col gap-5">
+    <section className="operation-composition flex min-w-0 flex-col gap-5">
       <div className="page-heading">
         <div>
           <h1>Estoque</h1>
@@ -108,7 +109,7 @@ export default async function StockPage({
         activeCount={(filter.query ? 1 : 0) + (receiptId ? 1 : 0)}
         hasErrors={!parsed.success}
       >
-        <form className="admin-filter-grid">
+        <form method="get" action="/estoque" className="admin-filter-grid">
           <input type="hidden" name="view" value={view} />
           {receiptId && (
             <input type="hidden" name="receiptId" value={receiptId} />
@@ -119,7 +120,7 @@ export default async function StockPage({
             name="query"
             defaultValue={filter.query}
           />
-          <Button>Filtrar</Button>
+          <Button>Aplicar filtros</Button>
           {(filter.query || receiptId) && (
             <Button asChild variant="outline">
               <Link href={clearHref}>Limpar filtros</Link>
@@ -127,6 +128,24 @@ export default async function StockPage({
           )}
         </form>
       </FilterPanel>
+      <OperationListContext
+        title={
+          view === "receipts"
+            ? "Recebimentos de compra"
+            : view === "reservations"
+              ? "Reservas de materiais"
+              : view === "shortage"
+                ? "Materiais para reposição"
+                : "Materiais"
+        }
+        total={total}
+        criteria={[
+          !!filter.query && `Busca: ${filter.query}`,
+          filter.negative && "Disponível negativo",
+          view === "receipts" && !!receiptId && "Recebimento selecionado",
+          view === "reservations" && !!saleId && "Venda selecionada",
+        ]}
+      />
       <StockPanel
         key={`${view}:${saleId ?? ""}:${typeof query.itemId === "string" ? query.itemId : ""}`}
         admin={actor.role === "ADMIN"}

@@ -8,10 +8,29 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
-    version: "1.27.4",
+    version: "1.27.6",
     date: "2026-11-08",
     title: "Clareza na fila de planejamento",
     sections: [{ title: "Melhorias", items: ["Planejamento com resumo dos filtros recolhidos, leitura organizada da disponibilidade e do contexto dos lotes e distinção explícita entre sequência simulada e fila registrada."] }],
+  },
+  {
+    version: "1.27.5",
+    date: "2026-11-08",
+    title: "Clareza na produção e no estoque",
+    sections: [{ title: "Melhorias", items: ["Ordens mostram metas e quantidades registradas por item. Estoque e reservas apresentam saldos com unidades e orientação contextual; filtros aplicados permanecem visíveis junto aos resultados."] }],
+  },
+  {
+    version: "1.27.4",
+    date: "2026-11-07",
+    title: "Clareza no atendimento presencial",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "PDV com separação mais clara entre itens, cliente opcional, pagamento e resumo, além de orientações para compra vazia, produtos indisponíveis e processamento.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.3",
