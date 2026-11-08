@@ -845,6 +845,50 @@
   }
 }
 
+/* PDV presencial: composição local, sem redefinir controles compartilhados. */
+@layer components {
+  .admin-ui .pos-workspace {
+    overflow-wrap: anywhere;
+  }
+  .admin-ui .pos-workspace h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .admin-ui .pos-workspace fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .admin-ui .pos-workspace [data-slot="toggle-group"] {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .admin-ui .pos-workspace dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace #compra {
+    scroll-margin-block: 24px 96px;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > span {
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-ui .pos-workspace .pos-mobile-summary > a {
+    flex-shrink: 0;
+  }
+  @media (max-width: 767px) {
+    .admin-ui .pos-workspace [data-slot="toggle-group-item"] {
+      min-height: 44px;
+    }
+  }
+}
+
 /* Only production/stock routes: presentation of existing operational values. */
 @layer components {
   .admin-ui .operation-composition .operation-list-context {

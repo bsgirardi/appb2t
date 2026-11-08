@@ -1,5 +1,11 @@
 # Consolidação visual — diagnóstico e próximos passos
 
+## Estado reconciliado em 07/11/2026
+
+Main atual: **1.27.3**, SHA `0a73e718ef994e7bd7868def8c2ce9d1a094bcda`, conferida por fetch nesta continuidade. Fundação documental (1.27.1), piloto de produto (PR #54, 1.27.2) e filtros/tabelas comerciais (PR #52, 1.27.3) estão integrados. As referências abaixo a versões preparadas, ausência de PR/merge e backlog do PDV são registros históricos das etapas, não o estado atual. Merge não comprova implantação.
+
+Etapa 4: recorte de composição do **PDV presencial**, autorizado no handoff e implementado em `codex/pdv-composicao`, versão preparada **1.27.4**. Ver [diagnóstico, alterações, evidências e limites](docs/design/PDV-PRESENCIAL.md). Commit e PR autorizados na continuidade. Sem expansão para outras telas e sem merge, Release ou implantação nesta etapa. Decisões de marca continuam abertas.
+
 07/11/2026. Base inspecionada: main 1.27.0, SHA `a5805f40578a50b7007b4b10b55bf58c85e393d5`. A auditoria revisada de 07/11/2026 é evidência histórica externa; seus 25 testes e capturas não constituem uma nova homologação desta etapa. Não incorporar backups privados ao repositório.
 
 ## Etapa 1: contratos vigentes
