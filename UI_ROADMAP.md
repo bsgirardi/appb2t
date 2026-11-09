@@ -6,7 +6,7 @@ PRs #55–#61 e a entrega local de rentabilidade (#62) revisadas e integradas em
 
 Complemento **1.27.12**: alvos móveis de Combobox/InputGroup/labels de Checkbox, foco contrastante em paletas extremas e diálogo extenso com limite de tela/rolagem interna. Sem mudança de marca, fontes, preferências ou contratos de negócio; nenhuma remoção especulativa de CSS. Tipos/lint/build e 1.038 testes unitários aprovados no complemento; suítes com banco exclusivo constam no relatório.
 
-**PR #63 ainda aberta:** execução dos checks bloqueada pela cobrança/limite da conta GitHub antes de iniciar os jobs. Não houve merge nem bypass; main continua 1.27.11. Regularizar Billing & plans e repetir os checks do head exato antes de integrar o complemento 1.27.12, sem novo incremento desta mesma PR.
+**Retomada em 09/11/2026:** após o usuário tornar o código público, os onze jobs da CI conseguiram iniciar. O bloqueio de cobrança de 08/11 é histórico. O complemento mantém versão única 1.27.12 na [PR #63](https://github.com/bsgirardi/appb2t/pull/63); conferir seus checks e estado de merge para o resultado final. A base conjunta 1.27.11 foi validada antes deste complemento. Sem mudança em cobrança, workflow ou proteções, sem executor próprio e sem distribuição/implantação.
 
 Acessibilidade permanece **parcial**, com pendências explícitas: zoom real 200%/400%, leitor de tela real, listas extensas/multisseleção e expansão de contraste/overlays para os demais consumidores. Movimento reduzido foi observado realmente ativo e validado nos overlays amostrados. Não confundir matriz de larguras com zoom nem árvore acessível com tecnologia assistiva.
 
