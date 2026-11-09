@@ -1,4 +1,5 @@
 "use client";
+import { ChannelRegistration } from "./channel-registration";
 import { TaxFields } from "./tax-fields";
 
 import { useId, useLayoutEffect, useState } from "react";
@@ -41,6 +42,7 @@ export function GuidedPricingForm(
   const [comparisonDirty, setComparisonDirty] = useState(false);
   const {
     current,
+    addChannel,
     review,
     setReview,
     draft,
@@ -382,6 +384,10 @@ export function GuidedPricingForm(
                     ))}
                   </NativeSelect>
                   {hint("channelRef")}
+                  <ChannelRegistration
+                    allowed={props.canManageChannels}
+                    onSaved={addChannel}
+                  />
                 </div>
                 <div className="field" data-slot="field">
                   <Label htmlFor={`${fieldId}-mode`}>Modalidade de preço</Label>

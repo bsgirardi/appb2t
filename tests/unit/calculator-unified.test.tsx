@@ -6,7 +6,7 @@ import { calculatorData } from "../fixtures/product";
 import { pricingCatalog } from "../fixtures/pricing-catalog";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 afterEach(cleanup);
-it("opens one principal calculator and preserves its draft while consulting the original", () => {
+it("opens only the current calculator and preserves its draft", () => {
   render(
     <CalculatorWorkspace
       data={calculatorData}
@@ -21,15 +21,14 @@ it("opens one principal calculator and preserves its draft while consulting the 
   fireEvent.change(screen.getByLabelText("Quantidade do lote"), {
     target: { value: "12" },
   });
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
-  expect(screen.getByText(/manutenção percentual/i)).toBeTruthy();
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
+  expect(screen.queryByText("Consultar cálculo original")).toBeNull();
+  expect(screen.queryByLabelText("Consumo de material")).toBeNull();
   expect(
     (screen.getByLabelText("Quantidade do lote") as HTMLInputElement).value,
   ).toBe("12");
 });
 
-it("protects a historical simulation before leaving the calculator", async () => {
+it("protects the current simulation before leaving the calculator", async () => {
   render(
     <CalculatorWorkspace
       data={calculatorData}
@@ -37,8 +36,7 @@ it("protects a historical simulation before leaving the calculator", async () =>
       catalog={pricingCatalog}
     />,
   );
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
-  fireEvent.change(await screen.findByLabelText("Consumo de material"), {
+  fireEvent.change(screen.getByLabelText("Quantidade do lote"), {
     target: { value: "45" },
   });
   const event = new Event("beforeunload", { cancelable: true });

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { api } from "@/lib/client-api";
 import type {
   PricingCatalogDTO,
@@ -7,9 +7,17 @@ import type {
   PricingChannelDTO,
   PricingExtraDTO,
 } from "@/domain/pricing/types";
-import { Field, Notice } from "@/components/ui/field";
+import { Field, FieldGroup, Notice } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 const rateFields: [keyof PricingSettingsValues, string][] = [
   ["energyRate", "Tarifa de energia (R$/kWh)"],
   ["maintenancePerHour", "Manutenção (R$/hora)"],
@@ -18,21 +26,14 @@ const rateFields: [keyof PricingSettingsValues, string][] = [
   ["markupPercent", "Markup padrão (%)"],
   ["targetMarginPercent", "Margem alvo padrão (%)"],
 ];
-export function PricingSettingsPanel({
-  initialCatalog,
-}: {
-  initialCatalog: PricingCatalogDTO;
-}) {
-  const [catalog, setCatalog] = useState(initialCatalog),
-    [rates, setRates] = useState<PricingSettingsValues>(
-      () =>
-        Object.fromEntries(
-          rateFields.map(([key]) => [
-            key,
-            initialCatalog.settings?.[key] ?? "",
-          ]),
-        ) as unknown as PricingSettingsValues,
-    );
+function usePricingSettings(initialCatalog: PricingCatalogDTO) {
+  const [catalog, setCatalog] = useState(initialCatalog);
+  const [rates, setRates] = useState<PricingSettingsValues>(
+    () =>
+      Object.fromEntries(
+        rateFields.map(([key]) => [key, initialCatalog.settings?.[key] ?? ""]),
+      ) as unknown as PricingSettingsValues,
+  );
   const [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
@@ -46,7 +47,7 @@ export function PricingSettingsPanel({
         "/api/pricing/settings",
         { ...rates, expectedVersion: catalog.settings?.version ?? 0 },
       );
-      setCatalog({ ...catalog, settings });
+      setCatalog((c) => ({ ...c, settings }));
       setMessage(
         "Parâmetros salvos. Estimativas anteriores permanecem iguais.",
       );
@@ -56,30 +57,99 @@ export function PricingSettingsPanel({
       setBusy(false);
     }
   }
+  return { catalog, setCatalog, rates, setRates, error, message, busy, save };
+}
+const PricingSettingsContext = createContext<ReturnType<
+  typeof usePricingSettings
+> | null>(null);
+export function PricingSettingsProvider({
+  initialCatalog,
+  children,
+}: {
+  initialCatalog: PricingCatalogDTO;
+  children: ReactNode;
+}) {
+  const value = usePricingSettings(initialCatalog);
   return (
-    <section className="space-y-5">
-      <h2>Precificação por lote</h2>
-      <p>
-        Configure valores reais da B2T. Informe zero quando o custo não se
-        aplicar. Alterações não recalculam fichas ou documentos anteriores.
-      </p>
-      {error && <Notice>{error}</Notice>}
-      {message && <Notice kind="success">{message}</Notice>}
-      <div className="form-grid">
-        {rateFields.map(([key, label]) => (
-          <Field
-            key={key}
-            label={label}
-            inputMode="decimal"
-            value={rates[key]}
-            disabled={busy}
-            onChange={(e) => setRates({ ...rates, [key]: e.target.value })}
-          />
-        ))}
-      </div>
-      <Button type="button" onClick={save} disabled={busy}>
-        Salvar parâmetros do lote
-      </Button>
+    <PricingSettingsContext.Provider value={value}>
+      {children}
+    </PricingSettingsContext.Provider>
+  );
+}
+function useSettings() {
+  const value = useContext(PricingSettingsContext);
+  if (!value) throw new Error("PricingSettingsProvider ausente");
+  return value;
+}
+export function PricingRatesPanel({
+  section = "all",
+}: {
+  section?: "production" | "pricing" | "all";
+}) {
+  const { rates, setRates, error, message, busy, save } = useSettings();
+  const fields = rateFields.filter(
+    ([key]) =>
+      section === "all" ||
+      (section === "pricing"
+        ? ["markupPercent", "targetMarginPercent"].includes(key)
+        : !["markupPercent", "targetMarginPercent"].includes(key)),
+  );
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {section === "production"
+            ? "Custos de produção"
+            : section === "pricing"
+              ? "Padrões de preço"
+              : "Parâmetros da calculadora"}
+        </CardTitle>
+        <CardDescription>
+          Configure os valores usados pela calculadora. Informe zero quando o
+          custo não se aplicar. Alterações não recalculam fichas ou documentos
+          anteriores.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {error && <Notice>{error}</Notice>}
+        {message && <Notice kind="success">{message}</Notice>}
+        <FieldGroup className="grid gap-4 sm:grid-cols-2">
+          {fields.map(([key, label]) => (
+            <Field
+              key={key}
+              label={label}
+              inputMode="decimal"
+              value={rates[key]}
+              disabled={busy}
+              onChange={(e) =>
+                setRates((r) => ({ ...r, [key]: e.target.value }))
+              }
+            />
+          ))}
+        </FieldGroup>
+        {section !== "all" && (
+          <p className="text-sm text-muted-foreground">
+            Custos de produção e padrões de preço são salvos juntos. Preencha as
+            duas abas na primeira configuração.
+          </p>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Button type="button" onClick={save} disabled={busy}>
+          {section === "production"
+            ? "Salvar custos de produção"
+            : section === "pricing"
+              ? "Salvar padrões de preço"
+              : "Salvar parâmetros do lote"}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+export function PricingReferencesPanel() {
+  const { catalog, setCatalog } = useSettings();
+  return (
+    <div className="flex flex-col gap-5">
       <PricingReferenceEditor
         kind="channels"
         rows={catalog.channels}
@@ -106,10 +176,24 @@ export function PricingSettingsPanel({
           }))
         }
       />
-    </section>
+    </div>
   );
 }
-function PricingReferenceEditor({
+export function PricingSettingsPanel({
+  initialCatalog,
+}: {
+  initialCatalog: PricingCatalogDTO;
+}) {
+  return (
+    <PricingSettingsProvider initialCatalog={initialCatalog}>
+      <section className="flex flex-col gap-5">
+        <PricingRatesPanel />
+        <PricingReferencesPanel />
+      </section>
+    </PricingSettingsProvider>
+  );
+}
+export function PricingReferenceEditor({
   kind,
   rows,
   onSaved,
@@ -154,7 +238,7 @@ function PricingReferenceEditor({
     }
   }
   return (
-    <section className="rounded-lg border p-4 space-y-3">
+    <section className="flex flex-col gap-3 rounded-lg border p-4">
       <h3>{isChannel ? "Canais de venda" : "Complementos e embalagens"}</h3>
       <ul>
         {rows.map((row) => (
@@ -184,7 +268,7 @@ function PricingReferenceEditor({
         ))}
       </ul>
       {error && <Notice>{error}</Notice>}
-      <fieldset disabled={busy} className="space-y-3">
+      <fieldset disabled={busy} className="flex flex-col gap-3">
         <Field
           label={`Nome do ${label}`}
           value={draft.name}

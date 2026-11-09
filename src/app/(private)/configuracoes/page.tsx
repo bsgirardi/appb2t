@@ -1,14 +1,11 @@
+import { SettingsWorkspace } from "@/components/settings/settings-workspace";
 import { getCommercialSettings } from "@/server/commercial-settings";
 import { getTaxProfiles } from "@/server/tax/profiles";
-import { TaxSettingsPanel } from "@/components/settings/tax-settings-panel";
-import { CommercialSettingsPanel } from "@/components/settings/commercial-settings-panel";
 import { requireActor } from "@/server/auth/guards";
 import { db } from "@/lib/db";
 import { printerDTO } from "@/server/catalog-inputs";
 import { settingsDTO } from "@/server/settings";
 import { userSelect } from "@/server/users";
-import { SettingsPanel } from "@/components/settings/settings-panel";
-import { PricingSettingsPanel } from "@/components/pricing/pricing-settings-panel";
 import { getPricingCatalog } from "@/server/pricing/catalog";
 import { AppError } from "@/lib/errors";
 import { redirect } from "next/navigation";
@@ -19,37 +16,37 @@ export default async function SettingsPage() {
     throw e;
   });
   if (actor.role !== "ADMIN") return null;
-  const [materials, printers, settings, users, commercialSettings] =
-    await Promise.all([
-      db.material.findMany({ orderBy: { name: "asc" } }),
-      db.printer.findMany({ orderBy: { name: "asc" } }),
-      db.calculationSettings.findUnique({ where: { id: 1 } }),
-      db.user.findMany({ select: userSelect, orderBy: { name: "asc" } }),
-      getCommercialSettings(),
-    ]);
+  const [
+    materials,
+    printers,
+    settings,
+    users,
+    commercialSettings,
+    catalog,
+    tax,
+  ] = await Promise.all([
+    db.material.findMany({ orderBy: { name: "asc" } }),
+    db.printer.findMany({ orderBy: { name: "asc" } }),
+    db.calculationSettings.findUnique({ where: { id: 1 } }),
+    db.user.findMany({ select: userSelect, orderBy: { name: "asc" } }),
+    getCommercialSettings(),
+    getPricingCatalog(actor, true),
+    getTaxProfiles(actor),
+  ]);
   return (
-    <>
-      <SettingsPanel
-        initialData={{
-          materials: materials.map((m) => ({
-            ...m,
-            price: m.price.toString(),
-          })),
-          printers: printers.map(printerDTO),
-          settings: settings ? settingsDTO(settings) : null,
-          users,
-        }}
-      />
-      <CommercialSettingsPanel initial={commercialSettings} />
-      <div className="mt-8">
-        <TaxSettingsPanel initial={await getTaxProfiles(actor)} />
-      </div>
-      <details className="mt-8 rounded-lg border p-5">
-        <summary>Configurar precificação por lote</summary>
-        <PricingSettingsPanel
-          initialCatalog={await getPricingCatalog(actor, true)}
-        />
-      </details>
-    </>
+    <SettingsWorkspace
+      catalog={catalog}
+      commercial={commercialSettings}
+      tax={tax}
+      initialData={{
+        materials: materials.map((m) => ({
+          ...m,
+          price: m.price.toString(),
+        })),
+        printers: printers.map(printerDTO),
+        settings: settings ? settingsDTO(settings) : null,
+        users,
+      }}
+    />
   );
 }
