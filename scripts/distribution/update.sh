@@ -13,7 +13,7 @@ while (($#)); do
   esac
   shift 2
 done
-[[ "$repository" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ && "$release" =~ ^app-v[0-9]+\.[0-9]+\.[0-9]+-[a-f0-9]{12}-[A-Za-z0-9][A-Za-z0-9._-]{0,39}$ ]] || fail 'Informe repositório e entrega explícitos.'
+[[ "$repository" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ && ( "$release" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "$release" =~ ^app-v[0-9]+\.[0-9]+\.[0-9]+-[a-f0-9]{12}-[A-Za-z0-9][A-Za-z0-9._-]{0,39}$ ) ]] || fail 'Informe repositório e entrega explícitos.'
 for tool in docker flock curl jq gzip sha256sum stat df; do command -v "$tool" >/dev/null || fail "Dependência ausente: $tool"; done
 curl_version=$(curl --version | head -n 1)
 [[ "$curl_version" =~ ^curl\ ([0-9]+)\.([0-9]+)\. ]] || fail 'Versão do curl não identificada.'

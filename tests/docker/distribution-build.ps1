@@ -30,7 +30,8 @@ try {
     foreach ($buildId in @('first', 'second')) {
         & "$PSScriptRoot/../../scripts/distribution/build.ps1" -Commit $global:b2tBuildCommit -BuildId $buildId -OutputDirectory "$global:b2tBuildFixture/$buildId"
         $m = Get-Content "$global:b2tBuildFixture/$buildId/manifest.json" -Raw | ConvertFrom-Json
-        if ($m.release -notlike "*-$buildId" -or $m.images.app.tag -notlike "*-$buildId") { throw 'Reconstrucao sem identidade propria.' }
+        if ($m.release -ne '1.21.0') { throw 'Release deve usar somente a versao.' }
+        if ($m.images.app.tag -notlike "*-$buildId") { throw 'Reconstrucao sem identidade propria.' }
         if ($m.files.Count -ne 2 -or $m.baseReference -notmatch '@sha256:') { throw 'Manifesto incompleto.' }
         $stream = [IO.File]::OpenRead("$global:b2tBuildFixture/$buildId/images.tar.gz")
         $gzip = [IO.Compression.GZipStream]::new($stream, [IO.Compression.CompressionMode]::Decompress)

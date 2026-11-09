@@ -15,6 +15,20 @@ export function fixture() {
     files: [{ name: 'images.tar.gz', sizeBytes: 512, sha256: sha }, { name: 'compose.production.yaml', sizeBytes: 200, sha256: sha }] };
 }
 test('distribution contract exists', () => assert.ok(existsSync(moduleUrl)));
+test('accepts numeric releases while retaining unique image build identities', async () => {
+  const { validateManifest } = await import(moduleUrl);
+  const m = fixture(); m.release = '1.21.0';
+  assert.equal(validateManifest(m).release, '1.21.0');
+  m.images.tools.tag = m.images.tools.tag.replace('010203', '010204');
+  assert.throws(() => validateManifest(m), /tag/);
+});
+test('rejects numeric release versions that disagree with the application', async () => {
+  const { validateManifest } = await import(moduleUrl);
+  for (const release of ['1.21.1', 'v1.21.0', '1.21.0/other', 'latest']) {
+    const m = fixture(); m.release = release;
+    assert.throws(() => validateManifest(m), /Release/);
+  }
+});
 test('accepts a complete delivery and distinguishes rebuilds', async () => {
   const { validateManifest } = await import(moduleUrl);
   const m = fixture(); assert.deepEqual(validateManifest(m), m);

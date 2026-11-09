@@ -81,18 +81,21 @@ cat > "$work/bin/df" <<'MOCK'
 if [[ "$CASE" == disk ]]; then printf 'Filesystem 1B-blocks Used Available Use%% Mounted\nmock 100 99 1 99%% /\n'; else /bin/df "$@"; fi
 MOCK
 chmod +x "$work/bin/df"
-for CASE in success profile dollar noop network unauthorized corrupt platform manifest missing disk volume load stop backup migration health wronghealth; do
+for release in 1.21.0 app-v1.21.0-bbbbbbbbbbbb-test; do
+for CASE in success profile dollar noop network unauthorized corrupt platform manifest version imagepair missing disk volume load stop backup migration health wronghealth; do
   export CASE
   : > "$LOG"; rm -f "$work/published"
   printf images > "$work/assets/images.tar.gz"
   cp "$repo/compose.production.yaml" "$work/assets/compose.production.yaml"
-  jq -n --arg release "$release" --arg commit "$commit" --arg id "$image" '{schemaVersion:1,release:$release,appVersion:"1.21.0",sourceRepository:"bsgirardi/appb2t",sourceCommit:$commit,platform:"linux/amd64",baseReference:("node:22-bookworm-slim@"+$id),images:{app:{tag:("appb2t-app:"+$release),imageId:$id,sizeBytes:1024},tools:{tag:("appb2t-tools:"+$release),imageId:$id,sizeBytes:2048}},files:[]}' > "$work/meta"
+  jq -n --arg release "$release" --arg commit "$commit" --arg id "$image" '{schemaVersion:1,release:$release,appVersion:"1.21.0",sourceRepository:"bsgirardi/appb2t",sourceCommit:$commit,platform:"linux/amd64",baseReference:("node:22-bookworm-slim@"+$id),images:{app:{tag:"appb2t-app:app-v1.21.0-bbbbbbbbbbbb-test",imageId:$id,sizeBytes:1024},tools:{tag:"appb2t-tools:app-v1.21.0-bbbbbbbbbbbb-test",imageId:$id,sizeBytes:2048}},files:[]}' > "$work/meta"
   files='[]'
   for name in images.tar.gz compose.production.yaml; do
     files=$(jq --arg name "$name" --arg sha "$(sha256sum "$work/assets/$name" | cut -d' ' -f1)" --argjson size "$(stat -c %s "$work/assets/$name")" '. + [{name:$name,sha256:$sha,sizeBytes:$size}]' <<< "$files")
   done
   jq --argjson files "$files" '.files=$files' "$work/meta" > "$work/assets/manifest.json"
   if [[ "$CASE" == manifest ]]; then jq '.files[0].name="../oops"' "$work/assets/manifest.json" > "$work/m"; mv "$work/m" "$work/assets/manifest.json"; fi
+  if [[ "$CASE" == version ]]; then jq '.release="1.21.1"' "$work/assets/manifest.json" > "$work/m"; mv "$work/m" "$work/assets/manifest.json"; fi
+  if [[ "$CASE" == imagepair ]]; then jq '.images.tools.tag="appb2t-tools:app-v1.21.0-bbbbbbbbbbbb-other"' "$work/assets/manifest.json" > "$work/m"; mv "$work/m" "$work/assets/manifest.json"; fi
   assets='[]'; n=0
   for name in manifest.json images.tar.gz compose.production.yaml; do
     n=$((n+1)); assets=$(jq --arg name "$name" --arg sha "$(sha256sum "$work/assets/$name" | cut -d' ' -f1)" --argjson id "$n" --argjson size "$(stat -c %s "$work/assets/$name")" '. + [{id:$id,name:$name,size:$size,digest:("sha256:"+$sha),state:"uploaded"}]' <<< "$assets")
@@ -107,10 +110,15 @@ for CASE in success profile dollar noop network unauthorized corrupt platform ma
   if grep -Eq '(^| )(build|pull)( |$)' "$LOG"; then cat "$LOG"; exit 1; fi
   if grep -q github_test_sentinel "$work/output" "$LOG"; then echo 'Token exposto'; exit 1; fi
   case "$CASE" in
-    network|unauthorized|corrupt|platform|manifest|missing|disk|volume|load|noop) if grep -q 'stop app' "$LOG"; then cat "$LOG"; exit 1; fi ;;
+    network|unauthorized|corrupt|platform|manifest|version|imagepair|missing|disk|volume|load|noop) if grep -q 'stop app' "$LOG"; then cat "$LOG"; exit 1; fi ;;
     backup|stop) grep -q '^start app' "$LOG" ;;
     migration|health) if grep -q '^start app' "$LOG"; then exit 1; fi ;;
     success) grep -q 'Nova versão em execução' "$work/output"; test -f "$work/install/.b2t/manifest-instalado.json" ;;
   esac
-  echo "PASS $CASE"
+  if [[ "$CASE" =~ ^(success|profile|dollar|noop)$ ]]; then
+    grep -q 'tag appb2t-tools:app-v1.21.0-bbbbbbbbbbbb-test appb2t-tools:latest' "$LOG"
+    if grep -Eq 'appb2t-(app|tools):1\.21\.0( |$)' "$LOG"; then cat "$LOG"; exit 1; fi
+  fi
+  echo "PASS $release $CASE"
+done
 done

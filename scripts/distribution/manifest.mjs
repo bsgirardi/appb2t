@@ -18,11 +18,14 @@ export function validateManifest(m) {
   requireValue(['linux/amd64', 'linux/arm64'].includes(m.platform), 'Plataforma inválida');
   requireValue(/^node:22-bookworm-slim@sha256:[a-f0-9]{64}$/.test(m.baseReference), 'Base inválida');
   const prefix = `app-v${m.appVersion}-${m.sourceCommit.slice(0, 12)}-`;
-  requireValue(typeof m.release === 'string' && m.release.startsWith(prefix) && /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/.test(m.release.slice(prefix.length)), 'Release inválida');
+  const validImageTag = value => typeof value === 'string' && value.startsWith(prefix) && /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/.test(value.slice(prefix.length));
+  requireValue(m.release === m.appVersion || validImageTag(m.release), 'Release inválida');
   keys(m.images, ['app', 'tools']);
+  const imageTag = typeof m.images.app?.tag === 'string' ? m.images.app.tag.slice('appb2t-app:'.length) : '';
+  requireValue(validImageTag(imageTag) && (m.release === m.appVersion || imageTag === m.release), 'Image tag inválida');
   for (const name of ['app', 'tools']) {
     const image = m.images[name]; keys(image, ['tag', 'imageId', 'sizeBytes']);
-    requireValue(image.tag === `appb2t-${name}:${m.release}` && image.tag.split(':')[1].length <= 128, 'Image tag inválida');
+    requireValue(image.tag === `appb2t-${name}:${imageTag}` && image.tag.split(':')[1].length <= 128, 'Image tag inválida');
     requireValue(id.test(image.imageId) && Number.isSafeInteger(image.sizeBytes) && image.sizeBytes > 0 && image.sizeBytes <= 64 * 2 ** 30, 'Imagem inválida');
   }
   requireValue(Array.isArray(m.files) && m.files.length === 2, 'Arquivos inválidos');
