@@ -142,14 +142,14 @@ summarize_exit() {
 publish_aliases() {
   # Comandos manuais posteriores usam latest quando APP_IMAGE_TAG não está no shell.
   # Só apontar esses aliases para a candidata depois de verificar saúde e imagem.
-  docker tag "appb2t-tools:$image_tag" appb2t-tools:latest
+  docker tag "$tools_tag" appb2t-tools:latest
   docker tag "$candidate" appb2t-app:latest
 }
 already_current() {
-  candidate="$(docker image inspect --format '{{.Id}}' "appb2t-app:$image_tag" 2>/dev/null)" || return 1
+  candidate="$(docker image inspect --format '{{.Id}}' "$app_tag" 2>/dev/null)" || return 1
   [[ "$candidate" == "$old_image" ]] || return 1
   [[ "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$candidate")" == "$revision" ]] || return 1
-  [[ "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "appb2t-tools:$image_tag" 2>/dev/null)" == "$revision" ]] || return 1
+  [[ "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$tools_tag" 2>/dev/null)" == "$revision" ]] || return 1
   config_hash="$(docker compose config --hash app)" || return 1
   old_hash="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.config-hash"}}' "$app_id")" || return 1
   [[ "$config_hash" == "app $old_hash" ]] || return 1
@@ -220,7 +220,8 @@ trap summarize_exit EXIT
 [[ -f .env ]] || { echo 'Arquivo .env ausente.' >&2; exit 1; }
 revision="$(jq -r .sourceCommit "$stage/manifest.json")"
 app_version="$(jq -r .appVersion "$stage/manifest.json")"
-image_tag="$(jq -r .release "$stage/manifest.json")"
+app_tag="$(jq -r .images.app.tag "$stage/manifest.json")"
+tools_tag="$(jq -r .images.tools.tag "$stage/manifest.json")"
 docker compose version >/dev/null
 docker compose config --quiet
 # Parse the installed CLI before any interruption.
@@ -254,7 +255,7 @@ fi
 end
 
 begin verificacao_final
-candidate="$(docker image inspect --format '{{.Id}}' "appb2t-app:$image_tag")"
+candidate="$(docker image inspect --format '{{.Id}}' "$app_tag")"
 [[ -n "$candidate" ]]
 config_hash="$(docker compose config --hash app)"
 old_hash="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.config-hash"}}' "$app_id")"

@@ -8,6 +8,12 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.13",
+    date: "2026-11-09",
+    title: "Identificação simplificada das atualizações",
+    sections: [{ title: "Melhorias", items: ["As próximas entregas passam a usar somente o número da versão, facilitando a escolha da atualização na implantação.", "Entregas anteriores continuam disponíveis, com verificação de integridade e proteção contra substituição de versões publicadas."] }],
+  },
+  {
     version: "1.27.12",
     date: "2026-11-08",
     title: "Acessibilidade de controles e diálogos",

@@ -11,7 +11,7 @@ Esta sequência é a política de entrega do projeto, inclusive para manutençã
 1. Antes de integrar, atualizar a referência de main, conferir conflitos, versão/notas/rodapés e as verificações pertinentes. Aguardar as verificações da revisão exata que será integrada. Não contornar checks com falha. Havendo nova versão em outra PR, ajustar a candidata nesta mesma PR.
 2. Integrar a PR autorizada. Obter o **mergeCommit.oid**, não o antigo SHA da branch. Buscar origin/main e confirmar que o commit integrado pertence ao seu histórico.
 3. Em checkout limpo desse commit (ou fonte limpa extraída pelo gerador), executar o gate local e construir a entrega Linux adequada. A versão é a já integrada: não incrementá-la novamente, não reutilizar imagens da branch nem usar latest como identidade.
-4. Validar manifesto, tamanhos e checksums. Publicar draft com todos os assets, conferir sua integridade remota e só então publicar a Release oficial. Não sobrescrever uma entrega anterior. Reconstrução recebe novo BuildId.
+4. Validar manifesto, tamanhos e checksums. Publicar draft com todos os assets, conferir sua integridade remota e só então publicar a Release oficial. A tag da Release usa somente a versão, como `1.27.13`. Não sobrescrever uma entrega anterior. Reconstrução antes da publicação recebe novo BuildId interno; uma versão já publicada exige uma nova versão integrada para outra entrega.
 5. Se atualizador ou documentação mudaram, sincronizar os scripts revisados e o guia no repositório de distribuição. Isso não instala nada nos servidores.
 6. Conferir pela API a Release publicada (draft/prerelease falsos), origem/versão/plataforma e os três assets. Registrar URL/identificador, SHA fonte, digest base, tamanho e SHA-256 do pacote. Atualizar o resumo da PR e guardar os metadados locais em `.b2t/`, sem credenciais. Esse registro de execução não exige outra PR de versão.
 7. Informar separadamente: **código integrado**, **Release disponível**, **servidor atualizado ou não**. Não executar o atualizador operacional só porque houve merge. A aplicação segue na versão anterior até o operador realizar a implantação autorizada.
@@ -76,7 +76,9 @@ O gerador atualiza a referência `node:22-bookworm-slim`, registra seu digest e 
 
 Para renovação periódica das camadas de pacotes do sistema mesmo quando o digest base não mudou, usar `-RefreshSystemPackages`: executa uma reconstrução completa sem cache na máquina de preparação. Não fazer isso a cada atualização funcional. Containers em produção não recebem `apt upgrade`; recebem uma nova imagem testada. Rever também dependências/CVEs com a ferramenta local aprovada. O processo não afirma ausência de vulnerabilidades nem muda major do Node automaticamente.
 
-O pacote contém `images.tar.gz`, `compose.production.yaml` e `manifest.json`. As tags incluem versão, commit e identificador de build. Reconstrução do mesmo código recebe outra identidade, sem substituir a entrega anterior. Cada asset precisa ter menos de 2 GiB. O gerador/publicador rejeita arquivos acima do limite, sem dividir silenciosamente.
+O pacote contém `images.tar.gz`, `compose.production.yaml` e `manifest.json`. A tag pública da Release é o número exato de `package.json`, sem prefixo `v`, commit ou data: por exemplo, `1.27.13`. O manifesto preserva SHA completo, digest base, IDs das imagens e checksums. As tags internas das imagens continuam incluindo versão, commit e identificador de build para distinguir reconstruções; o atualizador usa essas referências do manifesto. Cada asset precisa ter menos de 2 GiB. O gerador/publicador rejeita arquivos acima do limite, sem dividir silenciosamente.
+
+Uma reconstrução anterior à publicação usa outro BuildId e outro diretório, mantendo a mesma versão de Release. Drafts incompletos devem ser recuperados pelo procedimento abaixo. O publicador recusa versões já existentes, incluindo drafts, e nunca substitui seus assets. Depois de publicada, uma entrega permanece imutável: qualquer substituição exige nova versão integrada. Entregas antigas com o identificador longo continuam aceitas; suas tags e arquivos não são renomeados.
 
 ## Publicar a entrega pronta
 
@@ -110,10 +112,12 @@ Em VM nova, preparar diretórios/volume, configuração e segredos e restaurar o
 ```bash
 bash /opt/b2t-distribuicao/scripts/distribution/update.sh \
   --repository bsgirardi/appb2t-distribuicao \
-  --release IDENTIFICADOR_EXATO_DA_RELEASE \
+  --release 1.27.13 \
   --installation /etc/docker/appb2t \
   --token-file /etc/b2t-distribuicao/token
 ```
+
+Antes da primeira implantação com tag numérica, instalar manualmente uma revisão do atualizador que aceite esse formato, incluindo `update.sh`, `deploy.sh` e `validate-manifest.jq`, conforme o bootstrap revisado acima. Sincronizar o repositório de distribuição não atualiza os scripts já instalados no servidor. Revisões antigas do atualizador rejeitam tags numéricas antes de parar a aplicação.
 
 **Não usar `scripts/atualizar-docker.sh` no novo fluxo**: esse é o procedimento legado, que ainda compila no host. O novo atualizador não precisa do clone do código-fonte em produção, só da instalação e das ferramentas revisadas. A configuração e os dados existentes não são apagados.
 

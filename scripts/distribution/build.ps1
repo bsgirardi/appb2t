@@ -22,8 +22,9 @@ try {
     Invoke-Checked git @('-C', $repo, 'archive', '--format=tar', "--output=$taskTemp/source.tar", $Commit)
     Invoke-Checked tar @('-xf', "$taskTemp/source.tar", '-C', $source)
     $package = Get-Content -LiteralPath "$source/package.json" -Raw | ConvertFrom-Json
-    $release = "app-v$($package.version)-$($Commit.Substring(0,12))-$BuildId"
-    if ($release.Length -gt 128) { throw 'Identificador de entrega muito longo.' }
+    $release = [string]$package.version
+    $imageTag = "app-v$release-$($Commit.Substring(0,12))-$BuildId"
+    if ($imageTag.Length -gt 128) { throw 'Identificador de imagem muito longo.' }
     # Refresh only the builder. Production receives the complete saved image.
     Invoke-Checked docker @('pull', '--platform', $Platform, $BaseReference)
     $digests = (Invoke-Checked docker @('image', 'inspect', '--format', '{{json .RepoDigests}}', $BaseReference)) | ConvertFrom-Json
@@ -36,7 +37,7 @@ try {
     Invoke-Checked docker ($argsBase + @('--target', 'verify', $source))
     $images = @{}
     foreach ($entry in @(@('tools', 'tools'), @('app', 'runtime'))) {
-        $tag = "appb2t-$($entry[0]):$release"
+        $tag = "appb2t-$($entry[0]):$imageTag"
         Invoke-Checked docker ($argsBase + @('--target', $entry[1], '-t', $tag, $source))
         $inspect = ((Invoke-Checked docker @('image', 'inspect', $tag)) -join "`n") | ConvertFrom-Json
         if ($inspect[0].Config.Labels.'org.opencontainers.image.revision' -ne $Commit) { throw 'Revisao da imagem incorreta.' }

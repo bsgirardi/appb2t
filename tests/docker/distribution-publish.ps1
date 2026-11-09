@@ -17,13 +17,13 @@ function gh {
         return (@{ assets = @($assets) } | ConvertTo-Json -Depth 5)
     }
     if ($args[0] -eq 'api' -and ($args[-1] -match 'select\(.tag_name')) { return '123' }
-    if ($args[0] -eq 'api') { if ($global:b2tTestCase -eq 'existing') { return 'app-v1.0.0-aaaaaaaaaaaa-test' }; return }
+    if ($args[0] -eq 'api') { if ($global:b2tTestCase -eq 'existing') { return '1.0.0' }; return }
 }
 function node { $global:LASTEXITCODE = 0 }
 $taskTest = Join-Path ([IO.Path]::GetTempPath()) ('b2t-publish-test-' + [guid]::NewGuid().ToString('N'))
 [void](New-Item -ItemType Directory $taskTest)
 $global:b2tTestPackage = $taskTest
-@{ release = 'app-v1.0.0-aaaaaaaaaaaa-test'; appVersion = '1.0.0'; sourceCommit = ('a' * 40); platform = 'linux/amd64' } | ConvertTo-Json | Set-Content "$taskTest/manifest.json"
+@{ release = '1.0.0'; appVersion = '1.0.0'; sourceCommit = ('a' * 40); platform = 'linux/amd64' } | ConvertTo-Json | Set-Content "$taskTest/manifest.json"
 Set-Content "$taskTest/images.tar.gz" 'image'
 Set-Content "$taskTest/compose.production.yaml" 'compose'
 try {
