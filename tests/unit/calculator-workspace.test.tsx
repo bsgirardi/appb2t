@@ -6,7 +6,7 @@ import { calculatorData } from "../fixtures/product";
 import { pricingCatalog } from "../fixtures/pricing-catalog";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 afterEach(cleanup);
-it("preserves the primary draft when consulting the historical calculator", async () => {
+it("offers a single calculator and preserves its current draft", async () => {
   render(
     <CalculatorWorkspace
       data={calculatorData}
@@ -17,14 +17,14 @@ it("preserves the primary draft when consulting the historical calculator", asyn
   fireEvent.change(screen.getByLabelText("Quantidade do lote"), {
     target: { value: "7" },
   });
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
-  const original = await screen.findByLabelText("Consumo de material");
-  fireEvent.change(original, { target: { value: "50" } });
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
-  fireEvent.click(screen.getByText("Consultar cálculo original"));
+  expect(screen.queryByText("Consultar cálculo original")).toBeNull();
+  expect(screen.queryByLabelText("Consumo de material")).toBeNull();
+  expect(screen.queryByRole("tab", { name: /V2|V3|original/i })).toBeNull();
   expect(
-    (screen.getByLabelText("Consumo de material") as HTMLInputElement).value,
-  ).toBe("50");
+    screen.getByRole("link", {
+      name: "Biblioteca de cenários e comparações salvas",
+    }),
+  ).toBeTruthy();
   expect(
     (screen.getByLabelText("Quantidade do lote") as HTMLInputElement).value,
   ).toBe("7");

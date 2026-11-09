@@ -13,6 +13,7 @@ import type {
   PricingCatalogDTO,
   PricingRequest,
   PricingV2Input,
+  PricingChannelDTO,
 } from "@/domain/pricing/types";
 export type PricingDraftOptions = {
   catalog: PricingCatalogDTO;
@@ -21,6 +22,7 @@ export type PricingDraftOptions = {
   onApply: (request: PricingRequest) => Promise<void>;
   applyLabel?: string;
   fixedQuantity?: number;
+  canManageChannels?: boolean;
 };
 const emptyRef = { id: "", version: 1 };
 function initial(c: PricingCatalogDTO): PricingRequest {
@@ -209,6 +211,17 @@ export function usePricingDraft({
     /* Keep the comparison editor mounted while productive fields are invalid. */
   }
   return {
+    addChannel: (channel: PricingChannelDTO) => {
+      setCurrent((c) => ({
+        ...c,
+        channels: [
+          ...c.channels.filter((row) => row.id !== channel.id),
+          channel,
+        ],
+      }));
+      setReview(null);
+      patch({ channelRef: { id: channel.id, version: channel.version } });
+    },
     current,
     review,
     setReview,

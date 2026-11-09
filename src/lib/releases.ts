@@ -8,6 +8,27 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.14",
+    date: "2026-11-09",
+    title: "Calculadora única e configurações por assunto",
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "A página da calculadora usa apenas o fluxo atual de impressão e formação do preço. Memórias antigas continuam preservadas nos produtos e documentos.",
+          "Configurações agora se divide em Produção, Precificação, Canais e complementos, Tributação, Alertas comerciais e Equipe. Cada bloco aparece apenas em sua área, com os dados digitados preservados ao trocar de aba.",
+          "Custos de produção e padrões de preço compartilham o mesmo salvamento, evitando configurações duplicadas. Regimes e competências fiscais ficam na aba Tributação.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "Administradores podem cadastrar canais diretamente na calculadora; ao salvar, o novo canal é selecionado sem apagar os dados do cálculo.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.27.13",
     date: "2026-11-09",
     title: "Identificação simplificada das atualizações",

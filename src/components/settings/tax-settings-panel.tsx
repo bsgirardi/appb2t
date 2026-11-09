@@ -111,7 +111,7 @@ export function TaxSettingsPanel({ initial }: { initial: TaxProfilesDTO }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Preço e margem</CardTitle>
+        <CardTitle>Tributação</CardTitle>
         <CardDescription>
           Tributação para estimativas gerenciais. Configure por competência; a
           alíquota não é determinada automaticamente pelo CNPJ.

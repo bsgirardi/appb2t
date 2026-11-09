@@ -39,7 +39,8 @@ import {
   type EditorField,
   type EditorRecord,
 } from "./record-editor";
-type Tab = "materials" | "printers" | "settings" | "users";
+export type SettingsTab = "materials" | "printers" | "settings" | "users";
+type Tab = SettingsTab;
 export interface AdminData {
   materials: MaterialDTO[];
   printers: PrinterDTO[];
@@ -157,9 +158,20 @@ const defaults: Record<Tab, EditorRecord> = {
   },
   users: { name: "", email: "", role: "OPERATOR", password: "" },
 };
-export function SettingsPanel({ initialData }: { initialData: AdminData }) {
+export function SettingsPanel({
+  initialData,
+  availableTabs,
+  embedded = false,
+}: {
+  initialData: AdminData;
+  availableTabs?: SettingsTab[];
+  embedded?: boolean;
+}) {
+  const visibleTabs = tabs.filter(
+    (t) => !availableTabs || availableTabs.includes(t.key),
+  );
   const [data, setData] = useState(initialData),
-    [tab, setTab] = useState<Tab>("materials"),
+    [tab, setTab] = useState<Tab>(visibleTabs[0].key),
     [editing, setEditing] = useState<EditorRecord | null>(null),
     [resetting, setResetting] = useState(false),
     [notice, setNotice] = useState(""),
@@ -245,28 +257,41 @@ export function SettingsPanel({ initialData }: { initialData: AdminData }) {
     : `/api/${tab}${editing?.id ? `/${editing.id}` : ""}`;
   return (
     <>
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">CONTROLE DA PRODUÇÃO</div>
-          <h1>Configurações</h1>
-          <p>Uma base de custos consistente, para toda a equipe.</p>
+      {!embedded && (
+        <div className="page-heading">
+          <div>
+            <div className="eyebrow">CONTROLE DA PRODUÇÃO</div>
+            <h1>Configurações</h1>
+            <p>Uma base de custos consistente, para toda a equipe.</p>
+          </div>
+          <span className="admin-label">Acesso de administrador</span>
         </div>
-        <span className="admin-label">Acesso de administrador</span>
-      </div>
+      )}
       <Tabs value={tab} onValueChange={(value) => selectTab(value as Tab)}>
-        <TabsList
-          className="h-auto flex-wrap justify-start"
-          aria-label="Configurações"
+        {visibleTabs.length > 1 && (
+          <TabsList
+            className="h-auto flex-wrap justify-start"
+            aria-label="Configurações"
+          >
+            {visibleTabs.map((t) => (
+              <TabsTrigger key={t.key} value={t.key}>
+                <t.icon size={18} />
+                {t.label}
+                {t.key !== "settings" && <span>{data[t.key].length}</span>}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        )}
+        <TabsContent
+          value={tab}
+          {...(visibleTabs.length === 1
+            ? {
+                role: "region",
+                "aria-label": title,
+                "aria-labelledby": undefined,
+              }
+            : {})}
         >
-          {tabs.map((t) => (
-            <TabsTrigger key={t.key} value={t.key}>
-              <t.icon size={18} />
-              {t.label}
-              {t.key !== "settings" && <span>{data[t.key].length}</span>}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent value={tab}>
           {notice && <Notice kind="success">{notice}</Notice>}
           {error && <Notice>{error}</Notice>}
           <ContextEditor

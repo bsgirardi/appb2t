@@ -18,6 +18,77 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+it("creates and selects a channel without losing the calculator draft", async () => {
+  const channel = {
+    ...pricingCatalog.channels[0],
+    id: "new-channel",
+    name: "Venda direta",
+    active: true,
+  };
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(JSON.stringify({ data: channel })),
+  );
+  render(
+    <GuidedPricingForm
+      catalog={{ ...pricingCatalog, channels: [] }}
+      canManageChannels
+      onApply={async () => {}}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("Quantidade do lote"), {
+    target: { value: "7" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Cadastrar canal" }));
+  fireEvent.change(screen.getByLabelText("Nome do canal"), {
+    target: { value: "Venda direta" },
+  });
+  fireEvent.change(screen.getByLabelText("Despesa fixa por lote (R$)"), {
+    target: { value: "0" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar canal" }));
+  await waitFor(() =>
+    expect(
+      (screen.getByLabelText("Canal de venda") as HTMLSelectElement).value,
+    ).toBe(channel.id),
+  );
+  expect(
+    (screen.getByLabelText("Quantidade do lote") as HTMLInputElement).value,
+  ).toBe("7");
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+it("keeps channel data available for retry when creation fails", async () => {
+  vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Offline"));
+  render(
+    <GuidedPricingForm
+      catalog={pricingCatalog}
+      canManageChannels
+      onApply={async () => {}}
+    />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cadastrar canal" }));
+  fireEvent.change(screen.getByLabelText("Nome do canal"), {
+    target: { value: "Venda direta" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar canal" }));
+  await screen.findByText(
+    "Não foi possível conectar. Verifique sua conexão e tente novamente.",
+  );
+  expect(
+    (screen.getByLabelText("Nome do canal") as HTMLInputElement).value,
+  ).toBe("Venda direta");
+  expect(screen.getByRole("dialog")).toBeTruthy();
+});
+it("explains channel registration permissions to operators", () => {
+  render(
+    <GuidedPricingForm catalog={pricingCatalog} onApply={async () => {}} />,
+  );
+  expect(screen.queryByRole("button", { name: "Cadastrar canal" })).toBeNull();
+  expect(
+    screen.getByText(
+      "Para cadastrar um novo canal, solicite ao administrador.",
+    ),
+  ).toBeTruthy();
+});
 it("offers the same V2 result and applies the unchanged request", async () => {
   const onApply = vi
     .fn<(request: PricingRequest) => Promise<void>>()
