@@ -8,6 +8,12 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.27.12",
+    date: "2026-11-08",
+    title: "Acessibilidade de controles e diálogos",
+    sections: [{ title: "Correções", items: ["Opções de seleção, ações em campos e rótulos de caixas de seleção com área de interação ampliada no celular.", "Foco por teclado permanece visível em paletas personalizadas claras e escuras.", "Diálogos extensos respeitam a altura da tela e permitem rolagem interna, mantendo o conteúdo e as ações acessíveis."] }],
+  },
+  {
     version: "1.27.11",
     date: "2026-11-08",
     title: "Consistência de temas e acessibilidade dos controles",

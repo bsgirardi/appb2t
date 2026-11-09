@@ -59,14 +59,21 @@ function Preview() {
   const [open, setOpen] = useState(params.has("dialog"));
   const [editorOpen, setEditorOpen] = useState(false);
   const palette = (
-    params.has("palette")
+    params.has("extreme")
       ? {
-          "--light-primary": "#663399",
-          "--light-on-primary": "#ffffff",
-          "--dark-primary": "#e5b8ff",
-          "--dark-on-primary": "#191020",
+          "--light-primary": "#ffffff",
+          "--light-on-primary": "#000000",
+          "--dark-primary": "#000000",
+          "--dark-on-primary": "#ffffff",
         }
-      : {}
+      : params.has("palette")
+        ? {
+            "--light-primary": "#663399",
+            "--light-on-primary": "#ffffff",
+            "--dark-primary": "#e5b8ff",
+            "--dark-on-primary": "#191020",
+          }
+        : {}
   ) as CSSProperties;
   if (params.get("view") === "login")
     return (
@@ -269,6 +276,13 @@ function Preview() {
           <DialogTitle>Diálogo sintético</DialogTitle>
           <DialogDescription>Verificação de portal e foco.</DialogDescription>
           <Field label="Campo no portal" />
+          {params.has("long") &&
+            Array.from({ length: 24 }, (_, index) => (
+              <Field
+                key={index}
+                label={`Referência sintética extensa ${index + 1}`}
+              />
+            ))}
           <Button>Confirmar prévia</Button>
         </DialogContent>
       </Dialog>
