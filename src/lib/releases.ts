@@ -21,6 +21,7 @@ export const releases: Release[] = [
       { title: "Melhorias", items: [
         "Links antigos e filtros do catálogo continuam funcionando no novo endereço. Produtos, listas de orçamento, compra e checkout mantêm seus caminhos.",
         "A medição de navegação é opcional, começa desligada e depende da configuração do servidor e da escolha de cada visitante. Cliques de contato não são tratados como orçamento enviado ou compra.",
+        "A preparação das imagens da aplicação executa compilação e verificações em etapas separadas para reduzir o uso de memória, mantendo as conferências antes da publicação.",
       ] },
     ],
   },
