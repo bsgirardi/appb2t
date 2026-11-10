@@ -53,7 +53,7 @@ export function catalogPath(
   if (commercial.priceMax) params.set("precoMax", commercial.priceMax);
   if (commercial.availability)
     params.set("disponibilidade", commercial.availability);
-  return `/${params.size ? `?${params}` : ""}`;
+  return `/catalogo${params.size ? `?${params}` : ""}`;
 }
 export function catalogContextPath(
   context: CatalogFilters,
@@ -83,6 +83,19 @@ export function productBrowsePath(
     context.order,
     context.page,
     context,
-  ).slice(1);
+  ).slice("/catalogo".length);
   return productPath(product) + query;
+}
+
+export function queryDestination(path: string, query: CatalogQuery): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) params.append(key, item);
+  }
+  return path + (params.size ? `?${params}` : "");
+}
+export function legacyCatalogDestination(query: CatalogQuery): string | null {
+  const keys = ["colecao", "busca", "ordem", "pagina", "precoMin", "precoMax", "disponibilidade"];
+  if (!keys.some((key) => query[key] !== undefined)) return null;
+  return queryDestination("/catalogo", query);
 }

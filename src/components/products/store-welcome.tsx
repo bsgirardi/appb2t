@@ -34,8 +34,8 @@ export function StoreWelcome() {
             variant="secondary"
             className="h-auto min-h-12 rounded-full px-6 font-semibold"
           >
-            <Link href="#all-products">
-              Explorar produtos <ArrowDown aria-hidden="true" />
+            <Link href="/catalogo">
+              Explorar catálogo <ArrowDown aria-hidden="true" />
             </Link>
           </Button>
           <Button
@@ -45,7 +45,7 @@ export function StoreWelcome() {
             className="h-auto min-h-12 rounded-full border-border bg-background px-6 text-foreground hover:bg-accent"
           >
             <Link href="/portfolio/orcamento">
-              Meu orçamento <ArrowRight aria-hidden="true" />
+              Solicitar orçamento <ArrowRight aria-hidden="true" />
             </Link>
           </Button>
         </div>

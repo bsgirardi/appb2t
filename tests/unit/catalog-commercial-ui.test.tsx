@@ -34,7 +34,7 @@ it("renders a combined GET form without carrying pagination", () => {
   }) as HTMLFormElement;
   const data = new FormData(form);
   expect(form.method).toBe("get");
-  expect(form.getAttribute("action")).toBe("/");
+  expect(form.getAttribute("action")).toBe("/catalogo");
   expect(data.get("precoMin")).toBe("0");
   expect(data.get("precoMax")).toBe("20,50");
   expect(data.get("colecao")).toBe("c");

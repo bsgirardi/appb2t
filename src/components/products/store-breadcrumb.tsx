@@ -8,7 +8,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 export function StoreBreadcrumb({
-  href = "/",
+  href = "/catalogo",
   title,
 }: {
   href?: string;

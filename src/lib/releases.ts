@@ -8,6 +8,22 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.28.0",
+    date: "2026-11-09",
+    title: "Início institucional, catálogo direto e presença no Google",
+    sections: [
+      { title: "Novidades", items: [
+        "A página inicial apresenta a B2T e orienta a escolha dos produtos e o envio de orçamento. O catálogo passa a ter endereço próprio, com busca e filtros próximos dos produtos.",
+        "Administradores contam com a área SEO e Analytics para ajustar a apresentação das páginas nas buscas, escolher imagens de compartilhamento e gerenciar redirecionamentos.",
+        "Integração de leitura com Google Analytics e Search Console preparada para contas autorizadas, com fontes, períodos, comparação e estados de conexão separados. A configuração e a autorização da conta são necessárias para consultar dados reais.",
+      ] },
+      { title: "Melhorias", items: [
+        "Links antigos e filtros do catálogo continuam funcionando no novo endereço. Produtos, listas de orçamento, compra e checkout mantêm seus caminhos.",
+        "A medição de navegação é opcional, começa desligada e depende da configuração do servidor e da escolha de cada visitante. Cliques de contato não são tratados como orçamento enviado ou compra.",
+      ] },
+    ],
+  },
+  {
     version: "1.27.14",
     date: "2026-11-09",
     title: "Calculadora única e configurações por assunto",

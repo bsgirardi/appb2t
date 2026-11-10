@@ -60,7 +60,7 @@ export default async function Login({
           <AuthForm />
           <div className="login-help">
             <p>Precisa de acesso? Fale com o administrador da sua equipe.</p>
-            <Link href="/#all-products">Explorar o catálogo público</Link>
+            <Link href="/catalogo#all-products">Explorar o catálogo público</Link>
           </div>
           <footer className="mt-4 text-center text-xs text-muted-foreground">
             Versão {APP_VERSION}

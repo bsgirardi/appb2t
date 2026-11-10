@@ -9,11 +9,10 @@ import { ProductCatalog } from "@/components/products/product-catalog";
 import { productDTO } from "../fixtures/product";
 
 afterEach(cleanup);
-it("redirects both previous catalog entry points without redirecting product or API paths", async () => {
+it("redirects the legacy portfolio to the dedicated catalog without loops", async () => {
   const redirects = await config.redirects!();
   expect(redirects).toEqual([
-    { source: "/portfolio", destination: "/", permanent: true },
-    { source: "/catalogo", destination: "/", permanent: true },
+    { source: "/portfolio", destination: "/catalogo", permanent: true },
   ]);
 });
 it("searches from the public root and retains the collection and current term", () => {
@@ -31,7 +30,7 @@ it("searches from the public root and retains the collection and current term", 
     </StorefrontShell>,
   );
   const form = screen.getByRole("search") as HTMLFormElement;
-  expect(form.getAttribute("action")).toBe("/");
+  expect(form.getAttribute("action")).toBe("/catalogo");
   expect(new FormData(form).get("colecao")).toBe("c1");
   expect(new FormData(form).get("busca")).toBe("vaso");
   expect(

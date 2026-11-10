@@ -1,3 +1,3 @@
-// Legacy entry redirected in next.config.ts, including its query string.
-export { default, generateMetadata } from "../page";
+// Legacy entry redirected in next.config.ts, preserving query strings.
+export { default, generateMetadata } from "../catalogo/page";
 export const dynamic = "force-dynamic";

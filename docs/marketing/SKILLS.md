@@ -21,3 +21,5 @@ Foi revisado o conteúdo das sete skills e a referência Node do Google. São or
 - shadcn local, Aparência, identidade oficial, contratos Next instalados e AGENTS.md prevalecem sobre exemplos genéricos. Nenhum preset ou componente local foi substituído.
 
 As skills locais frontend-design e shadcn já existentes permaneceram intactas. O MCP shadcn foi consultado para composição e checklist. A verificação não constitui auditoria de todas as referências externas nem autorização para executá-las futuramente.
+
+Os snapshots preservam inclusive espaços finais e quebras Markdown upstream. Não foram normalizados para fazer um check de whitespace passar; a verificação de whitespace da aplicação exclui esse material de terceiros.

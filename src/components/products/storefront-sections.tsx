@@ -70,7 +70,7 @@ export function StoreBanners({
                 href={
                   collection
                     ? catalogPath(collection.slug ?? collection.id)
-                    : "#all-products"
+                    : "/catalogo#all-products"
                 }
               >
                 {banner.buttonText} <span aria-hidden="true">→</span>

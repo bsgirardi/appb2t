@@ -15,6 +15,8 @@ import type { SiteColors } from "@/domain/appearance/site-colors";
 import { InquiryLink } from "./inquiry-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { CatalogCommercialFilters } from "@/domain/products/catalog-commercial-filters";
+import { Suspense } from "react";
+import { StoreAnalytics } from "./store-analytics";
 
 export function StorefrontShell({
   identity,
@@ -64,7 +66,7 @@ export function StorefrontShell({
             />
           </Link>
           <form
-            action="/"
+            action="/catalogo"
             className="order-3 flex w-full items-center gap-2 rounded-full border border-border bg-background px-4 md:order-none md:ml-auto md:w-auto md:flex-1 md:max-w-xl"
             role="search"
           >
@@ -137,8 +139,8 @@ export function StorefrontShell({
           aria-label="Navegação da loja"
           className="mx-auto flex max-w-[1320px] flex-wrap gap-x-7 gap-y-2 px-4 pb-2 text-sm font-semibold md:px-12"
         >
-          <Link href="/#all-products" className="py-2 hover:text-primary">
-            Explorar produtos
+          <Link href="/catalogo#all-products" className="py-2 hover:text-primary">
+            Explorar catálogo
           </Link>
           <Link href="/portfolio/orcamento" className="py-2 hover:text-primary">
             Meu orçamento
@@ -169,7 +171,7 @@ export function StorefrontShell({
           </div>
           <div className="grid content-start gap-3 text-sm">
             <strong>Explore a loja</strong>
-            <Link href="/#all-products">Todos os produtos</Link>
+            <Link href="/catalogo#all-products">Todos os produtos</Link>
             <Link href="/portfolio/orcamento">Lista de orçamento</Link>
             {identity.storefront?.aboutText && (
               <Link href="/portfolio/sobre">Sobre a loja</Link>
@@ -211,6 +213,7 @@ export function StorefrontShell({
           <span className="bg-b2t-green" />
         </div>
       </footer>
+      {process.env.GOOGLE_ANALYTICS_COLLECTION_ENABLED === "true" && process.env.GOOGLE_ANALYTICS_MANUAL_MEASUREMENT_CONFIRMED === "true" && /^G-[A-Z0-9]{4,20}$/.test(identity.storefront?.analytics?.measurementId ?? "") && <Suspense fallback={null}><StoreAnalytics measurementId={identity.storefront!.analytics!.measurementId} /></Suspense>}
     </div>
   );
 }

@@ -76,6 +76,10 @@ export async function saveAppearance(
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('b2t:appearance'))`;
     const old = await tx.companyAppearance.findUnique({ where: { id: 1 } });
     if ((old?.version ?? 0) !== expectedVersion) throw conflict();
+    if (data.storefront && old) {
+      const previous = storefrontSchema.parse(old.storefront);
+      data.storefront = { ...data.storefront, seo: data.storefront.seo ?? previous.seo, analytics: data.storefront.analytics ?? previous.analytics };
+    }
     const row = old
       ? await tx.companyAppearance.update({
           where: { id: 1 },

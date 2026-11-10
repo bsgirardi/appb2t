@@ -40,7 +40,7 @@ it("distinguishes an empty search from an unpublished catalog and offers recover
     screen
       .getByRole("link", { name: "Ver todos os produtos" })
       .getAttribute("href"),
-  ).toBe("/#all-products");
+  ).toBe("/catalogo#all-products");
   expect(screen.queryByText(/Nenhum produto publicado/)).toBeNull();
 });
 it("describes an empty collection without claiming the entire catalog is empty", () => {

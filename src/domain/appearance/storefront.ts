@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { seoSchema } from "@/domain/marketing/seo";
+import { analyticsSchema } from "@/domain/marketing/analytics";
 export const sectionNames = {
   banners: "Banners",
   featured: "Coleções em destaque",
@@ -7,6 +9,8 @@ export const sectionNames = {
 } as const;
 export const storefrontSchema = z
   .object({
+    seo: seoSchema.optional(),
+    analytics: analyticsSchema.optional(),
     showHero: z.boolean().default(true),
     seoTitle: z.string().trim().max(70).default(""),
     seoDescription: z.string().trim().max(170).default(""),

@@ -70,7 +70,7 @@ export function ProductCatalog({
               </Button>
             )}
             <Button asChild variant="outline">
-              <Link href="/#all-products">Ver todos os produtos</Link>
+              <Link href="/catalogo#all-products">Ver todos os produtos</Link>
             </Button>
           </EmptyContent>
         )}

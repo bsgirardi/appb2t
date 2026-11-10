@@ -20,7 +20,7 @@ export async function StoreInformationPage({
         ) : (
           <StoreFaq items={config.faq} />
         )}
-        <Link className="store-back" href="/">
+        <Link className="store-back" href="/catalogo">
           Explorar produtos →
         </Link>
       </article>

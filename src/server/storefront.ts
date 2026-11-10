@@ -14,6 +14,7 @@ import { productPath, summary } from "@/domain/products/storefront";
 import type { PublicProductDTO } from "@/domain/products/types";
 import { searchTerms } from "@/domain/products/catalog-search";
 import { searchCatalog } from "./catalog-search";
+import { resolveSeo, type SeoSettings } from "@/domain/marketing/seo";
 
 export const publicProduct = cache(async (id: string) => {
   const row = await db.product.findFirst({
@@ -174,7 +175,12 @@ export function publicMetadata(
   description: string,
   path: string,
   image?: string,
+  seo?: SeoSettings,
 ): Metadata {
+  const resolved = resolveSeo(seo, path, title, description, image);
+  title = resolved.title;
+  description = resolved.description;
+  image = resolved.image;
   const url = new URL(path, appUrl()).href;
   const images = image
     ? [{ url: new URL(image, appUrl()).href, alt: title }]
@@ -182,7 +188,7 @@ export function publicMetadata(
   return {
     title,
     description,
-    robots: { index: true, follow: true },
+    robots: { index: resolved.index, follow: true },
     alternates: { canonical: url },
     openGraph: {
       type: "website",
@@ -200,11 +206,12 @@ export function publicMetadata(
     },
   };
 }
-export function productMetadata(product: PublicProductDTO, company: string) {
+export function productMetadata(product: PublicProductDTO, company: string, seo?: SeoSettings) {
   return publicMetadata(
     product.seoTitle || `${product.name} | ${company}`,
     product.seoDescription || summary(product.description),
     productPath(product),
     product.images[0]?.url,
+    seo,
   );
 }

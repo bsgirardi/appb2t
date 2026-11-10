@@ -167,7 +167,7 @@ export function ActiveCatalogFilters({
           </Link>
         ))}
       <Link
-        href="/#all-products"
+        href="/catalogo#all-products"
         className="px-2 py-3 font-semibold text-primary underline underline-offset-4"
       >
         Limpar filtros

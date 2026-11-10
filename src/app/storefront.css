@@ -1265,3 +1265,14 @@
     gap: 24px;
   }
 }
+.storefront .landing-process {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  padding-inline-start: 24px;
+}
+.storefront .landing-process li { padding-inline-start: 8px; }
+.storefront .landing-process p { font-size: 14px; }
+@media (max-width: 767px) {
+  .storefront .landing-process { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
