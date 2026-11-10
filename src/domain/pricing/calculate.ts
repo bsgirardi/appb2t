@@ -28,7 +28,10 @@ export function calculateV2(input: PricingV2Input): PricingV2Result {
         .times(v.printer.daysPerMonth)
         .times(v.printer.hoursPerDay),
     );
-  const maintenance = time.times(v.maintenancePerHour);
+  const maintenance =
+    v.maintenanceMode === "FIXED_PER_LOT"
+      ? new D(v.maintenanceFixedPerLot)
+      : time.times(v.maintenancePerHour);
   const failure = material
     .plus(energy)
     .plus(maintenance)

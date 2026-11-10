@@ -8,6 +8,27 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.29.0",
+    date: "2026-11-10",
+    title: "Manutenção fixa por lote e configuração de custos",
+    sections: [
+      {
+        title: "Novidades",
+        items: [
+          "A manutenção pode ser configurada por hora ou como valor fixo em reais por produção/lote. A escolha fica preservada nas novas memórias de cálculo.",
+        ],
+      },
+      {
+        title: "Correções",
+        items: [
+          "A primeira configuração de custos pode ser salva sem preencher campos escondidos de precificação: markup e margem iniciam em 0%, com orientação para ajuste.",
+          "Erros de configuração identificam os campos que precisam de correção e preservam os valores digitados.",
+          "A manutenção fixa é cobrada uma vez no custo real do lote, inclusive sem horas de máquina, e considera estornos integrais de apontamentos.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.28.1",
     date: "2026-11-10",
     title: "Atualizações de segurança e preparação da aplicação",
@@ -32,17 +53,23 @@ export const releases: Release[] = [
     date: "2026-11-09",
     title: "Início institucional, catálogo direto e presença no Google",
     sections: [
-      { title: "Novidades", items: [
-        "A página inicial apresenta a B2T e orienta a escolha dos produtos e o envio de orçamento. O catálogo passa a ter endereço próprio, com busca e filtros próximos dos produtos.",
-        "A página inicial também reúne publicações autorizadas do Instagram @somosb2t, com as mais recentes primeiro. Administradores podem ocultar posts e acompanhar a importação automática, que depende da conexão autorizada à conta profissional.",
-        "Administradores contam com a área SEO e Analytics para ajustar a apresentação das páginas nas buscas, escolher imagens de compartilhamento e gerenciar redirecionamentos.",
-        "Integração de leitura com Google Analytics e Search Console preparada para contas autorizadas, com fontes, períodos, comparação e estados de conexão separados. A configuração e a autorização da conta são necessárias para consultar dados reais.",
-      ] },
-      { title: "Melhorias", items: [
-        "Links antigos e filtros do catálogo continuam funcionando no novo endereço. Produtos, listas de orçamento, compra e checkout mantêm seus caminhos.",
-        "A medição de navegação é opcional, começa desligada e depende da configuração do servidor e da escolha de cada visitante. Cliques de contato não são tratados como orçamento enviado ou compra.",
-        "A preparação das imagens da aplicação executa compilação e verificações em etapas separadas para reduzir o uso de memória, mantendo as conferências antes da publicação.",
-      ] },
+      {
+        title: "Novidades",
+        items: [
+          "A página inicial apresenta a B2T e orienta a escolha dos produtos e o envio de orçamento. O catálogo passa a ter endereço próprio, com busca e filtros próximos dos produtos.",
+          "A página inicial também reúne publicações autorizadas do Instagram @somosb2t, com as mais recentes primeiro. Administradores podem ocultar posts e acompanhar a importação automática, que depende da conexão autorizada à conta profissional.",
+          "Administradores contam com a área SEO e Analytics para ajustar a apresentação das páginas nas buscas, escolher imagens de compartilhamento e gerenciar redirecionamentos.",
+          "Integração de leitura com Google Analytics e Search Console preparada para contas autorizadas, com fontes, períodos, comparação e estados de conexão separados. A configuração e a autorização da conta são necessárias para consultar dados reais.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "Links antigos e filtros do catálogo continuam funcionando no novo endereço. Produtos, listas de orçamento, compra e checkout mantêm seus caminhos.",
+          "A medição de navegação é opcional, começa desligada e depende da configuração do servidor e da escolha de cada visitante. Cliques de contato não são tratados como orçamento enviado ou compra.",
+          "A preparação das imagens da aplicação executa compilação e verificações em etapas separadas para reduzir o uso de memória, mantendo as conferências antes da publicação.",
+        ],
+      },
     ],
   },
   {
@@ -70,13 +97,30 @@ export const releases: Release[] = [
     version: "1.27.13",
     date: "2026-11-09",
     title: "Identificação simplificada das atualizações",
-    sections: [{ title: "Melhorias", items: ["As próximas entregas passam a usar somente o número da versão, facilitando a escolha da atualização na implantação.", "Entregas anteriores continuam disponíveis, com verificação de integridade e proteção contra substituição de versões publicadas."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "As próximas entregas passam a usar somente o número da versão, facilitando a escolha da atualização na implantação.",
+          "Entregas anteriores continuam disponíveis, com verificação de integridade e proteção contra substituição de versões publicadas.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.12",
     date: "2026-11-08",
     title: "Acessibilidade de controles e diálogos",
-    sections: [{ title: "Correções", items: ["Opções de seleção, ações em campos e rótulos de caixas de seleção com área de interação ampliada no celular.", "Foco por teclado permanece visível em paletas personalizadas claras e escuras.", "Diálogos extensos respeitam a altura da tela e permitem rolagem interna, mantendo o conteúdo e as ações acessíveis."] }],
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "Opções de seleção, ações em campos e rótulos de caixas de seleção com área de interação ampliada no celular.",
+          "Foco por teclado permanece visível em paletas personalizadas claras e escuras.",
+          "Diálogos extensos respeitam a altura da tela e permitem rolagem interna, mantendo o conteúdo e as ações acessíveis.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.11",
@@ -116,7 +160,14 @@ export const releases: Release[] = [
     version: "1.27.9",
     date: "2026-11-08",
     title: "Clareza na rentabilidade, metas e recorrência",
-    sections: [{ title: "Melhorias", items: ["Rentabilidade mostra os critérios aplicados, identifica subtotais cobertos e explica a diferença entre previsto e realizado. Metas distinguem ausência de objetivo de realizado indisponível; recorrência apresenta produto e amostra junto à sugestão de conferência, sem aplicar alterações automaticamente."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Rentabilidade mostra os critérios aplicados, identifica subtotais cobertos e explica a diferença entre previsto e realizado. Metas distinguem ausência de objetivo de realizado indisponível; recorrência apresenta produto e amostra junto à sugestão de conferência, sem aplicar alterações automaticamente.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.8",
@@ -142,19 +193,40 @@ export const releases: Release[] = [
     version: "1.27.7",
     date: "2026-11-08",
     title: "Clareza no acompanhamento comercial",
-    sections: [{ title: "Melhorias", items: ["Clientes exibem e-mail e telefone separadamente. Negociações e solicitações mostram critérios aplicados, responsáveis e vínculos comerciais com mais clareza, mantendo a seleção ao voltar dos detalhes."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Clientes exibem e-mail e telefone separadamente. Negociações e solicitações mostram critérios aplicados, responsáveis e vínculos comerciais com mais clareza, mantendo a seleção ao voltar dos detalhes.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.6",
     date: "2026-11-08",
     title: "Clareza na fila de planejamento",
-    sections: [{ title: "Melhorias", items: ["Planejamento com resumo dos filtros recolhidos, leitura organizada da disponibilidade e do contexto dos lotes e distinção explícita entre sequência simulada e fila registrada."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Planejamento com resumo dos filtros recolhidos, leitura organizada da disponibilidade e do contexto dos lotes e distinção explícita entre sequência simulada e fila registrada.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.5",
     date: "2026-11-08",
     title: "Clareza na produção e no estoque",
-    sections: [{ title: "Melhorias", items: ["Ordens mostram metas e quantidades registradas por item. Estoque e reservas apresentam saldos com unidades e orientação contextual; filtros aplicados permanecem visíveis junto aos resultados."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Ordens mostram metas e quantidades registradas por item. Estoque e reservas apresentam saldos com unidades e orientação contextual; filtros aplicados permanecem visíveis junto aos resultados.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.4",
@@ -173,13 +245,27 @@ export const releases: Release[] = [
     version: "1.27.3",
     date: "2026-11-07",
     title: "Clareza nos filtros e listagens comerciais",
-    sections: [{ title: "Melhorias", items: ["Orçamentos e vendas mostram os critérios aplicados junto aos resultados, com leitura aprimorada de clientes, documentos, valores e estados vazios, preservando os filtros em edição."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Orçamentos e vendas mostram os critérios aplicados junto aos resultados, com leitura aprimorada de clientes, documentos, valores e estados vazios, preservando os filtros em edição.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.2",
     date: "2026-11-07",
     title: "Clareza no cadastro de produtos",
-    sections: [{ title: "Melhorias", items: ["Cadastro e edição de produtos com orientação mais direta, indicação consistente dos campos obrigatórios e mais espaço para descrição e formas de pagamento."] }],
+    sections: [
+      {
+        title: "Melhorias",
+        items: [
+          "Cadastro e edição de produtos com orientação mais direta, indicação consistente dos campos obrigatórios e mais espaço para descrição e formas de pagamento.",
+        ],
+      },
+    ],
   },
   {
     version: "1.27.1",

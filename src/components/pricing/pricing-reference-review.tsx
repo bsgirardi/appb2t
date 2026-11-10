@@ -1,4 +1,5 @@
 "use client";
+import { maintenanceDescription } from "@/domain/pricing/maintenance";
 import type { PricingCatalogDTO } from "@/domain/pricing/types";
 import { Button } from "@/components/ui/button";
 export function PricingReferenceReview({
@@ -38,8 +39,8 @@ export function PricingReferenceReview({
             {review.settings?.laborPerHour ?? "não configurado"} R$/hora.
           </p>
           <p>
-            Manutenção: {current.settings?.maintenancePerHour ?? "—"} →{" "}
-            {review.settings?.maintenancePerHour ?? "—"}. Falhas:{" "}
+            Manutenção: {maintenanceDescription(current.settings)} →{" "}
+            {maintenanceDescription(review.settings)}. Falhas:{" "}
             {current.settings?.failurePercent ?? "—"} →{" "}
             {review.settings?.failurePercent ?? "—"}%. Markup:{" "}
             {current.settings?.markupPercent ?? "—"} →{" "}

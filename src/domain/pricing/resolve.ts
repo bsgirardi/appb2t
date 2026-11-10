@@ -108,6 +108,8 @@ export function resolveCatalogPricing(
     finishingMinutesPerUnit: r.finishingMinutesPerUnit,
     energyRate: s.energyRate,
     maintenancePerHour: s.maintenancePerHour,
+    maintenanceMode: s.maintenanceMode ?? "HOURLY",
+    maintenanceFixedPerLot: s.maintenanceFixedPerLot ?? "0",
     failurePercent: s.failurePercent,
     laborPerHour: s.laborPerHour,
     markupPercent: s.markupPercent,

@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { api } from "@/lib/client-api";
+import { api, ApiError } from "@/lib/client-api";
+import { NativeSelect } from "@/components/ui/native-select";
 import type {
   PricingCatalogDTO,
   PricingSettingsValues,
@@ -21,6 +22,7 @@ import {
 const rateFields: [keyof PricingSettingsValues, string][] = [
   ["energyRate", "Tarifa de energia (R$/kWh)"],
   ["maintenancePerHour", "Manutenção (R$/hora)"],
+  ["maintenanceFixedPerLot", "Manutenção fixa (R$/lote)"],
   ["failurePercent", "Reserva para falhas (%)"],
   ["laborPerHour", "Trabalho (R$/hora)"],
   ["markupPercent", "Markup padrão (%)"],
@@ -31,9 +33,23 @@ function usePricingSettings(initialCatalog: PricingCatalogDTO) {
   const [rates, setRates] = useState<PricingSettingsValues>(
     () =>
       Object.fromEntries(
-        rateFields.map(([key]) => [key, initialCatalog.settings?.[key] ?? ""]),
+        rateFields.map(([key]) => [
+          key,
+          initialCatalog.settings?.[key] ??
+            ([
+              "markupPercent",
+              "targetMarginPercent",
+              "maintenanceFixedPerLot",
+            ].includes(key)
+              ? "0"
+              : ""),
+        ]),
       ) as unknown as PricingSettingsValues,
   );
+  const [maintenanceMode, setMaintenanceMode] = useState<
+    "HOURLY" | "FIXED_PER_LOT"
+  >(initialCatalog.settings?.maintenanceMode ?? "HOURLY");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
@@ -41,11 +57,21 @@ function usePricingSettings(initialCatalog: PricingCatalogDTO) {
     if (busy) return;
     setBusy(true);
     setError("");
+    setFieldErrors({});
     setMessage("");
     try {
       const settings = await api<NonNullable<PricingCatalogDTO["settings"]>>(
         "/api/pricing/settings",
-        { ...rates, expectedVersion: catalog.settings?.version ?? 0 },
+        {
+          ...rates,
+          maintenanceMode,
+          maintenancePerHour:
+            maintenanceMode === "FIXED_PER_LOT" &&
+            !rates.maintenancePerHour.trim()
+              ? "0"
+              : rates.maintenancePerHour,
+          expectedVersion: catalog.settings?.version ?? 0,
+        },
       );
       setCatalog((c) => ({ ...c, settings }));
       setMessage(
@@ -53,11 +79,24 @@ function usePricingSettings(initialCatalog: PricingCatalogDTO) {
       );
     } catch (e) {
       setError((e as Error).message);
+      if (e instanceof ApiError) setFieldErrors(e.fields ?? {});
     } finally {
       setBusy(false);
     }
   }
-  return { catalog, setCatalog, rates, setRates, error, message, busy, save };
+  return {
+    catalog,
+    setCatalog,
+    rates,
+    setRates,
+    maintenanceMode,
+    setMaintenanceMode,
+    fieldErrors,
+    error,
+    message,
+    busy,
+    save,
+  };
 }
 const PricingSettingsContext = createContext<ReturnType<
   typeof usePricingSettings
@@ -86,13 +125,26 @@ export function PricingRatesPanel({
 }: {
   section?: "production" | "pricing" | "all";
 }) {
-  const { rates, setRates, error, message, busy, save } = useSettings();
+  const {
+    rates,
+    setRates,
+    maintenanceMode,
+    setMaintenanceMode,
+    fieldErrors,
+    error,
+    message,
+    busy,
+    save,
+  } = useSettings();
   const fields = rateFields.filter(
     ([key]) =>
-      section === "all" ||
-      (section === "pricing"
-        ? ["markupPercent", "targetMarginPercent"].includes(key)
-        : !["markupPercent", "targetMarginPercent"].includes(key)),
+      (key !== "maintenancePerHour" || maintenanceMode === "HOURLY") &&
+      (key !== "maintenanceFixedPerLot" ||
+        maintenanceMode === "FIXED_PER_LOT") &&
+      (section === "all" ||
+        (section === "pricing"
+          ? ["markupPercent", "targetMarginPercent"].includes(key)
+          : !["markupPercent", "targetMarginPercent"].includes(key))),
   );
   return (
     <Card>
@@ -111,15 +163,49 @@ export function PricingRatesPanel({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {error && <Notice>{error}</Notice>}
+        {error && (
+          <Notice>
+            {error}
+            {Object.keys(fieldErrors).length > 0 && (
+              <ul>
+                {Object.entries(fieldErrors).map(([key, detail]) => (
+                  <li key={key}>
+                    {rateFields.find(([name]) => name === key)?.[1] ?? key}:{" "}
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Notice>
+        )}
         {message && <Notice kind="success">{message}</Notice>}
         <FieldGroup className="grid gap-4 sm:grid-cols-2">
+          {section !== "pricing" && (
+            <Label className="flex flex-col gap-2">
+              Cobrança da manutenção
+              <NativeSelect
+                value={maintenanceMode}
+                disabled={busy}
+                onChange={(e) =>
+                  setMaintenanceMode(
+                    e.target.value as "HOURLY" | "FIXED_PER_LOT",
+                  )
+                }
+              >
+                <option value="HOURLY">Por hora de máquina (R$/hora)</option>
+                <option value="FIXED_PER_LOT">
+                  Valor fixo por produção/lote (R$)
+                </option>
+              </NativeSelect>
+            </Label>
+          )}
           {fields.map(([key, label]) => (
             <Field
               key={key}
               label={label}
               inputMode="decimal"
               value={rates[key]}
+              error={fieldErrors[key]}
               disabled={busy}
               onChange={(e) =>
                 setRates((r) => ({ ...r, [key]: e.target.value }))
@@ -129,8 +215,15 @@ export function PricingRatesPanel({
         </FieldGroup>
         {section !== "all" && (
           <p className="text-sm text-muted-foreground">
-            Custos de produção e padrões de preço são salvos juntos. Preencha as
-            duas abas na primeira configuração.
+            Custos de produção e padrões de preço são salvos juntos. Na primeira
+            configuração, markup e margem começam em 0%; ajuste-os na aba
+            Precificação.
+          </p>
+        )}
+        {section !== "pricing" && (
+          <p className="text-sm text-muted-foreground">
+            A manutenção fixa é cobrada uma vez por produção/lote, sem
+            multiplicar pelas horas ou pela quantidade de peças.
           </p>
         )}
       </CardContent>

@@ -25,6 +25,8 @@ export interface PricingV2Input {
   machineMinutesPerUnit: string;
   energyRate: string;
   maintenancePerHour: string;
+  maintenanceMode?: "HOURLY" | "FIXED_PER_LOT";
+  maintenanceFixedPerLot?: string;
   failurePercent: string;
   setupMinutes: string;
   finishingMinutesPerUnit: string;
@@ -88,6 +90,8 @@ export interface PricingRequest {
 export interface PricingSettingsValues {
   energyRate: string;
   maintenancePerHour: string;
+  maintenanceMode?: "HOURLY" | "FIXED_PER_LOT";
+  maintenanceFixedPerLot?: string;
   failurePercent: string;
   laborPerHour: string;
   markupPercent: string;

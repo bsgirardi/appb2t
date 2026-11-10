@@ -1,6 +1,49 @@
 import { expect, it } from "vitest";
 import { calculateV2 } from "@/domain/pricing/calculate";
 import { lotFixture as f } from "../fixtures/pricing";
+import {
+  resolveCatalogPricing,
+  requestFromInput,
+} from "@/domain/pricing/resolve";
+import { pricingCatalog } from "../fixtures/pricing-catalog";
+it("preserves fixed maintenance in resolved calculation premises", () => {
+  const input = resolveCatalogPricing(
+    {
+      ...pricingCatalog,
+      settings: {
+        ...pricingCatalog.settings!,
+        maintenanceMode: "FIXED_PER_LOT",
+        maintenanceFixedPerLot: "15.5",
+      },
+    },
+    requestFromInput(f, 1),
+  );
+  expect(input).toMatchObject({
+    maintenanceMode: "FIXED_PER_LOT",
+    maintenanceFixedPerLot: "15.5",
+  });
+  expect(calculateV2(input).maintenance).toBe("15.5");
+  expect(calculateV2(f).maintenance).toBe("1");
+});
+it("charges fixed maintenance once regardless of batch quantity or duration", () => {
+  for (const quantity of [1, 10, 100]) {
+    expect(
+      calculateV2({
+        ...f,
+        quantity,
+        maintenanceMode: "FIXED_PER_LOT",
+        maintenanceFixedPerLot: "15.5",
+      }).maintenance,
+    ).toBe("15.5");
+  }
+  expect(
+    calculateV2({
+      ...f,
+      maintenanceMode: "FIXED_PER_LOT",
+      maintenanceFixedPerLot: "0",
+    }).maintenance,
+  ).toBe("0");
+});
 it("prices a mixed-material batch with one preparation and commercial fee", () => {
   expect(calculateV2(f)).toMatchObject({
     material: "21",
