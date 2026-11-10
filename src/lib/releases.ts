@@ -8,6 +8,26 @@ export type Release = {
 // Keep the newest release first and add user-facing notes with each version bump.
 export const releases: Release[] = [
   {
+    version: "1.28.1",
+    date: "2026-11-10",
+    title: "Atualizações de segurança e preparação da aplicação",
+    sections: [
+      {
+        title: "Correções",
+        items: [
+          "Next.js, React e dependências das ferramentas foram atualizados para incorporar correções de segurança disponíveis.",
+        ],
+      },
+      {
+        title: "Melhorias",
+        items: [
+          "A preparação da aplicação usa versões alinhadas de Node.js e npm, com permissão de instalação limitada aos scripts necessários e revisados.",
+          "A imagem da aplicação deixa de incluir gerenciadores de pacotes usados apenas na preparação, reduzindo componentes desnecessários em execução.",
+        ],
+      },
+    ],
+  },
+  {
     version: "1.28.0",
     date: "2026-11-09",
     title: "Início institucional, catálogo direto e presença no Google",

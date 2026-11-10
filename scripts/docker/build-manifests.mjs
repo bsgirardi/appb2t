@@ -32,7 +32,7 @@ export function createManifests(pkg, lock) {
     if (!pkg.scripts?.[command]) throw new Error(`Missing tools command: ${command}`);
     toolsPkg.scripts[command] = pkg.scripts[command];
   }
-  for (const field of ['engines', 'overrides', 'prisma']) {
+  for (const field of ['engines', 'overrides', 'prisma', 'allowScripts']) {
     if (pkg[field] !== undefined) toolsPkg[field] = clone(pkg[field]);
   }
   const toolsLock = clone(lock);
