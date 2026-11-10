@@ -1,164 +1,61 @@
-import { resolveCollection } from "@/domain/collections/navigation";
-import { Pagination } from "@/components/ui/pagination";
-import { CatalogFilterForm } from "@/components/products/catalog-filter-form";
-import { catalogCommercialErrors } from "@/domain/products/catalog-commercial-filters";
-import { Alert } from "@/components/ui/alert";
+import { permanentRedirect } from "next/navigation";
+import { after } from "next/server";
 import Link from "next/link";
-import { StoreWelcome } from "@/components/products/store-welcome";
-import { notFound } from "next/navigation";
+import {
+  legacyCatalogDestination,
+  type CatalogQuery,
+} from "@/domain/products/catalog-navigation";
 import { getPublicAppearance } from "@/server/appearance";
-import { listPublicCollections } from "@/server/collections";
+import { featuredCollections, publicMetadata } from "@/server/storefront";
+import { StorefrontShell } from "@/components/products/storefront-shell";
+import { StoreWelcome } from "@/components/products/store-welcome";
 import {
-  catalogPage,
-  publicMetadata,
-  featuredCollections,
-} from "@/server/storefront";
-import { defaultStorefront } from "@/domain/appearance/storefront";
-import {
+  StoreAbout,
   StoreBanners,
   StoreFeatured,
-  StoreAbout,
   StoreKits,
 } from "@/components/products/storefront-sections";
-import { StorefrontShell } from "@/components/products/storefront-shell";
-import { ProductCatalog } from "@/components/products/product-catalog";
-import { summary } from "@/domain/products/storefront";
+import { StoreCollections } from "@/components/products/store-collections";
+import { listPublicCollections } from "@/server/collections";
+import { defaultStorefront } from "@/domain/appearance/storefront";
+import { Button } from "@/components/ui/button";
 import { listPublicKits } from "@/server/kits/queries";
+import { appUrl } from "@/lib/env";
+import { safeJsonLd } from "@/domain/products/storefront";
+import { StoreInstagram } from "@/components/products/store-instagram";
+import {
+  instagramPosts,
+  instagramSyncDue,
+  syncInstagram,
+} from "@/server/instagram";
 export const dynamic = "force-dynamic";
-import {
-  catalogContextPath,
-  catalogFilters as filters,
-  catalogPath as path,
-  type CatalogQuery as Query,
-} from "@/domain/products/catalog-navigation";
-import {
-  StoreCollections,
-  CollectionNavigation,
-  ActiveCatalogFilters,
-} from "@/components/products/store-collections";
-type Props = { searchParams: Promise<Query> };
-export async function generateMetadata({ searchParams }: Props) {
-  const f = filters(await searchParams);
-  const [identity, collections] = await Promise.all([
-    getPublicAppearance(),
-    listPublicCollections(),
-  ]);
-  const collection = resolveCollection(collections, f.collection);
-  if (collection) f.collection = collection.slug ?? collection.id;
-  const config = identity.storefront ?? defaultStorefront;
-  const metadata = publicMetadata(
-    `${collection ? `${collection.name} | ${identity.name}` : config.seoTitle || `Catálogo | ${identity.name}`}${f.page > 1 ? ` — Página ${f.page}` : ""}`,
-    (!collection && config.seoDescription) ||
-      summary(
-        collection?.description ||
-          identity.slogan ||
-          `Conheça os produtos da ${identity.name}.`,
-      ),
-    path(f.collection, "", "nome", f.page),
-    collection?.imageUrl || identity.logoUrl || undefined,
+type Props = { searchParams: Promise<CatalogQuery> };
+export async function generateMetadata() {
+  const identity = await getPublicAppearance();
+  return publicMetadata(
+    `${identity.name} | Ideias em 3D`,
+    "Produtos personalizados, presentes e ideias em 3D. Conheça a B2T e explore o catálogo para preparar seu orçamento.",
+    "/",
+    "/brand/b2t-logo.png",
+    identity.storefront?.seo,
   );
-  if (
-    f.search ||
-    f.priceMin ||
-    f.priceMax ||
-    f.availability ||
-    f.order !== "nome" ||
-    (f.collection && !collection)
-  )
-    metadata.robots = { index: false, follow: true };
-  return metadata;
 }
-export default async function PortfolioPage({ searchParams }: Props) {
-  const f = filters(await searchParams);
+export default async function HomePage({ searchParams }: Props) {
+  const destination = legacyCatalogDestination(await searchParams);
+  if (destination) permanentRedirect(destination);
   const [identity, collections, kits] = await Promise.all([
     getPublicAppearance(),
     listPublicCollections(),
     listPublicKits(),
   ]);
-  const collection = resolveCollection(collections, f.collection);
-  if (collection) f.collection = collection.slug ?? collection.id;
-  if (f.collection && !collection) notFound();
-  const invalid = Object.keys(catalogCommercialErrors(f)).length > 0;
-  const data = invalid
-    ? { products: [], total: 0, pages: 0, approximate: false }
-    : await catalogPage(collection?.id, f.search, f.order, f.page, f);
-  if (!invalid && f.page > 1 && f.page > data.pages) notFound();
   const config = identity.storefront ?? defaultStorefront;
-  const home =
-    !f.collection &&
-    !f.search &&
-    !f.priceMin &&
-    !f.priceMax &&
-    !f.availability &&
-    f.order === "nome" &&
-    f.page === 1;
-  const featured = home
-    ? await featuredCollections(config.featuredCollectionIds)
-    : [];
-  const CatalogHeading = home && config.showHero ? "h2" : "h1";
-  const catalog = (
-    <section id="all-products">
-      <div className="store-heading">
-        <div>
-          <span className="store-kicker">{identity.name}</span>
-          <CatalogHeading>
-            {f.search
-              ? `Resultados para “${f.search}”`
-              : collection?.name || "Conheça nossa coleção"}
-          </CatalogHeading>
-          <p>{collection?.description || identity.slogan}</p>
-        </div>
-        <span>
-          {invalid
-            ? "Corrija os filtros"
-            : `${data.total} ${data.total === 1 ? "produto" : "produtos"}`}
-        </span>
-      </div>
-      <ActiveCatalogFilters context={f} collectionName={collection?.name} />
-      <CatalogFilterForm context={f} collections={collections} />
-      {data.approximate && (
-        <Alert role="status" className="mb-6">
-          Resultados aproximados para “{f.search}”. Não encontramos uma
-          correspondência exata; todos os filtros foram mantidos.
-        </Alert>
-      )}
-      {(f.order === "menor-preco" || f.order === "maior-preco") && (
-        <p className="store-note">
-          Ordenação pelo preço-base. Adicionais dependem das escolhas.
-          {!f.priceMin?.trim() &&
-            !f.priceMax?.trim() &&
-            " Produtos com preço sob consulta aparecem ao final."}
-        </p>
-      )}
-      {invalid ? (
-        <Alert>Corrija os filtros acima para consultar os produtos.</Alert>
-      ) : (
-        <ProductCatalog products={data.products} context={f} />
-      )}
-      {data.pages > 1 && (
-        <Pagination
-          className="store-pagination"
-          aria-label="Páginas do catálogo"
-        >
-          {f.page > 1 && (
-            <Link href={catalogContextPath(f, { page: f.page - 1 })}>
-              ← Anterior
-            </Link>
-          )}
-          <span>
-            Página {f.page} de {data.pages}
-          </span>
-          {f.page < data.pages && (
-            <Link href={catalogContextPath(f, { page: f.page + 1 })}>
-              Próxima →
-            </Link>
-          )}
-        </Pagination>
-      )}
-    </section>
+  if (instagramSyncDue(config.instagram))
+    after(() => syncInstagram().catch(() => undefined));
+  const featured = await featuredCollections(config.featuredCollectionIds);
+  const hasBanner = config.banners.some(
+    (b) => !b.collectionId || collections.some((c) => c.id === b.collectionId),
   );
   const sections = {
-    catalog,
     banners: <StoreBanners config={config} collections={collections} />,
     featured: (
       <StoreFeatured
@@ -168,34 +65,96 @@ export default async function PortfolioPage({ searchParams }: Props) {
         }))}
       />
     ),
+    catalog: (
+      <section id="all-products" aria-label="Explorar catálogo">
+        <StoreCollections collections={collections} />
+        <Button asChild>
+          <Link href="/catalogo">Explorar catálogo completo</Link>
+        </Button>
+        <StoreKits kits={kits} />
+      </section>
+    ),
     about: <StoreAbout config={config} />,
   };
   return (
-    <StorefrontShell
-      identity={identity}
-      search={f.search}
-      collection={f.collection}
-      order={f.order}
-      commercial={f}
-    >
-      {home &&
-        config.showHero &&
-        (config.banners.some(
-          (b) =>
-            !b.collectionId || collections.some((c) => c.id === b.collectionId),
-        ) ? (
+    <StorefrontShell identity={identity}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: identity.name,
+                url: appUrl().href,
+                logo: new URL("/brand/b2t-logo.png", appUrl()).href,
+                sameAs: ["https://www.instagram.com/somosb2t/"],
+              },
+              {
+                "@type": "WebSite",
+                name: identity.name,
+                url: appUrl().href,
+                inLanguage: "pt-BR",
+              },
+            ],
+          }),
+        }}
+      />
+      {config.showHero ? (
+        hasBanner ? (
           <StoreBanners config={config} collections={collections} focal />
         ) : (
           <StoreWelcome />
-        ))}
-      {home && <StoreKits kits={kits} />}
-      {home && <StoreCollections collections={collections} />}
-      <CollectionNavigation collections={collections} context={f} />
-      {home
-        ? config.sectionOrder.map((section) => (
-            <div key={section}>{sections[section]}</div>
-          ))
-        : catalog}
+        )
+      ) : (
+        <div className="store-heading">
+          <div>
+            <h1>{identity.name} · Ideias em 3D</h1>
+            <p>Produtos personalizados e presentes com a sua personalidade.</p>
+            <Button asChild>
+              <Link href="/catalogo">Explorar catálogo</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+      {config.instagram?.enabled !== false && (
+        <StoreInstagram posts={instagramPosts(config.instagram)} />
+      )}
+      <section className="store-about" aria-labelledby="home-process">
+        <h2 id="home-process">Da escolha ao orçamento</h2>
+        <ol className="landing-process">
+          <li>
+            <strong>Explore as possibilidades</strong>
+            <p>Veja fotos, opções e informações dos produtos no catálogo.</p>
+          </li>
+          <li>
+            <strong>Dê seu toque</strong>
+            <p>
+              Escolha as opções disponíveis e adicione os produtos à lista de
+              orçamento.
+            </p>
+          </li>
+          <li>
+            <strong>Envie sua solicitação</strong>
+            <p>
+              Revise sua lista e envie o pedido de orçamento. As condições são
+              confirmadas no atendimento.
+            </p>
+          </li>
+        </ol>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/catalogo">Explorar catálogo</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/portfolio/orcamento">Solicitar orçamento</Link>
+          </Button>
+        </div>
+      </section>
+      {config.sectionOrder.map((section) => (
+        <div key={section}>{sections[section]}</div>
+      ))}
     </StorefrontShell>
   );
 }

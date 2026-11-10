@@ -224,7 +224,7 @@ export function AppearancePanel({
             {draft.address && <p>{draft.address}</p>}
             <AppearanceColorPreviews value={draft} />
             <small>{draft.footer}</small>
-            <h2>Estrutura do catálogo</h2>
+            <h2>Estrutura do início</h2>
             <ol className="store-structure-preview">
               {(draft.storefront ?? defaultStorefront).sectionOrder.map(
                 (section) => (
@@ -232,7 +232,7 @@ export function AppearancePanel({
                 ),
               )}
             </ol>
-            <a href="/" target="_blank" rel="noopener noreferrer">
+            <a href="/catalogo" target="_blank" rel="noopener noreferrer">
               Abrir catálogo publicado ↗
             </a>
           </aside>

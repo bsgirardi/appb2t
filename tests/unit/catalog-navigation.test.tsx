@@ -48,7 +48,7 @@ it("offers removing only search with spelling advice and all commercial filters 
     screen
       .getByRole("link", { name: "Ver todos os produtos" })
       .getAttribute("href"),
-  ).toBe("/#all-products");
+  ).toBe("/catalogo#all-products");
 });
 it.each([
   { priceMin: "0", priceMax: "1" },
@@ -78,7 +78,7 @@ it.each([
       screen
         .getByRole("link", { name: "Ver todos os produtos" })
         .getAttribute("href"),
-    ).toBe("/#all-products");
+    ).toBe("/catalogo#all-products");
   },
 );
 it("keeps the unpublished message for an unfiltered empty catalog", () => {
@@ -107,7 +107,7 @@ it("roundtrips catalog state through product URLs without accepting return desti
       returnTo: "https://evil.example",
     }),
   ).toEqual({ collection: "", search: "", order: "nome", page: 1 });
-  expect(catalogPath()).toBe("/");
+  expect(catalogPath()).toBe("/catalogo");
 });
 it("retains browse context in every product card link", () => {
   render(<ProductCatalog products={[productDTO]} context={context} />);

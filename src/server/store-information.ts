@@ -26,6 +26,7 @@ export const storeInformation = cache(async (kind: "sobre" | "ajuda") => {
       description,
       `/portfolio/${kind}`,
       identity.logoUrl || undefined,
+      config.seo,
     ),
   };
 });

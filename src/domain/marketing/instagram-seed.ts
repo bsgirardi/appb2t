@@ -1,0 +1,58 @@
+import type { InstagramPost } from "./instagram";
+// Datas visíveis na grade pública. Não inventar hora nem copiar legendas não consultadas.
+export const instagramSeedPosts: InstagramPost[] = [
+  {
+    id: "DfYXeoOx7LZ",
+    publishedAt: "2026-11-05",
+    title: "Ideias para o Natal em 3D",
+    alt: "Papai Noel em 3D com roupa vermelha, em uma composição natalina",
+    image: "/instagram/DfYXeoOx7LZ.webp",
+    permalink: "https://www.instagram.com/somosb2t/reel/DfYXeoOx7LZ/",
+    kind: "VIDEO",
+  },
+  {
+    id: "DeuSe8TRjDP",
+    publishedAt: "2026-10-20",
+    title: "Chaveiro personalizado para o Outubro Rosa",
+    alt: "Chaveiro redondo com laço rosa e personalização de Outubro Rosa",
+    image: "/instagram/DeuSe8TRjDP.webp",
+    permalink: "https://www.instagram.com/somosb2t/reel/DeuSe8TRjDP/",
+    kind: "VIDEO",
+  },
+  {
+    id: "DeM4PnAxyL2",
+    publishedAt: "2026-10-07",
+    title: "Casinha de Natal: cores e detalhes",
+    alt: "Comparação de duas versões de uma casinha natalina, com cores e acabamentos diferentes",
+    image: "/instagram/DeM4PnAxyL2.webp",
+    permalink: "https://www.instagram.com/somosb2t/p/DeM4PnAxyL2/",
+    kind: "IMAGE",
+  },
+  {
+    id: "DeFLNpMROQo",
+    publishedAt: "2026-10-04",
+    title: "Personagem em 3D nos bastidores",
+    alt: "Personagem branco com barba e braços abertos sobre a mesa de impressão",
+    image: "/instagram/DeFLNpMROQo.webp",
+    permalink: "https://www.instagram.com/somosb2t/reel/DeFLNpMROQo/",
+    kind: "VIDEO",
+  },
+  {
+    id: "Dd-L1WTR7oH",
+    publishedAt: "2026-10-01",
+    title: "Pinhas e renas na decoração de Natal",
+    alt: "Peças decorativas em forma de pinhas e renas com iluminação",
+    image: "/instagram/Dd-L1WTR7oH.webp",
+    permalink: "https://www.instagram.com/somosb2t/reel/Dd-L1WTR7oH/",
+    kind: "VIDEO",
+  },
+  {
+    id: "Dd7b9nvxtWw",
+    publishedAt: "2026-09-30",
+    title: "O mascote da B2T",
+    alt: "Mascote oficial da B2T com cabelos cacheados e as letras coloridas da marca nas mãos",
+    image: "/instagram/Dd7b9nvxtWw.webp",
+    permalink: "https://www.instagram.com/somosb2t/reel/Dd7b9nvxtWw/",
+    kind: "VIDEO",
+  },
+];

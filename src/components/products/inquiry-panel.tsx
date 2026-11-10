@@ -267,7 +267,7 @@ export function InquiryPanel() {
           Escolha produtos e personalize cada item para preparar seu orçamento.
         </p>
         <Button asChild>
-          <Link href="/#all-products">Explorar produtos</Link>
+          <Link href="/catalogo#all-products">Explorar produtos</Link>
         </Button>
         <RequestSubmit
           groups={selection.groups}
@@ -293,7 +293,7 @@ export function InquiryPanel() {
           </p>
         </div>
         <Button asChild variant="outline">
-          <Link href="/#all-products">Continuar escolhendo</Link>
+          <Link href="/catalogo#all-products">Continuar escolhendo</Link>
         </Button>
       </div>
       {storage}

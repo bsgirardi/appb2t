@@ -4,7 +4,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import ProductPage from "@/app/portfolio/produto/[id]/[slug]/page";
 import { productDTO } from "../fixtures/product";
 import { productPath } from "@/domain/products/storefront";
-import Page, { generateMetadata } from "@/app/page";
+import Page, { generateMetadata } from "@/app/catalogo/page";
 import { catalogPage } from "@/server/storefront";
 import { defaultAppearance } from "@/domain/appearance/validation";
 vi.mock("@/server/appearance", () => ({
@@ -55,7 +55,7 @@ it.each(["corporativos", "old-id"])(
     );
     expect(
       screen.getByRole("link", { name: "Próxima →" }).getAttribute("href"),
-    ).toBe("/?colecao=corporativos&busca=caneca&pagina=3&precoMin=10");
+    ).toBe("/catalogo?colecao=corporativos&busca=caneca&pagina=3&precoMin=10");
     expect(
       document.querySelector('input[name="colecao"]')?.getAttribute("value"),
     ).toBe("corporativos");
@@ -106,7 +106,7 @@ it.each(["corporativos", "old-id"])(
         .getByRole("link", { name: "← Voltar aos resultados" })
         .getAttribute("href"),
     ).toBe(
-      "/?colecao=corporativos&busca=caneca&pagina=2&precoMin=10#all-products",
+      "/catalogo?colecao=corporativos&busca=caneca&pagina=2&precoMin=10#all-products",
     );
   },
 );

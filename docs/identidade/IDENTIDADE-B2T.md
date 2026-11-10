@@ -66,7 +66,7 @@ A prancha `14/09/2026, 15:06:02` reúne vistas e orientação de impressão; `14
 - Tokens públicos ficam em `.storefront`; a gestão mantém o tema existente. O tema escuro da loja usa derivados de contraste, não altera as cores dos ativos oficiais.
 - Componentes devem ter foco visível, rótulos, navegação por teclado, áreas de ação com pelo menos 44 px e adaptação móvel.
 - Fotos e títulos abrem o produto. CTA explícito: “Ver produto”, “Adicionar à lista de orçamento”, “Preparar contato”. Não chamar a lista de checkout.
-- A home está em `/`; `/portfolio` e `/catalogo` redirecionam permanentemente preservando filtros. Produtos, orçamento e informações mantêm os caminhos existentes.
+- O início institucional está em `/` e o catálogo dedicado em `/catalogo`, sem banner grande. `/portfolio` redireciona permanentemente para `/catalogo`, preservando consultas. Consultas antigas de catálogo na raiz também são encaminhadas. Produtos, orçamento e informações mantêm os caminhos existentes.
 - `/calculadora` pertence à área autenticada da equipe. ADMIN e OPERATOR mantêm suas permissões atuais; “administrativo” não implica retirar acesso dos operadores.
 
 ## Inventário das referências

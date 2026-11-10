@@ -32,8 +32,7 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/portfolio", destination: "/", permanent: true },
-      { source: "/catalogo", destination: "/", permanent: true },
+      { source: "/portfolio", destination: "/catalogo", permanent: true },
     ];
   },
 };

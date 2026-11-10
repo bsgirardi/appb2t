@@ -4,7 +4,7 @@ import { saveAppearance, getPublicAppearance } from "@/server/appearance";
 import { defaultAppearance } from "@/domain/appearance/validation";
 import { defaultStorefront } from "@/domain/appearance/storefront";
 import { storeInformation } from "@/server/store-information";
-import { generateMetadata } from "@/app/page";
+import { generateMetadata } from "@/app/catalogo/page";
 import sitemap from "@/app/sitemap";
 setupDatabase();
 it("hides empty information pages and publishes metadata, sitemap and content after saving", async () => {
@@ -44,7 +44,7 @@ it("hides empty information pages and publishes metadata, sitemap and content af
     title: "Loja de peças",
     description: "a".repeat(170),
     robots: { index: true, follow: true },
-    alternates: { canonical: "http://localhost:3000/" },
+    alternates: { canonical: "http://localhost:3000/catalogo" },
   });
   expect(
     (

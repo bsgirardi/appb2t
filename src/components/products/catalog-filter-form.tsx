@@ -28,7 +28,7 @@ export function CatalogFilterForm({
     <form
       key={catalogContextPath(context)}
       aria-label="Filtrar produtos"
-      action="/"
+      action="/catalogo"
       method="get"
       className="catalog-discovery mb-6 rounded-xl border border-border bg-background px-4"
     >

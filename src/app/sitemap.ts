@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { appUrl } from "@/lib/env";
 import { productPath } from "@/domain/products/storefront";
 import { getPublicAppearance } from "@/server/appearance";
+import { resolveSeo } from "@/domain/marketing/seo";
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, collections, identity] = await Promise.all([
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const absolute = (path: string) => new URL(path, appUrl()).href;
   return [
     { url: absolute("/") },
+    { url: absolute("/catalogo") },
     ...(identity.storefront?.aboutText
       ? [{ url: absolute("/portfolio/sobre") }]
       : []),
@@ -31,5 +33,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: absolute(productPath(p)),
       lastModified: p.updatedAt,
     })),
-  ];
+  ].filter((entry) => resolveSeo(identity.storefront?.seo, new URL(entry.url).pathname, "", "").index);
 }

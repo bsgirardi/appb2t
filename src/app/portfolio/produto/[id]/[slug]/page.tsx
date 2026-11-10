@@ -34,7 +34,8 @@ export async function generateMetadata({ params }: Props) {
       title: "Produto não encontrado",
       robots: { index: false, follow: true },
     };
-  return productMetadata(product, (await getPublicAppearance()).name);
+  const identity = await getPublicAppearance();
+  return productMetadata(product, identity.name, identity.storefront?.seo);
 }
 export default async function ProductPage({ params, searchParams }: Props) {
   const { id, slug } = await params;
@@ -71,7 +72,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
             "@type": "ListItem",
             position: 1,
             name: "Catálogo",
-            item: new URL("/", appUrl()).href,
+            item: new URL("/catalogo", appUrl()).href,
           },
           { "@type": "ListItem", position: 2, name: product.name, item: url },
         ],
@@ -108,7 +109,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
         >
           <div className="store-section-heading">
             <h2 id="related-products-title">Mais da mesma coleção</h2>
-            <Link href="/">Ver todo o catálogo →</Link>
+            <Link href="/catalogo">Ver todo o catálogo →</Link>
           </div>
           <ProductCatalog products={related} context={context} />
         </section>

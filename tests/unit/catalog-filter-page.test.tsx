@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import Page, { generateMetadata } from "@/app/page";
+import Page, { generateMetadata } from "@/app/catalogo/page";
 import { getPublicAppearance } from "@/server/appearance";
 import { catalogPage } from "@/server/storefront";
 import { defaultAppearance } from "@/domain/appearance/validation";
@@ -114,7 +114,7 @@ it.each([false, true])(
     expect(screen.queryByText("Destaque da loja")).toBeNull();
     expect(screen.queryByText("Sua ideia.")).toBeNull();
     expect(
-      screen.getByRole("heading", { level: 1, name: "Conheça nossa coleção" }),
+      screen.getByRole("heading", { level: 1, name: "Catálogo de produtos" }),
     ).toBeTruthy();
   },
 );

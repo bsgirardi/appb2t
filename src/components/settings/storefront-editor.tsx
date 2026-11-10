@@ -68,9 +68,9 @@ export function StorefrontEditor({
 }) {
   return (
     <div className="store-editor">
-      <h2>Página inicial do catálogo</h2>
+      <h2>Página inicial institucional</h2>
       <p className="muted">
-        Organize a vitrine da sua loja. As alterações são publicadas ao salvar
+        Organize os destaques do início da loja. O catálogo tem busca e produtos no topo, sem banner grande. As alterações são publicadas ao salvar
         aparência.
       </p>
       <Label className="flex items-center gap-2">

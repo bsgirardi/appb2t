@@ -7,6 +7,7 @@ import {
   screen,
   within,
   act,
+  waitFor,
 } from "@testing-library/react";
 import { FinanceFilters } from "@/components/finance/filters";
 import { CashFlow } from "@/components/finance/cash-flow";
@@ -44,7 +45,8 @@ it("leva foco ao detalhe lido e devolve à linha ao fechar sem perder a seleçã
   const heading = await screen.findByRole("heading", {
     name: readingEntry.description,
   });
-  expect(document.activeElement).toBe(heading);
+  // The heading can render before the effect transfers focus to it.
+  await waitFor(() => expect(document.activeElement).toBe(heading));
   fireEvent.click(screen.getByRole("button", { name: "Fechar detalhe" }));
   expect(document.activeElement).toBe(open);
   expect(
