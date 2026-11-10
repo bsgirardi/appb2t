@@ -155,7 +155,9 @@ Instale os containers em um servidor acessível pela equipe. A configuração pa
 
 ## Desenvolvimento local
 
-Node.js 22 (conforme `.nvmrc` e Docker), npm e PostgreSQL 17+. O ambiente de referência dos testes completos é Linux/Node 22, também usado pelo CI.
+Node.js 22.23.4 (conforme `.nvmrc`), npm 12.2.2 e PostgreSQL 17+. O ambiente de referência dos testes completos é Linux/Node 22, também usado pelo CI e Docker. As versões compatíveis ficam em `engines` e `packageManager` no `package.json`.
+
+O npm 12 bloqueia scripts de instalação de dependências por padrão. O projeto permite somente os scripts necessários de Prisma, esbuild e do resolvedor nativo, fixados por versão em `allowScripts`. Ao atualizar uma dessas dependências, revisar seus scripts e renovar apenas a aprovação correspondente; não habilitar todos os scripts indiscriminadamente.
 
 ```sh
 npm ci

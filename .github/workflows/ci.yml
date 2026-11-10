@@ -29,7 +29,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - run: npm install --global npm@12.2.2 --no-audit --no-fund
       - run: npm ci
+      - run: npm run audit:security
       - run: npx prisma generate
       - run: npm run typecheck
       - run: npm run lint
@@ -117,6 +119,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - run: npm install --global npm@12.2.2 --no-audit --no-fund
       - run: npm ci
       - run: npx prisma generate
       - name: Validar upgrade em banco E4 vazio

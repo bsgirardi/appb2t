@@ -6,6 +6,7 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
+    ".b2t/**",
     "node_modules/**",
     "backups/**",
     ".superpowers/**",

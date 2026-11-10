@@ -2,6 +2,8 @@
 ARG NODE_BASE=node:22-bookworm-slim
 FROM ${NODE_BASE} AS base
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+ARG NPM_VERSION=12.2.2
+RUN npm install --global "npm@${NPM_VERSION}" --no-audit --no-fund
 WORKDIR /app
 RUN chown node:node /app
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -66,6 +68,10 @@ CMD ["npm", "run", "db:migrate"]
 
 FROM base AS runtime
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+# Runtime starts with node directly and does not need package managers.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-v* \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+        /usr/local/bin/yarn /usr/local/bin/yarnpkg /usr/local/bin/pnpm /usr/local/bin/pnpx
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public

@@ -58,6 +58,17 @@ test('tools contains only audited commands and direct dependencies', () => {
   assert.equal(result.lock.packages[''].devDependencies, undefined);
 });
 
+test('tools pruning preserves pinned install-script approvals and explicit denials', () => {
+  const { pkg, lock } = source();
+  pkg.allowScripts = { '@prisma/client@6.19.3': true, 'unreviewed-native-addon': false };
+  const generated = createManifests(pkg, lock);
+  assert.deepEqual(generated.tools.pkg.allowScripts, pkg.allowScripts);
+  const finalized = finalizeTools(pkg, generated.tools.lock, lock);
+  assert.deepEqual(finalized.pkg.allowScripts, pkg.allowScripts);
+  generated.tools.pkg.allowScripts['unreviewed-native-addon'] = true;
+  assert.equal(pkg.allowScripts['unreviewed-native-addon'], false);
+});
+
 test('rejects incomplete sources, version mismatch and workspaces', () => {
   const { pkg, lock } = source();
   const bad = structuredClone(pkg);
