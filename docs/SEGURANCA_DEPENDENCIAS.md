@@ -60,6 +60,7 @@ Prisma 7/8 (incluindo candidatos de pré-lançamento), TypeScript 7, Vite 8, Vit
 - [Node 22.23.4: Release de segurança](https://nodejs.org/en/blog/release/v22.23.4).
 - [ESLint: suporte das versões](https://eslint.org/version-support/) e [migração para 10](https://eslint.org/docs/latest/use/migrate-to-10.0.0).
 - [npm 12.2.2](https://github.com/npm/cli/releases/tag/v12.2.2); política de scripts conferida também na documentação distribuída com o pacote.
+- [Glob: cancelamento de travessia](https://github.com/isaacs/node-glob/security/advisories/GHSA-3g3m-2fjr-6pw4).
 - [Debian: análise CVE-2023-45853](https://security-tracker.debian.org/tracker/CVE-2023-45853).
 
 ## Validação da candidata
@@ -68,7 +69,8 @@ Prisma 7/8 (incluindo candidatos de pré-lançamento), TypeScript 7, Vite 8, Vit
 - Gate Docker `verify` com Node 22.23.4/npm 12.2.2: tipagem, lint e 1.079 testes em 254 arquivos passaram. Contratos Docker: 15 testes passaram, incluindo preservação da política de scripts.
 - Imagem de ferramentas `linux/amd64` construída com sucesso, digest local `sha256:9a4d2b07d74f0e885148879bd1981cc51574b553ab3bf03bcb5adeeb52ee4391`.
 - Build final da imagem da aplicação pendente: o compilador foi encerrado por falta de memória no Docker local de 2 GiB. Reduzir o heap não resolveu. Uma tentativa com paralelismo nativo limitado também não concluiu; esse ajuste experimental não foi mantido no código. O engine passou a retornar erro interno 500 ao criar um contêiner de inspeção.
-- A análise e inspeção finais das imagens não foram concluídas. A contagem Debian e os 23 avisos npm acima são da imagem anterior; não se afirma que a candidata tenha zero alertas de imagem, nem que a remoção de arquivos elimine dados presentes em camadas anteriores.
+- Após o engine responder novamente, a imagem de ferramentas foi inspecionada sem rede: versão 1.28.1, Node 22.23.4, npm 12.2.2, Prisma resolvido e usuário uid 1000. Trivy confirmou as mesmas 217 ocorrências Debian e dois avisos médios no npm global: glob 13.0.6 (CVE-2026-118773, corrigido em 14.0.2) e minimatch 10.2.5 (CVE-2026-118764, corrigido em 11.0.1). As correções dos pacotes existem, mas ainda não estão incorporadas no npm 12.2.2 usado nesta revisão. Não foram substituídas manualmente dependências internas do npm por majors incompatíveis. O override do projeto não modifica o npm global. A imagem de ferramentas não atende requisições HTTP; isso reduz a superfície, mas não demonstra que todos os seus caminhos sejam imunes a entradas não confiáveis.
+- Scanner e inspeção da imagem final da aplicação permanecem pendentes porque seu build não concluiu. Os 23 avisos npm citados inicialmente pertencem à imagem anterior. Não se afirma que a candidata tenha zero alertas de imagem, nem que a remoção de arquivos elimine dados presentes em camadas anteriores.
 - Revisão de código sem achados concretos; ressalva de peer do plugin React descrita acima permanece em acompanhamento.
 
 A validação local concluída não substitui o build pendente. A candidata deve permanecer em revisão até concluir o build e a inspeção das imagens. Esta manutenção não foi integrada, não gerou Release oficial e não foi implantada em servidor.
