@@ -34,7 +34,7 @@ Configurações prévias de abertura, banners, coleções em destaque e ordem de
 
 Logo e mascote oficiais locais são os únicos ativos editoriais fixos. O mascote é ilustração de marca; não é case, produto ofertado, depoimento ou prova comercial. Não se adicionaram avaliações, clientes, promoções, prazos ou políticas. Textos já cadastrados continuam sob responsabilidade editorial da equipe.
 
-A descoberta no Drive conectado encontrou `_B2T-STUDIO`, as pastas `site` (sem itens retornados), `MKT` e `Dia dos professores` (sem itens retornados). Nenhum arquivo foi baixado, publicado ou usado por inferência. Perfil Instagram e autorização de posts/fotos ainda não foram informados neste chat. A seção de trabalhos reais e bastidores precisa dessas fontes; não foi preenchida com imagens fictícias. Identificador de domínio `somosb2t.com.br` aparece em `.env.example`, mas não prova o domínio efetivamente configurado na produção.
+A descoberta no Drive conectado encontrou `_B2T-STUDIO`, as pastas `site` (sem itens retornados), `MKT` e `Dia dos professores` (sem itens retornados). Nenhum arquivo foi baixado, publicado ou usado por inferência. Na etapa inicial, o perfil e a autorização ainda não estavam disponíveis. Na continuidade, o usuário identificou @somosb2t, autorizou o uso e pediu importação automática: seis publicações da grade pública passaram a compor a landing, com imagens locais e ordenação por data. A importação pela API oficial foi implementada e aguarda configuração da conta Meta; detalhes em INSTAGRAM.md. Artes e renders não são apresentados como prova de entrega comercial. Identificador de domínio `somosb2t.com.br` aparece em `.env.example`, mas não prova o domínio efetivamente configurado na produção.
 
 ## Persistência e SEO
 

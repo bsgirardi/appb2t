@@ -30,7 +30,7 @@ A revisão automática de aprovação bloqueou a inicialização local da saída
 
 ## Pendências objetivas
 
-1. Informar perfil Instagram e autorização/fontes dos trabalhos reais e bastidores. Drive consultado não retornou mídia nas pastas site/campanha examinadas; nenhuma peça foi usada por inferência.
+1. **Resolvido na continuidade:** perfil oficial @somosb2t e uso de fotos/vídeos autorizados pelo usuário. Seis capas reais foram obtidas da grade pública, com fonte/data; seção e sincronização automática implementadas. Ativação da API Meta ainda depende da configuração segura da conta profissional. Ver [INSTAGRAM.md](INSTAGRAM.md).
 2. Confirmar domínio público efetivo e propriedades GA4/Search Console; APP_URL continua fonte do canonical. O domínio do exemplo não foi tratado como prova de configuração real.
 3. Configurar projeto/cliente e conceder leitura explicitamente na conta Google escolhida. Não foram habilitadas APIs, criados projetos, aceitos termos ou alteradas permissões. OAuth real, renovação/revogação, relatórios reais, cotas e fidelidade dos números aguardam homologação com conta autorizada.
 4. Antes de ativar coleta, revisar privacidade, retenção e configuração de medição manual/automática. Os dois gates permanecem false por padrão; não houve coleta em produção.

@@ -92,6 +92,7 @@ const groups: { label: string; items: Item[]; admin?: boolean }[] = [
       { href: "/configuracoes", label: "Geral", icon: Settings2 },
       { href: "/configuracoes/aparencia", label: "Aparência", icon: Settings2 },
       { href: "/configuracoes/seo-analytics", label: "SEO e Analytics", icon: ChartNoAxesCombined },
+      { href: "/configuracoes/instagram", label: "Instagram", icon: FileText },
     ],
   },
 ];

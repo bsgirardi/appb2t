@@ -14,6 +14,7 @@ export const releases: Release[] = [
     sections: [
       { title: "Novidades", items: [
         "A página inicial apresenta a B2T e orienta a escolha dos produtos e o envio de orçamento. O catálogo passa a ter endereço próprio, com busca e filtros próximos dos produtos.",
+        "A página inicial também reúne publicações autorizadas do Instagram @somosb2t, com as mais recentes primeiro. Administradores podem ocultar posts e acompanhar a importação automática, que depende da conexão autorizada à conta profissional.",
         "Administradores contam com a área SEO e Analytics para ajustar a apresentação das páginas nas buscas, escolher imagens de compartilhamento e gerenciar redirecionamentos.",
         "Integração de leitura com Google Analytics e Search Console preparada para contas autorizadas, com fontes, períodos, comparação e estados de conexão separados. A configuração e a autorização da conta são necessárias para consultar dados reais.",
       ] },

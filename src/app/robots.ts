@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         "/api/products/*/image",
         "/api/appearance/logo",
         "/api/collections/*/image",
+        "/api/instagram/media/*",
       ],
       disallow: [
         "/api/",

@@ -1,4 +1,5 @@
 import { permanentRedirect } from "next/navigation";
+import { after } from "next/server";
 import Link from "next/link";
 import {
   legacyCatalogDestination,
@@ -21,6 +22,12 @@ import { Button } from "@/components/ui/button";
 import { listPublicKits } from "@/server/kits/queries";
 import { appUrl } from "@/lib/env";
 import { safeJsonLd } from "@/domain/products/storefront";
+import { StoreInstagram } from "@/components/products/store-instagram";
+import {
+  instagramPosts,
+  instagramSyncDue,
+  syncInstagram,
+} from "@/server/instagram";
 export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<CatalogQuery> };
 export async function generateMetadata() {
@@ -42,6 +49,8 @@ export default async function HomePage({ searchParams }: Props) {
     listPublicKits(),
   ]);
   const config = identity.storefront ?? defaultStorefront;
+  if (instagramSyncDue(config.instagram))
+    after(() => syncInstagram().catch(() => undefined));
   const featured = await featuredCollections(config.featuredCollectionIds);
   const hasBanner = config.banners.some(
     (b) => !b.collectionId || collections.some((c) => c.id === b.collectionId),
@@ -80,6 +89,7 @@ export default async function HomePage({ searchParams }: Props) {
                 name: identity.name,
                 url: appUrl().href,
                 logo: new URL("/brand/b2t-logo.png", appUrl()).href,
+                sameAs: ["https://www.instagram.com/somosb2t/"],
               },
               {
                 "@type": "WebSite",
@@ -107,6 +117,9 @@ export default async function HomePage({ searchParams }: Props) {
             </Button>
           </div>
         </div>
+      )}
+      {config.instagram?.enabled !== false && (
+        <StoreInstagram posts={instagramPosts(config.instagram)} />
       )}
       <section className="store-about" aria-labelledby="home-process">
         <h2 id="home-process">Da escolha ao orçamento</h2>

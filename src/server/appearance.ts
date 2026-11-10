@@ -78,7 +78,7 @@ export async function saveAppearance(
     if ((old?.version ?? 0) !== expectedVersion) throw conflict();
     if (data.storefront && old) {
       const previous = storefrontSchema.parse(old.storefront);
-      data.storefront = { ...data.storefront, seo: data.storefront.seo ?? previous.seo, analytics: data.storefront.analytics ?? previous.analytics };
+      data.storefront = { ...data.storefront, seo: data.storefront.seo ?? previous.seo, analytics: data.storefront.analytics ?? previous.analytics, instagram: previous.instagram ?? data.storefront.instagram };
     }
     const row = old
       ? await tx.companyAppearance.update({
