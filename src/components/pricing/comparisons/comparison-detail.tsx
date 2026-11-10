@@ -46,7 +46,14 @@ export function ComparisonDetail({
                 ],
                 ["Energia (R$/kWh)", item.input.energyRate],
                 ["Trabalho (R$/h)", item.input.laborPerHour],
-                ["Manutenção (R$/h)", item.input.maintenancePerHour],
+                [
+                  item.input.maintenanceMode === "FIXED_PER_LOT"
+                    ? "Manutenção fixa (R$/lote)"
+                    : "Manutenção (R$/h)",
+                  item.input.maintenanceMode === "FIXED_PER_LOT"
+                    ? (item.input.maintenanceFixedPerLot ?? "0")
+                    : item.input.maintenancePerHour,
+                ],
                 ["Falhas (%)", item.input.failurePercent],
                 ["Markup (%)", item.input.markupPercent],
                 ["Potência (W)", item.input.printer.watts],

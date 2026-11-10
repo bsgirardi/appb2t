@@ -7,6 +7,9 @@ export type CostStage = {
   watts: string | null;
   energyRate: string | null;
   maintenancePerHour: string | null;
+  maintenanceMode?: "HOURLY" | "FIXED_PER_LOT";
+  maintenanceFixedPerLot?: string | null;
+  maintenanceLotActive?: boolean;
   laborPerHour: string | null;
   acquisitionCost: string | null;
   amortizationMonths: string | null;
@@ -34,7 +37,17 @@ export function calculateProductionCost(v: ProductionCostInput) {
     if (m.value === null) missing.add("material");
     else parts.material = parts.material.plus(m.value);
   }
+  let fixedMaintenanceCharged = false;
   for (const s of v.stages) {
+    if (
+      s.maintenanceMode === "FIXED_PER_LOT" &&
+      s.maintenanceLotActive !== false &&
+      !fixedMaintenanceCharged
+    ) {
+      if (s.maintenanceFixedPerLot == null) missing.add("maintenance");
+      else parts.maintenance = parts.maintenance.plus(s.maintenanceFixedPerLot);
+      fixedMaintenanceCharged = true;
+    }
     const h =
       s.machineMinutes === null ? null : new D(s.machineMinutes).div(60);
     if (h === null) missing.add("machineMinutes");
@@ -44,11 +57,13 @@ export function calculateProductionCost(v: ProductionCostInput) {
         parts.energy = parts.energy.plus(
           h.times(s.watts).div(1000).times(s.energyRate),
         );
-      if (s.maintenancePerHour === null) missing.add("maintenance");
-      else
-        parts.maintenance = parts.maintenance.plus(
-          h.times(s.maintenancePerHour),
-        );
+      if (s.maintenanceMode !== "FIXED_PER_LOT") {
+        if (s.maintenancePerHour === null) missing.add("maintenance");
+        else
+          parts.maintenance = parts.maintenance.plus(
+            h.times(s.maintenancePerHour),
+          );
+      }
       if (
         [
           s.acquisitionCost,

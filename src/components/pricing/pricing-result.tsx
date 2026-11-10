@@ -161,7 +161,9 @@ export function PricingResult({
               ],
               [
                 "Manutenção preservada",
-                `R$ ${decimal(input.maintenancePerHour)}/hora`,
+                input.maintenanceMode === "FIXED_PER_LOT"
+                  ? `R$ ${decimal(input.maintenanceFixedPerLot ?? "0")}/lote`
+                  : `R$ ${decimal(input.maintenancePerHour)}/hora`,
               ],
               [
                 "Reserva de falhas preservada",

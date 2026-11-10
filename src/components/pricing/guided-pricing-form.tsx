@@ -616,7 +616,14 @@ export function GuidedPricingForm(
                   {(
                     [
                       ["energyRate", "Tarifa de energia (R$/kWh)"],
-                      ["maintenancePerHour", "Manutenção (R$/hora)"],
+                      [
+                        current.settings?.maintenanceMode === "FIXED_PER_LOT"
+                          ? "maintenanceFixedPerLot"
+                          : "maintenancePerHour",
+                        current.settings?.maintenanceMode === "FIXED_PER_LOT"
+                          ? "Manutenção fixa (R$/lote)"
+                          : "Manutenção (R$/hora)",
+                      ],
                       ["laborPerHour", "Trabalho (R$/hora)"],
                       ["failurePercent", "Reserva de falhas (%)"],
                     ] as const

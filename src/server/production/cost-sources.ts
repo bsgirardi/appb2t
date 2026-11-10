@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
 
 import { StockDecimal as D } from "@/domain/stock/quantities";
+import { activeMaintenanceReports } from "@/domain/production/maintenance";
 import {
   calculateProductionCost,
   apportionProductionCost,
@@ -68,6 +69,25 @@ export async function readProductionCost(
   const reports = events.filter(
     (e) => e.kind === "REPORT" || e.kind === "CORRECTION",
   );
+  const activeReports = activeMaintenanceReports(
+    reports.map((e) => ({
+      id: e.id,
+      kind: e.kind,
+      sourceId: e.sourceId,
+      activity: [
+        String(e.goodUnits),
+        String(e.failedUnits),
+        object(e.premises).manualStage
+          ? "0"
+          : (e.machineMinutes?.toFixed() ?? null),
+        e.setupMinutes?.toFixed() ?? null,
+        e.finishingMinutes?.toFixed() ?? null,
+        e.materialLinks
+          .reduce((sum, link) => sum.plus(link.quantity.toString()), new D(0))
+          .toFixed(),
+      ],
+    })),
+  );
   const stages: CostStage[] = reports.map((e) => {
     const premise = object(e.premises),
       settings = object(object(premise.settings).values),
@@ -81,6 +101,12 @@ export async function readProductionCost(
       watts: string(p.watts),
       energyRate: string(settings.energyRate),
       maintenancePerHour: string(settings.maintenancePerHour),
+      maintenanceMode:
+        settings.maintenanceMode === "FIXED_PER_LOT"
+          ? "FIXED_PER_LOT"
+          : "HOURLY",
+      maintenanceFixedPerLot: string(settings.maintenanceFixedPerLot),
+      maintenanceLotActive: activeReports.has(e.id),
       laborPerHour: string(settings.laborPerHour),
       acquisitionCost: string(p.acquisitionCost),
       amortizationMonths: string(p.amortizationMonths),

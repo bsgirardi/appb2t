@@ -37,6 +37,8 @@ export const pricingSettingsSchema = z
   .object({
     energyRate: decimalSchema,
     maintenancePerHour: decimalSchema,
+    maintenanceMode: z.enum(["HOURLY", "FIXED_PER_LOT"]).default("HOURLY"),
+    maintenanceFixedPerLot: decimalSchema.default("0"),
     failurePercent: percent,
     laborPerHour: decimalSchema,
     markupPercent: decimalSchema,

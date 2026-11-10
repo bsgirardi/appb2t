@@ -1,3 +1,4 @@
+import { maintenanceDescription } from "../maintenance";
 import type { PricingCatalogDTO, PricingV2Input, Ref } from "../types";
 import { requestFromInput } from "../resolve";
 export function reviewComparisonOffer(
@@ -62,7 +63,6 @@ export function reviewComparisonOffer(
   });
   for (const [key, label] of [
     ["energyRate", "Energia"],
-    ["maintenancePerHour", "Manutenção/h"],
     ["failurePercent", "Falhas (%)"],
     ["laborPerHour", "Trabalho/h"],
     ["markupPercent", "Markup (%)"],
@@ -71,5 +71,8 @@ export function reviewComparisonOffer(
     changes.push(
       `${label}: ${input[key]} → ${catalog.settings?.[key] ?? "não configurado"}.`,
     );
+  changes.push(
+    `Manutenção: ${maintenanceDescription(input)} → ${maintenanceDescription(catalog.settings)}.`,
+  );
   return { request, changes };
 }
